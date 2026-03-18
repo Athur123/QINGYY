@@ -72,6 +72,12 @@
             box-sizing: border-box;
         }
 
+        /* Prevent horizontal scrolling on page level */
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: var(--font-primary);
             background: var(--bg-tertiary);
@@ -235,6 +241,8 @@
             margin-left: 260px;
             display: flex;
             flex-direction: column;
+            max-width: calc(100vw - 260px);
+            overflow-x: hidden;
         }
 
         /* Header */
@@ -416,6 +424,9 @@
             display: grid;
             grid-template-columns: 280px 1fr;
             gap: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
+            align-items: start;
         }
 
         /* Policy Tree Panel */
@@ -425,9 +436,8 @@
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
-            max-height: calc(100vh - 200px);
-            position: sticky;
-            top: 20px;
+            max-height: calc(100vh - 160px);
+            overflow: hidden;
         }
 
         .panel-header {
@@ -466,6 +476,54 @@
         .icon-btn:hover {
             background: var(--bg-secondary);
             color: var(--primary-500);
+        }
+
+        .policy-filter {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            background: var(--bg-primary);
+        }
+
+        .filter-wrapper {
+            position: relative;
+        }
+
+        .filter-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            width: 16px;
+            height: 16px;
+            pointer-events: none;
+        }
+
+        .policy-filter .filter-select {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: all var(--transition-fast);
+        }
+
+        .policy-filter .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-400);
+            background-color: var(--bg-primary);
+        }
+
+        .policy-filter .filter-select:hover {
+            border-color: var(--primary-300);
         }
 
         .policy-search {
@@ -584,6 +642,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            max-width: 100%;
+            min-width: 0; /* 防止 flex 子项溢出 */
         }
 
         /* Page Title Bar */
@@ -879,7 +939,6 @@
 
         .column-option.disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
 
         /* Table filtering */
@@ -959,9 +1018,8 @@
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            min-width: 1400px;
             font-size: 12px;
-            table-layout: fixed;
+            table-layout: auto;
         }
 
         .data-table th,
@@ -1103,6 +1161,7 @@
         .table-scroll {
             overflow-x: auto;
             position: relative;
+            max-width: 100%;
         }
 
         .table-scroll::after {
@@ -1203,19 +1262,25 @@
         }
 
         /* Group borders - Updated for 17 columns */
-        .header-row-group th.col-group-header.personal,
-        .data-table td:nth-child(7) {
+        .header-row-group th.col-group-header.personal {
             border-left: 2px solid #90caf9;
         }
 
-        .header-row-group th.col-group-header.change,
-        .data-table td:nth-child(12) {
+        .header-row-group th.col-group-header.change {
             border-left: 2px solid #a5d6a7;
         }
 
-        .header-row-group th[data-column="type"],
-        .data-table td:nth-child(16) {
+        .header-row-group th[data-column="type"] {
             border-left: 2px solid var(--border-medium);
+        }
+
+        /* Data cell group borders - controlled by JS */
+        .data-table td.group-border-personal {
+            border-left: 2px solid #90caf9;
+        }
+
+        .data-table td.group-border-change {
+            border-left: 2px solid #a5d6a7;
         }
 
         /* Number cells */
@@ -1296,6 +1361,7 @@
         }
 
         /* Insurance code column - remove old styles */
+        .insurance-code-col {
             min-width: 60px;
         }
 
@@ -1442,6 +1508,9 @@
             text-decoration: none;
             transition: all var(--transition-fast);
             border-left: 2px solid transparent;
+            margin-left: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .toc-link:hover {
@@ -1457,6 +1526,13 @@
             font-weight: 500;
         }
 
+        .toc-link-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
         .toc-dot {
             width: 6px;
             height: 6px;
@@ -1468,6 +1544,15 @@
         .toc-link:hover .toc-dot,
         .toc-link.active .toc-dot {
             background: var(--primary-600);
+        }
+
+        .toc-link-sheet .toc-dot {
+            background: var(--accent-teal, #38b2ac);
+        }
+
+        .toc-link-sheet:hover .toc-dot,
+        .toc-link-sheet.active .toc-dot {
+            background: var(--accent-teal-dark, #2c9a94);
         }
 
         /* Collapsed State - Circular Button */
@@ -1536,7 +1621,234 @@
             visibility: visible;
         }
 
-        /* Policy Text List */
+        /* ============================================
+           Enhanced Sheet Cards - All Displayed
+           ============================================ */
+        .sheets-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .sheet-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: sheetCardEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .sheet-card:nth-child(1) { animation-delay: 0.1s; }
+        .sheet-card:nth-child(2) { animation-delay: 0.2s; }
+        .sheet-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes sheetCardEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sheet-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-200);
+        }
+
+        /* Sheet Header - Elegant Design */
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .sheet-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-400) 0%, var(--primary-600) 100%);
+        }
+
+        .sheet-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sheet-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-600);
+            box-shadow: 0 2px 8px rgba(91, 141, 239, 0.15);
+        }
+
+        .sheet-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.2px;
+        }
+
+        .sheet-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        /* Sheet Actions - Only show on hover */
+        .sheet-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .sheet-header:hover .sheet-actions,
+        .sheet-actions:hover {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Always visible sheet actions (for insurance table toolbar) */
+        .sheet-actions.always-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sheet-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .sheet-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .sheet-btn.primary {
+            background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(91, 141, 239, 0.3);
+        }
+
+        .sheet-btn.primary:hover {
+            box-shadow: 0 4px 12px rgba(91, 141, 239, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .sheet-btn-icon {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 50%;
+            justify-content: center;
+        }
+
+        /* Sheet Body */
+        .sheet-body {
+            padding: 20px 24px;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        /* Insurance Table - Horizontal Scroll with Fixed First Column */
+        .insurance-table {
+            width: auto;
+            min-width: 100%;
+            table-layout: auto;
+            font-size: 12px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .insurance-table th,
+        .insurance-table td {
+            padding: 10px 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        /* Fixed first column - 险种名称 */
+        .insurance-table th:first-child,
+        .insurance-table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background: var(--bg-primary);
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 第一层表头 - 险种 */
+        .insurance-table thead tr:first-child th:first-child {
+            z-index: 20;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        /* 第二层表头 - 名称 */
+        .insurance-table thead tr:nth-child(2) th:first-child {
+            z-index: 20;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        /* 固定列表头样式 */
+        .insurance-table thead th:first-child {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 固定列数据行背景 */
+        .insurance-table tbody td:first-child {
+            font-weight: 500;
+        }
+
+        /* 斑马纹背景保持 */
+        .insurance-table tbody tr:nth-child(even) td:first-child {
+            background: #fafbfc;
+        }
+
+        .insurance-table tbody tr:nth-child(odd) td:first-child {
+            background: var(--bg-primary);
+        }
+
+        /* 悬停效果 */
+        .insurance-table tbody tr:hover td:first-child {
+            background: var(--primary-50);
+        }
+
+        /* ============================================
+           Policy List - Enhanced Cards
+           ============================================ */
         .policy-list {
             display: flex;
             flex-direction: column;
@@ -1544,44 +1856,164 @@
         }
 
         .policy-item {
-            padding: 16px 20px;
+            padding: 18px 20px;
             background: var(--bg-secondary);
-            border-radius: var(--radius-md);
-            border-left: 3px solid var(--primary-400);
-            transition: all var(--transition-fast);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .policy-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: linear-gradient(180deg, var(--primary-400) 0%, var(--primary-500) 100%);
+            transition: width 0.25s ease;
         }
 
         .policy-item:hover {
-            background: var(--primary-50);
-            border-left-color: var(--primary-500);
+            background: var(--bg-primary);
+            border-color: var(--primary-300);
+            box-shadow: 0 4px 16px rgba(91, 141, 239, 0.12);
+            transform: translateX(4px);
         }
 
+        .policy-item:hover::before {
+            width: 4px;
+        }
+
+        /* Policy Item Staggered Animation */
+        .sheet-card .policy-item {
+            opacity: 0;
+            animation: policyItemSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .sheet-card .policy-item:nth-child(1) { animation-delay: 0.15s; }
+        .sheet-card .policy-item:nth-child(2) { animation-delay: 0.20s; }
+        .sheet-card .policy-item:nth-child(3) { animation-delay: 0.25s; }
+        .sheet-card .policy-item:nth-child(4) { animation-delay: 0.30s; }
+        .sheet-card .policy-item:nth-child(5) { animation-delay: 0.35s; }
+
+        @keyframes policyItemSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Empty State */
+        .sheet-empty {
+            padding: 40px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+
+        .sheet-empty-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            opacity: 0.4;
+        }
+
+        /* ============================================
+           Policy Content - Title & Content Layout (Scheme 1)
+           ============================================ */
         .policy-content {
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
-        .policy-content p {
-            margin: 0 0 8px 0;
+        /* Policy Header: Number + Title + Actions */
+        .policy-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
         }
 
-        .policy-content p:last-child {
-            margin-bottom: 0;
+        .policy-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
         }
 
-        .policy-content strong {
-            color: var(--primary-600);
+        /* Policy Number */
+        .policy-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary-100) 0%, var(--primary-200) 100%);
+            color: var(--primary-700);
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Policy Title */
+        .policy-title {
+            font-size: 15px;
             font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+            letter-spacing: -0.2px;
         }
 
-        .policy-content ul {
+        /* Policy Description */
+        .policy-desc {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            padding: 14px 16px 14px 38px;
+            border-left: none;
+            position: relative;
+            min-height: 44px;
+        }
+
+        .policy-desc p {
+            margin: 0;
+        }
+
+        .policy-desc ul {
             margin: 8px 0;
             padding-left: 20px;
         }
 
-        .policy-content li {
-            margin: 4px 0;
+        .policy-desc li {
+            margin: 6px 0;
+            position: relative;
+        }
+
+        .policy-desc li::marker {
+            color: var(--primary-400);
+        }
+
+        /* Highlight text in description */
+        .policy-desc strong,
+        .policy-desc .highlight {
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+
+        /* Empty description state */
+        .policy-desc.empty {
+            color: var(--text-muted);
+            font-style: italic;
         }
 
         .policy-meta {
@@ -1600,34 +2032,358 @@
             gap: 4px;
         }
 
+        /* Policy Actions - Header area (edit + delete) */
         .policy-actions {
             display: flex;
-            gap: 12px;
-            margin-top: 12px;
+            gap: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(10px);
+            transition: all 0.25s ease;
+        }
+
+        .policy-header:hover .policy-actions {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        /* Policy Content Actions - Content area (edit only) */
+        .policy-content-actions {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(5px);
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+            pointer-events: auto;
+        }
+
+        /* Show content actions when hovering description area or the actions themselves */
+        .policy-desc:hover .policy-content-actions,
+        .policy-content-actions:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         .policy-action-btn {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
             font-size: 12px;
-            color: var(--text-tertiary);
-            background: transparent;
-            border: none;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
             cursor: pointer;
-            transition: all var(--transition-fast);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
         }
 
         .policy-action-btn:hover {
-            color: var(--primary-500);
-            background: var(--primary-100);
+            color: var(--primary-600);
+            background: var(--primary-50);
+            border-color: var(--primary-300);
+            box-shadow: 0 2px 4px rgba(91, 141, 239, 0.15);
         }
 
         .policy-action-btn.delete:hover {
-            color: var(--error-500);
+            color: var(--error-600);
             background: var(--error-50);
+            border-color: var(--error-300);
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15);
+        }
+
+        /* Rich Text Editor Styles */
+        .policy-item.editing {
+            border-color: var(--primary-400);
+            box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.15), 0 4px 16px rgba(91, 141, 239, 0.12);
+            background: var(--bg-primary);
+        }
+
+        .policy-item.editing:hover {
+            transform: none;
+        }
+
+        .policy-item.editing::before {
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-500) 0%, var(--primary-600) 100%);
+        }
+
+        .rich-text-editor {
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+        }
+
+        .editor-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding-right: 8px;
+            margin-right: 8px;
+            border-right: 1px solid var(--border-light);
+        }
+
+        .editor-toolbar-group:last-child {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+        }
+
+        .editor-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .editor-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .editor-btn.active {
+            background: var(--primary-100);
+            color: var(--primary-600);
+        }
+
+        .editor-content {
+            min-height: 120px;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            outline: none;
+        }
+
+        .editor-content:focus {
+            background: var(--bg-primary);
+        }
+
+        .editor-content ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .editor-content li {
+            margin: 6px 0;
+        }
+
+        .editor-content strong {
+            color: var(--primary-600);
+            font-weight: 600;
+        }
+
+        .editor-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .editor-btn-save {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 500;
+            color: white;
+            background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(91, 141, 239, 0.3);
+        }
+
+        .editor-btn-save:hover {
+            box-shadow: 0 4px 12px rgba(91, 141, 239, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .editor-btn-cancel {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .editor-btn-cancel:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Hide content actions when editing */
+        .policy-item.editing .policy-content-actions {
+            display: none;
+        }
+
+        /* Editor Content - Images & Tables */
+        .editor-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 8px 0;
+            display: block;
+        }
+
+        .editor-content img:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .editor-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 13px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .editor-content table th,
+        .editor-content table td {
+            padding: 10px 12px;
+            border: 1px solid var(--border-light);
+            text-align: left;
+        }
+
+        .editor-content table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .editor-content table tr:nth-child(even) {
+            background: var(--bg-secondary);
+        }
+
+        .editor-content table tr:hover {
+            background: var(--primary-50);
+        }
+
+        .editor-content a {
+            color: var(--primary-600);
+            text-decoration: none;
+            border-bottom: 1px solid var(--primary-300);
+            transition: all 0.2s ease;
+        }
+
+        .editor-content a:hover {
+            color: var(--primary-700);
+            border-bottom-color: var(--primary-500);
+        }
+
+        /* Image Upload Overlay */
+        .editor-image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(91, 141, 239, 0.1);
+            border: 2px dashed var(--primary-400);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .editor-image-overlay.active {
+            opacity: 1;
+        }
+
+        .editor-image-overlay-text {
+            background: var(--bg-primary);
+            padding: 12px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            color: var(--primary-600);
+            font-weight: 500;
+        }
+
+        /* Table Insert Dialog */
+        .table-insert-dialog {
+            position: absolute;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 16px;
+            z-index: 100;
+            display: none;
+        }
+
+        .table-insert-dialog.active {
+            display: block;
+        }
+
+        .table-size-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 24px);
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .table-size-cell {
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .table-size-cell:hover,
+        .table-size-cell.selected {
+            background: var(--primary-100);
+            border-color: var(--primary-400);
+        }
+
+        .table-size-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
         }
 
         /* Add Policy Button */
@@ -1652,6 +2408,100 @@
             border-color: var(--primary-400);
             color: var(--primary-500);
             background: var(--primary-50);
+        }
+
+        /* Add Policy Dialog */
+        .add-policy-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .add-policy-dialog.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .add-policy-dialog-content {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 400px;
+            max-width: 90vw;
+            padding: 24px;
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .add-policy-dialog.active .add-policy-dialog-content {
+            transform: scale(1);
+        }
+
+        .add-policy-dialog-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .add-policy-dialog-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .add-policy-dialog-input:focus {
+            outline: none;
+            border-color: var(--primary-400);
+            box-shadow: 0 0 0 3px var(--primary-100);
+        }
+
+        .add-policy-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .add-policy-dialog-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .add-policy-dialog-btn.cancel {
+            background: transparent;
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+        }
+
+        .add-policy-dialog-btn.cancel:hover {
+            background: var(--bg-secondary);
+        }
+
+        .add-policy-dialog-btn.confirm {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border: none;
+            color: white;
+        }
+
+        .add-policy-dialog-btn.confirm:hover {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
         }
 
         /* Empty State */
@@ -1726,6 +2576,7 @@
 
             .main-content {
                 margin-left: 0;
+                max-width: 100vw;
             }
 
             .content-grid {
@@ -1798,6 +2649,94 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
+        }
+
+        /* Print Styles - Hide all buttons for PDF export */
+        @media print {
+            /* Hide all buttons */
+            button,
+            .btn,
+            .policy-action-btn,
+            .sheet-btn,
+            .editor-btn,
+            .editor-btn-save,
+            .editor-btn-cancel,
+            .add-policy-btn,
+            .toc-toggle-btn,
+            .icon-btn {
+                display: none !important;
+            }
+
+            /* Hide action containers */
+            .policy-actions,
+            .policy-content-actions,
+            .sheet-actions,
+            .title-actions,
+            .editor-actions,
+            .editor-toolbar,
+            .table-insert-dialog {
+                display: none !important;
+            }
+
+            /* Hide floating TOC */
+            .floating-toc {
+                display: none !important;
+            }
+
+            /* Hide sidebar */
+            .sidebar {
+                display: none !important;
+            }
+
+            /* Expand main content to full width */
+            .main-content {
+                margin-left: 0 !important;
+                padding: 20px !important;
+                max-width: 100% !important;
+            }
+
+            /* Remove shadows and borders for cleaner print */
+            .sheet-card,
+            .policy-item,
+            .page-title-bar {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+
+            /* Ensure background colors print */
+            .sheet-card,
+            .policy-item,
+            .page-title-bar,
+            .sheet-header {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Page breaks */
+            .sheet-card {
+                page-break-inside: avoid;
+                margin-bottom: 20px !important;
+            }
+
+            .policy-item {
+                page-break-inside: avoid;
+            }
+
+            /* Remove hover effects */
+            .policy-item:hover {
+                transform: none !important;
+            }
+
+            /* Show content that might be hidden */
+            .policy-content-actions {
+                display: none !important;
+            }
+
+            /* Hide animation elements */
+            .animate-in {
+                opacity: 1 !important;
+                animation: none !important;
+            }
         }
     </style>
 </head>
@@ -1905,42 +2844,6 @@
 
             <!-- Page Content -->
             <div class="page-content">
-                <!-- Filter Bar -->
-                <div class="filter-bar animate-in">
-                    <div class="filter-group">
-                        <span class="filter-label">参保城市：</span>
-                        <select class="filter-select">
-                            <option>全部城市</option>
-                            <option selected>石家庄市</option>
-                            <option>保定市</option>
-                            <option>唐山市</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <span class="filter-label">政策类型：</span>
-                        <select class="filter-select">
-                            <option selected>全部类型</option>
-                            <option>社保政策</option>
-                            <option>公积金政策</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <span class="filter-label">生效状态：</span>
-                        <select class="filter-select">
-                            <option selected>全部状态</option>
-                            <option>已启用</option>
-                            <option>已停用</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        新增政策库
-                    </button>
-                </div>
-
                 <!-- Content Grid -->
                 <div class="content-grid">
                     <!-- Policy Tree Panel -->
@@ -1961,6 +2864,19 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="policy-filter">
+                            <div class="filter-wrapper">
+                                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg>
+                                <select class="filter-select" id="cityFilter">
+                                    <option value="all">全部城市</option>
+                                    <option value="shijiazhuang" selected>石家庄市</option>
+                                    <option value="baoding">保定市</option>
+                                    <option value="tangshan">唐山市</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="policy-search">
                             <div class="search-wrapper">
                                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1971,6 +2887,7 @@
                             </div>
                         </div>
                         <div class="policy-tree">
+                            <!-- 社保 -->
                             <div class="tree-item">
                                 <svg class="tree-toggle expanded" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="9 18 15 12 9 6"></polyline>
@@ -1978,66 +2895,77 @@
                                 <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                                 </svg>
-                                <span class="tree-text">河北省</span>
+                                <span class="tree-text">社保</span>
                             </div>
                             <div style="padding-left: 20px;">
+                                <div class="tree-item">
+                                    <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span class="tree-text">刘测试-政策库2</span>
+                                </div>
+                                <div class="tree-item">
+                                    <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span class="tree-text">刘测试-政策库</span>
+                                </div>
+                                <div class="tree-item">
+                                    <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span class="tree-text">政策库001</span>
+                                </div>
+                                <div class="tree-item">
+                                    <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span class="tree-text">社保参保规则下限</span>
+                                </div>
                                 <div class="tree-item active">
-                                    <svg class="tree-toggle expanded" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
                                     <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
                                     </svg>
-                                    <span class="tree-text">石家庄市</span>
+                                    <span class="tree-text">故宫社保规则20260311</span>
                                 </div>
-                                <div style="padding-left: 20px;">
-                                    <div class="tree-item">
-                                        <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                        </svg>
-                                        <span class="tree-text">刘测试-政策库2</span>
-                                    </div>
-                                    <div class="tree-item">
-                                        <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                        </svg>
-                                        <span class="tree-text">刘测试-政策库</span>
-                                    </div>
-                                    <div class="tree-item">
-                                        <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                        </svg>
-                                        <span class="tree-text">政策库001</span>
-                                    </div>
-                                    <div class="tree-item">
-                                        <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                        </svg>
-                                        <span class="tree-text">社保参保规则下限</span>
-                                    </div>
-                                    <div class="tree-item active">
-                                        <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                        </svg>
-                                        <span class="tree-text">故宫社保规则20260311</span>
-                                    </div>
+                            </div>
+
+                            <!-- 公积金 -->
+                            <div class="tree-item">
+                                <svg class="tree-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                                <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                <span class="tree-text">公积金</span>
+                            </div>
+                            <div style="padding-left: 20px; display: none;">
+                                <div class="tree-item">
+                                    <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <span class="tree-text">北京公积金政策2025</span>
                                 </div>
                                 <div class="tree-item">
                                     <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
                                     </svg>
-                                    <span class="tree-text">保定市</span>
+                                    <span class="tree-text">上海公积金缴纳规则</span>
                                 </div>
                                 <div class="tree-item">
                                     <svg class="tree-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
                                     </svg>
-                                    <span class="tree-text">唐山市</span>
+                                    <span class="tree-text">深圳公积金新政</span>
                                 </div>
                             </div>
                         </div>
@@ -2051,37 +2979,28 @@
                                 <h2>故宫社保规则20260311</h2>
                                 <span class="status-badge enabled">已启用</span>
                             </div>
-                            <div class="title-actions">
-                                <button class="btn btn-secondary">
-                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                    编辑
-                                </button>
-                                <button class="btn btn-secondary">
-                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                    </svg>
-                                    复制
-                                </button>
-                            </div>
                         </div>
 
+                        <!-- Sheets Wrapper -->
+                        <div class="sheets-wrapper">
+
                         <!-- Basic Info Card -->
-                        <div class="info-card animate-in">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                    </svg>
-                                    基本信息
+                        <div class="sheet-card animate-in" id="basicInfo">
+                            <div class="sheet-header">
+                                <div class="sheet-title-wrapper">
+                                    <div class="sheet-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="sheet-title">基本信息</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-body">
+                            <div class="sheet-body">
                                 <div class="info-grid">
                                     <div class="info-item">
                                         <span class="info-label">政策库名称</span>
@@ -2120,51 +3039,24 @@
                         </div>
 
                         <!-- Insurance Table -->
-                        <div class="table-card animate-in" id="insuranceTable">
-                            <div class="table-header section-toolbar">
-                                <div class="table-title">
-                                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                        <line x1="3" y1="9" x2="21" y2="9"></line>
-                                        <line x1="9" y1="21" x2="9" y2="9"></line>
-                                    </svg>
-                                    险种信息
-                                </div>
-                                <div style="display: flex; gap: 12px;">
-                                    <button class="btn btn-secondary">
-                                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <div class="sheet-card animate-in" id="insuranceTable">
+                            <div class="sheet-header">
+                                <div class="sheet-title-wrapper">
+                                    <div class="sheet-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                                            <line x1="9" y1="21" x2="9" y2="9"></line>
                                         </svg>
-                                        添加险种
-                                    </button>
+                                    </div>
+                                    <div>
+                                        <div class="sheet-title">险种信息</div>
+                                    </div>
                                 </div>
+                                <div class="sheet-actions always-visible" id="insuranceTableActions"></div>
                             </div>
-                            <div class="table-scroll">
+                            <div class="sheet-body">
                                 <table class="data-table" id="dataTable">
-                                    <colgroup>
-                                        <col style="width: 110px;">
-                                        <!-- 单位缴纳：5列 -->
-                                        <col style="width: 130px;">  <!-- 基数上下限（合并上限下限） -->
-                                        <col style="width: 85px;">   <!-- 基数 -->
-                                        <col style="width: 70px;">   <!-- 比例 -->
-                                        <col style="width: 85px;">   <!-- 固定额 -->
-                                        <col style="width: 75px;">   <!-- 舍位 -->
-                                        <!-- 个人缴纳：5列 -->
-                                        <col style="width: 130px;">  <!-- 基数上下限（合并上限下限） -->
-                                        <col style="width: 85px;">   <!-- 基数 -->
-                                        <col style="width: 70px;">   <!-- 比例 -->
-                                        <col style="width: 85px;">   <!-- 固定额 -->
-                                        <col style="width: 75px;">   <!-- 舍位 -->
-                                        <!-- 增减规则：4列 -->
-                                        <col style="width: 110px;">  <!-- 增员规则 -->
-                                        <col style="width: 75px;">   <!-- 报增截止 -->
-                                        <col style="width: 110px;">  <!-- 减员规则 -->
-                                        <col style="width: 75px;">   <!-- 报减截止 -->
-                                        <!-- 其他：2列 -->
-                                        <col style="width: 70px;">   <!-- 类型 -->
-                                        <col style="width: 60px;">   <!-- 备注 -->
-                                    </colgroup>
                                     <thead>
                                         <tr class="header-row-sub">
                                             <th class="header-insurance-sub">险种</th>
@@ -2330,7 +3222,7 @@
                                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                                             <polyline points="14 2 14 8 20 8"></polyline>
                                         </svg>
-                                        政策文件目录
+                                        页面导航
                                     </div>
                                     <button class="toc-toggle-btn" id="tocToggleBtn" title="收起目录">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2339,13 +3231,21 @@
                                     </button>
                                 </div>
                                 <div class="toc-links">
-                                    <a href="#sheet1" class="toc-link" data-section="sheet1">
+                                    <a href="#basicInfo" class="toc-link" data-section="basicInfo">
                                         <span class="toc-dot"></span>
-                                        不断缴变更参保单位对福利待遇的影响
+                                        <span class="toc-link-text">基本信息</span>
                                     </a>
-                                    <a href="#sheet2" class="toc-link" data-section="sheet2">
+                                    <a href="#insuranceTable" class="toc-link" data-section="insuranceTable">
                                         <span class="toc-dot"></span>
-                                        基数补差政策
+                                        <span class="toc-link-text">险种信息</span>
+                                    </a>
+                                    <a href="#sheet1" class="toc-link toc-link-sheet" data-section="sheet1">
+                                        <span class="toc-dot"></span>
+                                        <span class="toc-link-text">不断缴变更参保单位对福利待遇的影响</span>
+                                    </a>
+                                    <a href="#sheet2" class="toc-link toc-link-sheet" data-section="sheet2">
+                                        <span class="toc-dot"></span>
+                                        <span class="toc-link-text">基数补差政策</span>
                                     </a>
                                 </div>
                             </div>
@@ -2363,139 +3263,220 @@
                         </div>
 
                         <!-- Policy Files - Sheet1 -->
-                        <div id="sheet1" class="files-card animate-in">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                    </svg>
-                                    不断缴变更参保单位对福利待遇的影响
+                        <div id="sheet1" class="sheet-card">
+                            <div class="sheet-header">
+                                <div class="sheet-title-wrapper">
+                                    <div class="sheet-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            <polyline points="10 9 9 9 8 9"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="sheet-title">不断缴变更参保单位对福利待遇的影响</div>
+                                        <div class="sheet-meta">5 项政策条款</div>
+                                    </div>
                                 </div>
-                                <button class="icon-btn" title="添加文件">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </button>
+                                <div class="sheet-actions">
+                                    <button class="sheet-btn sheet-btn-icon" title="编辑Sheet">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="sheet-btn primary add-sheet-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                        添加政策
+                                    </button>
+                                </div>
                             </div>
-                            <div class="card-body">
+                            <div class="sheet-body">
                                 <div class="policy-list">
                                     <div class="policy-item">
                                         <div class="policy-content">
-                                            <p><strong>工伤</strong></p>
-                                            <p>3是，工伤待遇享受申报及报销成功前不可更换参保单位</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="policy-item">
-                                        <div class="policy-content">
-                                            <p><strong>公积金</strong></p>
-                                            <p>无33</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">1</span>
+                                                    <span class="policy-title">待遇享受申报及报销</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc">
+                                                <p>工伤待遇享受申报及报销成功前不可更换参保单位</p>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="policy-item">
                                         <div class="policy-content">
-                                            <p><strong>11111111111111</strong></p>
-                                            <p>eeee</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="policy-item">
-                                        <div class="policy-content">
-                                            <p><strong>22222222222222</strong></p>
-                                            <p>yyy</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">2</span>
+                                                    <span class="policy-title">变更参保单位影响</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc empty">
+                                                <p>暂无相关政策说明</p>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="policy-item">
                                         <div class="policy-content">
-                                            <p><strong>333</strong></p>
-                                            <p>44</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">3</span>
+                                                    <span class="policy-title">政策条款示例一</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc">
+                                                <p>政策详细内容说明...</p>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+
+                                    <div class="policy-item">
+                                        <div class="policy-content">
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">4</span>
+                                                    <span class="policy-title">政策条款示例二</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc">
+                                                <p>政策详细内容说明...</p>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="policy-item">
+                                        <div class="policy-content">
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">5</span>
+                                                    <span class="policy-title">政策条款示例三</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc">
+                                                <p>政策详细内容说明...</p>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 <button class="add-policy-btn">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -2505,68 +3486,122 @@
                                 </button>
                             </div>
                         </div>
+                        </div>
 
                         <!-- Policy Files - Sheet2 -->
-                        <div id="sheet2" class="files-card animate-in">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                    </svg>
-                                    基数补差政策
+                        <div id="sheet2" class="sheet-card">
+                            <div class="sheet-header">
+                                <div class="sheet-title-wrapper">
+                                    <div class="sheet-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            <polyline points="10 9 9 9 8 9"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="sheet-title">基数补差政策</div>
+                                        <div class="sheet-meta">2 项政策条款</div>
+                                    </div>
                                 </div>
-                                <button class="icon-btn" title="添加政策">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </button>
+                                <div class="sheet-actions">
+                                    <button class="sheet-btn sheet-btn-icon" title="编辑Sheet">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="sheet-btn primary add-sheet-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                        添加政策
+                                    </button>
+                                </div>
                             </div>
-                            <div class="card-body">
+                            <div class="sheet-body">
                                 <div class="policy-list">
                                     <div class="policy-item">
                                         <div class="policy-content">
-                                            <p><strong>是否存在离职补差</strong></p>
-                                            <p>是（工伤保险）3</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">1</span>
+                                                    <span class="policy-title">离职补差政策</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc">
+                                                <p>离职员工补差政策，以离职当月实际在户天数计算。</p>
+                                                <ul>
+                                                    <li>月中离职：按实际出勤天数比例计算当月社保费用</li>
+                                                    <li>月末离职：缴纳整月社保，次月起停止</li>
+                                                    <li>补差范围：养老、医疗、失业、工伤、生育五险</li>
+                                                </ul>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="policy-item">
                                         <div class="policy-content">
-                                            <p><strong>补差规则</strong></p>
-                                            <p>3年度基数调整补差，在职人员补差以调基月在户名单为准。当年度1月起在户的员工，从1月至基数调整月补差；当年度中途参保的，从参保月至基数调整月补差。 离职人员:1月至今离职人员，均补工伤费率差额</p>
-                                        </div>
-                                        <div class="policy-actions">
-                                            <button class="policy-action-btn">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                </svg>
-                                                编辑
-                                            </button>
-                                            <button class="policy-action-btn delete">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                </svg>
-                                                删除
-                                            </button>
+                                            <div class="policy-header">
+                                                <div class="policy-title-group">
+                                                    <span class="policy-number">2</span>
+                                                    <span class="policy-title">年度基数调整补差规则</span>
+                                                </div>
+                                                <div class="policy-actions">
+                                                    <button class="policy-action-btn" title="编辑">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button class="policy-action-btn delete" title="删除">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="policy-desc">
+                                                <p>年度基数调整补差，在职人员补差以<strong>调基月在户名单</strong>为准。</p>
+                                                <ul>
+                                                    <li>当年度1月起在户的员工，从1月至基数调整月补差</li>
+                                                    <li>当年度中途参保的，从参保月至基数调整月补差</li>
+                                                    <li>离职人员：1月至今离职人员，均补工伤费率差额</li>
+                                                </ul>
+                                                <div class="policy-content-actions">
+                                                    <button class="policy-action-btn" title="编辑内容">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2582,7 +3617,23 @@
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </div>
+</div>
+</main>
+    </div>
+
+    <!-- Add Policy Dialog -->
+    <div class="add-policy-dialog" id="addPolicyDialog">
+        <div class="add-policy-dialog-content">
+            <div class="add-policy-dialog-header">添加政策条款</div>
+            <label for="policyTitleInput" style="display: none;">政策条款标题</label>
+            <input type="text" class="add-policy-dialog-input" id="policyTitleInput" placeholder="请输入政策条款标题" maxlength="100" aria-label="政策条款标题">
+            <div class="add-policy-dialog-actions">
+                <button class="add-policy-dialog-btn cancel" id="cancelAddPolicy">取消</button>
+                <button class="add-policy-dialog-btn confirm" id="confirmAddPolicy">确认添加</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2595,7 +3646,8 @@
             TOC_COLLAPSED: 'qingyang_toc_collapsed',
             COLUMN_WIDTHS: 'qingyang_column_widths',
             COLUMN_VISIBILITY: 'qingyang_column_visibility',
-            TABLE_SORT: 'qingyang_table_sort'
+            TABLE_SORT: 'qingyang_table_sort',
+            SHEET_STATE: 'qingyang_sheet_state'
         };
 
         // Insurance type mapping
@@ -2638,19 +3690,19 @@
             { key: 'companyRange', label: '基数上下限', width: 130, category: 'company', sortable: true },
             { key: 'companyBase', label: '基数', width: 85, category: 'company', sortable: true },
             { key: 'companyRatio', label: '比例', width: 70, category: 'company', sortable: true },
-            { key: 'companyFixed', label: '固定额', width: 85, category: 'company', sortable: true },
-            { key: 'companyRound', label: '舍位', width: 75, category: 'company', sortable: false },
+            { key: 'companyFixed', label: '固定额', width: 85, category: 'company', sortable: true, defaultVisible: false },
+            { key: 'companyRound', label: '舍位', width: 75, category: 'company', sortable: false, defaultVisible: false },
             { key: 'personalRange', label: '基数上下限', width: 130, category: 'personal', sortable: true },
             { key: 'personalBase', label: '基数', width: 85, category: 'personal', sortable: true },
             { key: 'personalRatio', label: '比例', width: 70, category: 'personal', sortable: true },
-            { key: 'personalFixed', label: '固定额', width: 85, category: 'personal', sortable: true },
-            { key: 'personalRound', label: '舍位', width: 75, category: 'personal', sortable: false },
+            { key: 'personalFixed', label: '固定额', width: 85, category: 'personal', sortable: true, defaultVisible: false },
+            { key: 'personalRound', label: '舍位', width: 75, category: 'personal', sortable: false, defaultVisible: false },
             { key: 'addRule', label: '增员规则', width: 110, category: 'operations', sortable: false },
             { key: 'addDeadline', label: '报增截止', width: 75, category: 'operations', sortable: true },
             { key: 'removeRule', label: '减员规则', width: 110, category: 'operations', sortable: false },
             { key: 'removeDeadline', label: '报减截止', width: 75, category: 'operations', sortable: true },
-            { key: 'type', label: '类型', width: 70, category: 'other', sortable: false },
-            { key: 'remark', label: '备注', width: 60, category: 'other', sortable: false }
+            { key: 'type', label: '类型', width: 70, category: 'other', sortable: false, defaultVisible: false },
+            { key: 'remark', label: '备注', width: 60, category: 'other', sortable: false, defaultVisible: false }
         ];
 
         // Generate colored insurance tags from code array
@@ -2678,6 +3730,389 @@
             }
             return [String(value)];
         }
+
+        // ============================================
+        // Sheet Manager Class - Phase 3
+        // ============================================
+        class SheetManager {
+            constructor() {
+                this.sheets = [];
+                this.activeSheetId = null;
+                this.init();
+            }
+
+            init() {
+                this.loadSheetsFromDOM();
+                this.loadState();
+                this.renderTabNavigation();
+                this.bindEvents();
+            }
+
+            // Load existing sheets from DOM
+            loadSheetsFromDOM() {
+                const sheetCards = document.querySelectorAll('.sheets-wrapper > .sheet-card');
+                sheetCards.forEach((card, index) => {
+                    const sheetId = card.id || `sheet_${Date.now()}_${index}`;
+                    card.id = sheetId;
+
+                    const titleEl = card.querySelector('.sheet-title');
+                    const title = titleEl ? titleEl.textContent.trim() : `Sheet ${index + 1}`;
+
+                    this.sheets.push({
+                        id: sheetId,
+                        element: card,
+                        title: title,
+                        policyCount: this.getPolicyCount(card)
+                    });
+                });
+
+                // Set first sheet as active if none specified
+                if (this.sheets.length > 0 && !this.activeSheetId) {
+                    this.activeSheetId = this.sheets[0].id;
+                }
+            }
+
+            getPolicyCount(sheetElement) {
+                const count = sheetElement.querySelectorAll('.policy-item').length;
+                return count;
+            }
+
+            // Load state from localStorage
+            loadState() {
+                const savedState = loadFromStorage(STORAGE_KEYS.SHEET_STATE, null);
+                if (savedState) {
+                    this.activeSheetId = savedState.activeSheetId || this.activeSheetId;
+                }
+            }
+
+            // Save state to localStorage
+            saveState() {
+                const state = {
+                    activeSheetId: this.activeSheetId
+                };
+                saveToStorage(STORAGE_KEYS.SHEET_STATE, state);
+            }
+
+            // Render tab navigation
+            renderTabNavigation() {
+                // Sheet tabs removed - sheets are now displayed directly without tab navigation
+                // Update sheet visibility only
+                this.updateSheetVisibility();
+            }
+
+            // Switch active sheet
+            switchSheet(sheetId) {
+                if (!this.sheets.find(s => s.id === sheetId)) return;
+
+                this.activeSheetId = sheetId;
+
+                // Update sheet visibility with animation
+                this.updateSheetVisibility();
+
+                // Save state
+                this.saveState();
+
+                // Scroll to sheet
+                const sheet = this.sheets.find(s => s.id === sheetId);
+                if (sheet && sheet.element) {
+                    sheet.element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            // Update sheet visibility based on active tab
+            updateSheetVisibility() {
+                this.sheets.forEach(sheet => {
+                    const isActive = sheet.id === this.activeSheetId;
+
+                    if (sheet.element) {
+                        // Add transition class
+                        sheet.element.classList.toggle('sheet-active', isActive);
+
+                        // Always show sheet body
+                        const body = sheet.element.querySelector('.sheet-body');
+                        if (body) {
+                            body.style.display = 'block';
+                            body.style.opacity = '1';
+                        }
+                    }
+                });
+            }
+
+            // Show add sheet dialog
+            showAddSheetDialog() {
+                isAddingSheet = true;
+                currentPolicyList = null;
+
+                const dialog = document.getElementById('addPolicyDialog');
+                if (!dialog) return;
+
+                const dialogHeader = dialog.querySelector('.add-policy-dialog-header');
+                const titleInput = document.getElementById('policyTitleInput');
+
+                if (dialogHeader) dialogHeader.textContent = '添加政策';
+                if (titleInput) {
+                    titleInput.placeholder = '请输入政策名称';
+                    titleInput.value = '';
+                    titleInput.focus();
+                }
+
+                dialog.classList.add('active');
+            }
+
+            // Add new sheet
+            addSheet(name) {
+                const sheetId = `sheet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+                // Create sheet element
+                const sheetCard = document.createElement('div');
+                sheetCard.className = 'sheet-card animate-in';
+                sheetCard.id = sheetId;
+
+                sheetCard.innerHTML = `
+                    <div class="sheet-header">
+                        <div class="sheet-title-wrapper">
+                            <div class="sheet-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="sheet-title">${this.escapeHtml(name)}</div>
+                                <div class="sheet-meta">0 项政策条款</div>
+                            </div>
+                        </div>
+                        <div class="sheet-actions">
+                            <button class="sheet-btn sheet-btn-icon sheet-edit-btn" title="编辑Sheet">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="sheet-btn sheet-btn-icon sheet-delete-btn" title="删除Sheet">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                            <button class="sheet-btn primary add-sheet-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                添加政策
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sheet-body">
+                        <div class="policy-list">
+                            <button class="add-policy-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                添加政策条款
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                // Add to DOM
+                const sheetsWrapper = document.querySelector('.sheets-wrapper');
+                if (sheetsWrapper) {
+                    sheetsWrapper.appendChild(sheetCard);
+                }
+
+                // Add to manager
+                this.sheets.push({
+                    id: sheetId,
+                    element: sheetCard,
+                    title: name,
+                    policyCount: 0
+                });
+
+                // Bind events
+                this.bindSheetEvents(sheetCard, sheetId);
+
+                // Switch to new sheet
+                this.switchSheet(sheetId);
+
+                // Re-render tabs
+                this.renderTabNavigation();
+
+                // Save state
+                this.saveState();
+
+                // Scroll to new sheet
+                sheetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            // Bind events for a sheet
+            bindSheetEvents(sheetElement, sheetId) {
+                // Edit button
+                const editBtn = sheetElement.querySelector('.sheet-edit-btn');
+                if (editBtn) {
+                    editBtn.addEventListener('click', () => {
+                        this.renameSheet(sheetId);
+                    });
+                }
+
+                // Delete button
+                const deleteBtn = sheetElement.querySelector('.sheet-delete-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => {
+                        this.deleteSheet(sheetId);
+                    });
+                }
+
+                // Add policy button
+                const addPolicyBtn = sheetElement.querySelector('.add-policy-btn');
+                if (addPolicyBtn) {
+                    addPolicyBtn.addEventListener('click', () => {
+                        this.showAddPolicyDialog(sheetElement);
+                    });
+                }
+
+                // Add sheet button (in actions)
+                const addSheetBtn = sheetElement.querySelector('.add-sheet-btn');
+                if (addSheetBtn) {
+                    addSheetBtn.addEventListener('click', () => {
+                        this.showAddSheetDialog();
+                    });
+                }
+
+                // Initialize existing policy items
+                sheetElement.querySelectorAll('.policy-item').forEach(item => {
+                    if (typeof initPolicyItemActions === 'function') {
+                        initPolicyItemActions(item);
+                    }
+                });
+            }
+
+            // Rename sheet
+            renameSheet(sheetId) {
+                const sheet = this.sheets.find(s => s.id === sheetId);
+                if (!sheet) return;
+
+                const newName = prompt('请输入新的政策名称:', sheet.title);
+                if (newName && newName.trim() && newName.trim() !== sheet.title) {
+                    sheet.title = newName.trim();
+
+                    // Update DOM
+                    const titleEl = sheet.element.querySelector('.sheet-title');
+                    if (titleEl) titleEl.textContent = sheet.title;
+
+                    // Update tabs
+                    this.renderTabNavigation();
+
+                    // Save state
+                    this.saveState();
+                }
+            }
+
+            // Delete sheet
+            deleteSheet(sheetId) {
+                const sheetIndex = this.sheets.findIndex(s => s.id === sheetId);
+                if (sheetIndex === -1) return;
+
+                if (!confirm('确定要删除这个政策Sheet吗？其中的所有政策条款也将被删除。')) {
+                    return;
+                }
+
+                const sheet = this.sheets[sheetIndex];
+
+                // Remove from DOM
+                if (sheet.element) {
+                    sheet.element.remove();
+                }
+
+                // Remove from arrays
+                this.sheets.splice(sheetIndex, 1);
+
+                // Update active sheet if needed
+                if (this.activeSheetId === sheetId) {
+                    this.activeSheetId = this.sheets.length > 0 ? this.sheets[0].id : null;
+                }
+
+                // Re-render tabs
+                this.renderTabNavigation();
+
+                // Update visibility
+                this.updateSheetVisibility();
+
+                // Save state
+                this.saveState();
+            }
+
+            // Show add policy dialog
+            showAddPolicyDialog(sheetElement) {
+                const policyList = sheetElement.querySelector('.policy-list');
+                if (!policyList) return;
+
+                isAddingSheet = false;
+                currentPolicyList = policyList;
+
+                const dialog = document.getElementById('addPolicyDialog');
+                if (!dialog) return;
+
+                const dialogHeader = dialog.querySelector('.add-policy-dialog-header');
+                const titleInput = document.getElementById('policyTitleInput');
+
+                if (dialogHeader) dialogHeader.textContent = '添加政策条款';
+                if (titleInput) {
+                    titleInput.placeholder = '请输入政策条款标题';
+                    titleInput.value = '';
+                    titleInput.focus();
+                }
+
+                dialog.classList.add('active');
+            }
+
+            // Update policy count for a sheet
+            updatePolicyCount(sheetId) {
+                const sheet = this.sheets.find(s => s.id === sheetId);
+                if (!sheet || !sheet.element) return;
+
+                const count = sheet.element.querySelectorAll('.policy-item').length;
+                sheet.policyCount = count;
+
+                // Update meta text
+                const metaEl = sheet.element.querySelector('.sheet-meta');
+                if (metaEl) {
+                    metaEl.textContent = `${count} 项政策条款`;
+                }
+
+                // Update tab count
+                this.renderTabNavigation();
+            }
+
+            // Bind global events
+            bindEvents() {
+                // Bind events for existing sheets
+                this.sheets.forEach(sheet => {
+                    this.bindSheetEvents(sheet.element, sheet.id);
+                });
+            }
+
+            // Utility: Escape HTML
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Utility: Truncate text
+            truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substring(0, maxLength) + '...';
+            }
+        }
+
+        // Global sheet manager instance
+        let sheetManager;
 
         // ============================================
         // LocalStorage Helpers
@@ -2772,7 +4207,7 @@
         });
 
         function highlightTocOnScroll() {
-            const sections = ['sheet1', 'sheet2'];
+            const sections = ['basicInfo', 'insuranceTable', 'sheet1', 'sheet2'];
             const scrollPosition = window.scrollY + 200;
 
             sections.forEach(sectionId => {
@@ -2999,7 +4434,8 @@
 
         // Column visibility toggle with localStorage persistence
         function initColumnVisibility() {
-            const toolbar = document.querySelector('.section-toolbar');
+            // Find the insurance table actions container
+            const toolbar = document.getElementById('insuranceTableActions');
             if (!toolbar) return;
 
             // Load saved visibility state
@@ -3010,8 +4446,12 @@
                     else tableState.visibleColumns.add(index);
                 });
             } else {
-                // Default: all visible
-                columnDefs.forEach((_, index) => tableState.visibleColumns.add(index));
+                // Default: use columnDefs defaultVisible setting
+                columnDefs.forEach((col, index) => {
+                    if (col.defaultVisible !== false) {
+                        tableState.visibleColumns.add(index);
+                    }
+                });
             }
 
             const columnBtn = document.createElement('button');
@@ -3067,15 +4507,36 @@
                     const isVisible = tableState.visibleColumns.has(colIndex);
                     const isAlwaysVisible = col.alwaysVisible;
 
-                    const label = document.createElement('label');
-                    label.className = `column-option ${isAlwaysVisible ? 'disabled' : ''}`;
-                    label.innerHTML = `
-                        <input type="checkbox" ${isVisible || isAlwaysVisible ? 'checked' : ''}
-                            data-index="${colIndex}"
-                            ${isAlwaysVisible ? 'disabled' : ''}>
-                        <span>${col.label}</span>
-                    `;
-                    catDiv.appendChild(label);
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = `column-option ${isAlwaysVisible ? 'disabled' : ''}`;
+                    optionDiv.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 6px 0; cursor: pointer; font-size: 13px; color: var(--text-secondary);';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = isVisible || isAlwaysVisible;
+                    checkbox.dataset.index = colIndex;
+                    checkbox.disabled = isAlwaysVisible;
+                    checkbox.style.cssText = 'accent-color: var(--primary-500); cursor: pointer; margin: 0;';
+
+                    const span = document.createElement('span');
+                    span.textContent = col.label;
+                    span.style.cssText = isAlwaysVisible ? 'opacity: 0.7;' : '';
+
+                    optionDiv.appendChild(checkbox);
+                    optionDiv.appendChild(span);
+
+                    // Click on option div toggles checkbox (if not disabled)
+                    if (!isAlwaysVisible) {
+                        optionDiv.addEventListener('click', (e) => {
+                            if (e.target !== checkbox) {
+                                checkbox.checked = !checkbox.checked;
+                                // Trigger change event manually
+                                checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+                        });
+                    }
+
+                    catDiv.appendChild(optionDiv);
                 });
 
                 columnDropdownContent.appendChild(catDiv);
@@ -3096,7 +4557,8 @@
                 </svg>
                 重置列宽
             `;
-            resetWidthBtn.addEventListener('click', () => {
+            resetWidthBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 localStorage.removeItem(STORAGE_KEYS.COLUMN_WIDTHS);
                 location.reload();
             });
@@ -3111,7 +4573,8 @@
                 </svg>
                 显示全部
             `;
-            resetVisibilityBtn.addEventListener('click', () => {
+            resetVisibilityBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 localStorage.removeItem(STORAGE_KEYS.COLUMN_VISIBILITY);
                 columnDefs.forEach((_, index) => tableState.visibleColumns.add(index));
                 updateColumnVisibility();
@@ -3125,13 +4588,31 @@
             buttonGroup.appendChild(resetVisibilityBtn);
             dropdown.appendChild(buttonGroup);
 
-            columnBtn.addEventListener('click', (e) => {
+            // Toggle dropdown visibility - use mousedown for more reliable interaction
+            columnBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                const isHidden = dropdown.style.display === 'none';
+                dropdown.style.display = isHidden ? 'block' : 'none';
             });
 
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target) && e.target !== columnBtn) {
+            // Also handle click for accessibility
+            columnBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Prevent clicks inside dropdown from closing it
+            dropdown.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+
+            dropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('mousedown', (e) => {
+                if (dropdown.style.display === 'block') {
                     dropdown.style.display = 'none';
                 }
             });
@@ -3161,13 +4642,8 @@
             wrapper.appendChild(columnBtn);
             wrapper.appendChild(dropdown);
 
-            // Insert before the add button
-            const addBtn = toolbar.querySelector('.btn-primary');
-            if (addBtn) {
-                toolbar.insertBefore(wrapper, addBtn);
-            } else {
-                toolbar.appendChild(wrapper);
-            }
+            // Add to toolbar
+            toolbar.appendChild(wrapper);
 
             // Apply initial visibility
             updateColumnVisibility();
@@ -3177,34 +4653,87 @@
             const table = document.getElementById('dataTable');
             if (!table) return;
 
-            const colgroup = table.querySelector('colgroup');
             const headerRows = table.querySelectorAll('thead tr');
             const dataRows = table.querySelectorAll('tbody tr');
+
+            // Calculate total width of visible columns
+            let visibleWidth = 0;
 
             columnDefs.forEach((col, index) => {
                 const isVisible = tableState.visibleColumns.has(index);
 
-                // Update colgroup
-                const colEl = colgroup?.children[index];
-                if (colEl) {
-                    colEl.style.display = isVisible ? '' : 'none';
+                // Update header cells (second row only - column headers)
+                const columnHeaderRow = headerRows[1];
+                if (columnHeaderRow) {
+                    const th = columnHeaderRow.cells[index];
+                    if (th) {
+                        th.style.display = isVisible ? '' : 'none';
+                        th.style.visibility = isVisible ? 'visible' : 'collapse';
+                    }
                 }
-
-                // Update header cells
-                headerRows.forEach(row => {
-                    const th = row.cells[index];
-                    if (th) th.style.display = isVisible ? '' : 'none';
-                });
 
                 // Update data cells
                 dataRows.forEach(row => {
                     const td = row.cells[index];
-                    if (td) td.style.display = isVisible ? '' : 'none';
+                    if (td) {
+                        td.style.display = isVisible ? '' : 'none';
+                        td.style.visibility = isVisible ? 'visible' : 'collapse';
+                    }
                 });
+
+                // Accumulate visible column widths
+                if (isVisible) {
+                    visibleWidth += col.width;
+                }
             });
+
+            // Update table min-width based on visible columns
+            // Add some padding (40px) for borders and spacing
+            table.style.minWidth = (visibleWidth + 40) + 'px';
+
+            // Update colgroup widths for visible columns only
+            const colgroup = table.querySelector('colgroup');
+            if (colgroup) {
+                const colElements = colgroup.querySelectorAll('col');
+                colElements.forEach((colEl, index) => {
+                    const isVisible = tableState.visibleColumns.has(index);
+                    if (isVisible) {
+                        colEl.style.width = columnDefs[index].width + 'px';
+                    } else {
+                        colEl.style.width = '0px';
+                    }
+                });
+            }
 
             // Update header row colspan for group headers
             updateGroupHeaderColspans();
+        }
+
+        function updateGroupBorders() {
+            const table = document.getElementById('dataTable');
+            if (!table) return;
+
+            const dataRows = table.querySelectorAll('tbody tr');
+
+            // Find the first visible column index for each group
+            const personalFirst = [6, 7, 8, 9, 10].find(i => tableState.visibleColumns.has(i));
+            const changeFirst = [11, 12, 13, 14].find(i => tableState.visibleColumns.has(i));
+            const typeCol = tableState.visibleColumns.has(15) ? 15 : null;
+
+            dataRows.forEach(row => {
+                // Remove all group border classes first
+                row.querySelectorAll('td').forEach(td => {
+                    td.classList.remove('group-border-personal', 'group-border-change');
+                });
+
+                // Add border to the first visible cell of each group
+                if (personalFirst !== undefined && row.cells[personalFirst]) {
+                    row.cells[personalFirst].classList.add('group-border-personal');
+                }
+                if (changeFirst !== undefined && row.cells[changeFirst]) {
+                    row.cells[changeFirst].classList.add('group-border-change');
+                }
+            });
         }
 
         function updateGroupHeaderColspans() {
@@ -3218,13 +4747,34 @@
             const companyVisible = [1, 2, 3, 4, 5].filter(i => tableState.visibleColumns.has(i)).length;
             const personalVisible = [6, 7, 8, 9, 10].filter(i => tableState.visibleColumns.has(i)).length;
             const changeVisible = [11, 12, 13, 14].filter(i => tableState.visibleColumns.has(i)).length;
+            const typeVisible = tableState.visibleColumns.has(15) ? 1 : 0;
+            const remarkVisible = tableState.visibleColumns.has(16) ? 1 : 0;
 
             const groupHeaders = groupHeaderRow.querySelectorAll('th');
             // groupHeaders[0] = 险种, [1] = 单位缴纳, [2] = 个人缴纳, [3] = 增减规则, [4] = 类型, [5] = 备注
 
-            if (groupHeaders[1]) groupHeaders[1].colSpan = Math.max(1, companyVisible);
-            if (groupHeaders[2]) groupHeaders[2].colSpan = Math.max(1, personalVisible);
-            if (groupHeaders[3]) groupHeaders[3].colSpan = Math.max(1, changeVisible);
+            // Update colspan and visibility
+            // Note: We use visibility:collapse for hidden headers to maintain table structure
+            if (groupHeaders[1]) {
+                groupHeaders[1].colSpan = Math.max(1, companyVisible);
+                groupHeaders[1].style.display = companyVisible > 0 ? '' : 'none';
+            }
+            if (groupHeaders[2]) {
+                groupHeaders[2].colSpan = Math.max(1, personalVisible);
+                groupHeaders[2].style.display = personalVisible > 0 ? '' : 'none';
+            }
+            if (groupHeaders[3]) {
+                groupHeaders[3].colSpan = Math.max(1, changeVisible);
+                groupHeaders[3].style.display = changeVisible > 0 ? '' : 'none';
+            }
+            if (groupHeaders[4]) {
+                groupHeaders[4].colSpan = Math.max(1, typeVisible);
+                groupHeaders[4].style.display = typeVisible > 0 ? '' : 'none';
+            }
+            if (groupHeaders[5]) {
+                groupHeaders[5].colSpan = Math.max(1, remarkVisible);
+                groupHeaders[5].style.display = remarkVisible > 0 ? '' : 'none';
+            }
         }
 
         // Utility: Throttle function
@@ -3271,7 +4821,826 @@
             initColumnSorting();
             initColumnVisibility();
             initInsuranceTags();
+
+            // Initialize Rich Text Editors for policy items
+            initPolicyEditors();
+
+            // Initialize Add Policy Dialog
+            initAddPolicyDialog();
+
+            // Initialize Phase 3: Sheet Manager
+            sheetManager = new SheetManager();
         });
+
+        // ============================================
+        // Add Policy Dialog
+        // ============================================
+
+        let currentPolicyList = null;
+        let isAddingSheet = false; // Flag to track if we're adding a Sheet or a policy item
+
+        function initAddPolicyDialog() {
+            const dialog = document.getElementById('addPolicyDialog');
+            const titleInput = document.getElementById('policyTitleInput');
+            const cancelBtn = document.getElementById('cancelAddPolicy');
+            const confirmBtn = document.getElementById('confirmAddPolicy');
+            const dialogHeader = dialog.querySelector('.add-policy-dialog-header');
+
+            if (!dialog || !titleInput || !cancelBtn || !confirmBtn) return;
+
+            // Add click handlers to all "添加政策条款" buttons (for adding policy items)
+            document.querySelectorAll('.add-policy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    isAddingSheet = false;
+                    // Find the policy list container
+                    const sheetBody = this.closest('.sheet-body');
+                    if (sheetBody) {
+                        currentPolicyList = sheetBody.querySelector('.policy-list');
+                    }
+
+                    // Update dialog for adding policy item
+                    dialogHeader.textContent = '添加政策条款';
+                    titleInput.placeholder = '请输入政策条款标题';
+
+                    // Show dialog
+                    dialog.classList.add('active');
+                    titleInput.value = '';
+                    titleInput.focus();
+                });
+            });
+
+            // Note: "添加政策" button click handlers are bound in initSheetEventListeners()
+            // to avoid double-binding events
+
+            // Cancel button
+            cancelBtn.addEventListener('click', () => {
+                dialog.classList.remove('active');
+                currentPolicyList = null;
+                isAddingSheet = false;
+            });
+
+            // Confirm button
+            confirmBtn.addEventListener('click', () => {
+                const title = titleInput.value.trim();
+                if (!title) {
+                    titleInput.style.borderColor = 'var(--error-500)';
+                    setTimeout(() => {
+                        titleInput.style.borderColor = '';
+                    }, 2000);
+                    return;
+                }
+
+                if (isAddingSheet) {
+                    // Create new Sheet
+                    addNewSheet(title);
+                } else if (currentPolicyList) {
+                    // Add policy item to existing Sheet
+                    addPolicyItem(currentPolicyList, title);
+                }
+
+                dialog.classList.remove('active');
+                currentPolicyList = null;
+                isAddingSheet = false;
+            });
+
+            // Enter key to confirm
+            titleInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    confirmBtn.click();
+                }
+            });
+
+            // Close dialog when clicking outside
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    dialog.classList.remove('active');
+                    currentPolicyList = null;
+                    isAddingSheet = false;
+                }
+            });
+        }
+
+        function addPolicyItem(policyList, title) {
+            // Get current policy count for numbering
+            const existingItems = policyList.querySelectorAll('.policy-item');
+            const newNumber = existingItems.length + 1;
+
+            // Create new policy item
+            const policyItem = document.createElement('div');
+            policyItem.className = 'policy-item animate-in';
+            policyItem.style.opacity = '0';
+            policyItem.style.animationDelay = '0.1s';
+
+            policyItem.innerHTML = `
+                <div class="policy-content">
+                    <div class="policy-header">
+                        <div class="policy-title-group">
+                            <span class="policy-number">${newNumber}</span>
+                            <span class="policy-title">${escapeHtml(title)}</span>
+                        </div>
+                        <div class="policy-actions">
+                            <button class="policy-action-btn" title="编辑">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="policy-action-btn delete" title="删除">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="policy-desc">
+                        <p>点击编辑添加政策内容...</p>
+                        <div class="policy-content-actions">
+                            <button class="policy-action-btn" title="编辑内容">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Insert before the add button
+            const addBtn = policyList.querySelector('.add-policy-btn');
+            if (addBtn) {
+                policyList.insertBefore(policyItem, addBtn);
+            } else {
+                policyList.appendChild(policyItem);
+            }
+
+            // Animate in
+            setTimeout(() => {
+                policyItem.style.opacity = '1';
+            }, 10);
+
+            // Add event listeners to the new item
+            initPolicyItemActions(policyItem);
+
+            // Update SheetManager policy count
+            if (sheetManager) {
+                const sheetCard = policyList.closest('.sheet-card');
+                if (sheetCard && sheetCard.id) {
+                    sheetManager.updatePolicyCount(sheetCard.id);
+                }
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Generate unique Sheet ID
+        function generateSheetId() {
+            return 'sheet_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Add new Sheet (政策) - Uses SheetManager
+        function addNewSheet(sheetName) {
+            if (sheetManager) {
+                sheetManager.addSheet(sheetName);
+            } else {
+                // Fallback if sheetManager not initialized
+                console.warn('SheetManager not initialized');
+            }
+        }
+
+        // Initialize event listeners for a Sheet
+        function initSheetEventListeners(sheetCard) {
+            // Add policy button (for adding policy items)
+            const addPolicyBtn = sheetCard.querySelector('.add-policy-btn');
+            if (addPolicyBtn) {
+                addPolicyBtn.addEventListener('click', function() {
+                    const sheetBody = this.closest('.sheet-body');
+                    if (sheetBody) {
+                        currentPolicyList = sheetBody.querySelector('.policy-list');
+                    }
+
+                    isAddingSheet = false;
+                    const dialog = document.getElementById('addPolicyDialog');
+                    const dialogHeader = dialog.querySelector('.add-policy-dialog-header');
+                    const titleInput = document.getElementById('policyTitleInput');
+
+                    dialogHeader.textContent = '添加政策条款';
+                    titleInput.placeholder = '请输入政策条款标题';
+
+                    dialog.classList.add('active');
+                    titleInput.value = '';
+                    titleInput.focus();
+                });
+            }
+
+            // Add Sheet button
+            const addSheetBtn = sheetCard.querySelector('.add-sheet-btn');
+            if (addSheetBtn) {
+                addSheetBtn.addEventListener('click', function() {
+                    isAddingSheet = true;
+                    currentPolicyList = null;
+
+                    const dialog = document.getElementById('addPolicyDialog');
+                    const dialogHeader = dialog.querySelector('.add-policy-dialog-header');
+                    const titleInput = document.getElementById('policyTitleInput');
+
+                    dialogHeader.textContent = '添加政策';
+                    titleInput.placeholder = '请输入政策名称';
+
+                    dialog.classList.add('active');
+                    titleInput.value = '';
+                    titleInput.focus();
+                });
+            }
+
+            // Edit Sheet button
+            const editSheetBtn = sheetCard.querySelector('.sheet-btn[title="编辑Sheet"]');
+            if (editSheetBtn) {
+                editSheetBtn.addEventListener('click', function() {
+                    const sheetTitle = sheetCard.querySelector('.sheet-title');
+                    const currentName = sheetTitle.textContent;
+                    const newName = prompt('请输入新的政策名称:', currentName);
+                    if (newName && newName.trim() && newName.trim() !== currentName) {
+                        sheetTitle.textContent = newName.trim();
+                    }
+                });
+            }
+        }
+
+        function initPolicyItemActions(policyItem) {
+            // Edit title button
+            const editBtn = policyItem.querySelector('.policy-action-btn[title="编辑"]');
+            if (editBtn) {
+                editBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // TODO: Implement title editing
+                    alert('编辑标题功能待实现');
+                });
+            }
+
+            // Delete button
+            const deleteBtn = policyItem.querySelector('.policy-action-btn.delete');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (confirm('确定要删除这条政策条款吗？')) {
+                        const policyList = policyItem.closest('.policy-list');
+                        const sheetCard = policyList?.closest('.sheet-card');
+
+                        policyItem.remove();
+                        renumberPolicyItems(policyList);
+
+                        // Update SheetManager policy count
+                        if (sheetManager && sheetCard && sheetCard.id) {
+                            sheetManager.updatePolicyCount(sheetCard.id);
+                        }
+                    }
+                });
+            }
+
+            // Edit content button
+            const editContentBtn = policyItem.querySelector('.policy-action-btn[title="编辑内容"]');
+            if (editContentBtn) {
+                editContentBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const policyDesc = policyItem.querySelector('.policy-desc');
+                    enterEditMode(policyItem, policyDesc);
+                });
+            }
+        }
+
+        function renumberPolicyItems(policyList) {
+            if (!policyList) return;
+            const items = policyList.querySelectorAll('.policy-item');
+            items.forEach((item, index) => {
+                const numberEl = item.querySelector('.policy-number');
+                if (numberEl) {
+                    numberEl.textContent = index + 1;
+                }
+            });
+        }
+
+        // ============================================
+        // Rich Text Editor for Policy Items
+        // ============================================
+
+        function initPolicyEditors() {
+            // Add click handlers to all edit buttons
+            document.querySelectorAll('.policy-action-btn[title="编辑内容"]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const policyItem = this.closest('.policy-item');
+                    const policyDesc = policyItem.querySelector('.policy-desc');
+                    enterEditMode(policyItem, policyDesc);
+                });
+            });
+
+            // Also handle header edit buttons
+            document.querySelectorAll('.policy-action-btn[title="编辑"]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const policyItem = this.closest('.policy-item');
+                    const policyDesc = policyItem.querySelector('.policy-desc');
+                    enterEditMode(policyItem, policyDesc);
+                });
+            });
+        }
+
+        function enterEditMode(policyItem, policyDesc) {
+            // Store original content
+            const originalContent = policyDesc.innerHTML;
+            policyItem.dataset.originalContent = originalContent;
+
+            // Add editing class
+            policyItem.classList.add('editing');
+
+            // Get current content (without the actions div)
+            const contentDiv = policyDesc.querySelector('.policy-content-actions')?.previousElementSibling || policyDesc.querySelector('p, ul');
+            const currentHtml = contentDiv ? contentDiv.outerHTML : policyDesc.innerHTML.replace(/<div class="policy-content-actions".*<\/div>/s, '');
+
+            // Create editor HTML
+            const editorHtml = `
+                <div class="rich-text-editor">
+                    <div class="editor-toolbar">
+                        <div class="editor-toolbar-group">
+                            <button type="button" class="editor-btn" data-command="bold" title="粗体">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+                                    <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+                                </svg>
+                            </button>
+                            <button type="button" class="editor-btn" data-command="italic" title="斜体">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="19" y1="4" x2="10" y2="4"></line>
+                                    <line x1="14" y1="20" x2="5" y2="20"></line>
+                                    <line x1="15" y1="4" x2="9" y2="20"></line>
+                                </svg>
+                            </button>
+                            <button type="button" class="editor-btn" data-command="underline" title="下划线">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path>
+                                    <line x1="4" y1="21" x2="20" y2="21"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="editor-toolbar-group">
+                            <button type="button" class="editor-btn" data-command="insertUnorderedList" title="无序列表">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                            </button>
+                            <button type="button" class="editor-btn" data-command="insertOrderedList" title="有序列表">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="10" y1="6" x2="21" y2="6"></line>
+                                    <line x1="10" y1="12" x2="21" y2="12"></line>
+                                    <line x1="10" y1="18" x2="21" y2="18"></line>
+                                    <path d="M4 6h1v4"></path>
+                                    <path d="M4 10h2"></path>
+                                    <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="editor-toolbar-group">
+                            <button type="button" class="editor-btn" data-command="removeFormat" title="清除格式">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 7v4"></path>
+                                    <path d="M21 7v4"></path>
+                                    <path d="M12 7v12"></path>
+                                    <path d="M6 7v12"></path>
+                                    <path d="M18 7v12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="editor-toolbar-group">
+                            <button type="button" class="editor-btn editor-btn-image" title="插入图片">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </button>
+                            <button type="button" class="editor-btn editor-btn-table" title="插入表格">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                                    <line x1="3" y1="15" x2="21" y2="15"></line>
+                                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                                    <line x1="15" y1="3" x2="15" y2="21"></line>
+                                </svg>
+                            </button>
+                            <button type="button" class="editor-btn editor-btn-link" data-command="createLink" title="插入链接">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="editor-content" contenteditable="true">${extractTextContent(currentHtml)}</div>
+                    <div class="editor-actions">
+                        <button type="button" class="editor-btn-cancel">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            取消
+                        </button>
+                        <button type="button" class="editor-btn-save">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            保存
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Replace policy-desc content with editor
+            policyDesc.innerHTML = editorHtml;
+
+            // Setup toolbar buttons
+            const toolbar = policyDesc.querySelector('.editor-toolbar');
+            toolbar.addEventListener('click', function(e) {
+                const btn = e.target.closest('.editor-btn');
+                if (!btn) return;
+
+                const command = btn.dataset.command;
+                if (command) {
+                    if (command === 'createLink') {
+                        const url = prompt('请输入链接地址:', 'https://');
+                        if (url && url !== 'https://') {
+                            document.execCommand(command, false, url);
+                        }
+                    } else {
+                        document.execCommand(command, false, null);
+                    }
+                    updateToolbarState(toolbar, policyDesc.querySelector('.editor-content'));
+                }
+            });
+
+            // Setup image upload button
+            const imageBtn = toolbar.querySelector('.editor-btn-image');
+            imageBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showImageUploadDialog(policyDesc, contentArea);
+            });
+
+            // Setup table insert button
+            const tableBtn = toolbar.querySelector('.editor-btn-table');
+            tableBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showTableInsertDialog(policyDesc, contentArea, tableBtn);
+            });
+
+            // Setup drag & drop for images
+            setupImageDragDrop(contentArea);
+
+            // Setup content area
+            const contentArea = policyDesc.querySelector('.editor-content');
+            contentArea.addEventListener('keyup', () => updateToolbarState(toolbar, contentArea));
+            contentArea.addEventListener('mouseup', () => updateToolbarState(toolbar, contentArea));
+            contentArea.addEventListener('blur', () => updateToolbarState(toolbar, contentArea));
+
+            // Setup save/cancel buttons
+            policyDesc.querySelector('.editor-btn-save').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                saveEdit(policyItem, policyDesc, contentArea.innerHTML);
+            });
+
+            policyDesc.querySelector('.editor-btn-cancel').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                cancelEdit(policyItem, policyDesc);
+            });
+
+            // Focus the editor
+            contentArea.focus();
+        }
+
+        function extractTextContent(html) {
+            // Extract content from p or ul elements
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+
+            // If it's a single p or ul, return its innerHTML
+            if (temp.children.length === 1 && (temp.children[0].tagName === 'P' || temp.children[0].tagName === 'UL')) {
+                return temp.children[0].innerHTML;
+            }
+
+            // Otherwise wrap in p
+            return temp.innerHTML || '<p>请输入政策内容...</p>';
+        }
+
+        function updateToolbarState(toolbar, contentArea) {
+            toolbar.querySelectorAll('.editor-btn[data-command]').forEach(btn => {
+                const command = btn.dataset.command;
+                if (command && document.queryCommandState(command)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // ============================================
+        // Image Upload Functions
+        // ============================================
+
+        function showImageUploadDialog(policyDesc, contentArea) {
+            // Create hidden file input
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    handleImageUpload(file, contentArea);
+                }
+                document.body.removeChild(fileInput);
+            });
+
+            fileInput.click();
+        }
+
+        function handleImageUpload(file, contentArea) {
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                alert('请上传图片文件');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('图片大小不能超过5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = file.name;
+                img.style.maxWidth = '100%';
+
+                // Insert at cursor position or append
+                insertElementAtCursor(contentArea, img);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupImageDragDrop(contentArea) {
+            // Drag over
+            contentArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                contentArea.classList.add('drag-over');
+            });
+
+            // Drag leave
+            contentArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                contentArea.classList.remove('drag-over');
+            });
+
+            // Drop
+            contentArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                contentArea.classList.remove('drag-over');
+
+                const files = e.dataTransfer.files;
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].type.startsWith('image/')) {
+                        handleImageUpload(files[i], contentArea);
+                    }
+                }
+            });
+
+            // Paste image from clipboard
+            contentArea.addEventListener('paste', function(e) {
+                const items = e.clipboardData.items;
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.startsWith('image/')) {
+                        e.preventDefault();
+                        const blob = items[i].getAsFile();
+                        handleImageUpload(blob, contentArea);
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // Table Insert Functions
+        // ============================================
+
+        function showTableInsertDialog(policyDesc, contentArea, tableBtn) {
+            // Remove existing dialog
+            const existingDialog = policyDesc.querySelector('.table-insert-dialog');
+            if (existingDialog) {
+                existingDialog.remove();
+                return;
+            }
+
+            // Create table insert dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'table-insert-dialog active';
+            dialog.innerHTML = `
+                <div class="table-size-grid"></div>
+                <div class="table-size-info">选择表格大小</div>
+            `;
+
+            // Create grid cells
+            const grid = dialog.querySelector('.table-size-grid');
+            let selectedRows = 0;
+            let selectedCols = 0;
+
+            for (let row = 1; row <= 6; row++) {
+                for (let col = 1; col <= 6; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'table-size-cell';
+                    cell.dataset.rows = row;
+                    cell.dataset.cols = col;
+
+                    cell.addEventListener('mouseenter', function() {
+                        selectedRows = parseInt(this.dataset.rows);
+                        selectedCols = parseInt(this.dataset.cols);
+                        updateTableGridSelection(grid, selectedRows, selectedCols);
+                        dialog.querySelector('.table-size-info').textContent = `${selectedRows} 行 × ${selectedCols} 列`;
+                    });
+
+                    cell.addEventListener('click', function() {
+                        insertTable(contentArea, selectedRows, selectedCols);
+                        dialog.remove();
+                    });
+
+                    grid.appendChild(cell);
+                }
+            }
+
+            // Position dialog
+            const btnRect = tableBtn.getBoundingClientRect();
+            const policyRect = policyDesc.getBoundingClientRect();
+            dialog.style.left = (btnRect.left - policyRect.left) + 'px';
+            dialog.style.top = (btnRect.bottom - policyRect.top + 8) + 'px';
+
+            policyDesc.appendChild(dialog);
+
+            // Close dialog when clicking outside
+            setTimeout(() => {
+                const closeDialog = function(e) {
+                    if (!dialog.contains(e.target) && e.target !== tableBtn) {
+                        dialog.remove();
+                        document.removeEventListener('click', closeDialog);
+                    }
+                };
+                document.addEventListener('click', closeDialog);
+            }, 0);
+        }
+
+        function updateTableGridSelection(grid, rows, cols) {
+            grid.querySelectorAll('.table-size-cell').forEach(cell => {
+                const cellRow = parseInt(cell.dataset.rows);
+                const cellCol = parseInt(cell.dataset.cols);
+                if (cellRow <= rows && cellCol <= cols) {
+                    cell.classList.add('selected');
+                } else {
+                    cell.classList.remove('selected');
+                }
+            });
+        }
+
+        function insertTable(contentArea, rows, cols) {
+            const table = document.createElement('table');
+            const tbody = document.createElement('tbody');
+
+            for (let i = 0; i < rows; i++) {
+                const tr = document.createElement('tr');
+                for (let j = 0; j < cols; j++) {
+                    const td = document.createElement('td');
+                    td.innerHTML = i === 0 ? '<b>表头</b>' : '内容';
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+
+            table.appendChild(tbody);
+            insertElementAtCursor(contentArea, table);
+
+            // Add empty paragraph after table
+            const p = document.createElement('p');
+            p.innerHTML = '<br>';
+            insertElementAtCursor(contentArea, p);
+        }
+
+        function insertElementAtCursor(contentArea, element) {
+            contentArea.focus();
+
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(element);
+
+                // Move cursor after inserted element
+                range.setStartAfter(element);
+                range.setEndAfter(element);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            } else {
+                contentArea.appendChild(element);
+            }
+        }
+
+        function saveEdit(policyItem, policyDesc, newContent) {
+            // Convert editor content back to policy format
+            const contentHtml = convertToPolicyFormat(newContent);
+
+            // Restore policy-desc structure with new content
+            policyDesc.innerHTML = contentHtml + `
+                <div class="policy-content-actions">
+                    <button class="policy-action-btn" title="编辑内容">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            // Remove editing class
+            policyItem.classList.remove('editing');
+
+            // Re-attach event listener
+            policyDesc.querySelector('.policy-content-actions .policy-action-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                enterEditMode(policyItem, policyDesc);
+            });
+
+            // Clean up
+            delete policyItem.dataset.originalContent;
+        }
+
+        function cancelEdit(policyItem, policyDesc) {
+            // Restore original content
+            if (policyItem.dataset.originalContent) {
+                policyDesc.innerHTML = policyItem.dataset.originalContent;
+
+                // Re-attach event listener
+                const editBtn = policyDesc.querySelector('.policy-content-actions .policy-action-btn');
+                if (editBtn) {
+                    editBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        enterEditMode(policyItem, policyDesc);
+                    });
+                }
+            }
+
+            // Remove editing class
+            policyItem.classList.remove('editing');
+
+            // Clean up
+            delete policyItem.dataset.originalContent;
+        }
+
+        function convertToPolicyFormat(content) {
+            // Wrap content in appropriate tags if needed
+            content = content.trim();
+
+            // If content doesn't start with a tag, wrap it in a p
+            if (!content.startsWith('<')) {
+                content = `<p>${content}</p>`;
+            }
+
+            // Handle lists - if content has li items but no ul wrapper
+            if (content.includes('<li>') && !content.includes('<ul>')) {
+                content = `<ul>${content}</ul>`;
+            }
+
+            return content;
+        }
     </script>
 </body>
 </html>
