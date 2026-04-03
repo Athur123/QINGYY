@@ -1650,7 +1650,99 @@
             font-weight: 600;
             color: var(--qy-text-primary);
             font-variant-numeric: tabular-nums;
+        }        
+        /* Batch Compare Feature */
+        .batch-compare-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--qy-space-3) var(--qy-space-4);
+            background: var(--qy-primary-50);
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-md);
+            margin-bottom: var(--qy-space-4);
         }
+        
+        .batch-compare-info {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+        
+        .batch-compare-info strong {
+            color: var(--qy-primary-600);
+        }
+        
+        .batch-table th:first-child,
+        .batch-table td:first-child {
+            width: 40px;
+            text-align: center;
+        }
+        
+        .batch-compare-section {
+            margin-top: var(--qy-space-6);
+            padding-top: var(--qy-space-6);
+            border-top: 2px solid var(--qy-border-light);
+        }
+        
+        .batch-compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--qy-space-4);
+            margin-top: var(--qy-space-4);
+        }
+        
+        .batch-compare-card {
+            background: var(--qy-bg-primary);
+            border: 2px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            padding: var(--qy-space-4);
+            transition: all var(--qy-transition-fast);
+        }
+        
+        .batch-compare-card:hover {
+            border-color: var(--qy-primary-300);
+            box-shadow: var(--qy-shadow-md);
+        }
+        
+        .batch-compare-card__salary {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 700;
+            color: var(--qy-primary-600);
+            margin-bottom: var(--qy-space-2);
+        }
+        
+        .batch-compare-card__detail {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-1);
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+        
+        .batch-compare-card__detail-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .batch-compare-card__detail-value {
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .batch-compare-card__net {
+            margin-top: var(--qy-space-2);
+            padding-top: var(--qy-space-2);
+            border-top: 1px dashed var(--qy-border-light);
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+        
+        .batch-compare-card__net-value {
+            color: var(--qy-success-600);
+        }
+
 
         /* ========================================
            History Drawer Styles
@@ -2244,6 +2336,7 @@
                     <table class="batch-table">
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="selectAllBatch" onclick="toggleSelectAllBatch()" title="全选"></th>
                                 <th>序号</th>
                                 <th>工资基数</th>
                                 <th class="amount">缴费基数</th>
@@ -2255,6 +2348,26 @@
                         </thead>
                         <tbody id="batchTableBody"></tbody>
                     </table>
+                    
+                    <!-- Batch Compare Bar -->
+                    <div class="batch-compare-bar" id="batchCompareBar" style="display: none;">
+                        <span class="batch-compare-info">已选择 <strong id="selectedCount">0</strong> 项</span>
+                        <button class="qy-btn qy-btn--primary" onclick="compareBatchSelected()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                                <path d="M3 6h18"/>
+                                <path d="M3 12h18"/>
+                                <path d="M3 18h18"/>
+                            </svg>
+                            对比选中项
+                        </button>
+                    </div>
+                    
+                    <!-- Batch Compare Results -->
+                    <div class="batch-compare-section" id="batchCompareSection" style="display: none;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 16px;">批量计算对比</h3>
+                        <div class="batch-compare-grid" id="batchCompareGrid"></div>
+                    </div>
+                    
                     <div class="batch-actions">
                         <button class="qy-btn qy-btn--secondary" onclick="clearBatch()">清空结果</button>
                         <button class="qy-btn qy-btn--primary" onclick="exportBatchToCSV()">导出CSV</button>
@@ -3389,11 +3502,12 @@ ${period}费用：
 
             tbody.innerHTML = batchResults.map(result => `
                 <tr>
+                    <td><input type="checkbox" class="batch-item-checkbox" data-index="${result.index}" onchange="updateBatchSelection()"></td>
                     <td>${result.index}</td>
                     <td>¥${result.salary.toLocaleString()}</td>
                     <td class="amount">¥${formatMoney(result.base)}</td>
                     <td class="amount">¥${formatMoney(result.totalCompany)}</td>
-                    <td class="amount">¥${formatMoney(result.totalPersonal)}</td>
+                    <td class="amount">¥${formatMoney(result.totalPersonal)}></td>
                     <td class="amount">¥${formatMoney(result.total)}</td>
                     <td class="amount">¥${formatMoney(result.netSalary)}</td>
                 </tr>
@@ -3402,12 +3516,128 @@ ${period}费用：
             container.style.display = 'block';
         }
 
+
+        /**
+         * Toggle select all batch items
+         */
+        function toggleSelectAllBatch() {
+            const selectAllCheckbox = document.getElementById('selectAllBatch');
+            const checkboxes = document.querySelectorAll('.batch-item-checkbox');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+            
+            updateBatchSelection();
+        }
+        
+        /**
+         * Update batch selection count and UI
+         */
+        function updateBatchSelection() {
+            const checkboxes = document.querySelectorAll('.batch-item-checkbox:checked');
+            const count = checkboxes.length;
+            
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('batchCompareBar').style.display = count > 0 ? 'flex' : 'none';
+        }
+        
+        /**
+         * Compare selected batch items
+         */
+        function compareBatchSelected() {
+            const checkboxes = document.querySelectorAll('.batch-item-checkbox:checked');
+            
+            if (checkboxes.length < 2) {
+                showToast('请至少选择2项进行对比', 'warning');
+                return;
+            }
+            
+            if (checkboxes.length > 6) {
+                showToast('最多可同时对比6项', 'warning');
+                return;
+            }
+            
+            const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index));
+            const selectedResults = batchResults.filter(r => selectedIndices.includes(r.index));
+            
+            renderBatchCompare(selectedResults);
+        }
+        
+        /**
+         * Render batch comparison results
+         */
+        function renderBatchCompare(results) {
+            const container = document.getElementById('batchCompareSection');
+            const grid = document.getElementById('batchCompareGrid');
+            
+            // Find min/max for highlighting
+            const minTotal = Math.min(...results.map(r => r.total));
+            const maxTotal = Math.max(...results.map(r => r.total));
+            const minNet = Math.min(...results.map(r => r.netSalary));
+            const maxNet = Math.max(...results.map(r => r.netSalary));
+            
+            grid.innerHTML = results.map(result => {
+                const isMinTotal = result.total === minTotal;
+                const isMaxTotal = result.total === maxTotal;
+                const isMinNet = result.netSalary === minNet;
+                const isMaxNet = result.netSalary === maxNet;
+                
+                return `
+                    <div class="batch-compare-card">
+                        <div class="batch-compare-card__salary">¥${result.salary.toLocaleString()}</div>
+                        <div class="batch-compare-card__detail">
+                            <div class="batch-compare-card__detail-row">
+                                <span>缴费基数</span>
+                                <span class="batch-compare-card__detail-value">¥${formatMoney(result.base)}</span>
+                            </div>
+                            <div class="batch-compare-card__detail-row">
+                                <span>单位缴纳</span>
+                                <span class="batch-compare-card__detail-value">¥${formatMoney(result.totalCompany)}</span>
+                            </div>
+                            <div class="batch-compare-card__detail-row">
+                                <span>个人缴纳</span>
+                                <span class="batch-compare-card__detail-value">¥${formatMoney(result.totalPersonal)}</span>
+                            </div>
+                            <div class="batch-compare-card__detail-row" style="color: ${isMinTotal ? 'var(--qy-success-600)' : isMaxTotal ? 'var(--qy-error-600)' : 'inherit'};">
+                                <span><strong>合计</strong>${isMinTotal ? ' (最低)' : isMaxTotal ? ' (最高)' : ''}</span>
+                                <span class="batch-compare-card__detail-value"><strong>¥${formatMoney(result.total)}</strong></span>
+                            </div>
+                        </div>
+                        <div class="batch-compare-card__net">
+                            <span>到手工资${isMaxNet ? ' (最高)' : isMinNet ? ' (最低)' : ''}</span>
+                            <span class="batch-compare-card__net-value" style="color: ${isMaxNet ? 'var(--qy-success-600)' : isMinNet ? 'var(--qy-error-600)' : 'var(--qy-success-600)'};">
+                                ¥${formatMoney(result.netSalary)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            showToast(`已显示 ${results.length} 项对比结果`, 'success');
+        }
+
+        /**
+         * Clear batch compare selection
+         */
+        function clearBatchCompare() {
+            document.getElementById('selectAllBatch').checked = false;
+            const checkboxes = document.querySelectorAll('.batch-item-checkbox');
+            checkboxes.forEach(cb => cb.checked = false);
+            updateBatchSelection();
+            document.getElementById('batchCompareSection').style.display = 'none';
+        }
+
         /**
          * Clear batch results
          */
         function clearBatch() {
             batchResults = [];
             document.getElementById('batchInput').value = '';
+            clearBatchCompare();
             document.getElementById('batchResults').style.display = 'none';
             showToast('已清空批量计算结果', 'success');
         }
