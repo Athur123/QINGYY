@@ -1927,6 +1927,442 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* ========================================
+           Bulk Scheme Comparison Styles
+           ======================================== */
+
+        /* Bulk Compare Section in Sidebar */
+        .bulk-compare-section {
+            background: var(--qy-bg-secondary);
+            border-radius: 12px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .bulk-compare-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+            border-bottom: 1px solid transparent;
+        }
+
+        .bulk-compare-header:hover {
+            background-color: var(--qy-bg-tertiary);
+        }
+
+        .bulk-compare-header.is-open {
+            border-bottom-color: var(--qy-border-light);
+        }
+
+        .bulk-compare-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bulk-compare-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .bulk-compare-badge {
+            background: var(--qy-primary-500);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .bulk-compare-toggle-icon {
+            transition: transform 0.2s;
+            color: var(--qy-text-secondary);
+        }
+
+        .bulk-compare-header.is-open .bulk-compare-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .bulk-compare-content {
+            padding: 16px;
+        }
+
+        .bulk-compare-salary {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bulk-compare-label {
+            font-size: 12px;
+            color: var(--qy-text-secondary);
+        }
+
+        .bulk-compare-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .bulk-compare-value.is-empty {
+            color: var(--qy-text-muted);
+        }
+
+        /* Filter Groups */
+        .bulk-compare-filters {
+            margin-bottom: 16px;
+        }
+
+        .bulk-filter-group {
+            margin-bottom: 14px;
+        }
+
+        .bulk-filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .bulk-filter-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .bulk-filter-title span {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--qy-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bulk-filter-clear {
+            font-size: 11px;
+            color: var(--qy-primary-500);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .bulk-filter-clear:hover {
+            text-decoration: underline;
+        }
+
+        .bulk-filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .bulk-filter-tag {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            border: 1px solid var(--qy-border-light);
+            background: white;
+            color: var(--qy-text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .bulk-filter-tag:hover {
+            border-color: var(--qy-primary-300);
+            background: var(--qy-primary-50);
+        }
+
+        .bulk-filter-tag.selected {
+            background: var(--qy-primary-500);
+            color: white;
+            border-color: var(--qy-primary-500);
+        }
+
+        /* Match Info */
+        .bulk-compare-match-info {
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-top: 1px solid var(--qy-border-light);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .bulk-compare-match-info strong {
+            color: var(--qy-primary-600);
+        }
+
+        /* Quick Actions */
+        .bulk-compare-quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bulk-compare-quick-btn {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--qy-border-light);
+            background: white;
+            color: var(--qy-text-primary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .bulk-compare-quick-btn:hover {
+            background: var(--qy-bg-tertiary);
+            border-color: var(--qy-primary-300);
+        }
+
+        /* Selection Info */
+        .bulk-compare-selection-info {
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .bulk-compare-selection-info strong {
+            color: var(--qy-primary-600);
+        }
+
+        /* Bulk Results Section */
+        .bulk-results-section {
+            margin-top: 28px;
+            display: none;
+        }
+
+        .bulk-results-section.is-visible {
+            display: block;
+        }
+
+        .bulk-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .bulk-results-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .bulk-results-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Analysis Cards */
+        .bulk-analysis-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .bulk-analysis-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--qy-border-light);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .bulk-analysis-card-title {
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .bulk-analysis-card-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--qy-text-primary);
+            margin-bottom: 4px;
+        }
+
+        .bulk-analysis-card-subtitle {
+            font-size: 12px;
+            color: var(--qy-text-muted);
+        }
+
+        .bulk-analysis-card.highlight-low {
+            border-color: var(--qy-success-300);
+            background: var(--qy-success-50);
+        }
+
+        .bulk-analysis-card.highlight-high {
+            border-color: var(--qy-danger-300);
+            background: var(--qy-danger-50);
+        }
+
+        /* Virtual Table */
+        .bulk-virtual-table-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--qy-border-light);
+            overflow: hidden;
+        }
+
+        .bulk-virtual-table-header {
+            position: sticky;
+            top: 0;
+            background: var(--qy-bg-secondary);
+            z-index: 10;
+            display: flex;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .bulk-virtual-table-header-cell {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--qy-text-secondary);
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .bulk-virtual-table-header-cell:hover {
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-tertiary);
+        }
+
+        .bulk-virtual-table-header-cell.sort-asc::after {
+            content: '↑';
+        }
+
+        .bulk-virtual-table-header-cell.sort-desc::after {
+            content: '↓';
+        }
+
+        .bulk-virtual-table-body {
+            position: relative;
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .bulk-virtual-table-row {
+            display: flex;
+            border-bottom: 1px solid var(--qy-border-light);
+            height: 48px;
+            align-items: center;
+            transition: background-color 0.1s;
+        }
+
+        .bulk-virtual-table-row:hover {
+            background: var(--qy-bg-secondary);
+        }
+
+        .bulk-virtual-table-row.highlight-low {
+            background: var(--qy-success-50);
+        }
+
+        .bulk-virtual-table-row.highlight-high {
+            background: var(--qy-danger-50);
+        }
+
+        .bulk-virtual-table-cell {
+            padding: 0 16px;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bulk-virtual-table-cell.amount {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-feature-settings: 'tnum';
+            text-align: right;
+        }
+
+        .bulk-virtual-table-cell.city-name {
+            font-weight: 500;
+        }
+
+        .bulk-virtual-table-cell .city-tag {
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 4px;
+        }
+
+        .bulk-virtual-table-cell .city-tag.tier1 {
+            background: var(--qy-danger-100);
+            color: var(--qy-danger-600);
+        }
+
+        .bulk-virtual-table-cell .city-tag.newTier1 {
+            background: var(--qy-warning-100);
+            color: var(--qy-warning-600);
+        }
+
+        .bulk-virtual-table-cell .city-tag.tier2 {
+            background: var(--qy-primary-100);
+            color: var(--qy-primary-600);
+        }
+
+        .bulk-virtual-table-cell .city-tag.tier3,
+        .bulk-virtual-table-cell .city-tag.tier4,
+        .bulk-virtual-table-cell .city-tag.tier5 {
+            background: var(--qy-bg-tertiary);
+            color: var(--qy-text-secondary);
+        }
+
+        /* Progress Bar */
+        .bulk-compare-progress {
+            margin: 16px 0;
+        }
+
+        .bulk-compare-progress-bar {
+            height: 6px;
+            background: var(--qy-bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bulk-compare-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--qy-primary-500), var(--qy-primary-400));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .bulk-compare-progress-text {
+            font-size: 12px;
+            color: var(--qy-text-secondary);
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1200px) {
+            .bulk-analysis-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bulk-analysis-cards {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2079,6 +2515,123 @@
             </div>
             <div class="saved-schemes-list" id="savedSchemesList">
                 <div class="saved-schemes-empty">暂无保存的方案</div>
+            </div>
+        </div>
+
+        <!-- Bulk Scheme Comparison Panel -->
+        <div class="bulk-compare-section" id="bulkCompareSection">
+            <div class="bulk-compare-header" onclick="toggleBulkComparePanel()">
+                <div class="bulk-compare-title-wrapper">
+                    <span class="bulk-compare-title">大规模方案对比</span>
+                    <span class="bulk-compare-badge" id="bulkCompareBadge" style="display: none;">0</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bulk-compare-toggle-icon" id="bulkCompareToggleIcon">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+
+            <div class="bulk-compare-content" id="bulkCompareContent" style="display: none;">
+                <!-- Salary Display -->
+                <div class="bulk-compare-salary" id="bulkCompareSalary">
+                    <span class="bulk-compare-label">对比工资基数</span>
+                    <span class="bulk-compare-value" id="bulkCompareSalaryValue">请先输入工资</span>
+                </div>
+
+                <!-- Filter Groups -->
+                <div class="bulk-compare-filters">
+                    <!-- Province Filter -->
+                    <div class="bulk-filter-group">
+                        <div class="bulk-filter-title">
+                            <span>省份</span>
+                            <button class="bulk-filter-clear" onclick="clearProvinceFilter()">清除</button>
+                        </div>
+                        <div class="bulk-filter-options" id="provinceFilterOptions">
+                            <button class="bulk-filter-tag" data-province="hunan">湖南省</button>
+                            <button class="bulk-filter-tag" data-province="guangdong">广东省</button>
+                            <button class="bulk-filter-tag" data-province="hubei">湖北省</button>
+                            <button class="bulk-filter-tag" data-province="jiangxi">江西省</button>
+                            <button class="bulk-filter-tag" data-province="jiangsu">江苏省</button>
+                            <button class="bulk-filter-tag" data-province="zhejiang">浙江省</button>
+                            <button class="bulk-filter-tag" data-province="shanghai">上海市</button>
+                            <button class="bulk-filter-tag" data-province="beijing">北京市</button>
+                            <button class="bulk-filter-tag" data-province="tianjin">天津市</button>
+                            <button class="bulk-filter-tag" data-province="chongqing">重庆市</button>
+                            <button class="bulk-filter-tag" data-province="sichuan">四川省</button>
+                            <button class="bulk-filter-tag" data-province="fujian">福建省</button>
+                            <button class="bulk-filter-tag" data-province="shandong">山东省</button>
+                            <button class="bulk-filter-tag" data-province="henan">河南省</button>
+                        </div>
+                    </div>
+
+                    <!-- City Tier Filter -->
+                    <div class="bulk-filter-group">
+                        <div class="bulk-filter-title">
+                            <span>城市级别</span>
+                            <button class="bulk-filter-clear" onclick="clearCityTierFilter()">清除</button>
+                        </div>
+                        <div class="bulk-filter-options" id="cityTierFilterOptions">
+                            <button class="bulk-filter-tag" data-tier="tier1">一线城市</button>
+                            <button class="bulk-filter-tag" data-tier="newTier1">新一线</button>
+                            <button class="bulk-filter-tag" data-tier="tier2">二线城市</button>
+                            <button class="bulk-filter-tag" data-tier="tier3">三线城市</button>
+                            <button class="bulk-filter-tag" data-tier="tier4">四线城市</button>
+                            <button class="bulk-filter-tag" data-tier="tier5">五线城市</button>
+                        </div>
+                    </div>
+
+                    <!-- Fund Rate Filter -->
+                    <div class="bulk-filter-group">
+                        <div class="bulk-filter-title">
+                            <span>公积金比例</span>
+                            <button class="bulk-filter-clear" onclick="clearFundRateFilter()">清除</button>
+                        </div>
+                        <div class="bulk-filter-options" id="fundRateFilterOptions">
+                            <button class="bulk-filter-tag selected" data-rate="12">12%</button>
+                            <button class="bulk-filter-tag selected" data-rate="10">10%</button>
+                            <button class="bulk-filter-tag selected" data-rate="8">8%</button>
+                            <button class="bulk-filter-tag selected" data-rate="5">5%</button>
+                        </div>
+                    </div>
+
+                    <!-- Social Scheme Filter -->
+                    <div class="bulk-filter-group">
+                        <div class="bulk-filter-title">
+                            <span>社保方案</span>
+                            <button class="bulk-filter-clear" onclick="clearSocialSchemeFilter()">清除</button>
+                        </div>
+                        <div class="bulk-filter-options" id="socialSchemeFilterOptions">
+                            <button class="bulk-filter-tag selected" data-social="normal">城镇职工</button>
+                            <button class="bulk-filter-tag" data-social="flexible">灵活就业</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Count -->
+                <div class="bulk-compare-match-info">
+                    匹配方案: <strong id="matchedSchemeCount">0</strong> 个
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bulk-compare-quick-actions">
+                    <button class="bulk-compare-quick-btn" onclick="selectAllMatched()">全选匹配</button>
+                    <button class="bulk-compare-quick-btn" onclick="selectMajorCities()">常用城市</button>
+                    <button class="bulk-compare-quick-btn" onclick="clearSelection()">清空选择</button>
+                </div>
+
+                <!-- Selection Info -->
+                <div class="bulk-compare-selection-info">
+                    已选择: <strong id="selectedSchemeCount">0</strong> / 2000 个方案
+                </div>
+
+                <!-- Compare Button -->
+                <button class="qy-btn qy-btn--primary qy-btn--block qy-btn--lg" id="startBulkCompareBtn" onclick="startBulkComparison()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                        <path d="M3 6h18"></path>
+                        <path d="M3 12h18"></path>
+                        <path d="M3 18h18"></path>
+                    </svg>
+                    开始对比分析
+                </button>
             </div>
         </div>
     </aside>
@@ -2432,6 +2985,207 @@
         // ========================================
         // City Configuration Data
         // ========================================
+        // ========================================
+        // Extended City Configurations for Bulk Comparison
+        // ========================================
+
+        const cityConfigsExtended = {
+            // 湖南省
+            changsha: { name: '长沙市', province: '湖南省', provinceCode: 'hunan', cityTier: 'newTier1', baseMin: 4027, baseMax: 20133 },
+            zhuzhou: { name: '株洲市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier3', baseMin: 3770, baseMax: 18852 },
+            xiangtan: { name: '湘潭市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier3', baseMin: 3586, baseMax: 17931 },
+            hengyang: { name: '衡阳市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier3', baseMin: 3350, baseMax: 16752 },
+            changde: { name: '常德市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier3', baseMin: 3400, baseMax: 17004 },
+            shaoyang: { name: '邵阳市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier4', baseMin: 3200, baseMax: 16000 },
+            yueyang: { name: '岳阳市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier3', baseMin: 3400, baseMax: 17000 },
+            zhangjiajie: { name: '张家界市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier5', baseMin: 3100, baseMax: 15500 },
+            yiyang: { name: '益阳市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier4', baseMin: 3300, baseMax: 16500 },
+            chenzhou: { name: '郴州市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier3', baseMin: 3300, baseMax: 16500 },
+            yongzhou: { name: '永州市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier4', baseMin: 3100, baseMax: 15500 },
+            huaihua: { name: '怀化市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier4', baseMin: 3100, baseMax: 15500 },
+            loudi: { name: '娄底市', province: '湖南省', provinceCode: 'hunan', cityTier: 'tier4', baseMin: 3200, baseMax: 16000 },
+
+            // 广东省
+            guangzhou: { name: '广州市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier1', baseMin: 5284, baseMax: 26421 },
+            shenzhen: { name: '深圳市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier1', baseMin: 2360, baseMax: 26421 },
+            zhuhai: { name: '珠海市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier2', baseMin: 4546, baseMax: 22731 },
+            foshan: { name: '佛山市', province: '广东省', provinceCode: 'guangdong', cityTier: 'newTier1', baseMin: 4546, baseMax: 22731 },
+            dongguan: { name: '东莞市', province: '广东省', provinceCode: 'guangdong', cityTier: 'newTier1', baseMin: 4546, baseMax: 22731 },
+            zhongshan: { name: '中山市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier2', baseMin: 3958, baseMax: 19791 },
+            huizhou: { name: '惠州市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier2', baseMin: 3673, baseMax: 18366 },
+            jiangmen: { name: '江门市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier3', baseMin: 3958, baseMax: 19791 },
+            zhanjiang: { name: '湛江市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier3', baseMin: 3673, baseMax: 18366 },
+            maoming: { name: '茂名市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier3', baseMin: 3673, baseMax: 18366 },
+            zhaoqing: { name: '肇庆市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier3', baseMin: 3673, baseMax: 18366 },
+            shantou: { name: '汕头市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier3', baseMin: 3673, baseMax: 18366 },
+            shaoguan: { name: '韶关市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            heyuan: { name: '河源市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            meizhou: { name: '梅州市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            shanwei: { name: '汕尾市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            yangjiang: { name: '阳江市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            qingyuan: { name: '清远市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            chaozhou: { name: '潮州市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            jieyang: { name: '揭阳市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier4', baseMin: 3673, baseMax: 18366 },
+            yunfu: { name: '云浮市', province: '广东省', provinceCode: 'guangdong', cityTier: 'tier5', baseMin: 3673, baseMax: 18366 },
+
+            // 湖北省
+            wuhan: { name: '武汉市', province: '湖北省', provinceCode: 'hubei', cityTier: 'newTier1', baseMin: 4224, baseMax: 21120 },
+            huangshi: { name: '黄石市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier3', baseMin: 3800, baseMax: 19000 },
+            shiyan: { name: '十堰市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier3', baseMin: 3800, baseMax: 19000 },
+            yichang: { name: '宜昌市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier2', baseMin: 3800, baseMax: 19000 },
+            xiangyang: { name: '襄阳市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier3', baseMin: 3800, baseMax: 19000 },
+            ezhou: { name: '鄂州市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier4', baseMin: 3800, baseMax: 19000 },
+            jingmen: { name: '荆门市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier4', baseMin: 3800, baseMax: 19000 },
+            xiaogan: { name: '孝感市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier4', baseMin: 3800, baseMax: 19000 },
+            jingzhou: { name: '荆州市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier3', baseMin: 3800, baseMax: 19000 },
+            huanggang: { name: '黄冈市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier4', baseMin: 3800, baseMax: 19000 },
+            xianning: { name: '咸宁市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier4', baseMin: 3800, baseMax: 19000 },
+            suizhou: { name: '随州市', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier4', baseMin: 3800, baseMax: 19000 },
+            enshi: { name: '恩施州', province: '湖北省', provinceCode: 'hubei', cityTier: 'tier5', baseMin: 3400, baseMax: 17000 },
+
+            // 江西省
+            nanchang: { name: '南昌市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier2', baseMin: 3839, baseMax: 19191 },
+            jingdezhen: { name: '景德镇市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            pingxiang: { name: '萍乡市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            jiujiang: { name: '九江市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier3', baseMin: 3659, baseMax: 18294 },
+            xinyu: { name: '新余市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            yingtan: { name: '鹰潭市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            ganzhou: { name: '赣州市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier3', baseMin: 3659, baseMax: 18294 },
+            jian: { name: '吉安市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            yichun: { name: '宜春市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            fuzhou: { name: '抚州市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+            shangrao: { name: '上饶市', province: '江西省', provinceCode: 'jiangxi', cityTier: 'tier4', baseMin: 3659, baseMax: 18294 },
+
+            // 江苏省
+            nanjing: { name: '南京市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'newTier1', baseMin: 4494, baseMax: 22470 },
+            wuxi: { name: '无锡市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'newTier1', baseMin: 4494, baseMax: 22470 },
+            xuzhou: { name: '徐州市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier2', baseMin: 4494, baseMax: 22470 },
+            changzhou: { name: '常州市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier2', baseMin: 4494, baseMax: 22470 },
+            suzhou: { name: '苏州市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier1', baseMin: 4494, baseMax: 22470 },
+            nantong: { name: '南通市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier2', baseMin: 4494, baseMax: 22470 },
+            lianyungang: { name: '连云港市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+            huaian: { name: '淮安市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+            yancheng: { name: '盐城市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+            yangzhou: { name: '扬州市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+            zhenjiang: { name: '镇江市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+            taizhou_js: { name: '泰州市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+            suqian: { name: '宿迁市', province: '江苏省', provinceCode: 'jiangsu', cityTier: 'tier3', baseMin: 4494, baseMax: 22470 },
+
+            // 浙江省
+            hangzhou: { name: '杭州市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'newTier1', baseMin: 4462, baseMax: 22311 },
+            ningbo: { name: '宁波市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'newTier1', baseMin: 4462, baseMax: 22311 },
+            wenzhou: { name: '温州市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier2', baseMin: 4462, baseMax: 22311 },
+            jiaxing: { name: '嘉兴市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier2', baseMin: 4462, baseMax: 22311 },
+            huzhou: { name: '湖州市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier3', baseMin: 4462, baseMax: 22311 },
+            shaoxing: { name: '绍兴市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier2', baseMin: 4462, baseMax: 22311 },
+            jinhua: { name: '金华市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier2', baseMin: 4462, baseMax: 22311 },
+            quzhou: { name: '衢州市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier3', baseMin: 4462, baseMax: 22311 },
+            zhoushan: { name: '舟山市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier3', baseMin: 4462, baseMax: 22311 },
+            taizhou_zj: { name: '台州市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier3', baseMin: 4462, baseMax: 22311 },
+            lishui: { name: '丽水市', province: '浙江省', provinceCode: 'zhejiang', cityTier: 'tier4', baseMin: 4462, baseMax: 22311 },
+
+            // 上海市
+            shanghai: { name: '上海市', province: '上海市', provinceCode: 'shanghai', cityTier: 'tier1', baseMin: 7310, baseMax: 36549 },
+
+            // 北京市
+            beijing: { name: '北京市', province: '北京市', provinceCode: 'beijing', cityTier: 'tier1', baseMin: 6821, baseMax: 34188 },
+
+            // 天津市
+            tianjin: { name: '天津市', province: '天津市', provinceCode: 'tianjin', cityTier: 'newTier1', baseMin: 4751, baseMax: 23757 },
+
+            // 重庆市
+            chongqing: { name: '重庆市', province: '重庆市', provinceCode: 'chongqing', cityTier: 'newTier1', baseMin: 4118, baseMax: 20587 },
+
+            // 四川省
+            chengdu: { name: '成都市', province: '四川省', provinceCode: 'sichuan', cityTier: 'newTier1', baseMin: 4246, baseMax: 21228 },
+            zigong: { name: '自贡市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            panzhihua: { name: '攀枝花市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            luzhou: { name: '泸州市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier3', baseMin: 4246, baseMax: 21228 },
+            deyang: { name: '德阳市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier3', baseMin: 4246, baseMax: 21228 },
+            mianyang: { name: '绵阳市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier3', baseMin: 4246, baseMax: 21228 },
+            guangyuan: { name: '广元市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            suining: { name: '遂宁市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            neijiang: { name: '内江市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            leshan: { name: '乐山市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier3', baseMin: 4246, baseMax: 21228 },
+            nanchong: { name: '南充市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier3', baseMin: 4246, baseMax: 21228 },
+            meishan: { name: '眉山市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            yibin: { name: '宜宾市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier3', baseMin: 4246, baseMax: 21228 },
+            guangan: { name: '广安市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            dazhou: { name: '达州市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            yaan: { name: '雅安市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+            bazhong: { name: '巴中市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier5', baseMin: 4246, baseMax: 21228 },
+            ziyang: { name: '资阳市', province: '四川省', provinceCode: 'sichuan', cityTier: 'tier4', baseMin: 4246, baseMax: 21228 },
+
+            // 福建省
+            fuzhou_fj: { name: '福州市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier2', baseMin: 3992, baseMax: 19962 },
+            xiamen: { name: '厦门市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier2', baseMin: 3992, baseMax: 19962 },
+            putian: { name: '莆田市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier3', baseMin: 3992, baseMax: 19962 },
+            sanming: { name: '三明市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier4', baseMin: 3992, baseMax: 19962 },
+            quanzhou: { name: '泉州市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier2', baseMin: 3992, baseMax: 19962 },
+            zhangzhou: { name: '漳州市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier3', baseMin: 3992, baseMax: 19962 },
+            nanping: { name: '南平市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier4', baseMin: 3992, baseMax: 19962 },
+            longyan: { name: '龙岩市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier3', baseMin: 3992, baseMax: 19962 },
+            ningde: { name: '宁德市', province: '福建省', provinceCode: 'fujian', cityTier: 'tier3', baseMin: 3992, baseMax: 19962 },
+
+            // 山东省
+            jinan: { name: '济南市', province: '山东省', provinceCode: 'shandong', cityTier: 'newTier1', baseMin: 4242, baseMax: 21207 },
+            qingdao: { name: '青岛市', province: '山东省', provinceCode: 'shandong', cityTier: 'newTier1', baseMin: 4242, baseMax: 21207 },
+            zibo: { name: '淄博市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            zaozhuang: { name: '枣庄市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            dongying: { name: '东营市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            yantai: { name: '烟台市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier2', baseMin: 4242, baseMax: 21207 },
+            weifang: { name: '潍坊市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier2', baseMin: 4242, baseMax: 21207 },
+            jining: { name: '济宁市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier2', baseMin: 4242, baseMax: 21207 },
+            taian: { name: '泰安市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            weihai: { name: '威海市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            rizhao: { name: '日照市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            linyi: { name: '临沂市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier2', baseMin: 4242, baseMax: 21207 },
+            dezhou: { name: '德州市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            liaocheng: { name: '聊城市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            binzhou: { name: '滨州市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+            heze: { name: '菏泽市', province: '山东省', provinceCode: 'shandong', cityTier: 'tier3', baseMin: 4242, baseMax: 21207 },
+
+            // 河南省
+            zhengzhou: { name: '郑州市', province: '河南省', provinceCode: 'henan', cityTier: 'newTier1', baseMin: 3579, baseMax: 17895 },
+            kaifeng: { name: '开封市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            luoyang: { name: '洛阳市', province: '河南省', provinceCode: 'henan', cityTier: 'tier2', baseMin: 3579, baseMax: 17895 },
+            pingdingshan: { name: '平顶山市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            anyang: { name: '安阳市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            hebi: { name: '鹤壁市', province: '河南省', provinceCode: 'henan', cityTier: 'tier4', baseMin: 3579, baseMax: 17895 },
+            xinxiang: { name: '新乡市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            jiaozuo: { name: '焦作市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            puyang: { name: '濮阳市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            xuchang: { name: '许昌市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            luohe: { name: '漯河市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            sanmenxia: { name: '三门峡市', province: '河南省', provinceCode: 'henan', cityTier: 'tier4', baseMin: 3579, baseMax: 17895 },
+            nanyang: { name: '南阳市', province: '河南省', provinceCode: 'henan', cityTier: 'tier2', baseMin: 3579, baseMax: 17895 },
+            shangqiu: { name: '商丘市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            xinyang: { name: '信阳市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            zhoukou: { name: '周口市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 },
+            zhumadian: { name: '驻马店市', province: '河南省', provinceCode: 'henan', cityTier: 'tier3', baseMin: 3579, baseMax: 17895 }
+        };
+
+        // Standard social insurance rates for extended cities
+        const standardSocialSchemes = {
+            normal: {
+                name: '城镇职工社保',
+                pension: { company: 0.16, personal: 0.08 },
+                medical: { company: 0.08, personal: 0.02 },
+                unemployment: { company: 0.007, personal: 0.003 },
+                injury: { company: 0.004, personal: 0 },
+                maternity: { company: 0.005, personal: 0 }
+            },
+            flexible: {
+                name: '灵活就业社保',
+                pension: { company: 0, personal: 0.20 },
+                medical: { company: 0, personal: 0.08 },
+                unemployment: { company: 0, personal: 0 },
+                injury: { company: 0, personal: 0 },
+                maternity: { company: 0, personal: 0 }
+            }
+        };
+
+        // Original cityConfigs (maintain backward compatibility)
         const cityConfigs = {
             changsha: {
                 name: '长沙市',
@@ -3679,6 +4433,732 @@ ${period}费用：
         // Initialization
         // ========================================
 
+        // ========================================
+        // Bulk Scheme Comparison Functions
+        // ========================================
+
+        // Global variables for bulk comparison
+        let allSchemeOptions = [];
+        let selectedSchemes = new Set();
+        let bulkComparisonResults = [];
+        let currentFilters = {
+            provinces: [],
+            cityTiers: [],
+            fundRates: [12, 10, 8, 5],
+            socialSchemes: ['normal']
+        };
+
+        /**
+         * Generate all scheme options from extended city configs
+         */
+        function generateAllSchemeOptions() {
+            const options = [];
+            const fundRates = [12, 10, 8, 5];
+            const socialSchemes = [
+                { code: 'normal', name: '城镇职工' },
+                { code: 'flexible', name: '灵活就业' }
+            ];
+
+            for (const [cityCode, cityConfig] of Object.entries(cityConfigsExtended)) {
+                for (const social of socialSchemes) {
+                    for (const fundRate of fundRates) {
+                        options.push({
+                            id: `${cityCode}-${social.code}-${fundRate}`,
+                            cityCode,
+                            cityName: cityConfig.name,
+                            province: cityConfig.province,
+                            provinceCode: cityConfig.provinceCode,
+                            cityTier: cityConfig.cityTier,
+                            socialScheme: social.code,
+                            socialSchemeName: social.name,
+                            fundRate,
+                            fundRateDisplay: `${fundRate}%`,
+                            baseMin: cityConfig.baseMin,
+                            baseMax: cityConfig.baseMax
+                        });
+                    }
+                }
+            }
+            return options;
+        }
+
+        /**
+         * Toggle bulk compare panel
+         */
+        function toggleBulkComparePanel() {
+            const content = document.getElementById('bulkCompareContent');
+            const header = document.querySelector('.bulk-compare-header');
+            const isOpen = content.style.display !== 'none';
+
+            content.style.display = isOpen ? 'none' : 'block';
+            header.classList.toggle('is-open', !isOpen);
+
+            if (!isOpen) {
+                updateBulkCompareSalaryDisplay();
+                updateMatchedCount();
+            }
+        }
+
+        /**
+         * Update salary display in bulk compare panel
+         */
+        function updateBulkCompareSalaryDisplay() {
+            const salaryInput = document.getElementById('salaryInput');
+            const salaryValue = document.getElementById('bulkCompareSalaryValue');
+            const salary = parseFloat(salaryInput.value);
+
+            if (salary && salary > 0) {
+                salaryValue.textContent = `¥${salary.toLocaleString()}`;
+                salaryValue.classList.remove('is-empty');
+            } else {
+                salaryValue.textContent = '请先输入工资';
+                salaryValue.classList.add('is-empty');
+            }
+        }
+
+        /**
+         * Initialize bulk compare filters
+         */
+        function initBulkCompareFilters() {
+            // Province filters
+            document.querySelectorAll('#provinceFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                    updateFiltersFromUI();
+                    updateMatchedCount();
+                });
+            });
+
+            // City tier filters
+            document.querySelectorAll('#cityTierFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                    updateFiltersFromUI();
+                    updateMatchedCount();
+                });
+            });
+
+            // Fund rate filters
+            document.querySelectorAll('#fundRateFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                    updateFiltersFromUI();
+                    updateMatchedCount();
+                });
+            });
+
+            // Social scheme filters
+            document.querySelectorAll('#socialSchemeFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    tag.classList.toggle('selected');
+                    updateFiltersFromUI();
+                    updateMatchedCount();
+                });
+            });
+        }
+
+        /**
+         * Update filters from UI state
+         */
+        function updateFiltersFromUI() {
+            currentFilters.provinces = Array.from(document.querySelectorAll('#provinceFilterOptions .bulk-filter-tag.selected'))
+                .map(tag => tag.dataset.province);
+            currentFilters.cityTiers = Array.from(document.querySelectorAll('#cityTierFilterOptions .bulk-filter-tag.selected'))
+                .map(tag => tag.dataset.tier);
+            currentFilters.fundRates = Array.from(document.querySelectorAll('#fundRateFilterOptions .bulk-filter-tag.selected'))
+                .map(tag => parseInt(tag.dataset.rate));
+            currentFilters.socialSchemes = Array.from(document.querySelectorAll('#socialSchemeFilterOptions .bulk-filter-tag.selected'))
+                .map(tag => tag.dataset.social);
+        }
+
+        /**
+         * Get filtered schemes based on current filters
+         */
+        function getFilteredSchemes() {
+            return allSchemeOptions.filter(opt => {
+                if (currentFilters.provinces.length > 0 && !currentFilters.provinces.includes(opt.provinceCode)) {
+                    return false;
+                }
+                if (currentFilters.cityTiers.length > 0 && !currentFilters.cityTiers.includes(opt.cityTier)) {
+                    return false;
+                }
+                if (currentFilters.fundRates.length > 0 && !currentFilters.fundRates.includes(opt.fundRate)) {
+                    return false;
+                }
+                if (currentFilters.socialSchemes.length > 0 && !currentFilters.socialSchemes.includes(opt.socialScheme)) {
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        /**
+         * Update matched scheme count display
+         */
+        function updateMatchedCount() {
+            const filtered = getFilteredSchemes();
+            document.getElementById('matchedSchemeCount').textContent = filtered.length.toLocaleString();
+        }
+
+        /**
+         * Clear province filter
+         */
+        function clearProvinceFilter() {
+            document.querySelectorAll('#provinceFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            updateFiltersFromUI();
+            updateMatchedCount();
+        }
+
+        /**
+         * Clear city tier filter
+         */
+        function clearCityTierFilter() {
+            document.querySelectorAll('#cityTierFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            updateFiltersFromUI();
+            updateMatchedCount();
+        }
+
+        /**
+         * Clear fund rate filter
+         */
+        function clearFundRateFilter() {
+            document.querySelectorAll('#fundRateFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.classList.add('selected');
+            });
+            updateFiltersFromUI();
+            updateMatchedCount();
+        }
+
+        /**
+         * Clear social scheme filter
+         */
+        function clearSocialSchemeFilter() {
+            document.querySelectorAll('#socialSchemeFilterOptions .bulk-filter-tag').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            document.querySelector('#socialSchemeFilterOptions .bulk-filter-tag[data-social="normal"]').classList.add('selected');
+            updateFiltersFromUI();
+            updateMatchedCount();
+        }
+
+        /**
+         * Select all matched schemes
+         */
+        function selectAllMatched() {
+            const salary = parseFloat(document.getElementById('salaryInput').value);
+            if (!salary || salary <= 0) {
+                showToast('请先输入工资基数', 'warning');
+                return;
+            }
+
+            const filtered = getFilteredSchemes();
+            if (filtered.length === 0) {
+                showToast('当前筛选条件下没有匹配的方案', 'warning');
+                return;
+            }
+
+            if (filtered.length > 2000) {
+                showToast('匹配方案超过2000个，已自动选择前2000个', 'warning');
+                filtered.slice(0, 2000).forEach(s => selectedSchemes.add(s.id));
+            } else {
+                filtered.forEach(s => selectedSchemes.add(s.id));
+            }
+
+            updateSelectionInfo();
+        }
+
+        /**
+         * Select major cities (commonly used cities)
+         */
+        function selectMajorCities() {
+            const salary = parseFloat(document.getElementById('salaryInput').value);
+            if (!salary || salary <= 0) {
+                showToast('请先输入工资基数', 'warning');
+                return;
+            }
+
+            const majorCityCodes = ['shanghai', 'beijing', 'guangzhou', 'shenzhen', 'hangzhou', 'nanjing', 'wuhan', 'chengdu', 'changsha', 'zhengzhou'];
+
+            // Clear current selection
+            selectedSchemes.clear();
+
+            // Add major cities with normal social scheme and 12% fund rate
+            majorCityCodes.forEach(cityCode => {
+                const schemeId = `${cityCode}-normal-12`;
+                if (allSchemeOptions.find(s => s.id === schemeId)) {
+                    selectedSchemes.add(schemeId);
+                }
+            });
+
+            updateSelectionInfo();
+            showToast(`已选择 ${selectedSchemes.size} 个常用城市方案`, 'success');
+        }
+
+        /**
+         * Clear all selections
+         */
+        function clearSelection() {
+            selectedSchemes.clear();
+            updateSelectionInfo();
+        }
+
+        /**
+         * Update selection info display
+         */
+        function updateSelectionInfo() {
+            const count = selectedSchemes.size;
+            document.getElementById('selectedSchemeCount').textContent = count;
+            document.getElementById('startBulkCompareBtn').disabled = count < 1;
+
+            const badge = document.getElementById('bulkCompareBadge');
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-block' : 'none';
+        }
+
+        /**
+         * Calculate insurance for a specific scheme
+         */
+        function calculateForScheme(salary, scheme) {
+            const base = Math.max(scheme.baseMin, Math.min(salary, scheme.baseMax));
+            const socialScheme = standardSocialSchemes[scheme.socialScheme];
+
+            let companySocial = 0;
+            let personalSocial = 0;
+
+            if (scheme.socialScheme === 'normal') {
+                companySocial = base * (socialScheme.pension.company + socialScheme.medical.company +
+                    socialScheme.unemployment.company + socialScheme.injury.company + socialScheme.maternity.company);
+                personalSocial = base * (socialScheme.pension.personal + socialScheme.medical.personal +
+                    socialScheme.unemployment.personal);
+            } else {
+                // Flexible employment - only personal payments
+                personalSocial = base * (socialScheme.pension.personal + socialScheme.medical.personal);
+            }
+
+            const companyFund = base * (scheme.fundRate / 100);
+            const personalFund = base * (scheme.fundRate / 100);
+
+            return {
+                baseAmount: base,
+                companySocial,
+                companyFund,
+                companyTotal: companySocial + companyFund,
+                personalSocial,
+                personalFund,
+                personalTotal: personalSocial + personalFund,
+                grandTotal: companySocial + personalSocial + companyFund + personalFund,
+                netSalary: salary - personalSocial - personalFund,
+                totalCompanyCost: salary + companySocial + companyFund
+            };
+        }
+
+        /**
+         * Start bulk comparison
+         */
+        async function startBulkComparison() {
+            const salary = parseFloat(document.getElementById('salaryInput').value);
+            if (!salary || salary <= 0) {
+                showToast('请先输入工资基数', 'warning');
+                return;
+            }
+
+            if (selectedSchemes.size === 0) {
+                showToast('请至少选择一个方案', 'warning');
+                return;
+            }
+
+            if (selectedSchemes.size > 2000) {
+                showToast('最多可选择2000个方案', 'warning');
+                return;
+            }
+
+            // Show progress
+            const btn = document.getElementById('startBulkCompareBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 计算中...';
+
+            // Perform calculation in batches
+            const selectedIds = Array.from(selectedSchemes);
+            const batchSize = 100;
+            const results = [];
+
+            for (let i = 0; i < selectedIds.length; i += batchSize) {
+                const batch = selectedIds.slice(i, i + batchSize);
+
+                batch.forEach(id => {
+                    const scheme = allSchemeOptions.find(s => s.id === id);
+                    if (scheme) {
+                        const costs = calculateForScheme(salary, scheme);
+                        results.push({
+                            ...scheme,
+                            salary,
+                            costs
+                        });
+                    }
+                });
+
+                // Update progress
+                const progress = Math.round((i + batch.length) / selectedIds.length * 100);
+                btn.innerHTML = `<span class="spinner"></span> 计算中 ${progress}%`;
+
+                // Yield to main thread
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
+
+            bulkComparisonResults = results;
+            renderBulkResults();
+
+            // Restore button
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            showToast(`已完成 ${results.length} 个方案的对比分析`, 'success');
+        }
+
+        /**
+         * Render bulk comparison results
+         */
+        function renderBulkResults() {
+            const container = document.getElementById('bulkResultsSection');
+            if (!container) {
+                createBulkResultsSection();
+            }
+
+            document.getElementById('bulkResultsSection').classList.add('is-visible');
+            document.getElementById('bulkResultsSection').scrollIntoView({ behavior: 'smooth' });
+
+            renderAnalysisCards();
+            renderVirtualTable();
+        }
+
+        /**
+         * Create bulk results section if not exists
+         */
+        function createBulkResultsSection() {
+            const section = document.createElement('section');
+            section.id = 'bulkResultsSection';
+            section.className = 'bulk-results-section';
+            section.innerHTML = `
+                <div class="bulk-results-header">
+                    <h2 class="bulk-results-title">大规模方案对比结果</h2>
+                    <div class="bulk-results-actions">
+                        <button class="qy-btn qy-btn--secondary" onclick="exportBulkResultsToCSV()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            导出CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="bulk-analysis-cards" id="bulkAnalysisCards"></div>
+                <div class="bulk-virtual-table-container">
+                    <div class="bulk-virtual-table-header" id="virtualTableHeader"></div>
+                    <div class="bulk-virtual-table-body" id="virtualTableBody"></div>
+                </div>
+            `;
+
+            // Insert after batch section
+            const batchSection = document.getElementById('batchSection');
+            if (batchSection) {
+                batchSection.parentNode.insertBefore(section, batchSection.nextSibling);
+            } else {
+                document.querySelector('.calc-content').appendChild(section);
+            }
+        }
+
+        /**
+         * Render analysis cards
+         */
+        function renderAnalysisCards() {
+            const results = bulkComparisonResults;
+            if (results.length === 0) return;
+
+            // Calculate stats
+            const companyCosts = results.map(r => r.costs.companyTotal);
+            const personalCosts = results.map(r => r.costs.personalTotal);
+            const totalCosts = results.map(r => r.costs.grandTotal);
+            const netSalaries = results.map(r => r.costs.netSalary);
+
+            const minCompanyCost = Math.min(...companyCosts);
+            const maxCompanyCost = Math.max(...companyCosts);
+            const minTotalCost = Math.min(...totalCosts);
+            const maxNetSalary = Math.max(...netSalaries);
+
+            // Find cities with min/max values
+            const minCompanyCity = results.find(r => r.costs.companyTotal === minCompanyCost);
+            const minTotalCity = results.find(r => r.costs.grandTotal === minTotalCost);
+            const maxNetCity = results.find(r => r.costs.netSalary === maxNetSalary);
+
+            const cardsHtml = `
+                <div class="bulk-analysis-card">
+                    <div class="bulk-analysis-card-title">对比方案总数</div>
+                    <div class="bulk-analysis-card-value">${results.length}</div>
+                    <div class="bulk-analysis-card-subtitle">个城市方案组合</div>
+                </div>
+                <div class="bulk-analysis-card highlight-low">
+                    <div class="bulk-analysis-card-title">单位成本最低</div>
+                    <div class="bulk-analysis-card-value">${minCompanyCity.cityName}</div>
+                    <div class="bulk-analysis-card-subtitle">¥${minCompanyCost.toLocaleString()} / 月</div>
+                </div>
+                <div class="bulk-analysis-card highlight-low">
+                    <div class="bulk-analysis-card-title">总成本最低</div>
+                    <div class="bulk-analysis-card-value">${minTotalCity.cityName}</div>
+                    <div class="bulk-analysis-card-subtitle">¥${minTotalCost.toLocaleString()} / 月</div>
+                </div>
+                <div class="bulk-analysis-card highlight-low">
+                    <div class="bulk-analysis-card-title">到手工资最高</div>
+                    <div class="bulk-analysis-card-value">${maxNetCity.cityName}</div>
+                    <div class="bulk-analysis-card-subtitle">¥${maxNetSalary.toLocaleString()} / 月</div>
+                </div>
+            `;
+
+            document.getElementById('bulkAnalysisCards').innerHTML = cardsHtml;
+        }
+
+        /**
+         * Render virtual table
+         */
+        function renderVirtualTable() {
+            const results = [...bulkComparisonResults];
+
+            // Sort by total cost by default
+            results.sort((a, b) => a.costs.grandTotal - b.costs.grandTotal);
+
+            // Render header
+            const headerHtml = `
+                <div class="bulk-virtual-table-header-cell" style="width: 60px;" onclick="sortVirtualTable('rank')">排名</div>
+                <div class="bulk-virtual-table-header-cell" style="width: 140px;" onclick="sortVirtualTable('cityName')">城市</div>
+                <div class="bulk-virtual-table-header-cell" style="width: 80px;" onclick="sortVirtualTable('fundRate')">公积金</div>
+                <div class="bulk-virtual-table-header-cell amount" style="width: 100px;" onclick="sortVirtualTable('baseAmount')">缴费基数</div>
+                <div class="bulk-virtual-table-header-cell amount" style="width: 100px;" onclick="sortVirtualTable('companyTotal')">单位缴纳</div>
+                <div class="bulk-virtual-table-header-cell amount" style="width: 100px;" onclick="sortVirtualTable('personalTotal')">个人缴纳</div>
+                <div class="bulk-virtual-table-header-cell amount" style="width: 100px;" onclick="sortVirtualTable('grandTotal')">月缴总额</div>
+                <div class="bulk-virtual-table-header-cell amount" style="width: 100px;" onclick="sortVirtualTable('netSalary')">到手工资</div>
+            `;
+            document.getElementById('virtualTableHeader').innerHTML = headerHtml;
+
+            // Render body with virtual scrolling
+            renderVirtualTableBody(results);
+        }
+
+        /**
+         * Render virtual table body
+         */
+        function renderVirtualTableBody(results) {
+            const container = document.getElementById('virtualTableBody');
+            const rowHeight = 48;
+            const totalHeight = results.length * rowHeight;
+
+            // Store results for sorting
+            container.dataset.results = JSON.stringify(results.map(r => r.id));
+
+            // Create virtual scroll container
+            container.innerHTML = `
+                <div style="position: relative; height: ${totalHeight}px;">
+                    <div id="virtualTableContent" style="position: absolute; top: 0; left: 0; right: 0;"></div>
+                </div>
+            `;
+
+            // Initial render
+            updateVirtualTableViewport(results);
+
+            // Add scroll listener
+            container.onscroll = () => updateVirtualTableViewport(results);
+        }
+
+        /**
+         * Update virtual table viewport
+         */
+        function updateVirtualTableViewport(results) {
+            const container = document.getElementById('virtualTableBody');
+            const content = document.getElementById('virtualTableContent');
+            if (!container || !content) return;
+
+            const scrollTop = container.scrollTop;
+            const viewportHeight = container.clientHeight;
+            const rowHeight = 48;
+            const bufferSize = 5;
+
+            const startIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - bufferSize);
+            const endIdx = Math.min(results.length, Math.ceil((scrollTop + viewportHeight) / rowHeight) + bufferSize);
+
+            const visibleResults = results.slice(startIdx, endIdx);
+            const offsetY = startIdx * rowHeight;
+
+            // Find min/max for highlighting
+            const companyCosts = results.map(r => r.costs.companyTotal);
+            const personalCosts = results.map(r => r.costs.personalTotal);
+            const grandTotals = results.map(r => r.costs.grandTotal);
+            const netSalaries = results.map(r => r.costs.netSalary);
+
+            const minCompany = Math.min(...companyCosts);
+            const maxCompany = Math.max(...companyCosts);
+            const minGrand = Math.min(...grandTotals);
+            const maxNet = Math.max(...netSalaries);
+
+            const rowsHtml = visibleResults.map((result, idx) => {
+                const rank = startIdx + idx + 1;
+                const isLowCompany = result.costs.companyTotal === minCompany;
+                const isHighCompany = result.costs.companyTotal === maxCompany;
+                const isLowGrand = result.costs.grandTotal === minGrand;
+                const isHighNet = result.costs.netSalary === maxNet;
+
+                let rowClass = 'bulk-virtual-table-row';
+                if (isLowGrand) rowClass += ' highlight-low';
+
+                const tierLabels = {
+                    tier1: '一线',
+                    newTier1: '新一线',
+                    tier2: '二线',
+                    tier3: '三线',
+                    tier4: '四线',
+                    tier5: '五线'
+                };
+
+                return `
+                    <div class="${rowClass}" style="height: 48px; transform: translateY(${offsetY + idx * rowHeight}px);">
+                        <div class="bulk-virtual-table-cell" style="width: 60px;">${rank}</div>
+                        <div class="bulk-virtual-table-cell city-name" style="width: 140px;">
+                            ${result.cityName}
+                            <span class="city-tag ${result.cityTier}">${tierLabels[result.cityTier] || result.cityTier}</span>
+                        </div>
+                        <div class="bulk-virtual-table-cell" style="width: 80px;">${result.fundRateDisplay}</div>
+                        <div class="bulk-virtual-table-cell amount" style="width: 100px;">¥${result.costs.baseAmount.toLocaleString()}</div>
+                        <div class="bulk-virtual-table-cell amount" style="width: 100px; ${isLowCompany ? 'color: var(--qy-success-600); font-weight: 600;' : ''}">¥${Math.round(result.costs.companyTotal).toLocaleString()}</div>
+                        <div class="bulk-virtual-table-cell amount" style="width: 100px;">¥${Math.round(result.costs.personalTotal).toLocaleString()}</div>
+                        <div class="bulk-virtual-table-cell amount" style="width: 100px; ${isLowGrand ? 'color: var(--qy-success-600); font-weight: 600;' : ''}">¥${Math.round(result.costs.grandTotal).toLocaleString()}</div>
+                        <div class="bulk-virtual-table-cell amount" style="width: 100px; ${isHighNet ? 'color: var(--qy-success-600); font-weight: 600;' : ''}">¥${Math.round(result.costs.netSalary).toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+
+            content.innerHTML = rowsHtml;
+        }
+
+        /**
+         * Sort virtual table
+         */
+        function sortVirtualTable(field) {
+            const container = document.getElementById('virtualTableBody');
+            const resultIds = JSON.parse(container.dataset.results || '[]');
+            let results = resultIds.map(id => bulkComparisonResults.find(r => r.id === id));
+
+            // Toggle sort direction
+            const currentSort = container.dataset.sortField;
+            const currentDir = container.dataset.sortDir || 'asc';
+            const newDir = currentSort === field && currentDir === 'asc' ? 'desc' : 'asc';
+
+            container.dataset.sortField = field;
+            container.dataset.sortDir = newDir;
+
+            // Sort
+            results.sort((a, b) => {
+                let valA, valB;
+
+                switch (field) {
+                    case 'rank':
+                        return 0; // Keep current order
+                    case 'cityName':
+                        valA = a.cityName;
+                        valB = b.cityName;
+                        break;
+                    case 'fundRate':
+                        valA = a.fundRate;
+                        valB = b.fundRate;
+                        break;
+                    case 'baseAmount':
+                        valA = a.costs.baseAmount;
+                        valB = b.costs.baseAmount;
+                        break;
+                    case 'companyTotal':
+                        valA = a.costs.companyTotal;
+                        valB = b.costs.companyTotal;
+                        break;
+                    case 'personalTotal':
+                        valA = a.costs.personalTotal;
+                        valB = b.costs.personalTotal;
+                        break;
+                    case 'grandTotal':
+                        valA = a.costs.grandTotal;
+                        valB = b.costs.grandTotal;
+                        break;
+                    case 'netSalary':
+                        valA = a.costs.netSalary;
+                        valB = b.costs.netSalary;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (typeof valA === 'string') {
+                    return newDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+
+                return newDir === 'asc' ? valA - valB : valB - valA;
+            });
+
+            // Re-render
+            container.dataset.results = JSON.stringify(results.map(r => r.id));
+            updateVirtualTableViewport(results);
+
+            // Update header sort indicators
+            document.querySelectorAll('.bulk-virtual-table-header-cell').forEach(cell => {
+                cell.classList.remove('sort-asc', 'sort-desc');
+            });
+            const headerCell = document.querySelector(`.bulk-virtual-table-header-cell[onclick="sortVirtualTable('${field}')"]`);
+            if (headerCell) {
+                headerCell.classList.add(newDir === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        }
+
+        /**
+         * Export bulk results to CSV
+         */
+        function exportBulkResultsToCSV() {
+            if (bulkComparisonResults.length === 0) {
+                showToast('没有数据可导出', 'warning');
+                return;
+            }
+
+            const headers = ['排名', '城市', '省份', '城市级别', '社保方案', '公积金比例', '缴费基数', '单位社保', '单位公积金', '单位合计', '个人社保', '个人公积金', '个人合计', '月缴总额', '到手工资', '企业总成本'];
+
+            const rows = bulkComparisonResults.map((result, idx) => [
+                idx + 1,
+                result.cityName,
+                result.province,
+                result.cityTier,
+                result.socialSchemeName,
+                result.fundRateDisplay,
+                result.costs.baseAmount,
+                Math.round(result.costs.companySocial),
+                Math.round(result.costs.companyFund),
+                Math.round(result.costs.companyTotal),
+                Math.round(result.costs.personalSocial),
+                Math.round(result.costs.personalFund),
+                Math.round(result.costs.personalTotal),
+                Math.round(result.costs.grandTotal),
+                Math.round(result.costs.netSalary),
+                Math.round(result.costs.totalCompanyCost)
+            ]);
+
+            const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `大规模方案对比_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+
+            showToast('CSV文件已下载', 'success');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Create toast container
             createToastContainer();
@@ -3688,6 +5168,22 @@ ${period}费用：
 
             // Render compare list
             renderCompare();
+
+            // Initialize bulk comparison
+            allSchemeOptions = generateAllSchemeOptions();
+            initBulkCompareFilters();
+            updateMatchedCount();
+
+            // Monitor salary input for bulk compare
+            const salaryInput = document.getElementById('salaryInput');
+            salaryInput.addEventListener('input', () => {
+                updateBulkCompareSalaryDisplay();
+                // Clear results when salary changes
+                const bulkSection = document.getElementById('bulkResultsSection');
+                if (bulkSection) {
+                    bulkSection.classList.remove('is-visible');
+                }
+            });
 
             // Add keyboard shortcut for calculation
             document.addEventListener('keydown', function(e) {
