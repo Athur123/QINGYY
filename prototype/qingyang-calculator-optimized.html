@@ -1,0 +1,2855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>费用计算器 - 青阳云</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 青阳云设计系统 -->
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        /* ========================================
+           计算器页面专用样式
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--qy-font-primary);
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: var(--qy-bg-primary);
+            border-right: 1px solid var(--qy-border-light);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: var(--qy-z-fixed);
+            transition: transform var(--qy-transition-base);
+        }
+
+        .logo {
+            padding: var(--qy-space-5) var(--qy-space-6);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .logo h1 {
+            font-size: var(--qy-font-size-lg);
+            font-weight: var(--qy-font-bold);
+            color: var(--qy-primary-600);
+        }
+
+        .nav-section {
+            padding: var(--qy-space-4) 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-group {
+            padding: var(--qy-space-3) var(--qy-space-5) var(--qy-space-1);
+            font-size: var(--qy-font-size-xs);
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .nav-tree { list-style: none; padding: 0 var(--qy-space-3); }
+        .nav-item { margin-bottom: var(--qy-space-1); }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: var(--qy-space-2) var(--qy-space-3);
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            color: var(--qy-text-secondary);
+            font-size: var(--qy-font-size-sm);
+            transition: all var(--qy-transition-fast);
+        }
+
+        .nav-link:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .nav-link.active {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-600);
+            font-weight: var(--qy-font-semibold);
+        }
+
+        .nav-link svg { margin-right: var(--qy-space-2); }
+
+        /* 移动端菜单按钮 */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: var(--qy-space-4);
+            left: var(--qy-space-4);
+            z-index: calc(var(--qy-z-fixed) + 10);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--qy-radius-md);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            box-shadow: var(--qy-shadow-md);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 筛选侧边栏 */
+        .content-with-filter { display: flex; flex: 1; }
+
+        .filter-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: var(--qy-bg-primary);
+            border-right: 1px solid var(--qy-border-light);
+            padding: var(--qy-space-5) 0;
+            overflow-y: auto;
+            position: fixed;
+            left: 220px;
+            top: 0;
+            bottom: 0;
+            z-index: var(--qy-z-fixed);
+            transition: transform var(--qy-transition-base);
+        }
+
+        .filter-section {
+            padding: 0 var(--qy-space-4) var(--qy-space-4);
+            border-bottom: 1px solid var(--qy-border-light);
+            margin-bottom: var(--qy-space-4);
+        }
+
+        .filter-section:last-child { border-bottom: none; margin-bottom: 0; }
+
+        .filter-section-title {
+            font-size: var(--qy-font-size-xs);
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+        }
+
+        .filter-section-title svg { color: var(--qy-text-muted); }
+        .filter-item { margin-bottom: var(--qy-space-3); }
+        .filter-item:last-child { margin-bottom: 0; }
+
+        .filter-label {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-secondary);
+            margin-bottom: var(--qy-space-1);
+            display: block;
+        }
+
+        /* 移动端筛选触发按钮 */
+        .mobile-filter-trigger {
+            display: none;
+            position: fixed;
+            bottom: var(--qy-space-6);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: calc(var(--qy-z-fixed) + 5);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 500px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .header {
+            background: var(--qy-bg-primary);
+            border-bottom: 1px solid var(--qy-border-light);
+            padding: var(--qy-space-4) var(--qy-space-7);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: calc(var(--qy-z-fixed) - 10);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            font-size: var(--qy-font-size-sm);
+        }
+
+        .breadcrumb a {
+            color: var(--qy-text-muted);
+            text-decoration: none;
+            transition: color var(--qy-transition-fast);
+        }
+        .breadcrumb a:hover { color: var(--qy-primary-500); }
+        .breadcrumb-separator { color: var(--qy-text-muted); }
+        .breadcrumb-current { color: var(--qy-text-primary); font-weight: var(--qy-font-semibold); }
+
+        .header-actions { display: flex; gap: var(--qy-space-3); }
+
+        /* 内容区域 */
+        .content-main {
+            flex: 1;
+            padding: var(--qy-space-6) var(--qy-space-7);
+            max-width: 1000px;
+        }
+
+        /* 计算器头部 */
+        .calc-header-section { margin-bottom: var(--qy-space-6); }
+
+        .calc-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--qy-space-5);
+        }
+
+        .calc-title {
+            font-size: var(--qy-font-size-2xl);
+            font-weight: var(--qy-font-bold);
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-1);
+        }
+
+        .calc-subtitle {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        /* 汇总与图表卡片 */
+        .summary-chart-card {
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-xl);
+            box-shadow: var(--qy-shadow-card);
+            padding: var(--qy-space-6);
+            border: 1px solid var(--qy-border-light);
+            animation: cardEnter 0.4s var(--qy-ease-out);
+        }
+
+        .summary-chart-content {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-10);
+        }
+
+        .summary-section { flex: 1; min-width: 280px; }
+
+        .summary-title {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .summary-amount {
+            font-size: 36px;
+            font-weight: var(--qy-font-bold);
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-4);
+            font-variant-numeric: tabular-nums;
+            transition: transform var(--qy-transition-fast);
+        }
+
+        .summary-amount.is-updating { animation: numberPulse 0.3s var(--qy-ease-bounce); }
+
+        .summary-detail {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-4);
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-1);
+        }
+
+        .summary-item-label {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-secondary);
+        }
+
+        .summary-item-value {
+            font-size: var(--qy-font-size-sm);
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .summary-divider {
+            width: 1px;
+            height: 30px;
+            background: var(--qy-border-light);
+        }
+
+        /* 图表区域 */
+        .chart-section {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-6);
+            padding-left: var(--qy-space-10);
+            border-left: 1px solid var(--qy-border-light);
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .donut-chart svg { transform: rotate(-90deg); }
+        .donut-chart circle { transition: stroke-dasharray 0.6s var(--qy-ease-out); }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-label {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+            margin-bottom: var(--qy-space-1);
+        }
+
+        .donut-value {
+            font-size: var(--qy-font-size-lg);
+            font-weight: var(--qy-font-bold);
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-3);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--qy-radius-sm);
+        }
+
+        .legend-text {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        .legend-value {
+            margin-left: auto;
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 结果卡片 */
+        .result-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--qy-space-5);
+            margin-bottom: var(--qy-space-5);
+        }
+
+        .result-card {
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-xl);
+            box-shadow: var(--qy-shadow-card);
+            overflow: hidden;
+            border: 1px solid var(--qy-border-light);
+            animation: cardEnter 0.4s var(--qy-ease-out) 0.1s backwards;
+        }
+
+        .result-card:nth-child(2) { animation-delay: 0.2s; }
+
+        .result-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--qy-space-4) var(--qy-space-5);
+            background: var(--qy-bg-secondary);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .result-card-title {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            font-size: var(--qy-font-size-base);
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+        }
+
+        .result-card-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--qy-radius-md);
+            font-size: var(--qy-font-size-sm);
+            font-weight: var(--qy-font-bold);
+        }
+
+        .social-icon { background: var(--qy-primary-50); color: var(--qy-primary-600); }
+        .fund-icon { background: var(--qy-success-50); color: var(--qy-success-600); }
+
+        .result-card-body { padding: 0; }
+
+        /* 表格样式 */
+        .calc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--qy-font-size-xs);
+            table-layout: fixed;
+        }
+
+        .calc-table th {
+            padding: var(--qy-space-3) var(--qy-space-2);
+            text-align: left;
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-secondary);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .calc-table th:first-child { width: 10%; padding-left: var(--qy-space-4); }
+        .calc-table th:nth-child(2) { width: 12%; }
+        .calc-table th:nth-child(3),
+        .calc-table th:nth-child(4) { width: 10%; text-align: center; }
+        .calc-table th:nth-child(5),
+        .calc-table th:nth-child(6) { width: 16%; text-align: center; }
+        .calc-table th:last-child { width: 12%; text-align: right; padding-right: var(--qy-space-4); }
+
+        .calc-table td {
+            padding: var(--qy-space-2);
+            border-bottom: 1px solid var(--qy-border-light);
+            color: var(--qy-text-primary);
+        }
+
+        .calc-table td:first-child { padding-left: var(--qy-space-4); }
+        .calc-table td:last-child { padding-right: var(--qy-space-4); }
+        .calc-table tr:hover { background: var(--qy-bg-secondary); }
+        .calc-table tr:last-child td { border-bottom: none; }
+
+        /* 险种标签 */
+        .ins-type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--qy-space-1) var(--qy-space-2);
+            font-size: 10px;
+            font-weight: var(--qy-font-medium);
+            border-radius: var(--qy-radius-full);
+        }
+
+        .badge-social { background: var(--qy-primary-50); color: var(--qy-primary-600); }
+        .badge-fund { background: var(--qy-success-50); color: var(--qy-success-600); }
+
+        /* 金额样式 */
+        .amount {
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--qy-font-medium);
+        }
+
+        .amount-unit {
+            font-size: 10px;
+            color: var(--qy-text-muted);
+            margin-left: 1px;
+        }
+
+        .rate {
+            color: var(--qy-text-muted);
+            font-size: 10px;
+        }
+
+        .text-muted { color: var(--qy-text-muted); font-size: var(--qy-font-size-xs); }
+
+        /* 合计行 */
+        .total-row {
+            background: var(--qy-primary-50) !important;
+            font-weight: var(--qy-font-semibold);
+        }
+
+        .total-row td { color: var(--qy-primary-700) !important; }
+
+        /* 计费方式标签 */
+        .billing-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-700);
+            font-size: 10px;
+            font-weight: var(--qy-font-medium);
+            border-radius: var(--qy-radius-sm);
+            border: 1px solid var(--qy-primary-200);
+        }
+
+        .amount-fixed {
+            font-size: 10px;
+            font-weight: var(--qy-font-medium);
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            padding: 2px 6px;
+            border-radius: var(--qy-radius-sm);
+            display: inline-block;
+        }
+
+        .fixed-rate {
+            font-size: 10px;
+            color: var(--qy-text-secondary);
+            margin-bottom: 1px;
+        }
+
+        /* 政策卡片 */
+        .policy-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--qy-space-5);
+            margin-bottom: var(--qy-space-5);
+            animation: cardEnter 0.4s var(--qy-ease-out) 0.3s backwards;
+        }
+
+        .policy-card {
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-xl);
+            box-shadow: var(--qy-shadow-card);
+            padding: var(--qy-space-5);
+            border: 1px solid var(--qy-border-light);
+            border-left: 4px solid var(--qy-warning-500);
+        }
+
+        .policy-card--fund {
+            border-left-color: var(--qy-success-500);
+        }
+
+        .policy-header {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .policy-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--qy-warning-500);
+        }
+
+        .policy-icon--fund {
+            color: var(--qy-success-500);
+        }
+
+        .policy-title {
+            font-size: var(--qy-font-size-sm);
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            flex: 1;
+        }
+
+        .policy-content {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            line-height: 1.8;
+        }
+
+        .policy-content p { margin-bottom: var(--qy-space-1); }
+
+        .policy-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--qy-space-3);
+        }
+
+        .policy-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--qy-space-1);
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-primary-600);
+            text-decoration: none;
+            font-weight: var(--qy-font-medium);
+        }
+
+        .policy-link:hover { text-decoration: underline; }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            gap: var(--qy-space-3);
+            margin-top: var(--qy-space-5);
+            padding-top: var(--qy-space-5);
+            border-top: 1px solid var(--qy-border-light);
+            animation: cardEnter 0.4s var(--qy-ease-out) 0.4s backwards;
+        }
+
+        /* 快捷工资按钮 */
+        .quick-salary {
+            display: flex;
+            gap: var(--qy-space-2);
+            flex-wrap: wrap;
+            margin-top: var(--qy-space-2);
+        }
+
+        .quick-salary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--qy-space-1);
+            padding: var(--qy-space-2) var(--qy-space-3);
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-primary-600);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .quick-salary-btn:hover {
+            background: var(--qy-primary-500);
+            color: white;
+            border-color: var(--qy-primary-500);
+            transform: translateY(-1px);
+        }
+
+        /* 历史记录抽屉 */
+        .history-drawer {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 380px;
+            background: var(--qy-bg-primary);
+            border-left: 1px solid var(--qy-border-light);
+            box-shadow: var(--qy-shadow-xl);
+            transform: translateX(100%);
+            transition: transform var(--qy-transition-base);
+            z-index: var(--qy-z-modal);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-drawer.is-open { transform: translateX(0); }
+
+        .history-drawer__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--qy-space-4) var(--qy-space-5);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .history-drawer__header h3 {
+            font-size: var(--qy-font-size-base);
+            font-weight: var(--qy-font-semibold);
+        }
+
+        .history-drawer__list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--qy-space-3);
+        }
+
+        .history-item {
+            padding: var(--qy-space-4);
+            border-radius: var(--qy-radius-lg);
+            margin-bottom: var(--qy-space-3);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+            border: 1px solid var(--qy-border-light);
+        }
+
+        .history-item:hover {
+            background: var(--qy-bg-secondary);
+            border-color: var(--qy-primary-200);
+        }
+
+        .history-item__header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .history-item__region {
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            font-size: var(--qy-font-size-sm);
+        }
+
+        .history-item__time {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        .history-item__details {
+            display: flex;
+            gap: var(--qy-space-4);
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-secondary);
+        }
+
+        .history-item__amount {
+            color: var(--qy-primary-600);
+            font-weight: var(--qy-font-semibold);
+            font-size: var(--qy-font-size-sm);
+            margin-top: var(--qy-space-2);
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: var(--qy-space-10);
+            color: var(--qy-text-muted);
+        }
+
+        /* 方案对比区域 */
+        .compare-section {
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-xl);
+            box-shadow: var(--qy-shadow-card);
+            padding: var(--qy-space-5);
+            border: 1px solid var(--qy-border-light);
+            margin-bottom: var(--qy-space-5);
+            animation: cardEnter 0.4s var(--qy-ease-out) 0.35s backwards;
+        }
+
+        .compare-section.is-hidden { display: none; }
+
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--qy-space-4);
+        }
+
+        .compare-header h3 {
+            font-size: var(--qy-font-size-base);
+            font-weight: var(--qy-font-semibold);
+        }
+
+        .compare-actions { display: flex; gap: var(--qy-space-2); }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--qy-font-size-sm);
+            table-layout: fixed;
+        }
+
+        .compare-table th,
+        .compare-table td {
+            padding: var(--qy-space-3) var(--qy-space-3);
+            text-align: center;
+            border-bottom: 1px solid var(--qy-border-light);
+            vertical-align: middle;
+        }
+
+        .compare-table th {
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-secondary);
+        }
+
+        .compare-table th:first-child,
+        .compare-table td:first-child {
+            text-align: left;
+            font-weight: var(--qy-font-medium);
+        }
+
+        .compare-table tr.highlight { background: var(--qy-bg-secondary); }
+        .compare-table tr.highlight td { font-weight: var(--qy-font-semibold); }
+        .compare-table tr.highlight td:first-child { font-weight: var(--qy-font-bold); }
+
+        /* 加载遮罩 */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: var(--qy-z-modal);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--qy-transition-fast), visibility var(--qy-transition-fast);
+        }
+
+        .loading-overlay.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--qy-space-4);
+            padding: var(--qy-space-8);
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-xl);
+            box-shadow: var(--qy-shadow-xl);
+        }
+
+        .loading-text {
+            color: var(--qy-text-secondary);
+            font-size: var(--qy-font-size-sm);
+        }
+
+        /* 遮罩层 */
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: calc(var(--qy-z-fixed) + 5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--qy-transition-base), visibility var(--qy-transition-base);
+        }
+
+        .drawer-overlay.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: var(--qy-space-6);
+            right: var(--qy-space-6);
+            padding: var(--qy-space-3) var(--qy-space-5);
+            background: var(--qy-text-primary);
+            color: white;
+            border-radius: var(--qy-radius-lg);
+            font-size: var(--qy-font-size-sm);
+            box-shadow: var(--qy-shadow-xl);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all var(--qy-transition-base);
+            z-index: var(--qy-z-toast);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 表单错误提示 */
+        .form-error {
+            color: var(--qy-error-500);
+            font-size: var(--qy-font-size-xs);
+            margin-top: var(--qy-space-1);
+        }
+
+        /* 动画 */
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rowEnter {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes numberPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        /* ========================================
+           响应式适配
+           ======================================== */
+
+        /* 平板端 (768px - 1023px) */
+        @media (max-width: 1023px) {
+            .sidebar { width: 64px; }
+            .logo h1 { display: none; }
+            .nav-group { display: none; }
+            .nav-link {
+                justify-content: center;
+                padding: var(--qy-space-3);
+            }
+            .nav-link span { display: none; }
+            .nav-link svg { margin-right: 0; }
+
+            .filter-sidebar {
+                left: 64px;
+                transform: translateX(-100%);
+                z-index: calc(var(--qy-z-fixed) + 10);
+            }
+            .filter-sidebar.is-open { transform: translateX(0); }
+            .main-content { margin-left: 64px; }
+            .mobile-filter-trigger { display: block; }
+        }
+
+        /* 移动端 (< 768px) */
+        @media (max-width: 767px) {
+            .mobile-menu-btn { display: flex; }
+
+            .sidebar {
+                width: 280px;
+                transform: translateX(-100%);
+                z-index: calc(var(--qy-z-fixed) + 20);
+            }
+            .sidebar.is-open { transform: translateX(0); }
+            .logo h1 { display: block; }
+            .nav-group { display: block; }
+            .nav-link {
+                justify-content: flex-start;
+                padding: var(--qy-space-2) var(--qy-space-3);
+            }
+            .nav-link span { display: inline; }
+            .nav-link svg { margin-right: var(--qy-space-2); }
+
+            .filter-sidebar {
+                left: 0;
+                width: 100%;
+                max-height: 70vh;
+                top: auto;
+                bottom: 0;
+                border-radius: var(--qy-radius-xl) var(--qy-radius-xl) 0 0;
+                transform: translateY(100%);
+            }
+            .filter-sidebar.is-open { transform: translateY(0); }
+
+            .main-content { margin-left: 0; }
+
+            .header {
+                padding: var(--qy-space-3) var(--qy-space-4);
+                padding-left: 60px;
+            }
+
+            .content-main { padding: var(--qy-space-4); }
+            .calc-title { font-size: var(--qy-font-size-xl); }
+
+            .summary-chart-content {
+                flex-direction: column;
+                gap: var(--qy-space-6);
+            }
+
+            .chart-section {
+                padding-left: 0;
+                padding-top: var(--qy-space-6);
+                border-left: none;
+                border-top: 1px solid var(--qy-border-light);
+                width: 100%;
+                justify-content: center;
+            }
+
+            .result-section { grid-template-columns: 1fr; }
+            .summary-detail { flex-wrap: wrap; }
+            .summary-divider { display: none; }
+
+            .action-bar { flex-direction: column; }
+            .action-bar .qy-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .history-drawer { width: 100%; }
+
+            /* 表格卡片化 */
+            .calc-table thead { display: none; }
+            .calc-table tbody,
+            .calc-table tr { display: block; }
+            .calc-table tr {
+                padding: var(--qy-space-3);
+                border-bottom: 1px solid var(--qy-border-light);
+            }
+            .calc-table td {
+                display: flex;
+                justify-content: space-between;
+                padding: var(--qy-space-2) 0;
+                border-bottom: none;
+            }
+            .calc-table td::before {
+                content: attr(data-label);
+                font-weight: var(--qy-font-semibold);
+                color: var(--qy-text-secondary);
+            }
+
+            .compare-table { font-size: var(--qy-font-size-xs); }
+            .compare-table th,
+            .compare-table td { padding: var(--qy-space-2); }
+
+            /* 政策卡片移动端堆叠 */
+            .policy-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            .sidebar,
+            .filter-sidebar,
+            .mobile-menu-btn,
+            .mobile-filter-trigger,
+            .header-actions,
+            .action-bar,
+            .drawer-overlay,
+            .history-drawer {
+                display: none !important;
+            }
+            .main-content { margin-left: 0 !important; }
+            .content-main {
+                max-width: none;
+                padding: 0;
+            }
+            .result-card,
+            .policy-section,
+            .policy-card,
+            .summary-chart-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 移动端菜单按钮 -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="打开菜单">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+        </svg>
+    </button>
+
+    <!-- 遮罩层 -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeAllDrawers()"></div>
+
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h1>青阳云 HRO</h1>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-group">社保公积金</div>
+                <ul class="nav-tree">
+                    <li class="nav-item">
+                        <div class="nav-link">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                            </svg>
+                            <span>参保主体管理</span>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link active">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>费用计算器</span>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>地区参保规则</span>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                            </svg>
+                            <span>社保档案</span>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 主内容 -->
+        <main class="main-content">
+            <!-- 头部 -->
+            <header class="header">
+                <div class="breadcrumb">
+                    <a href="#">首页</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <a href="#">社保公积金</a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-current">费用计算器</span>
+                </div>
+                <div class="header-actions">
+                    <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="toggleHistoryDrawer()">
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                        历史记录
+                    </button>
+                    <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="app.toggleCompareSection()">
+                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                        方案对比
+                    </button>
+                </div>
+            </header>
+
+            <!-- 页面内容 -->
+            <div class="content-with-filter">
+                <!-- 筛选侧边栏 -->
+                <aside class="filter-sidebar" id="filterSidebar">
+                    <div class="filter-section">
+                        <div class="filter-section-title">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"/>
+                            </svg>
+                            计算条件
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">参保地区</label>
+                            <select class="qy-input" id="regionSelect" onchange="updateCalculation()">
+                                <option value="changsha">湖南省 · 长沙市</option>
+                                <option value="beijing">北京市</option>
+                                <option value="shanghai">上海市</option>
+                                <option value="guangzhou">广东省 · 广州市</option>
+                                <option value="shenzhen">广东省 · 深圳市</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">社保方案</label>
+                            <select class="qy-input" id="socialScheme" onchange="updateCalculation()">
+                                <option value="normal">长沙市标准方案</option>
+                                <option value="high">高基数方案</option>
+                                <option value="low">低基数方案</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">公积金方案</label>
+                            <select class="qy-input" id="fundScheme" onchange="updateCalculation()">
+                                <option value="12">12% 比例</option>
+                                <option value="10">10% 比例</option>
+                                <option value="8">8% 比例</option>
+                                <option value="5">5% 比例</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">派遣单位</label>
+                            <select class="qy-input" id="dispatchUnit">
+                                <option value="">请选择（可选）</option>
+                                <option value="unit1">某某科技有限公司</option>
+                                <option value="unit2">某某人力资源公司</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-section-title">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                            </svg>
+                            工资设置
+                        </div>
+                        <div class="filter-item">
+                            <label class="filter-label">税前月工资</label>
+                            <input type="number" class="qy-input" id="salaryInput" placeholder="请输入工资" value="8000">
+                            <div class="form-error" id="salaryError"></div>
+                        </div>
+                        <div class="filter-item">
+                            <div class="quick-salary">
+                                <button class="quick-salary-btn" onclick="setSalary(baseRange.min)">
+                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                                        <path fill-rule="evenodd" d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>最低基数</span>
+                                </button>
+                                <button class="quick-salary-btn" onclick="setSalary(baseRange.max)">
+                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                                        <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>最高基数</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="filter-section" style="border-bottom: none;">
+                        <button class="qy-btn qy-btn--secondary" onclick="resetCalculator()" style="width: 100%;">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                            </svg>
+                            重置计算器
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- 主内容区 -->
+                <div class="content-main">
+                    <!-- 计算器头部 -->
+                    <div class="calc-header-section">
+                        <div class="calc-header-top">
+                            <div class="calc-title-wrap">
+                                <h1 class="calc-title">费用计算器</h1>
+                                <p class="calc-subtitle">测算各社保、公积金参保费用，快速了解缴费明细</p>
+                            </div>
+                            <button class="qy-btn qy-btn--primary" onclick="generateShareLink()">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                                    <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                                </svg>
+                                分享结果
+                            </button>
+                        </div>
+
+                        <!-- 汇总与图表 -->
+                        <div class="summary-chart-card">
+                            <div class="summary-chart-content">
+                                <div class="summary-section">
+                                    <div class="summary-title">社保、公积金合计（月缴费用）</div>
+                                    <div class="summary-amount" id="totalAmount">¥ 0.00</div>
+                                    <div class="summary-detail">
+                                        <div class="summary-item">
+                                            <span class="summary-item-label">单位承担</span>
+                                            <span class="summary-item-value" id="companyTotal">¥ 0.00</span>
+                                        </div>
+                                        <div class="summary-divider"></div>
+                                        <div class="summary-item">
+                                            <span class="summary-item-label">个人承担</span>
+                                            <span class="summary-item-value" id="personalTotal">¥ 0.00</span>
+                                        </div>
+                                        <div class="summary-divider"></div>
+                                        <div class="summary-item">
+                                            <span class="summary-item-label">预估到手</span>
+                                            <span class="summary-item-value" id="netSalary">¥ 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="chart-section">
+                                    <div class="donut-chart">
+                                        <svg viewBox="0 0 100 100" width="140" height="140">
+                                            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--qy-border-light)" stroke-width="14"/>
+                                            <circle id="chartCircle1" cx="50" cy="50" r="40" fill="none" stroke="var(--qy-primary-500)" stroke-width="14"
+                                                stroke-dasharray="0 251.2" stroke-linecap="round"/>
+                                            <circle id="chartCircle2" cx="50" cy="50" r="40" fill="none" stroke="var(--qy-success-500)" stroke-width="14"
+                                                stroke-dasharray="0 251.2" stroke-dashoffset="0" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="donut-center">
+                                            <div class="donut-label">总费用</div>
+                                            <div class="donut-value" id="chartTotal">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-legend">
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: var(--qy-primary-500)"></div>
+                                            <span class="legend-text">单位承担</span>
+                                            <span class="legend-value" id="legendCompany">¥ 0.00</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: var(--qy-success-500)"></div>
+                                            <span class="legend-text">个人承担</span>
+                                            <span class="legend-value" id="legendPersonal">¥ 0.00</span>
+                                        </div>
+                                        <div class="legend-item">
+                                            <div class="legend-color" style="background: var(--qy-border-light)"></div>
+                                            <span class="legend-text">预估到手</span>
+                                            <span class="legend-value" id="legendNet">¥ 0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 方案对比区域 -->
+                    <div class="compare-section is-hidden" id="compareSection">
+                        <div class="compare-header">
+                            <h3>方案对比</h3>
+                            <div class="compare-actions">
+                                <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="app.addToCompare()">
+                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    添加对比方案
+                                </button>
+                                <button class="qy-btn qy-btn--text qy-btn--sm" onclick="app.clearCompare()">清空对比</button>
+                            </div>
+                        </div>
+                        <div class="compare-container" id="compareContainer"></div>
+                    </div>
+
+                    <!-- 结果表格 -->
+                    <div class="result-card" style="margin-bottom: var(--qy-space-5); animation: cardEnter 0.4s var(--qy-ease-out) 0.1s backwards;">
+                        <div class="result-card-header">
+                            <div class="result-card-title">
+                                <div class="result-card-icon social-icon">社</div>
+                                社保公积金费用明细
+                            </div>
+                        </div>
+                        <div class="result-card-body">
+                            <table class="calc-table">
+                                <thead>
+                                    <tr>
+                                        <th>项目</th>
+                                        <th>缴费基数</th>
+                                        <th style="text-align: center">单位固定</th>
+                                        <th style="text-align: center">个人固定</th>
+                                        <th style="text-align: center">单位比例</th>
+                                        <th style="text-align: center">个人比例</th>
+                                        <th style="text-align: right">应缴费用</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="combinedTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 政策卡片区域 -->
+                    <div class="policy-section">
+                        <!-- 社保政策卡片 -->
+                        <div class="policy-card">
+                            <div class="policy-header">
+                                <svg class="policy-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="policy-title" id="policyTitle">长沙市 2025 年社保政策</span>
+                                <span class="qy-tag qy-tag--warning">最近更新</span>
+                            </div>
+                            <div class="policy-content" id="policyContent">
+                                <p>• 最低缴费基数：4,357 元 / 最高缴费基数：26,010 元</p>
+                                <p>• 申报工资低于最低基数将按 4,357 元计算，高于最高基数按 26,010 元计算</p>
+                                <p>• 工伤保险、生育保险个人无需缴纳</p>
+                                <p>• 大病医疗按年固定缴费 180 元/年（个人承担，按月分摊 15 元/月）</p>
+                            </div>
+                            <div class="policy-footer">
+                                <a href="#" class="policy-link">
+                                    查看完整政策
+                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 公积金政策卡片 -->
+                        <div class="policy-card policy-card--fund">
+                            <div class="policy-header">
+                                <svg class="policy-icon policy-icon--fund" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="policy-title" id="fundPolicyTitle">长沙市 2025 年公积金政策</span>
+                                <span class="qy-tag qy-tag--success">热门</span>
+                            </div>
+                            <div class="policy-content" id="fundPolicyContent">
+                                <p>• 缴存比例：5%、8%、10%、12% 四档可选</p>
+                                <p>• 单位和个人缴存比例一致</p>
+                                <p>• 最低缴存额：单位/个人各 261 元/月（按最低基数 5% 计算）</p>
+                                <p>• 最高缴存额：单位/个人各 3,121 元/月（按最高基数 12% 计算）</p>
+                            </div>
+                            <div class="policy-footer">
+                                <a href="#" class="policy-link">
+                                    查看完整政策
+                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作栏 -->
+                    <div class="action-bar">
+                        <button class="qy-btn qy-btn--primary" onclick="exportToPDF()">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            导出 PDF
+                        </button>
+                        <button class="qy-btn qy-btn--secondary" onclick="exportToExcel()">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            导出 Excel
+                        </button>
+                        <button class="qy-btn qy-btn--secondary" onclick="copyResult()">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                            </svg>
+                            复制结果
+                        </button>
+                    </div>
+                </div><!-- /content-main -->
+            </div><!-- /content-with-filter -->
+        </main>
+    </div>
+
+    <!-- 移动端筛选按钮 -->
+    <div class="mobile-filter-trigger">
+        <button class="qy-btn qy-btn--primary" onclick="toggleFilterSidebar()">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
+                <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"/>
+            </svg>
+            计算条件
+        </button>
+    </div>
+
+    <!-- 历史记录抽屉 -->
+    <div class="history-drawer" id="historyDrawer">
+        <div class="history-drawer__header">
+            <h3>计算历史</h3>
+            <button class="qy-btn qy-btn--text qy-btn--sm" onclick="app.clearHistory()">清空</button>
+        </div>
+        <div class="history-drawer__list" id="historyList">
+            <div class="history-empty">暂无历史记录</div>
+        </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="qy-loading__spinner qy-loading__spinner--large"></div>
+            <p class="loading-text" id="loadingText">计算中...</p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ========================================
+        // 社保配置数据
+        // ========================================
+        const insuranceConfig = {
+            pension: { name: '养老保险', companyRate: 0.16, personalRate: 0.08, type: 'social', billingType: 'rate' },
+            medical: { name: '医疗保险', companyRate: 0.08, personalRate: 0.02, type: 'social', billingType: 'rate' },
+            unemployment: { name: '失业保险', companyRate: 0.005, personalRate: 0.005, type: 'social', billingType: 'rate' },
+            injury: { name: '工伤保险', companyRate: 0.004, personalRate: 0, type: 'social', billingType: 'rate' },
+            maternity: { name: '生育保险', companyRate: 0.008, personalRate: 0, type: 'social', billingType: 'rate' },
+            criticalIllness: { name: '大病医疗', companyRate: 0, personalRate: 0, companyFixed: 0, personalFixed: 180, type: 'social', billingType: 'fixed_yearly' },
+            fund: { name: '住房公积金', companyRate: 0.12, personalRate: 0.12, type: 'fund', billingType: 'rate' }
+        };
+
+        // 地区政策数据
+        const regionPolicies = {
+            changsha: {
+                name: '长沙市',
+                year: 2025,
+                minBase: 4357,
+                maxBase: 26010,
+                rules: [
+                    '最低缴费基数：4,357 元 / 最高缴费基数：26,010 元',
+                    '申报工资低于最低基数将按 4,357 元计算，高于最高基数按 26,010 元计算',
+                    '工伤保险、生育保险个人无需缴纳',
+                    '大病医疗按年固定缴费 180 元/年（个人承担，按月分摊 15 元/月）'
+                ],
+                fundRules: [
+                    '缴存比例：5%、8%、10%、12% 四档可选',
+                    '单位和个人缴存比例一致',
+                    '最低缴存额：单位/个人各 261 元/月（按最低基数 5% 计算）',
+                    '最高缴存额：单位/个人各 3,121 元/月（按最高基数 12% 计算）'
+                ]
+            },
+            beijing: {
+                name: '北京市',
+                year: 2025,
+                minBase: 6821,
+                maxBase: 35283,
+                rules: [
+                    '最低缴费基数：6,821 元 / 最高缴费基数：35,283 元',
+                    '养老保险单位比例 16%，个人比例 8%',
+                    '医疗保险单位比例 9.8%，个人比例 2% + 3元',
+                    '公积金比例 5%-12% 可选'
+                ],
+                fundRules: [
+                    '缴存比例：5%-12% 范围内由单位自主选择',
+                    '单位和个人缴存比例须保持一致',
+                    '2025年度缴存上限为 8,465 元/月（单位和个人各）',
+                    '2025年度缴存下限为 242 元/月（单位和个人各）'
+                ]
+            },
+            shanghai: {
+                name: '上海市',
+                year: 2025,
+                minBase: 7384,
+                maxBase: 36921,
+                rules: [
+                    '最低缴费基数：7,384 元 / 最高缴费基数：36,921 元',
+                    '养老保险单位比例 16%，个人比例 8%',
+                    '医疗保险单位比例 10%，个人比例 2%',
+                    '公积金比例 5%-7% 可选'
+                ],
+                fundRules: [
+                    '缴存比例：5%、6%、7% 三档可选',
+                    '单位和个人缴存比例一致',
+                    '2025年度缴存上限为 5,158 元/月（单位和个人各）',
+                    '2025年度缴存下限为 370 元/月（单位和个人各）'
+                ]
+            },
+            guangzhou: {
+                name: '广州市',
+                year: 2025,
+                minBase: 5284,
+                maxBase: 26421,
+                rules: [
+                    '最低缴费基数：5,284 元 / 最高缴费基数：26,421 元',
+                    '养老保险单位比例 14%，个人比例 8%',
+                    '医疗保险单位比例 6.85%，个人比例 2%',
+                    '公积金比例 5%-12% 可选'
+                ],
+                fundRules: [
+                    '缴存比例：5%-12% 范围内由单位自主选择',
+                    '单位和个人缴存比例须保持一致',
+                    '缴存基数下限为 2,300 元，上限为 39,672 元',
+                    '单位和个人月缴存额上限各为 4,761 元'
+                ]
+            },
+            shenzhen: {
+                name: '深圳市',
+                year: 2025,
+                minBase: 2360,
+                maxBase: 26421,
+                rules: [
+                    '最低缴费基数：2,360 元 / 最高缴费基数：26,421 元',
+                    '养老保险单位比例 15%，个人比例 8%',
+                    '医疗保险单位比例 6%，个人比例 2%',
+                    '公积金比例 5%-12% 可选'
+                ],
+                fundRules: [
+                    '缴存比例：5%-12% 范围内由单位自主选择',
+                    '单位和个人缴存比例须保持一致',
+                    '缴存基数下限为 2,360 元，上限为 43,659 元',
+                    '单位和个人月缴存额上限各为 5,239 元'
+                ]
+            }
+        };
+
+        let baseRange = { min: 4357, max: 26010 };
+
+        // ========================================
+        // 工具函数
+        // ========================================
+        function formatMoney(amount) {
+            return '¥ ' + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function calculateBase(salary) {
+            if (salary < baseRange.min) return baseRange.min;
+            if (salary > baseRange.max) return baseRange.max;
+            return salary;
+        }
+
+        // ========================================
+        // 历史记录管理器
+        // ========================================
+        class CalculatorHistory {
+            constructor() {
+                this.storageKey = 'qy_calculator_history';
+                this.maxItems = 10;
+            }
+
+            add(record) {
+                const history = this.getAll();
+                const newRecord = {
+                    id: Date.now(),
+                    timestamp: new Date().toISOString(),
+                    region: record.region,
+                    regionName: record.regionName,
+                    salary: record.salary,
+                    socialScheme: record.socialScheme,
+                    fundScheme: record.fundScheme,
+                    results: record.results
+                };
+
+                // 检查是否已存在相同条件的记录
+                const exists = history.some(h =>
+                    h.region === newRecord.region &&
+                    h.salary === newRecord.salary &&
+                    h.fundScheme === newRecord.fundScheme
+                );
+
+                if (exists) return null;
+
+                history.unshift(newRecord);
+                if (history.length > this.maxItems) {
+                    history.pop();
+                }
+
+                localStorage.setItem(this.storageKey, JSON.stringify(history));
+                return newRecord;
+            }
+
+            getAll() {
+                const data = localStorage.getItem(this.storageKey);
+                return data ? JSON.parse(data) : [];
+            }
+
+            clear() {
+                localStorage.removeItem(this.storageKey);
+            }
+
+            restore(id) {
+                const record = this.getAll().find(item => item.id === id);
+                if (record) {
+                    document.getElementById('regionSelect').value = record.region;
+                    document.getElementById('salaryInput').value = record.salary;
+                    document.getElementById('socialScheme').value = record.socialScheme;
+                    document.getElementById('fundScheme').value = record.fundScheme;
+                    updateCalculation();
+                    showToast('已恢复历史记录');
+                }
+            }
+        }
+
+        // ========================================
+        // 方案对比管理器
+        // ========================================
+        class CalculatorCompare {
+            constructor() {
+                this.scenarios = [];
+                this.maxScenarios = 3;
+                this.baseScenarioId = null; // 基准方案ID
+            }
+
+            // 添加基准方案（当前方案，不可删除）
+            addBaseScenario() {
+                const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+
+                const scenario = {
+                    id: 'base', // 固定ID表示基准方案
+                    name: '当前方案',
+                    isBase: true, // 标记为基准方案
+                    region: document.getElementById('regionSelect').value,
+                    regionName: document.getElementById('regionSelect').selectedOptions[0].text,
+                    salary: salary,
+                    socialScheme: document.getElementById('socialScheme').value,
+                    socialSchemeName: document.getElementById('socialScheme').selectedOptions[0].text,
+                    fundScheme: document.getElementById('fundScheme').value,
+                    fundSchemeName: document.getElementById("fundScheme").selectedOptions[0].text,
+                    results: null
+                };
+
+                // 使用 calculateScenarioResults 计算完整结果（包含社保/公积金合计）
+                scenario.results = this.calculateScenarioResults(scenario);
+
+                this.baseScenarioId = 'base';
+                // 如果已有基准方案，先移除
+                this.scenarios = this.scenarios.filter(s => !s.isBase);
+                this.scenarios.unshift(scenario); // 添加到第一个位置
+                this.renderComparison();
+            }
+
+            // 添加对比方案（需要选择社保方案和公积金方案）
+            addScenario() {
+                if (this.scenarios.length >= this.maxScenarios) {
+                    showToast('最多只能对比3个方案', 'warning');
+                    return false;
+                }
+
+                const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+                if (salary <= 0) {
+                    showToast('请先输入工资金额');
+                    return false;
+                }
+
+                // 检查是否已有基准方案
+                if (!this.scenarios.find(s => s.isBase)) {
+                    this.addBaseScenario();
+                }
+
+                // 创建对比方案，使用当前选择的社保和公积金方案作为默认值
+                const socialScheme = document.getElementById('socialScheme').value;
+                const fundScheme = document.getElementById('fundScheme').value;
+                const socialName = document.getElementById('socialScheme').selectedOptions[0].text;
+                const fundName = document.getElementById('fundScheme').selectedOptions[0].text;
+
+                const scenario = {
+                    id: Date.now(),
+                    name: `对比方案 ${this.scenarios.filter(s => !s.isBase).length + 1}`,
+                    isBase: false,
+                    region: document.getElementById('regionSelect').value,
+                    regionName: document.getElementById('regionSelect').selectedOptions[0].text,
+                    salary: salary,
+                    socialScheme: socialScheme,
+                    socialSchemeName: socialName,
+                    fundScheme: fundScheme,
+                    fundSchemeName: fundName,
+                    results: null
+                };
+
+                // 立即计算结果
+                scenario.results = this.calculateScenarioResults(scenario);
+
+                this.scenarios.push(scenario);
+                this.renderComparison();
+                showToast('已添加对比方案');
+                return true;
+            }
+
+            // 更新对比方案的社保和公积金选择（即时渲染）
+            updateScenario(scenarioId, type, value) {
+                const scenario = this.scenarios.find(s => s.id === scenarioId);
+                if (!scenario || scenario.isBase) return false;
+
+                if (type === 'social') {
+                    const socialSelect = document.getElementById('socialScheme');
+                    const socialName = Array.from(socialSelect.options).find(o => o.value === value)?.text || value;
+                    scenario.socialScheme = value;
+                    scenario.socialSchemeName = socialName;
+                } else if (type === 'fund') {
+                    const fundSelect = document.getElementById('fundScheme');
+                    const fundName = Array.from(fundSelect.options).find(o => o.value === value)?.text || value;
+                    scenario.fundScheme = value;
+                    scenario.fundSchemeName = fundName;
+                }
+
+                // 即时计算
+                scenario.results = this.calculateScenarioResults(scenario);
+                // 局部更新，避免全量渲染导致闪烁
+                this.updateScenarioRow(scenarioId);
+                return true;
+            }
+
+            // 局部更新指定方案的显示行
+            updateScenarioRow(scenarioId) {
+                const scenario = this.scenarios.find(s => s.id === scenarioId);
+                if (!scenario || !scenario.results) return;
+
+                const baseScenario = this.scenarios.find(s => s.isBase);
+                const baseResults = baseScenario?.results;
+                const baseSocialTotal = baseResults ? parseFloat(baseResults.socialTotal.replace(/[^0-9.-]/g, '')) : 0;
+                const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
+                const baseCompany = baseResults ? parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, '')) : 0;
+                const basePersonal = baseResults ? parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, '')) : 0;
+                const baseNet = baseResults ? parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, '')) : 0;
+
+                // 找到该方案对应的列索引
+                const scenarioIndex = this.scenarios.findIndex(s => s.id === scenarioId);
+                if (scenarioIndex === -1) return;
+
+                // 更新社保合计
+                const socialValue = parseFloat(scenario.results.socialTotal.replace(/[^0-9.-]/g, ''));
+                const socialDiff = socialValue - baseSocialTotal;
+                const socialCell = document.querySelector(`tr[data-row="social"] td:nth-child(${scenarioIndex + 2})`);
+                if (socialCell) {
+                    socialCell.innerHTML = this.renderCellContent(scenario.results.socialTotal, socialDiff, 'var(--qy-primary-600)', true);
+                }
+
+                // 更新公积金合计
+                const fundValue = parseFloat(scenario.results.fundTotal.replace(/[^0-9.-]/g, ''));
+                const fundDiff = fundValue - baseFundTotal;
+                const fundCell = document.querySelector(`tr[data-row="fund"] td:nth-child(${scenarioIndex + 2})`);
+                if (fundCell) {
+                    fundCell.innerHTML = this.renderCellContent(scenario.results.fundTotal, fundDiff, 'var(--qy-success-600)', true);
+                }
+
+                // 更新单位承担
+                const companyValue = parseFloat(scenario.results.companyTotal.replace(/[^0-9.-]/g, ''));
+                const companyDiff = companyValue - baseCompany;
+                const companyCell = document.querySelector(`tr[data-row="company"] td:nth-child(${scenarioIndex + 2})`);
+                if (companyCell) {
+                    companyCell.innerHTML = this.renderCellContent(scenario.results.companyTotal, companyDiff, 'var(--qy-primary-600)', false);
+                }
+
+                // 更新个人承担
+                const personalValue = parseFloat(scenario.results.personalTotal.replace(/[^0-9.-]/g, ''));
+                const personalDiff = personalValue - basePersonal;
+                const personalCell = document.querySelector(`tr[data-row="personal"] td:nth-child(${scenarioIndex + 2})`);
+                if (personalCell) {
+                    personalCell.innerHTML = this.renderCellContent(scenario.results.personalTotal, personalDiff, 'var(--qy-success-600)', false);
+                }
+
+                // 更新预估到手（到手增加是绿色，减少是红色）
+                const netValue = parseFloat(scenario.results.netSalary.replace(/[^0-9.-]/g, ''));
+                const netDiff = netValue - baseNet;
+                const netCell = document.querySelector(`tr[data-row="net"] td:nth-child(${scenarioIndex + 2})`);
+                if (netCell) {
+                    const diffClass = netDiff > 0 ? 'var(--qy-success-500)' : (netDiff < 0 ? 'var(--qy-error-500)' : 'var(--qy-text-muted)');
+                    const diffSign = netDiff > 0 ? '+' : '';
+                    netCell.innerHTML = `
+                        <div style="color: var(--qy-warning-600);">${scenario.results.netSalary}</div>
+                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${netDiff.toFixed(2)}</div>
+                    `;
+                }
+
+                // 更新社保+公积金合计
+                const combinedTotal = socialValue + fundValue;
+                const baseCombined = baseSocialTotal + baseFundTotal;
+                const combinedDiff = combinedTotal - baseCombined;
+                const combinedCell = document.querySelector(`tr[data-row="combined"] td:nth-child(${scenarioIndex + 2})`);
+                if (combinedCell) {
+                    const diffClass = combinedDiff > 0 ? 'var(--qy-error-500)' : (combinedDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                    const diffSign = combinedDiff > 0 ? '+' : '';
+                    combinedCell.innerHTML = `
+                        <div style="color: var(--qy-text-primary);">${formatMoney(combinedTotal)}</div>
+                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${combinedDiff.toFixed(2)}</div>
+                    `;
+                }
+
+                // 更新年度差额统计
+                this.updateYearlyStats(scenarioIndex, scenario.results, baseResults);
+            }
+
+            // 渲染单元格内容
+            renderCellContent(value, diff, color, isBold) {
+                if (!diff || diff === 0) {
+                    return `<div style="color: ${color}; ${isBold ? 'font-weight: 600;' : ''}">${value}</div>`;
+                }
+                const diffClass = diff > 0 ? 'var(--qy-error-500)' : 'var(--qy-success-500)';
+                const diffSign = diff > 0 ? '+' : '';
+                return `
+                    <div style="color: ${color}; ${isBold ? 'font-weight: 600;' : ''}">${value}</div>
+                    <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                `;
+            }
+
+            // 更新年度差额统计
+            updateYearlyStats(index, results, baseResults) {
+                const yearlyRow = document.querySelector('tr[data-row="yearly"]');
+                if (!yearlyRow) return;
+
+                const cell = yearlyRow.querySelector(`td:nth-child(${index + 2})`);
+                if (!cell) return;
+
+                const personal = parseFloat(results.personalTotal.replace(/[^0-9.-]/g, ''));
+                const company = parseFloat(results.companyTotal.replace(/[^0-9.-]/g, ''));
+                const net = parseFloat(results.netSalary.replace(/[^0-9.-]/g, ''));
+
+                let basePersonal = 0, baseCompany = 0, baseNet = 0;
+                if (baseResults) {
+                    basePersonal = parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, ''));
+                    baseCompany = parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, ''));
+                    baseNet = parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, ''));
+                }
+
+                const personalYearlyDiff = (personal - basePersonal) * 12;
+                const companyYearlyDiff = (company - baseCompany) * 12;
+                const netYearlyDiff = (net - baseNet) * 12;
+
+                const formatYearly = (val) => {
+                    const prefix = val > 0 ? '+' : '';
+                    const color = val > 0 ? 'var(--qy-error-500)' : (val < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                    return `<span style="color: ${color};">${prefix}¥${Math.abs(val).toLocaleString()}</span>`;
+                };
+
+                cell.innerHTML = `
+                    <div style="font-size: 11px; line-height: 1.6;">
+                        <div>个人年缴: ${formatYearly(personalYearlyDiff)}</div>
+                        <div>单位年缴: ${formatYearly(companyYearlyDiff)}</div>
+                        <div>到手年差: ${formatYearly(netYearlyDiff)}</div>
+                    </div>
+                `;
+            }
+
+            // 计算指定方案的结果
+            calculateScenarioResults(scenario) {
+                // 保存当前值
+                const currentSocialScheme = document.getElementById('socialScheme').value;
+                const currentFundScheme = document.getElementById('fundScheme').value;
+                
+                try {
+                    // 临时设置方案值进行计算
+                    document.getElementById('socialScheme').value = scenario.socialScheme;
+                    document.getElementById('fundScheme').value = scenario.fundScheme;
+
+                    // 获取基数
+                    const salary = scenario.salary || 0;
+                    const base = calculateBase(salary);
+                    
+                    // 处理无效的公积金比例（默认为0）
+                    const fundRateVal = parseFloat(scenario.fundScheme);
+                    const fundRate = isNaN(fundRateVal) ? 0 : fundRateVal / 100;
+
+                    // 计算社保
+                    let companySocialTotal = 0;
+                    let personalSocialTotal = 0;
+
+                    for (const [key, config] of Object.entries(insuranceConfig)) {
+                        if (config.type === 'social') {
+                            let companyAmount, personalAmount;
+                            if (config.billingType === 'rate') {
+                                companyAmount = base * config.companyRate;
+                                personalAmount = base * config.personalRate;
+                            } else if (config.billingType === 'fixed_yearly') {
+                                companyAmount = (config.companyFixed || 0) / 12;
+                                personalAmount = (config.personalFixed || 0) / 12;
+                            }
+                            companySocialTotal += companyAmount;
+                            personalSocialTotal += personalAmount;
+                        }
+                    }
+
+                    // 计算公积金
+                    const companyFundTotal = base * fundRate;
+                    const personalFundTotal = base * fundRate;
+
+                    // 汇总
+                    const companyTotal = companySocialTotal + companyFundTotal;
+                    const personalTotal = personalSocialTotal + personalFundTotal;
+                    const total = companyTotal + personalTotal;
+                    const netSalary = salary - personalTotal;
+
+                    return {
+                        companyTotal: formatMoney(companyTotal),
+                        personalTotal: formatMoney(personalTotal),
+                        netSalary: formatMoney(netSalary),
+                        total: formatMoney(total),
+                        // 社保合计
+                        companySocial: formatMoney(companySocialTotal),
+                        personalSocial: formatMoney(personalSocialTotal),
+                        socialTotal: formatMoney(companySocialTotal + personalSocialTotal),
+                        // 公积金合计
+                        companyFund: formatMoney(companyFundTotal),
+                        personalFund: formatMoney(personalFundTotal),
+                        fundTotal: formatMoney(companyFundTotal + personalFundTotal)
+                    };
+                } finally {
+                    // 确保恢复当前值
+                    document.getElementById('socialScheme').value = currentSocialScheme;
+                    document.getElementById('fundScheme').value = currentFundScheme;
+                }
+            }
+
+            captureResults() {
+                return {
+                    companyTotal: document.getElementById('companyTotal').textContent,
+                    personalTotal: document.getElementById('personalTotal').textContent,
+                    netSalary: document.getElementById('netSalary').textContent,
+                    total: document.getElementById('totalAmount').textContent
+                };
+            }
+
+            renderComparison() {
+                const container = document.getElementById('compareContainer');
+                if (this.scenarios.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--qy-text-muted); padding: 20px;">暂无对比方案，点击"添加对比方案"添加不同方案的对比</div>';
+                    return;
+                }
+
+                // 获取社保和公积金选项
+                const socialOptions = Array.from(document.getElementById('socialScheme').options)
+                    .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+                const fundOptions = Array.from(document.getElementById('fundScheme').options)
+                    .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+
+                let html = `
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 100px; vertical-align: middle;">对比项</th>
+                                ${this.scenarios.map(s => `
+                                    <th style="min-width: 150px; text-align: center; vertical-align: top; padding: 12px 8px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                            <div style="display: flex; align-items: center; gap: 4px; font-weight: 600; font-size: 14px;">
+                                                ${s.isBase ? '<span style="color: var(--qy-primary-500);">★</span>' : ''}
+                                                <span>${s.name}</span>
+                                            </div>
+                                            ${!s.isBase
+                                                ? `<div style="display: flex; gap: 4px;">
+                                                    <button onclick="app.applyCompareScenario(${s.id})" class="qy-btn qy-btn--primary qy-btn--sm" style="padding: 2px 8px; height: auto; font-size: 11px;">应用方案</button>
+                                                    <button onclick="app.removeCompareScenario(${s.id})" class="qy-btn qy-btn--text qy-btn--sm" style="padding: 2px 8px; height: auto; font-size: 11px; color: var(--qy-error-500);">删除</button>
+                                                </div>`
+                                                : '<span style="color: var(--qy-text-muted); font-size: 11px;">基准方案</span>'}
+                                        </div>
+                                    </th>
+                                `).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>参保地区</td>
+                                ${this.scenarios.map(s => `<td>${s.regionName}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td>税前工资</td>
+                                ${this.scenarios.map(s => `<td>¥${s.salary.toLocaleString()}</td>`).join('')}
+                            </tr>
+                            <tr>
+                                <td>社保方案</td>
+                                ${this.scenarios.map(s => {
+                                    if (s.isBase) {
+                                        return `<td>${s.socialSchemeName}</td>`;
+                                    } else {
+                                        return `<td>
+                                            <select class="qy-input qy-input--sm" onchange="app.updateCompareScenario(${s.id}, 'social', this.value)" style="min-width: 120px; font-size: 12px; padding: 4px 8px;">
+                                                ${socialOptions.split(`value="${s.socialScheme}"`).join(`value="${s.socialScheme}" selected`)}
+                                            </select>
+                                        </td>`;
+                                    }
+                                }).join('')}
+                            </tr>
+                            <tr>
+                                <td>公积金比例</td>
+                                ${this.scenarios.map(s => {
+                                    if (s.isBase) {
+                                        return `<td>${s.fundScheme}%</td>`;
+                                    } else {
+                                        return `<td>
+                                            <select class="qy-input qy-input--sm" onchange="app.updateCompareScenario(${s.id}, 'fund', this.value)" style="min-width: 100px; font-size: 12px; padding: 4px 8px;">
+                                                ${fundOptions.split(`value="${s.fundScheme}"`).join(`value="${s.fundScheme}" selected`)}
+                                            </select>
+                                        </td>`;
+                                    }
+                                }).join('')}
+                            </tr>
+                            <!-- 获取基准方案用于计算变化 -->
+                            ${(() => {
+                                const baseScenario = this.scenarios.find(s => s.isBase);
+                                const baseResults = baseScenario?.results;
+                                const baseCompany = baseResults ? parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, '')) : 0;
+                                const basePersonal = baseResults ? parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, '')) : 0;
+                                const baseNet = baseResults ? parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, '')) : 0;
+                                const baseSocialTotal = baseResults ? parseFloat(baseResults.socialTotal.replace(/[^0-9.-]/g, '')) : 0;
+                                const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
+
+                                return `
+                            <!-- 社保合计行 -->
+                            <tr class="highlight" data-row="social" style="background: var(--qy-primary-50);">
+                                <td style="color: var(--qy-primary-700);">社保合计</td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const value = parseFloat(s.results.socialTotal.replace(/[^0-9.-]/g, ''));
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="color: var(--qy-primary-600); font-weight: 600;">${s.results.socialTotal}</td>`;
+                                    }
+                                    const diff = value - baseSocialTotal;
+                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const diffSign = diff > 0 ? '+' : '';
+                                    return `<td style="color: var(--qy-primary-600); font-weight: 600;">
+                                        ${s.results.socialTotal}
+                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                            <!-- 公积金合计行 -->
+                            <tr class="highlight" data-row="fund" style="background: var(--qy-success-50);">
+                                <td style="color: var(--qy-success-700);">公积金合计</td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const value = parseFloat(s.results.fundTotal.replace(/[^0-9.-]/g, ''));
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="color: var(--qy-success-600); font-weight: 600;">${s.results.fundTotal}</td>`;
+                                    }
+                                    const diff = value - baseFundTotal;
+                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const diffSign = diff > 0 ? '+' : '';
+                                    return `<td style="color: var(--qy-success-600); font-weight: 600;">
+                                        ${s.results.fundTotal}
+                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                            <tr class="highlight" data-row="company">
+                                <td>单位承担</td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const value = parseFloat(s.results.companyTotal.replace(/[^0-9.-]/g, ''));
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="color: var(--qy-primary-600);">${s.results.companyTotal}</td>`;
+                                    }
+                                    const diff = value - baseCompany;
+                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const diffSign = diff > 0 ? '+' : '';
+                                    return `<td style="color: var(--qy-primary-600);">
+                                        ${s.results.companyTotal}
+                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                            <tr class="highlight" data-row="personal">
+                                <td>个人承担</td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const value = parseFloat(s.results.personalTotal.replace(/[^0-9.-]/g, ''));
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="color: var(--qy-success-600);">${s.results.personalTotal}</td>`;
+                                    }
+                                    const diff = value - basePersonal;
+                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const diffSign = diff > 0 ? '+' : '';
+                                    return `<td style="color: var(--qy-success-600);">
+                                        ${s.results.personalTotal}
+                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                            <tr class="highlight" data-row="net">
+                                <td>预估到手</td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const value = parseFloat(s.results.netSalary.replace(/[^0-9.-]/g, ''));
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="color: var(--qy-warning-600);">${s.results.netSalary}</td>`;
+                                    }
+                                    const diff = value - baseNet;
+                                    // 到手工资：增加为绿色（好事），减少为红色（坏事）
+                                    const diffClass = diff > 0 ? 'var(--qy-success-500)' : (diff < 0 ? 'var(--qy-error-500)' : 'var(--qy-text-muted)');
+                                    const diffSign = diff > 0 ? '+' : '';
+                                    return `<td style="color: var(--qy-warning-600);">
+                                        ${s.results.netSalary}
+                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                            <tr data-row="combined" style="background: var(--qy-bg-secondary);">
+                                <td style="font-weight: 600;">社保+公积金合计</td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const socialVal = parseFloat(s.results.socialTotal.replace(/[^0-9.-]/g, ''));
+                                    const fundVal = parseFloat(s.results.fundTotal.replace(/[^0-9.-]/g, ''));
+                                    const combinedTotal = socialVal + fundVal;
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="font-weight: 600; color: var(--qy-text-primary);">${formatMoney(combinedTotal)}</td>`;
+                                    }
+                                    const baseCombined = baseSocialTotal + baseFundTotal;
+                                    const diff = combinedTotal - baseCombined;
+                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const diffSign = diff > 0 ? '+' : '';
+                                    return `<td style="font-weight: 600;">
+                                        <div style="color: var(--qy-text-primary);">${formatMoney(combinedTotal)}</div>
+                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>
+                            <!-- 年度差额统计行 -->
+                            <tr data-row="yearly" style="background: linear-gradient(135deg, var(--qy-primary-50) 0%, var(--qy-success-50) 100%); border-top: 2px solid var(--qy-primary-200);">
+                                <td style="font-weight: 600; color: var(--qy-primary-700);">
+                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--qy-primary-500);">
+                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                                        </svg>
+                                        年度差额
+                                    </span>
+                                </td>
+                                ${this.scenarios.map(s => {
+                                    if (!s.results) return '<td>-</td>';
+                                    const personal = parseFloat(s.results.personalTotal.replace(/[^0-9.-]/g, ''));
+                                    const company = parseFloat(s.results.companyTotal.replace(/[^0-9.-]/g, ''));
+                                    const net = parseFloat(s.results.netSalary.replace(/[^0-9.-]/g, ''));
+
+                                    let basePersonal = 0, baseCompany = 0, baseNet = 0;
+                                    if (baseResults) {
+                                        basePersonal = parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, ''));
+                                        baseCompany = parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, ''));
+                                        baseNet = parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, ''));
+                                    }
+
+                                    const personalYearlyDiff = (personal - basePersonal) * 12;
+                                    const companyYearlyDiff = (company - baseCompany) * 12;
+                                    const netYearlyDiff = (net - baseNet) * 12;
+
+                                    if (s.isBase || !baseResults) {
+                                        return `<td style="font-size: 12px; color: var(--qy-text-secondary);">
+                                            <div>个人: ${formatMoney(personal * 12)}</div>
+                                            <div>单位: ${formatMoney(company * 12)}</div>
+                                            <div style="color: var(--qy-warning-600); margin-top: 2px;">到手: ${formatMoney(net * 12)}</div>
+                                        </td>`;
+                                    }
+
+                                    const personalClass = personalYearlyDiff > 0 ? 'var(--qy-error-500)' : (personalYearlyDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const companyClass = companyYearlyDiff > 0 ? 'var(--qy-error-500)' : (companyYearlyDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
+                                    const netClass = netYearlyDiff > 0 ? 'var(--qy-success-500)' : (netYearlyDiff < 0 ? 'var(--qy-error-500)' : 'var(--qy-text-muted)');
+
+                                    const personalSign = personalYearlyDiff > 0 ? '+' : '';
+                                    const companySign = companyYearlyDiff > 0 ? '+' : '';
+                                    const netSign = netYearlyDiff > 0 ? '+' : '';
+
+                                    return `<td style="font-size: 12px;">
+                                        <div style="color: var(--qy-text-secondary);">个人: ${formatMoney(personal * 12)}</div>
+                                        <div style="font-size: 10px; color: ${personalClass}; margin-bottom: 2px;">${personalSign}${formatMoney(personalYearlyDiff)}</div>
+                                        <div style="color: var(--qy-text-secondary);">单位: ${formatMoney(company * 12)}</div>
+                                        <div style="font-size: 10px; color: ${companyClass}; margin-bottom: 2px;">${companySign}${formatMoney(companyYearlyDiff)}</div>
+                                        <div style="color: var(--qy-warning-600);">到手: ${formatMoney(net * 12)}</div>
+                                        <div style="font-size: 10px; color: ${netClass};">${netSign}${formatMoney(netYearlyDiff)}</div>
+                                    </td>`;
+                                }).join('')}
+                            </tr>`;
+                            })()}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            }
+
+            removeScenario(id) {
+                const scenario = this.scenarios.find(s => s.id === id);
+                if (scenario && scenario.isBase) {
+                    showToast('基准方案不可删除');
+                    return;
+                }
+                this.scenarios = this.scenarios.filter(s => s.id !== id);
+                this.renderComparison();
+            }
+
+            applyScenario(id) {
+                const scenario = this.scenarios.find(s => s.id === id);
+                if (!scenario) return;
+
+                // 应用方案到主计算器
+                document.getElementById('regionSelect').value = scenario.region;
+                document.getElementById('salaryInput').value = scenario.salary;
+                document.getElementById('socialScheme').value = scenario.socialScheme;
+                document.getElementById('fundScheme').value = scenario.fundScheme;
+
+                // 触发计算更新
+                updateCalculation();
+                updatePolicyDisplay(scenario.region);
+
+                // 显示成功提示
+                showToast(`已应用方案：${scenario.name}`);
+
+                // 滚动到计算器顶部
+                document.querySelector('.content-header').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            clear() {
+                // 只保留基准方案
+                this.scenarios = this.scenarios.filter(s => s.isBase);
+                this.renderComparison();
+            }
+        }
+
+        // ========================================
+        // 加载状态管理器
+        // ========================================
+        class LoadingManager {
+            constructor() {
+                this.overlay = document.getElementById('loadingOverlay');
+                this.text = document.getElementById('loadingText');
+            }
+
+            show(text = '计算中...') {
+                this.text.textContent = text;
+                this.overlay.classList.add('is-visible');
+            }
+
+            hide() {
+                this.overlay.classList.remove('is-visible');
+            }
+        }
+
+        // ========================================
+        // 表单验证
+        // ========================================
+        function validateSalary(value) {
+            const num = parseFloat(value);
+            const errorEl = document.getElementById('salaryError');
+            const inputEl = document.getElementById('salaryInput');
+
+            if (isNaN(num) || value === '') {
+                errorEl.textContent = '请输入工资金额';
+                inputEl.classList.add('qy-input--error');
+                return false;
+            }
+
+            if (num <= 0) {
+                errorEl.textContent = '工资必须大于0';
+                inputEl.classList.add('qy-input--error');
+                inputEl.classList.add('animate-shake');
+                setTimeout(() => inputEl.classList.remove('animate-shake'), 400);
+                return false;
+            }
+
+            if (num > 9999999) {
+                errorEl.textContent = '工资金额过大';
+                inputEl.classList.add('qy-input--error');
+                return false;
+            }
+
+            errorEl.textContent = '';
+            inputEl.classList.remove('qy-input--error');
+            return true;
+        }
+
+        // ========================================
+        // 主应用类
+        // ========================================
+        class CalculatorApp {
+            constructor() {
+                this.history = new CalculatorHistory();
+                this.compare = new CalculatorCompare();
+                this.loading = new LoadingManager();
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.parseUrlParams();
+                this.renderHistory();
+                updatePolicyDisplay(document.getElementById('regionSelect').value);
+                updateCalculation();
+            }
+
+            bindEvents() {
+                // 工资输入防抖验证
+                const salaryInput = document.getElementById('salaryInput');
+                let debounceTimer;
+                salaryInput.addEventListener('input', (e) => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        if (validateSalary(e.target.value)) {
+                            updateCalculation();
+                            this.autoSave();
+                        }
+                    }, 300);
+                });
+
+                // 选择器变化
+                ['regionSelect', 'socialScheme', 'fundScheme'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => {
+                        updateCalculation();
+                        updatePolicyDisplay(document.getElementById('regionSelect').value);
+                    });
+                });
+
+                // 键盘快捷键
+                document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+
+                // 点击历史记录抽屉外部关闭
+                document.addEventListener('click', (e) => {
+                    const drawer = document.getElementById('historyDrawer');
+                    const btn = e.target.closest('.header-actions button');
+                    if (!drawer.contains(e.target) && !btn) {
+                        drawer.classList.remove('is-open');
+                    }
+                });
+            }
+
+            autoSave() {
+                clearTimeout(this.saveTimer);
+                this.saveTimer = setTimeout(() => {
+                    const salary = parseFloat(document.getElementById('salaryInput').value);
+                    if (salary > 0) {
+                        const record = this.captureCurrentState();
+                        this.history.add(record);
+                        this.renderHistory();
+                    }
+                }, 2000);
+            }
+
+            captureCurrentState() {
+                return {
+                    region: document.getElementById('regionSelect').value,
+                    regionName: document.getElementById('regionSelect').selectedOptions[0].text,
+                    salary: parseFloat(document.getElementById('salaryInput').value),
+                    socialScheme: document.getElementById('socialScheme').value,
+                    fundScheme: document.getElementById('fundScheme').value,
+                    results: {
+                        companyTotal: document.getElementById('companyTotal').textContent,
+                        personalTotal: document.getElementById('personalTotal').textContent,
+                        netSalary: document.getElementById('netSalary').textContent,
+                        total: document.getElementById('totalAmount').textContent
+                    }
+                };
+            }
+
+            handleKeyboard(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'r':
+                            e.preventDefault();
+                            resetCalculator();
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            const record = this.captureCurrentState();
+                            this.history.add(record);
+                            this.renderHistory();
+                            showToast('已保存到历史记录');
+                            break;
+                        case 'p':
+                            e.preventDefault();
+                            exportToPDF();
+                            break;
+                    }
+                }
+
+                if (e.key === 'Escape') {
+                    closeAllDrawers();
+                }
+            }
+
+            parseUrlParams() {
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('region')) {
+                    document.getElementById('regionSelect').value = params.get('region');
+                }
+                if (params.has('salary')) {
+                    document.getElementById('salaryInput').value = params.get('salary');
+                }
+                if (params.has('social')) {
+                    document.getElementById('socialScheme').value = params.get('social');
+                }
+                if (params.has('fund')) {
+                    document.getElementById('fundScheme').value = params.get('fund');
+                }
+
+                if (params.has('salary')) {
+                    updateCalculation();
+                    updatePolicyDisplay(document.getElementById('regionSelect').value);
+                }
+            }
+
+            renderHistory() {
+                const list = document.getElementById('historyList');
+                const history = this.history.getAll();
+
+                if (history.length === 0) {
+                    list.innerHTML = '<div class="history-empty">暂无历史记录</div>';
+                    return;
+                }
+
+                list.innerHTML = history.map(item => `
+                    <div class="history-item" onclick="app.history.restore(${item.id})">
+                        <div class="history-item__header">
+                            <span class="history-item__region">${item.regionName}</span>
+                            <span class="history-item__time">${formatDate(item.timestamp)}</span>
+                        </div>
+                        <div class="history-item__details">
+                            <span>工资: ¥${item.salary.toLocaleString()}</span>
+                            <span>公积金: ${item.fundScheme}%</span>
+                        </div>
+                        <div class="history-item__amount">${item.results.total}</div>
+                    </div>
+                `).join('');
+            }
+
+            clearHistory() {
+                this.history.clear();
+                this.renderHistory();
+                showToast('历史记录已清空');
+            }
+
+            toggleCompareSection() {
+                const section = document.getElementById('compareSection');
+                section.classList.toggle('is-hidden');
+                if (!section.classList.contains('is-hidden')) {
+                    // 如果没有基准方案，自动添加当前方案
+                    if (!this.compare.scenarios.find(s => s.isBase)) {
+                        this.compare.addBaseScenario();
+                    }
+                    this.compare.renderComparison();
+                }
+            }
+
+            addToCompare() {
+                return this.compare.addScenario();
+            }
+
+            removeCompareScenario(id) {
+                this.compare.removeScenario(id);
+            }
+
+            applyCompareScenario(id) {
+                this.compare.applyScenario(id);
+            }
+
+            clearCompare() {
+                this.compare.clear();
+            }
+
+            updateCompareScenario(id, type, value) {
+                this.compare.updateScenario(id, type, value);
+            }
+        }
+
+        // ========================================
+        // UI 交互函数
+        // ========================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('drawerOverlay');
+            sidebar.classList.toggle('is-open');
+            overlay.classList.toggle('is-visible', sidebar.classList.contains('is-open'));
+        }
+
+        function toggleFilterSidebar() {
+            const sidebar = document.getElementById('filterSidebar');
+            const overlay = document.getElementById('drawerOverlay');
+            sidebar.classList.toggle('is-open');
+            overlay.classList.toggle('is-visible', sidebar.classList.contains('is-open'));
+        }
+
+        function toggleHistoryDrawer() {
+            const drawer = document.getElementById('historyDrawer');
+            drawer.classList.toggle('is-open');
+        }
+
+        function closeAllDrawers() {
+            document.getElementById('sidebar').classList.remove('is-open');
+            document.getElementById('filterSidebar').classList.remove('is-open');
+            document.getElementById('historyDrawer').classList.remove('is-open');
+            document.getElementById('drawerOverlay').classList.remove('is-visible');
+        }
+
+        function setSalary(amount) {
+            document.getElementById('salaryInput').value = amount;
+            validateSalary(amount);
+            updateCalculation();
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ========================================
+        // 计算逻辑
+        // ========================================
+        function updateCalculation() {
+            const salaryInput = document.getElementById('salaryInput');
+            const salary = parseFloat(salaryInput.value) || 0;
+
+            if (salary <= 0) {
+                // 清空显示
+                document.getElementById('totalAmount').textContent = '¥ 0.00';
+                document.getElementById('companyTotal').textContent = '¥ 0.00';
+                document.getElementById('personalTotal').textContent = '¥ 0.00';
+                document.getElementById('netSalary').textContent = '¥ 0.00';
+                document.getElementById('combinedTableBody').innerHTML = '';
+                return;
+            }
+
+            const base = calculateBase(salary);
+            const fundRate = parseFloat(document.getElementById('fundScheme').value) / 100;
+
+            let companySocialTotal = 0;
+            let personalSocialTotal = 0;
+            let companySocialFixedTotal = 0;
+            let personalSocialFixedTotal = 0;
+            let companySocialRateTotal = 0;
+            let personalSocialRateTotal = 0;
+            let companyFundTotal = 0;
+            let personalFundTotal = 0;
+
+            // 生成社保表格
+            const tableBody = document.getElementById('combinedTableBody');
+            tableBody.innerHTML = '';
+
+            let rowIndex = 0;
+            for (const [key, config] of Object.entries(insuranceConfig)) {
+                if (config.type === 'social') {
+                    let companyAmount, personalAmount;
+                    let billingStandardCell, fixedAmountCell, companyCell, personalCell;
+                    let amountCell;
+
+                    let companyFixedCell, personalFixedCell, companyRateCell, personalRateCell;
+
+                    if (config.billingType === 'rate') {
+                        companyAmount = base * config.companyRate;
+                        personalAmount = base * config.personalRate;
+                        billingStandardCell = `<span class="amount">${base.toLocaleString()}<span class="amount-unit">元</span></span>`;
+                        companyFixedCell = '<span class="text-muted">-</span>';
+                        personalFixedCell = '<span class="text-muted">-</span>';
+                        companyRateCell = `<div>${(config.companyRate * 100).toFixed(1)}%</div><div class="rate">${companyAmount.toFixed(2)}</div>`;
+                        personalRateCell = `<div>${(config.personalRate * 100).toFixed(1)}%</div><div class="rate">${personalAmount.toFixed(2)}</div>`;
+                        // 累加比例
+                        companySocialRateTotal += config.companyRate;
+                        personalSocialRateTotal += config.personalRate;
+                        // 比例缴费项目，应缴费用显示月缴金额
+                        amountCell = `<span class="amount">${(companyAmount + personalAmount).toFixed(2)}</span>`;
+                    } else if (config.billingType === 'fixed_yearly') {
+                        const companyYearly = config.companyFixed || 0;
+                        const personalYearly = config.personalFixed || 0;
+                        // 月缴金额用于合计统计
+                        companyAmount = companyYearly / 12;
+                        personalAmount = personalYearly / 12;
+                        billingStandardCell = `<span class="billing-badge">按年固定</span>`;
+                        // 固定费用只在固定列显示，比例列显示 -
+                        companyFixedCell = companyYearly > 0 ? `<span class="amount-fixed">¥${companyYearly}/年</span>` : '<span class="text-muted">-</span>';
+                        personalFixedCell = personalYearly > 0 ? `<span class="amount-fixed">¥${personalYearly}/年</span>` : '<span class="text-muted">-</span>';
+                        companyRateCell = '<span class="text-muted">-</span>';
+                        personalRateCell = '<span class="text-muted">-</span>';
+                        // 累加固定金额
+                        companySocialFixedTotal += companyYearly;
+                        personalSocialFixedTotal += personalYearly;
+
+                        // 按年缴费的项目，应缴费用显示年缴金额
+                        const yearlyTotal = companyYearly + personalYearly;
+                        amountCell = `<span class="amount-fixed">¥${yearlyTotal}/年</span>`;
+                    }
+
+                    companySocialTotal += companyAmount;
+                    personalSocialTotal += personalAmount;
+
+                    const row = document.createElement('tr');
+                    row.style.animationDelay = `${rowIndex * 0.05}s`;
+                    row.innerHTML = `
+                        <td data-label="项目"><span class="ins-type-badge badge-social">${config.name}</span></td>
+                        <td data-label="缴费基数">${billingStandardCell}</td>
+                        <td data-label="单位固定" style="text-align: center">${companyFixedCell}</td>
+                        <td data-label="个人固定" style="text-align: center">${personalFixedCell}</td>
+                        <td data-label="单位比例" style="text-align: center">${companyRateCell}</td>
+                        <td data-label="个人比例" style="text-align: center">${personalRateCell}</td>
+                        <td data-label="应缴费用" style="text-align: right">${amountCell}</td>
+                    `;
+                    tableBody.appendChild(row);
+                    rowIndex++;
+                }
+            }
+
+            // 社保合计行
+            const socialTotalRow = document.createElement('tr');
+            socialTotalRow.className = 'total-row';
+            const companySocialFixedDisplay = companySocialFixedTotal > 0 ? `<span class="amount-fixed">¥${companySocialFixedTotal}/年</span>` : '<span class="text-muted">-</span>';
+            const personalSocialFixedDisplay = personalSocialFixedTotal > 0 ? `<span class="amount-fixed">¥${personalSocialFixedTotal}/年</span>` : '<span class="text-muted">-</span>';
+            socialTotalRow.innerHTML = `
+                <td data-label="项目" style="text-align: right; font-weight: 600;">社保合计</td>
+                <td data-label="缴费基数"><span class="text-muted">-</span></td>
+                <td data-label="单位固定" style="text-align: center">${companySocialFixedDisplay}</td>
+                <td data-label="个人固定" style="text-align: center">${personalSocialFixedDisplay}</td>
+                <td data-label="单位比例" style="text-align: center"><div>${(companySocialRateTotal * 100).toFixed(1)}%</div><div class="rate">${companySocialTotal.toFixed(2)}</div></td>
+                <td data-label="个人比例" style="text-align: center"><div>${(personalSocialRateTotal * 100).toFixed(1)}%</div><div class="rate">${personalSocialTotal.toFixed(2)}</div></td>
+                <td data-label="应缴费用" style="text-align: right"><span class="amount">${(companySocialTotal + personalSocialTotal).toFixed(2)}</span></td>
+            `;
+            tableBody.appendChild(socialTotalRow);
+
+            // 生成公积金表格
+            
+
+            const fundConfig = insuranceConfig.fund;
+            companyFundTotal = base * fundRate;
+            personalFundTotal = base * fundRate;
+
+            const fundRow = document.createElement('tr');
+            fundRow.className = 'fund-row';
+            fundRow.innerHTML = `
+                <td data-label="项目"><span class="ins-type-badge badge-fund">${fundConfig.name}</span></td>
+                <td data-label="缴费基数"><span class="amount">${base.toLocaleString()}<span class="amount-unit">元</span></span></td>
+                <td data-label="单位固定" style="text-align: center"><span class="text-muted">-</span></td>
+                <td data-label="个人固定" style="text-align: center"><span class="text-muted">-</span></td>
+                <td data-label="单位比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${companyFundTotal.toFixed(2)}</div></td>
+                <td data-label="个人比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${personalFundTotal.toFixed(2)}</div></td>
+                <td data-label="应缴费用" style="text-align: right"><span class="amount">${(companyFundTotal + personalFundTotal).toFixed(2)}</span></td>
+            `;
+            tableBody.appendChild(fundRow);
+
+            // 公积金合计行
+            const fundTotalRow = document.createElement('tr');
+            fundTotalRow.className = 'total-row';
+            fundTotalRow.innerHTML = `
+                <td data-label="项目" style="text-align: right; font-weight: 600;">公积金合计</td>
+                <td data-label="缴费基数"><span class="text-muted">-</span></td>
+                <td data-label="单位固定" style="text-align: center"><span class="text-muted">-</span></td>
+                <td data-label="个人固定" style="text-align: center"><span class="text-muted">-</span></td>
+                <td data-label="单位比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${companyFundTotal.toFixed(2)}</div></td>
+                <td data-label="个人比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${personalFundTotal.toFixed(2)}</div></td>
+                <td data-label="应缴费用" style="text-align: right"><span class="amount">${(companyFundTotal + personalFundTotal).toFixed(2)}</span></td>
+            `;
+            tableBody.appendChild(fundTotalRow);
+
+            // 更新汇总数据
+            const companyTotal = companySocialTotal + companyFundTotal;
+            const personalTotal = personalSocialTotal + personalFundTotal;
+            const total = companyTotal + personalTotal;
+            const netSalary = salary - personalTotal;
+
+            // 动画更新金额
+            animateValue('totalAmount', total, '¥ ');
+            animateValue('companyTotal', companyTotal, '¥ ');
+            animateValue('personalTotal', personalTotal, '¥ ');
+            animateValue('netSalary', netSalary, '¥ ');
+
+            // 更新图表
+            updateChart(companyTotal, personalTotal, netSalary);
+
+            // 更新图例
+            document.getElementById('legendCompany').textContent = formatMoney(companyTotal);
+            document.getElementById('legendPersonal').textContent = formatMoney(personalTotal);
+            document.getElementById('legendNet').textContent = formatMoney(netSalary);
+        }
+
+        function animateValue(elementId, endValue, prefix = '') {
+            const element = document.getElementById(elementId);
+            const startValue = parseFloat(element.textContent.replace(/[^0-9.-]/g, '')) || 0;
+            const duration = 400;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const currentValue = startValue + (endValue - startValue) * easeProgress;
+
+                element.textContent = prefix + currentValue.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                element.classList.add('is-updating');
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    setTimeout(() => element.classList.remove('is-updating'), 300);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        function updateChart(company, personal, net) {
+            const total = company + personal + net;
+            const circumference = 2 * Math.PI * 40;
+
+            document.getElementById('chartCircle1').style.strokeDasharray = `${(company / total) * circumference} ${circumference}`;
+            document.getElementById('chartCircle2').style.strokeDasharray = `${(personal / total) * circumference} ${circumference}`;
+            document.getElementById('chartCircle2').style.strokeDashoffset = -((company / total) * circumference);
+            document.getElementById('chartTotal').textContent = '¥' + (company + personal).toLocaleString('zh-CN', { maximumFractionDigits: 0 });
+        }
+
+        function updatePolicyDisplay(region) {
+            const policy = regionPolicies[region];
+            if (!policy) return;
+
+            document.getElementById('policyTitle').textContent = `${policy.name} ${policy.year} 年社保政策`;
+
+            const contentHtml = policy.rules.map(rule => `<p>• ${rule}</p>`).join('');
+            document.getElementById('policyContent').innerHTML = contentHtml;
+
+            // 更新公积金政策
+            if (policy.fundRules) {
+                document.getElementById('fundPolicyTitle').textContent = `${policy.name} ${policy.year} 年公积金政策`;
+                const fundContentHtml = policy.fundRules.map(rule => `<p>• ${rule}</p>`).join('');
+                document.getElementById('fundPolicyContent').innerHTML = fundContentHtml;
+            }
+
+            baseRange.min = policy.minBase;
+            baseRange.max = policy.maxBase;
+        }
+
+        function resetCalculator() {
+            document.getElementById('salaryInput').value = '';
+            document.getElementById('regionSelect').selectedIndex = 0;
+            document.getElementById('socialScheme').selectedIndex = 0;
+            document.getElementById('fundScheme').selectedIndex = 0;
+            document.getElementById('dispatchUnit').selectedIndex = 0;
+            document.getElementById('salaryError').textContent = '';
+            document.getElementById('salaryInput').classList.remove('qy-input--error');
+
+            updateCalculation();
+            updatePolicyDisplay(document.getElementById('regionSelect').value);
+            showToast('已重置计算器');
+        }
+
+        function copyResult() {
+            const total = document.getElementById('totalAmount').textContent;
+            const company = document.getElementById('companyTotal').textContent;
+            const personal = document.getElementById('personalTotal').textContent;
+            const net = document.getElementById('netSalary').textContent;
+
+            const text = `社保公积金费用测算\n总费用：${total}\n单位承担：${company}\n个人承担：${personal}\n预估到手：${net}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('计算结果已复制到剪贴板');
+            });
+        }
+
+        function generateShareLink() {
+            const params = new URLSearchParams({
+                region: document.getElementById('regionSelect').value,
+                salary: document.getElementById('salaryInput').value,
+                social: document.getElementById('socialScheme').value,
+                fund: document.getElementById('fundScheme').value
+            });
+
+            const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showToast('分享链接已复制到剪贴板');
+            });
+        }
+
+        function exportToPDF() {
+            showToast('正在准备打印...');
+            setTimeout(() => window.print(), 500);
+        }
+
+        function exportToExcel() {
+            const salary = document.getElementById('salaryInput').value;
+            const region = document.getElementById('regionSelect').selectedOptions[0].text;
+            const total = document.getElementById('totalAmount').textContent;
+            const company = document.getElementById('companyTotal').textContent;
+            const personal = document.getElementById('personalTotal').textContent;
+            const net = document.getElementById('netSalary').textContent;
+
+            let csv = '\uFEFF';
+            csv += '社保公积金费用计算结果\n';
+            csv += `生成时间,${new Date().toLocaleString('zh-CN')}\n`;
+            csv += `参保地区,${region}\n`;
+            csv += `税前工资,${salary} 元\n\n`;
+
+            csv += '汇总信息\n';
+            csv += `总费用,${total}\n`;
+            csv += `单位承担,${company}\n`;
+            csv += `个人承担,${personal}\n`;
+            csv += `预估到手,${net}\n\n`;
+
+            csv += '费用明细\n';
+            csv += '项目,缴费基数,单位缴纳,个人缴纳,合计\n';
+
+            // 导出所有明细行（不包括合计行）
+            const detailRows = document.querySelectorAll('#combinedTableBody tr:not(.total-row)');
+            detailRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const name = cells[0].textContent.trim();
+                const standard = cells[1].textContent.trim();
+                // 从单位比例列(cells[4])和个人比例列(cells[5])中获取rate div里的金额
+                const companyAmt = cells[4].querySelector('.rate')?.textContent || cells[4].textContent.trim();
+                const personalAmt = cells[5].querySelector('.rate')?.textContent || cells[5].textContent.trim();
+                const totalAmt = cells[6].textContent.trim();
+                csv += `${name},${standard},${companyAmt},${personalAmt},${totalAmt}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `社保公积金计算结果_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showToast('Excel 导出成功');
+        }
+
+        // ========================================
+        // 初始化应用
+        // ========================================
+        const app = new CalculatorApp();
+    </script>
+</body>
+</html>

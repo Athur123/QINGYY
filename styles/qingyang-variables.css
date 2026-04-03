@@ -1,0 +1,410 @@
+/**
+ * 青阳云 CSS 变量文件
+ * Qingyang Cloud Design Tokens - CSS Variables
+ * Version: 1.0.0
+ */
+
+:root {
+  /* ========================================
+     1. 颜色系统 / Color System
+     ======================================== */
+
+  /* 主色 / Primary */
+  --qy-primary-50: #EFF6FF;
+  --qy-primary-100: #DBEAFE;
+  --qy-primary-200: #BFDBFE;
+  --qy-primary-300: #93C5FD;
+  --qy-primary-400: #60A5FA;
+  --qy-primary-500: #2563EB;
+  --qy-primary-600: #1D4ED8;
+  --qy-primary-700: #1E40AF;
+  --qy-primary-800: #1E3A8A;
+  --qy-primary-900: #172554;
+
+  /* 语义色 - 成功 / Semantic - Success */
+  --qy-success-50: #F0FDF4;
+  --qy-success-100: #DCFCE7;
+  --qy-success-200: #BBF7D0;
+  --qy-success-300: #86EFAC;
+  --qy-success-400: #4ADE80;
+  --qy-success-500: #22C55E;
+  --qy-success-600: #16A34A;
+  --qy-success-700: #15803D;
+  --qy-success-800: #166534;
+  --qy-success-900: #14532D;
+
+  /* 语义色 - 警告 / Semantic - Warning */
+  --qy-warning-50: #FFF7ED;
+  --qy-warning-100: #FFEDD5;
+  --qy-warning-200: #FED7AA;
+  --qy-warning-300: #FDBA74;
+  --qy-warning-400: #FB923C;
+  --qy-warning-500: #F97316;
+  --qy-warning-600: #EA580C;
+  --qy-warning-700: #C2410C;
+  --qy-warning-800: #9A3412;
+  --qy-warning-900: #7C2D12;
+
+  /* 语义色 - 错误 / Semantic - Error */
+  --qy-error-50: #FEF2F2;
+  --qy-error-100: #FEE2E2;
+  --qy-error-200: #FECACA;
+  --qy-error-300: #FCA5A5;
+  --qy-error-400: #F87171;
+  --qy-error-500: #EF4444;
+  --qy-error-600: #DC2626;
+  --qy-error-700: #B91C1C;
+  --qy-error-800: #991B1B;
+  --qy-error-900: #7F1D1D;
+
+  /* 中性色 / Neutral */
+  --qy-gray-50: #F8FAFC;
+  --qy-gray-100: #F1F5F9;
+  --qy-gray-200: #E2E8F0;
+  --qy-gray-300: #CBD5E1;
+  --qy-gray-400: #94A3B8;
+  --qy-gray-500: #64748B;
+  --qy-gray-600: #475569;
+  --qy-gray-700: #334155;
+  --qy-gray-800: #1E293B;
+  --qy-gray-900: #0F172A;
+
+  /* 背景色 / Background */
+  --qy-bg-primary: #FFFFFF;
+  --qy-bg-secondary: #F8FAFC;
+  --qy-bg-tertiary: #F1F5F9;
+  --qy-bg-elevated: #FFFFFF;
+  --qy-bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* 文本色 / Text */
+  --qy-text-primary: #1E293B;
+  --qy-text-secondary: #64748B;
+  --qy-text-muted: #94A3B8;
+  --qy-text-disabled: #CBD5E1;
+  --qy-text-inverse: #FFFFFF;
+
+  /* 边框色 / Border */
+  --qy-border-light: #E2E8F0;
+  --qy-border-medium: #CBD5E1;
+  --qy-border-strong: #94A3B8;
+  --qy-border-focus: #60A5FA;
+
+  /* 功能色别名 / Functional Aliases */
+  --qy-color-primary: var(--qy-primary-500);
+  --qy-color-primary-hover: var(--qy-primary-600);
+  --qy-color-primary-active: var(--qy-primary-700);
+  --qy-color-success: var(--qy-success-500);
+  --qy-color-warning: var(--qy-warning-500);
+  --qy-color-error: var(--qy-error-500);
+
+  /* ========================================
+     2. 字体系统 / Typography
+     ======================================== */
+
+  /* 字体家族 / Font Family */
+  --qy-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --qy-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+  /* 字体大小 / Font Size */
+  --qy-font-size-10: 10px;
+  --qy-font-size-11: 11px;
+  --qy-font-size-12: 12px;
+  --qy-font-size-13: 13px;
+  --qy-font-size-14: 14px;
+  --qy-font-size-16: 16px;
+  --qy-font-size-18: 18px;
+  --qy-font-size-20: 20px;
+  --qy-font-size-24: 24px;
+  --qy-font-size-28: 28px;
+  --qy-font-size-32: 32px;
+  --qy-font-size-40: 40px;
+
+  /* 字体粗细 / Font Weight */
+  --qy-font-weight-normal: 400;
+  --qy-font-weight-medium: 500;
+  --qy-font-weight-semibold: 600;
+  --qy-font-weight-bold: 700;
+
+  /* 行高 / Line Height */
+  --qy-line-height-tight: 1.25;
+  --qy-line-height-snug: 1.375;
+  --qy-line-height-normal: 1.5;
+  --qy-line-height-relaxed: 1.625;
+  --qy-line-height-loose: 2;
+
+  /* 字间距 / Letter Spacing */
+  --qy-letter-spacing-tight: -0.025em;
+  --qy-letter-spacing-normal: 0;
+  --qy-letter-spacing-wide: 0.025em;
+  --qy-letter-spacing-wider: 0.05em;
+
+  /* ========================================
+     3. 间距系统 / Spacing
+     ======================================== */
+
+  --qy-space-0: 0;
+  --qy-space-1: 4px;
+  --qy-space-2: 8px;
+  --qy-space-3: 12px;
+  --qy-space-4: 16px;
+  --qy-space-5: 20px;
+  --qy-space-6: 24px;
+  --qy-space-8: 32px;
+  --qy-space-10: 40px;
+  --qy-space-12: 48px;
+  --qy-space-16: 64px;
+  --qy-space-20: 80px;
+  --qy-space-24: 96px;
+
+  /* ========================================
+     4. 圆角系统 / Border Radius
+     ======================================== */
+
+  --qy-radius-none: 0;
+  --qy-radius-sm: 4px;
+  --qy-radius-md: 8px;
+  --qy-radius-lg: 12px;
+  --qy-radius-xl: 16px;
+  --qy-radius-2xl: 24px;
+  --qy-radius-full: 9999px;
+
+  /* ========================================
+     5. 阴影系统 / Shadows
+     ======================================== */
+
+  --qy-shadow-none: none;
+  --qy-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --qy-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --qy-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --qy-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --qy-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --qy-shadow-focus: 0 0 0 3px var(--qy-primary-100);
+  --qy-shadow-focus-error: 0 0 0 3px var(--qy-error-100);
+
+  /* ========================================
+     6. 动效系统 / Transitions & Animations
+     ======================================== */
+
+  /* 过渡时长 / Duration */
+  --qy-duration-instant: 0ms;
+  --qy-duration-fast: 150ms;
+  --qy-duration-normal: 200ms;
+  --qy-duration-slow: 300ms;
+  --qy-duration-slower: 500ms;
+
+  /* 缓动函数 / Easing */
+  --qy-ease-linear: linear;
+  --qy-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --qy-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --qy-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --qy-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --qy-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* 过渡预设 / Transition Presets */
+  --qy-transition-fast: var(--qy-duration-fast) var(--qy-ease-in-out);
+  --qy-transition-normal: var(--qy-duration-normal) var(--qy-ease-in-out);
+  --qy-transition-slow: var(--qy-duration-slow) var(--qy-ease-in-out);
+  --qy-transition-colors: color var(--qy-transition-fast), background-color var(--qy-transition-fast), border-color var(--qy-transition-fast);
+  --qy-transition-transform: transform var(--qy-transition-normal);
+  --qy-transition-shadow: box-shadow var(--qy-transition-fast);
+  --qy-transition-opacity: opacity var(--qy-transition-fast);
+  --qy-transition-all: all var(--qy-transition-normal);
+
+  /* ========================================
+     7. 布局常量 / Layout Constants
+     ======================================== */
+
+  /* 侧边栏 / Sidebar */
+  --qy-sidebar-width: 220px;
+  --qy-sidebar-collapsed-width: 64px;
+  --qy-sidebar-bg: var(--qy-bg-primary);
+  --qy-sidebar-border: var(--qy-border-light);
+
+  /* 顶部导航 / Header */
+  --qy-header-height: 52px;
+  --qy-header-bg: var(--qy-bg-primary);
+  --qy-header-border: var(--qy-border-light);
+
+  /* 内容区域 / Content */
+  --qy-content-padding-x: 28px;
+  --qy-content-padding-y: 24px;
+  --qy-content-max-width: 1440px;
+
+  /* 断点 / Breakpoints (用于 JS 参考) */
+  --qy-bp-mobile: 768px;
+  --qy-bp-tablet: 1024px;
+  --qy-bp-desktop: 1440px;
+
+  /* ========================================
+     8. 组件特定变量 / Component Specific
+     ======================================== */
+
+  /* 按钮 / Button */
+  --qy-btn-height-sm: 28px;
+  --qy-btn-height-md: 32px;
+  --qy-btn-height-lg: 40px;
+  --qy-btn-padding-x: 16px;
+  --qy-btn-radius: var(--qy-radius-md);
+  --qy-btn-font-size: var(--qy-font-size-13);
+  --qy-btn-font-weight: var(--qy-font-weight-medium);
+
+  /* 输入框 / Input */
+  --qy-input-height-sm: 28px;
+  --qy-input-height-md: 32px;
+  --qy-input-height-lg: 40px;
+  --qy-input-padding-x: 12px;
+  --qy-input-radius: var(--qy-radius-md);
+  --qy-input-font-size: var(--qy-font-size-13);
+  --qy-input-bg: var(--qy-bg-secondary);
+  --qy-input-border: var(--qy-border-medium);
+  --qy-input-border-focus: var(--qy-primary-400);
+
+  /* 卡片 / Card */
+  --qy-card-padding: 20px;
+  --qy-card-radius: var(--qy-radius-lg);
+  --qy-card-bg: var(--qy-bg-primary);
+  --qy-card-border: var(--qy-border-light);
+  --qy-card-shadow: var(--qy-shadow-card);
+
+  /* 表格 / Table */
+  --qy-table-header-bg: var(--qy-bg-secondary);
+  --qy-table-row-hover: var(--qy-bg-secondary);
+  --qy-table-cell-padding-x: 16px;
+  --qy-table-cell-padding-y: 12px;
+  --qy-table-border: var(--qy-border-light);
+
+  /* 导航 / Navigation */
+  --qy-nav-item-height: 36px;
+  --qy-nav-item-padding-x: 12px;
+  --qy-nav-item-radius: var(--qy-radius-md);
+  --qy-nav-icon-size: 16px;
+  --qy-nav-font-size: var(--qy-font-size-13);
+
+  /* 标签 / Tag */
+  --qy-tag-height: 20px;
+  --qy-tag-padding-x: 8px;
+  --qy-tag-radius: var(--qy-radius-full);
+  --qy-tag-font-size: var(--qy-font-size-11);
+  --qy-tag-font-weight: var(--qy-font-weight-medium);
+
+  /* 模态框 / Modal */
+  --qy-modal-max-width-sm: 400px;
+  --qy-modal-max-width-md: 560px;
+  --qy-modal-max-width-lg: 720px;
+  --qy-modal-max-width-xl: 960px;
+  --qy-modal-radius: var(--qy-radius-xl);
+  --qy-modal-shadow: var(--qy-shadow-lg);
+  --qy-modal-overlay: var(--qy-bg-overlay);
+
+  /* 下拉菜单 / Dropdown */
+  --qy-dropdown-min-width: 180px;
+  --qy-dropdown-max-height: 320px;
+  --qy-dropdown-radius: var(--qy-radius-lg);
+  --qy-dropdown-shadow: var(--qy-shadow-lg);
+  --qy-dropdown-item-height: 36px;
+  --qy-dropdown-item-padding-x: 12px;
+
+  /* 工具提示 / Tooltip */
+  --qy-tooltip-bg: var(--qy-gray-900);
+  --qy-tooltip-color: var(--qy-text-inverse);
+  --qy-tooltip-padding-x: 12px;
+  --qy-tooltip-padding-y: 8px;
+  --qy-tooltip-radius: var(--qy-radius-md);
+  --qy-tooltip-font-size: var(--qy-font-size-12);
+  --qy-tooltip-arrow-size: 6px;
+
+  /* 消息提示 / Message */
+  --qy-message-padding-x: 16px;
+  --qy-message-padding-y: 12px;
+  --qy-message-radius: var(--qy-radius-md);
+  --qy-message-shadow: var(--qy-shadow-lg);
+
+  /* 分页 / Pagination */
+  --qy-page-item-size: 32px;
+  --qy-page-item-radius: var(--qy-radius-md);
+
+  /* ========================================
+     9. Z-Index 层级 / Z-Index Scale
+     ======================================== */
+
+  --qy-z-base: 0;
+  --qy-z-dropdown: 100;
+  --qy-z-sticky: 200;
+  --qy-z-fixed: 300;
+  --qy-z-modal-backdrop: 400;
+  --qy-z-modal: 500;
+  --qy-z-popover: 600;
+  --qy-z-tooltip: 700;
+  --qy-z-toast: 800;
+  --qy-z-max: 9999;
+}
+
+/* ========================================
+   深色模式 / Dark Mode
+   ======================================== */
+
+[data-theme="dark"],
+.qy-theme-dark {
+  /* 背景色 / Background */
+  --qy-bg-primary: #0F172A;
+  --qy-bg-secondary: #1E293B;
+  --qy-bg-tertiary: #334155;
+  --qy-bg-elevated: #1E293B;
+  --qy-bg-overlay: rgba(0, 0, 0, 0.75);
+
+  /* 文本色 / Text */
+  --qy-text-primary: #F1F5F9;
+  --qy-text-secondary: #94A3B8;
+  --qy-text-muted: #64748B;
+  --qy-text-disabled: #475569;
+  --qy-text-inverse: #0F172A;
+
+  /* 边框色 / Border */
+  --qy-border-light: #334155;
+  --qy-border-medium: #475569;
+  --qy-border-strong: #64748B;
+  --qy-border-focus: #3B82F6;
+
+  /* 阴影调整为适合深色模式 */
+  --qy-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  --qy-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --qy-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --qy-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --qy-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   高对比度模式 / High Contrast Mode
+   ======================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --qy-border-light: #64748B;
+    --qy-border-medium: #475569;
+    --qy-text-secondary: #475569;
+    --qy-focus-ring-width: 3px;
+  }
+}
+
+/* ========================================
+   减少动效 / Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --qy-duration-instant: 0ms;
+    --qy-duration-fast: 0ms;
+    --qy-duration-normal: 0ms;
+    --qy-duration-slow: 0ms;
+    --qy-duration-slower: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

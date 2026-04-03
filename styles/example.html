@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青阳云样式系统示例</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="qingyang-variables.css">
+    <link rel="stylesheet" href="qingyang-base.css">
+    <link rel="stylesheet" href="qingyang-components.css">
+    <style>
+        /* 示例页面特定样式 */
+        .demo-section {
+            margin-bottom: var(--qy-space-8);
+        }
+        .demo-section__title {
+            font-size: var(--qy-font-size-20);
+            font-weight: var(--qy-font-weight-bold);
+            margin-bottom: var(--qy-space-4);
+            padding-bottom: var(--qy-space-3);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--qy-space-4);
+        }
+        .demo-item {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-3);
+            padding: var(--qy-space-3);
+            background: var(--qy-bg-secondary);
+            border-radius: var(--qy-radius-md);
+        }
+        .color-box {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--qy-radius-md);
+            border: 1px solid var(--qy-border-light);
+        }
+        .color-info {
+            font-size: var(--qy-font-size-12);
+            color: var(--qy-text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <a href="#main" class="qy-skip-link">跳转到主要内容</a>
+
+    <div class="qy-app">
+        <!-- 侧边栏示例 -->
+        <aside class="qy-sidebar qy-bg-primary qy-border-r" style="position: fixed; height: 100vh;">
+            <div class="qy-p-4 qy-border-b">
+                <h1 style="font-size: 16px; font-weight: 700; color: var(--qy-primary-500);">青阳云 HRO</h1>
+                <span style="font-size: 11px; color: var(--qy-text-muted);">人力资源管理平台</span>
+            </div>
+            <nav class="qy-p-2">
+                <div style="font-size: 10px; font-weight: 600; color: var(--qy-text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin: var(--qy-space-3) var(--qy-space-2) var(--qy-space-2);">
+                    工作台
+                </div>
+                <a href="#" class="qy-flex qy-items-center qy-py-2 qy-px-3 qy-rounded" style="background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 600;">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 10px;">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                    工作台
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="qy-main" id="main">
+            <!-- 顶部导航 -->
+            <header class="qy-flex-between qy-px-6 qy-bg-primary qy-border-b" style="height: var(--qy-header-height);">
+                <div class="qy-flex qy-items-center" style="gap: 6px; font-size: 13px; color: var(--qy-text-secondary);">
+                    <span>核心人事</span>
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+                    <span style="color: var(--qy-text-primary); font-weight: 500;">样式示例</span>
+                </div>
+                <div class="qy-flex qy-items-center" style="gap: 16px;">
+                    <button class="qy-btn qy-btn--text qy-btn--sm">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" clip-rule="evenodd"/>
+                        </svg>
+                        切换主题
+                    </button>
+                    <div class="qy-flex qy-items-center" style="gap: 8px;">
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--qy-primary-400), var(--qy-primary-600)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 600;">管</div>
+                        <span style="font-size: 13px; color: var(--qy-text-secondary);">系统管理员</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 页面内容 -->
+            <div class="qy-content">
+                <div class="demo-section">
+                    <h2 class="demo-section__title">🎨 颜色系统</h2>
+                    <div class="demo-grid">
+                        <div class="demo-item">
+                            <div class="color-box" style="background: var(--qy-primary-500);"></div>
+                            <div class="color-info">
+                                <div style="font-weight: 600; color: var(--qy-text-primary);">Primary-500</div>
+                                <div>#2563EB</div>
+                            </div>
+                        </div>
+                        <div class="demo-item">
+                            <div class="color-box" style="background: var(--qy-success-500);"></div>
+                            <div class="color-info">
+                                <div style="font-weight: 600; color: var(--qy-text-primary);">Success-500</div>
+                                <div>#22C55E</div>
+                            </div>
+                        </div>
+                        <div class="demo-item">
+                            <div class="color-box" style="background: var(--qy-warning-500);"></div>
+                            <div class="color-info">
+                                <div style="font-weight: 600; color: var(--qy-text-primary);">Warning-500</div>
+                                <div>#F97316</div>
+                            </div>
+                        </div>
+                        <div class="demo-item">
+                            <div class="color-box" style="background: var(--qy-error-500);"></div>
+                            <div class="color-info">
+                                <div style="font-weight: 600; color: var(--qy-text-primary);">Error-500</div>
+                                <div>#EF4444</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h2 class="demo-section__title">🔘 按钮组件</h2>
+                    <div class="qy-flex qy-flex-wrap" style="gap: var(--qy-space-3); align-items: center;">
+                        <button class="qy-btn qy-btn--primary">主要按钮</button>
+                        <button class="qy-btn qy-btn--secondary">次要按钮</button>
+                        <button class="qy-btn qy-btn--text">文字按钮</button>
+                        <button class="qy-btn qy-btn--danger">危险按钮</button>
+                        <button class="qy-btn qy-btn--primary" disabled>禁用按钮</button>
+                    </div>
+                    <div class="qy-mt-4 qy-flex qy-flex-wrap" style="gap: var(--qy-space-3); align-items: center;">
+                        <button class="qy-btn qy-btn--primary qy-btn--sm">小按钮</button>
+                        <button class="qy-btn qy-btn--primary">中按钮（默认）</button>
+                        <button class="qy-btn qy-btn--primary qy-btn--lg">大按钮</button>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h2 class="demo-section__title">📦 卡片组件</h2>
+                    <div class="demo-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                        <div class="qy-card">
+                            <div class="qy-card__header qy-flex-between">
+                                <span class="qy-font-semibold">标准卡片</span>
+                                <span class="qy-tag qy-tag--primary">标签</span>
+                            </div>
+                            <div class="qy-card__body">
+                                <p class="qy-text-secondary">这是一个标准的卡片组件，包含头部、主体和底部区域。</p>
+                            </div>
+                            <div class="qy-card__footer qy-flex-between">
+                                <span class="qy-text-muted qy-text-sm">2026-04-02</span>
+                                <button class="qy-btn qy-btn--text qy-btn--sm">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="qy-card" style="background: var(--qy-primary-50); border-color: var(--qy-primary-200);">
+                            <div class="qy-card__body">
+                                <div class="qy-flex qy-items-center" style="gap: var(--qy-space-3);">
+                                    <div style="width: 48px; height: 48px; border-radius: var(--qy-radius-lg); background: var(--qy-primary-500); display: flex; align-items: center; justify-content: center; color: #fff;">
+                                        <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 28px; font-weight: 700; color: var(--qy-text-primary);">256</div>
+                                        <div class="qy-text-secondary">在职员工</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h2 class="demo-section__title">🏷️ 标签组件</h2>
+                    <div class="qy-flex qy-flex-wrap" style="gap: var(--qy-space-2);">
+                        <span class="qy-tag qy-tag--default">默认</span>
+                        <span class="qy-tag qy-tag--primary">主要</span>
+                        <span class="qy-tag qy-tag--success">成功</span>
+                        <span class="qy-tag qy-tag--warning">警告</span>
+                        <span class="qy-tag qy-tag--error">错误</span>
+                        <span class="qy-badge">9</span>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h2 class="demo-section__title">📝 表单组件</h2>
+                    <div class="qy-card" style="max-width: 480px;">
+                        <div class="qy-card__body">
+                            <div class="qy-mb-4">
+                                <label class="qy-block qy-mb-2 qy-text-sm qy-font-medium">用户名</label>
+                                <input type="text" class="qy-input" placeholder="请输入用户名">
+                            </div>
+                            <div class="qy-mb-4">
+                                <label class="qy-block qy-mb-2 qy-text-sm qy-font-medium">邮箱</label>
+                                <input type="email" class="qy-input qy-input--error" placeholder="请输入邮箱" value="invalid-email">
+                                <div class="qy-mt-1" style="font-size: 12px; color: var(--qy-error-500);">请输入有效的邮箱地址</div>
+                            </div>
+                            <div class="qy-flex" style="gap: var(--qy-space-3);">
+                                <button class="qy-btn qy-btn--primary">提交</button>
+                                <button class="qy-btn qy-btn--secondary">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h2 class="demo-section__title">✨ 动画效果</h2>
+                    <div class="qy-flex qy-flex-wrap" style="gap: var(--qy-space-4);">
+                        <div class="qy-card qy-p-4 qy-animate-fade-in">
+                            <div class="qy-text-center">
+                                <div style="font-size: 24px; margin-bottom: 8px;">🎭</div>
+                                <div class="qy-text-sm">淡入</div>
+                            </div>
+                        </div>
+                        <div class="qy-card qy-p-4 qy-animate-slide-up">
+                            <div class="qy-text-center">
+                                <div style="font-size: 24px; margin-bottom: 8px;">⬆️</div>
+                                <div class="qy-text-sm">上滑</div>
+                            </div>
+                        </div>
+                        <div class="qy-card qy-p-4 qy-animate-pulse">
+                            <div class="qy-text-center">
+                                <div style="font-size: 24px; margin-bottom: 8px;">💓</div>
+                                <div class="qy-text-sm">脉冲</div>
+                            </div>
+                        </div>
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-center qy-animate-spin" style="width: 24px; height: 24px; margin: 0 auto 8px;">
+                                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div class="qy-text-sm qy-text-center">旋转</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表格组件示例 -->
+                <div class="demo-section">
+                    <h2 class="demo-section__title">📊 表格组件</h2>
+                    <div class="qy-table-wrapper qy-mb-4">
+                        <table class="qy-table">
+                            <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>部门</th>
+                                    <th>职位</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>张三</td>
+                                    <td>技术部</td>
+                                    <td>前端工程师</td>
+                                    <td><span class="qy-tag qy-tag--success">在职</span></td>
+                                    <td><button class="qy-btn qy-btn--text qy-btn--sm">编辑</button></td>
+                                </tr>
+                                <tr>
+                                    <td>李四</td>
+                                    <td>产品部</td>
+                                    <td>产品经理</td>
+                                    <td><span class="qy-tag qy-tag--success">在职</span></td>
+                                    <td><button class="qy-btn qy-btn--text qy-btn--sm">编辑</button></td>
+                                </tr>
+                                <tr>
+                                    <td>王五</td>
+                                    <td>设计部</td>
+                                    <td>UI设计师</td>
+                                    <td><span class="qy-tag qy-tag--warning">试用期</span></td>
+                                    <td><button class="qy-btn qy-btn--text qy-btn--sm">编辑</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="qy-pagination">
+                        <span class="qy-pagination__total">共 100 条</span>
+                        <button class="qy-pagination__prev">←</button>
+                        <div class="qy-pagination__list">
+                            <span class="qy-pagination__item">1</span>
+                            <span class="qy-pagination__item is-active">2</span>
+                            <span class="qy-pagination__item">3</span>
+                            <span class="qy-pagination__item">4</span>
+                            <span class="qy-pagination__item">5</span>
+                        </div>
+                        <button class="qy-pagination__next">→</button>
+                        <div class="qy-pagination__jumper">
+                            <span>前往</span>
+                            <input type="text" class="qy-input qy-pagination__jumper-input" value="2">
+                            <span>页</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 步骤条示例 -->
+                <div class="demo-section">
+                    <h2 class="demo-section__title">🚶 步骤条</h2>
+                    <div class="qy-steps qy-steps--horizontal">
+                        <div class="qy-step is-finish">
+                            <div class="qy-step__head">
+                                <div class="qy-step__icon">✓</div>
+                                <div class="qy-step__line"></div>
+                            </div>
+                            <div class="qy-step__main">
+                                <div class="qy-step__title">填写信息</div>
+                                <div class="qy-step__description">已完成</div>
+                            </div>
+                        </div>
+                        <div class="qy-step is-process">
+                            <div class="qy-step__head">
+                                <div class="qy-step__icon">2</div>
+                                <div class="qy-step__line"></div>
+                            </div>
+                            <div class="qy-step__main">
+                                <div class="qy-step__title">确认提交</div>
+                                <div class="qy-step__description">进行中</div>
+                            </div>
+                        </div>
+                        <div class="qy-step">
+                            <div class="qy-step__head">
+                                <div class="qy-step__icon">3</div>
+                            </div>
+                            <div class="qy-step__main">
+                                <div class="qy-step__title">完成</div>
+                                <div class="qy-step__description">等待中</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 树形控件示例 -->
+                <div class="demo-section">
+                    <h2 class="demo-section__title">🌲 树形控件</h2>
+                    <div class="qy-tree" style="max-width: 300px;">
+                        <div class="qy-tree__node is-expanded">
+                            <div class="qy-tree__node-content">
+                                <span class="qy-tree__node-expand">▶</span>
+                                <span class="qy-tree__node-label">总公司</span>
+                            </div>
+                            <div class="qy-tree__children">
+                                <div class="qy-tree__node is-expanded">
+                                    <div class="qy-tree__node-content">
+                                        <span class="qy-tree__node-expand">▶</span>
+                                        <span class="qy-tree__node-label">技术部</span>
+                                    </div>
+                                    <div class="qy-tree__children">
+                                        <div class="qy-tree__node is-leaf">
+                                            <div class="qy-tree__node-content">
+                                                <span class="qy-tree__node-expand"></span>
+                                                <span class="qy-tree__node-label">前端组</span>
+                                            </div>
+                                        </div>
+                                        <div class="qy-tree__node is-leaf">
+                                            <div class="qy-tree__node-content">
+                                                <span class="qy-tree__node-expand"></span>
+                                                <span class="qy-tree__node-label">后端组</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="qy-tree__node is-leaf">
+                                    <div class="qy-tree__node-content">
+                                        <span class="qy-tree__node-expand"></span>
+                                        <span class="qy-tree__node-label">产品部</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他组件展示 -->
+                <div class="demo-section">
+                    <h2 class="demo-section__title">🎛️ 表单组件</h2>
+                    <div class="demo-grid" style="grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+                        <!-- 开关 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">开关 / Switch</div>
+                            <div class="qy-flex" style="gap: 16px;">
+                                <label class="qy-switch">
+                                    <input type="checkbox" class="qy-switch__input" checked>
+                                    <span class="qy-switch__slider"></span>
+                                </label>
+                                <label class="qy-switch qy-switch--small">
+                                    <input type="checkbox" class="qy-switch__input">
+                                    <span class="qy-switch__slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 单选框 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">单选框 / Radio</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label class="qy-radio">
+                                    <input type="radio" class="qy-radio__input" name="radio-demo" checked>
+                                    <span class="qy-radio__icon"></span>
+                                    <span class="qy-radio__label">选项一</span>
+                                </label>
+                                <label class="qy-radio">
+                                    <input type="radio" class="qy-radio__input" name="radio-demo">
+                                    <span class="qy-radio__icon"></span>
+                                    <span class="qy-radio__label">选项二</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 复选框 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">复选框 / Checkbox</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label class="qy-checkbox">
+                                    <input type="checkbox" class="qy-checkbox__input" checked>
+                                    <span class="qy-checkbox__icon"></span>
+                                    <span class="qy-checkbox__label">选项一</span>
+                                </label>
+                                <label class="qy-checkbox">
+                                    <input type="checkbox" class="qy-checkbox__input">
+                                    <span class="qy-checkbox__icon"></span>
+                                    <span class="qy-checkbox__label">选项二</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 头像 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">头像 / Avatar</div>
+                            <div class="qy-avatar-group">
+                                <div class="qy-avatar qy-avatar--small">A</div>
+                                <div class="qy-avatar qy-avatar--small">B</div>
+                                <div class="qy-avatar qy-avatar--small">C</div>
+                                <div class="qy-avatar qy-avatar--small" style="background: var(--qy-text-muted);">+3</div>
+                            </div>
+                        </div>
+
+                        <!-- 进度条 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">进度条 / Progress</div>
+                            <div class="qy-mb-2">
+                                <div class="qy-progress">
+                                    <div class="qy-progress__bar" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="qy-progress qy-progress--success">
+                                    <div class="qy-progress__bar" style="width: 80%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 加载动画 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">加载 / Loading</div>
+                            <div class="qy-loading">
+                                <div class="qy-loading__spinner"></div>
+                                <span class="qy-loading__text">加载中...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 扩展表单组件 -->
+                <div class="demo-section">
+                    <h2 class="demo-section__title">📝 扩展表单组件</h2>
+
+                    <div class="demo-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                        <!-- 文本域 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">文本域 / Textarea</div>
+                            <textarea class="qy-textarea" rows="3" placeholder="请输入描述内容"></textarea>
+                        </div>
+
+                        <!-- 下拉选择 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">下拉选择 / Select</div>
+                            <div class="qy-select" style="width: 100%;">
+                                <div class="qy-select__trigger">
+                                    <span class="qy-select__placeholder">请选择部门</span>
+                                    <span class="qy-select__arrow">▼</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 数字输入 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">数字输入 / InputNumber</div>
+                            <div class="qy-input-number">
+                                <span class="qy-input-number__decrease">-</span>
+                                <input type="number" class="qy-input-number__input" value="1">
+                                <span class="qy-input-number__increase">+</span>
+                            </div>
+                        </div>
+
+                        <!-- 搜索框 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">搜索框 / Search</div>
+                            <div class="qy-input-search">
+                                <span class="qy-input-search__icon">🔍</span>
+                                <input type="text" class="qy-input" placeholder="请输入搜索内容">
+                                <span class="qy-input-search__clear">✕</span>
+                            </div>
+                        </div>
+
+                        <!-- 日期选择 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">日期选择 / DatePicker</div>
+                            <div class="qy-datepicker">
+                                <div class="qy-datepicker__input">
+                                    <span>2024-01-15</span>
+                                    <span class="qy-datepicker__icon">📅</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 滑块 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">滑块 / Slider</div>
+                            <div class="qy-slider">
+                                <div class="qy-slider__runway">
+                                    <div class="qy-slider__bar" style="width: 60%"></div>
+                                    <div class="qy-slider__button" style="left: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 评分 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">评分 / Rate</div>
+                            <div class="qy-rate">
+                                <span class="qy-rate__item is-active">★</span>
+                                <span class="qy-rate__item is-active">★</span>
+                                <span class="qy-rate__item is-active">★</span>
+                                <span class="qy-rate__item">★</span>
+                                <span class="qy-rate__item">★</span>
+                                <span class="qy-rate__text">3分</span>
+                            </div>
+                        </div>
+
+                        <!-- 文件上传 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">文件上传 / Upload</div>
+                            <div class="qy-upload__drag" style="padding: 20px;">
+                                <div style="font-size: 24px; margin-bottom: 8px;">📁</div>
+                                <div style="font-size: 12px; color: var(--qy-text-muted);">点击或拖拽上传</div>
+                            </div>
+                        </div>
+
+                        <!-- 输入框组 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">输入框组 / Input Group</div>
+                            <div class="qy-input-group">
+                                <span class="qy-input-group__addon qy-input-group__addon--prepend">https://</span>
+                                <input class="qy-input" placeholder="请输入网址">
+                                <span class="qy-input-group__addon qy-input-group__addon--append">.com</span>
+                            </div>
+                        </div>
+
+                        <!-- 表单布局 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">表单布局 / Form</div>
+                            <div class="qy-form-item">
+                                <label class="qy-form-item__label is-required">用户名</label>
+                                <div class="qy-form-item__content">
+                                    <input class="qy-input qy-input--small" placeholder="请输入">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 级联选择 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">级联选择 / Cascader</div>
+                            <div class="qy-cascader">
+                                <div class="qy-cascader__trigger">
+                                    <span>湖南省 / 长沙市</span>
+                                    <span>▼</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 颜色选择器 -->
+                        <div class="qy-card qy-p-4">
+                            <div class="qy-text-sm qy-mb-3">颜色选择 / ColorPicker</div>
+                            <div class="qy-color-picker">
+                                <div class="qy-color-picker__trigger">
+                                    <span class="qy-color-picker__color" style="background: #2563EB"></span>
+                                    <span class="qy-color-picker__value">#2563EB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 主题切换示例
+        const themeToggle = document.querySelector('button');
+        let isDark = false;
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>
