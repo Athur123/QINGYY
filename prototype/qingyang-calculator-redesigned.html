@@ -1489,6 +1489,170 @@
         }
 
         /* ========================================
+           Batch Section Styles
+           ======================================== */
+        .batch-section {
+            display: none;
+            margin-top: var(--qy-space-6);
+            padding: var(--qy-space-5);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .batch-section.is-visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .batch-header {
+            margin-bottom: var(--qy-space-4);
+            padding-bottom: var(--qy-space-3);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .batch-header h2 {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .batch-input-area {
+            margin-bottom: var(--qy-space-4);
+        }
+
+        .batch-input {
+            width: 100%;
+            min-height: 100px;
+            padding: var(--qy-space-3);
+            font-size: var(--qy-font-size-md);
+            font-family: var(--qy-font-primary);
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+            border: 1px solid var(--qy-border-medium);
+            border-radius: var(--qy-radius-md);
+            resize: vertical;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .batch-input:focus {
+            outline: none;
+            border-color: var(--qy-border-focus);
+            box-shadow: var(--qy-focus-ring);
+            background-color: var(--qy-bg-primary);
+        }
+
+        .batch-input::placeholder {
+            color: var(--qy-text-muted);
+        }
+
+        .batch-presets {
+            display: flex;
+            gap: var(--qy-space-2);
+            margin-top: var(--qy-space-2);
+            flex-wrap: wrap;
+        }
+
+        .batch-preset-btn {
+            padding: var(--qy-space-1) var(--qy-space-3);
+            font-size: var(--qy-font-size-sm);
+            font-weight: 500;
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-sm);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .batch-preset-btn:hover {
+            background: var(--qy-primary-100);
+            border-color: var(--qy-primary-300);
+        }
+
+        .batch-preset-btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .batch-table-container {
+            margin-top: var(--qy-space-5);
+            overflow-x: auto;
+        }
+
+        .batch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--qy-font-size-md);
+        }
+
+        .batch-table th,
+        .batch-table td {
+            padding: var(--qy-space-3) var(--qy-space-4);
+            text-align: left;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .batch-table th {
+            font-weight: 600;
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-secondary);
+            white-space: nowrap;
+        }
+
+        .batch-table td {
+            color: var(--qy-text-primary);
+        }
+
+        .batch-table tbody tr:hover {
+            background: var(--qy-bg-secondary);
+        }
+
+        .batch-table .amount {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .batch-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--qy-space-3);
+            margin-top: var(--qy-space-4);
+            padding-top: var(--qy-space-4);
+            border-top: 1px solid var(--qy-border-light);
+        }
+
+        .batch-stats {
+            display: flex;
+            gap: var(--qy-space-6);
+            margin-bottom: var(--qy-space-4);
+            padding: var(--qy-space-3) var(--qy-space-4);
+            background: var(--qy-bg-secondary);
+            border-radius: var(--qy-radius-md);
+        }
+
+        .batch-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .batch-stat__label {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        .batch-stat__value {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ========================================
            History Drawer Styles
            ======================================== */
         .drawer-overlay {
@@ -1647,6 +1811,7 @@
             .calc-page-actions,
             .action-bar,
             .compare-section,
+            .batch-section,
             .history-drawer,
             .drawer-overlay {
                 display: none !important;
@@ -1867,7 +2032,17 @@
                         </svg>
                         方案对比
                     </button>
-                    </div>
+                    <button class="calc-page-action-btn" onclick="toggleBatchSection()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        批量计算
+                    </button>
+                </div>
             </div>
 
             <!-- Empty State -->
@@ -2045,6 +2220,47 @@
                 </div>
             </section>
 
+            <!-- Batch Section -->
+            <section class="batch-section" id="batchSection" aria-label="批量计算">
+                <div class="batch-header"><h2>批量计算</h2></div>
+                <div class="batch-input-area">
+                    <textarea class="batch-input" id="batchInput" placeholder="输入多个工资金额，可用逗号或换行分隔&#10;例如：5000, 8000, 10000, 15000"></textarea>
+                    <div class="batch-presets">
+                        <button class="batch-preset-btn" onclick="setBatchPresets('min')">最低基数档</button>
+                        <button class="batch-preset-btn" onclick="setBatchPresets('common')">常用档位</button>
+                    </div>
+                </div>
+
+                <button class="qy-btn qy-btn--primary" onclick="calculateBatch()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    开始批量计算
+                </button>
+
+                <div class="batch-table-container" id="batchResults" style="display: none;">
+                    <div class="batch-stats" id="batchStats"></div>
+                    <table class="batch-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>工资基数</th>
+                                <th class="amount">缴费基数</th>
+                                <th class="amount">单位缴纳</th>
+                                <th class="amount">个人缴纳</th>
+                                <th class="amount">合计</th>
+                                <th class="amount">到手工资</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchTableBody"></tbody>
+                    </table>
+                    <div class="batch-actions">
+                        <button class="qy-btn qy-btn--secondary" onclick="clearBatch()">清空结果</button>
+                        <button class="qy-btn qy-btn--primary" onclick="exportBatchToCSV()">导出CSV</button>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -2062,6 +2278,8 @@
         let currentView = 'monthly';
         let historyList = JSON.parse(localStorage.getItem('calcHistoryList') || '[]');
         let compareList = JSON.parse(localStorage.getItem('calcCompareList') || '[]');
+        let batchResults = [];
+
         // ========================================
         // Insurance Info Data for Tooltips
         // ========================================
@@ -2430,6 +2648,13 @@
         }
 
         /**
+         * Toggle batch calculation section
+         */
+        function toggleBatchSection() {
+            const section = document.getElementById('batchSection');
+            section.classList.toggle('is-visible');
+        }
+
         // ========================================
         // View Switching Functions
         // ========================================
@@ -3049,6 +3274,179 @@ ${period}费用：
         }
 
         // ========================================
+        // Batch Calculation Functions
+        // ========================================
+
+        /**
+         * Set batch input presets
+         */
+        function setBatchPresets(type) {
+            const city = document.getElementById('citySelect').value;
+            const config = cityConfigs[city];
+            let values = [];
+
+            if (type === 'min') {
+                values = [config.baseMin];
+            } else if (type === 'common') {
+                values = [5000, 8000, 10000, 15000, 20000].filter(v => v <= config.baseMax);
+            }
+
+            document.getElementById('batchInput').value = values.join(', ');
+            showToast(`已设置${type === 'min' ? '最低基数' : '常用档位'}`, 'success');
+        }
+
+        /**
+         * Calculate batch results
+         */
+        function calculateBatch() {
+            const input = document.getElementById('batchInput').value;
+            const city = document.getElementById('citySelect').value;
+            const fundRate = parseInt(document.getElementById('fundScheme').value) / 100;
+            const config = cityConfigs[city];
+
+            // Parse salaries from input
+            const salaries = input.split(/[,，\n]/)
+                .map(s => parseFloat(s.trim()))
+                .filter(s => !isNaN(s) && s > 0);
+
+            if (salaries.length === 0) {
+                showToast('没有有效的工资金额', 'error');
+                return;
+            }
+
+            if (salaries.length > 20) {
+                showToast('最多支持20个工资', 'warning');
+                return;
+            }
+
+            const scheme = config.socialSchemes.normal;
+
+            // Calculate for each salary
+            batchResults = salaries.map((salary, index) => {
+                const base = calculateBase(salary, config);
+
+                let socialCompanyTotal = 0;
+                let socialPersonalTotal = 0;
+
+                for (const [type, rates] of Object.entries(scheme)) {
+                    if (type === 'name') continue;
+                    socialCompanyTotal += base * rates.company;
+                    socialPersonalTotal += base * rates.personal;
+                }
+
+                const fundCompany = base * fundRate;
+                const fundPersonal = base * fundRate;
+                const totalCompany = socialCompanyTotal + fundCompany;
+                const totalPersonal = socialPersonalTotal + fundPersonal;
+                const total = totalCompany + totalPersonal;
+
+                return {
+                    index: index + 1,
+                    salary,
+                    base,
+                    totalCompany,
+                    totalPersonal,
+                    total,
+                    netSalary: salary - totalPersonal
+                };
+            });
+
+            renderBatchResults();
+            showToast(`批量计算完成，共${batchResults.length}条结果`, 'success');
+        }
+
+        /**
+         * Render batch results table
+         */
+        function renderBatchResults() {
+            const container = document.getElementById('batchResults');
+            const tbody = document.getElementById('batchTableBody');
+            const statsContainer = document.getElementById('batchStats');
+
+            // Calculate stats
+            const totalSalary = batchResults.reduce((sum, r) => sum + r.salary, 0);
+            const totalCost = batchResults.reduce((sum, r) => sum + r.total, 0);
+            const avgCost = totalCost / batchResults.length;
+
+            statsContainer.innerHTML = `
+                <div class="batch-stat">
+                    <span class="batch-stat__label">计算数量</span>
+                    <span class="batch-stat__value">${batchResults.length} 人</span>
+                </div>
+                <div class="batch-stat">
+                    <span class="batch-stat__label">工资总额</span>
+                    <span class="batch-stat__value">¥${formatMoney(totalSalary)}</span>
+                </div>
+                <div class="batch-stat">
+                    <span class="batch-stat__label">社保公积金总额</span>
+                    <span class="batch-stat__value">¥${formatMoney(totalCost)}</span>
+                </div>
+                <div class="batch-stat">
+                    <span class="batch-stat__label">人均成本</span>
+                    <span class="batch-stat__value">¥${formatMoney(avgCost)}</span>
+                </div>
+            `;
+
+            tbody.innerHTML = batchResults.map(result => `
+                <tr>
+                    <td>${result.index}</td>
+                    <td>¥${result.salary.toLocaleString()}</td>
+                    <td class="amount">¥${formatMoney(result.base)}</td>
+                    <td class="amount">¥${formatMoney(result.totalCompany)}</td>
+                    <td class="amount">¥${formatMoney(result.totalPersonal)}</td>
+                    <td class="amount">¥${formatMoney(result.total)}</td>
+                    <td class="amount">¥${formatMoney(result.netSalary)}</td>
+                </tr>
+            `).join('');
+
+            container.style.display = 'block';
+        }
+
+        /**
+         * Clear batch results
+         */
+        function clearBatch() {
+            batchResults = [];
+            document.getElementById('batchInput').value = '';
+            document.getElementById('batchResults').style.display = 'none';
+            showToast('已清空批量计算结果', 'success');
+        }
+
+        /**
+         * Export batch results to CSV
+         */
+        function exportBatchToCSV() {
+            if (batchResults.length === 0) {
+                showToast('没有可导出的数据', 'warning');
+                return;
+            }
+
+            const city = document.getElementById('citySelect').value;
+            const config = cityConfigs[city];
+
+            let csv = '\uFEFF'; // BOM for UTF-8
+            csv += '批量社保公积金计算结果\n';
+            csv += `城市,${config.name}\n`;
+            csv += `计算时间,${new Date().toLocaleString('zh-CN')}\n\n`;
+
+            csv += '序号,工资基数,缴费基数,单位缴纳,个人缴纳,合计,到手工资\n';
+
+            batchResults.forEach(r => {
+                csv += `${r.index},${r.salary},${r.base},${formatMoney(r.totalCompany)},${formatMoney(r.totalPersonal)},${formatMoney(r.total)},${formatMoney(r.netSalary)}\n`;
+            });
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `批量社保计算结果_${config.name}_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+
+            showToast('CSV导出成功', 'success');
+        }
+
+        // ========================================
+        // Initialization
         // ========================================
 
         document.addEventListener('DOMContentLoaded', function() {
