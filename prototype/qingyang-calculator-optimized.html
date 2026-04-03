@@ -1109,18 +1109,7 @@
                     <span class="breadcrumb-current">费用计算器</span>
                 </div>
                 <div class="header-actions">
-                    <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="toggleHistoryDrawer()">
-                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                        </svg>
-                        历史记录
-                    </button>
-                    <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="app.toggleCompareSection()">
-                        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
-                            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                        </svg>
-                        方案对比
-                    </button>
+
                 </div>
             </header>
 
@@ -1222,12 +1211,26 @@
                                 <h1 class="calc-title">费用计算器</h1>
                                 <p class="calc-subtitle">测算各社保、公积金参保费用，快速了解缴费明细</p>
                             </div>
-                            <button class="qy-btn qy-btn--primary" onclick="generateShareLink()">
-                                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;">
-                                    <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-                                </svg>
-                                分享结果
-                            </button>
+                            <div class="header-actions">
+                                <button class="qy-btn qy-btn--primary" onclick="exportToPDF()">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                    导出 PDF
+                                </button>
+                                <button class="qy-btn qy-btn--secondary" onclick="app.toggleCompareSection()">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                        <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                                    </svg>
+                                    方案对比
+                                </button>
+                                <button class="qy-btn qy-btn--secondary" onclick="generateShareLink()">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                                    </svg>
+                                    分享结果
+                                </button>
+                            </div>
                         </div>
 
                         <!-- 汇总与图表 -->
@@ -1246,11 +1249,7 @@
                                             <span class="summary-item-label">个人承担</span>
                                             <span class="summary-item-value" id="personalTotal">¥ 0.00</span>
                                         </div>
-                                        <div class="summary-divider"></div>
-                                        <div class="summary-item">
-                                            <span class="summary-item-label">预估到手</span>
-                                            <span class="summary-item-value" id="netSalary">¥ 0.00</span>
-                                        </div>
+
                                     </div>
                                 </div>
 
@@ -1279,11 +1278,7 @@
                                             <span class="legend-text">个人承担</span>
                                             <span class="legend-value" id="legendPersonal">¥ 0.00</span>
                                         </div>
-                                        <div class="legend-item">
-                                            <div class="legend-color" style="background: var(--qy-border-light)"></div>
-                                            <span class="legend-text">预估到手</span>
-                                            <span class="legend-value" id="legendNet">¥ 0.00</span>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -1387,28 +1382,7 @@
                         </div>
                     </div>
 
-                    <!-- 操作栏 -->
-                    <div class="action-bar">
-                        <button class="qy-btn qy-btn--primary" onclick="exportToPDF()">
-                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
-                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            导出 PDF
-                        </button>
-                        <button class="qy-btn qy-btn--secondary" onclick="exportToExcel()">
-                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
-                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                            导出 Excel
-                        </button>
-                        <button class="qy-btn qy-btn--secondary" onclick="copyResult()">
-                            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
-                                <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                                <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                            </svg>
-                            复制结果
-                        </button>
-                    </div>
+
                 </div><!-- /content-main -->
             </div><!-- /content-with-filter -->
         </main>
@@ -1424,16 +1398,6 @@
         </button>
     </div>
 
-    <!-- 历史记录抽屉 -->
-    <div class="history-drawer" id="historyDrawer">
-        <div class="history-drawer__header">
-            <h3>计算历史</h3>
-            <button class="qy-btn qy-btn--text qy-btn--sm" onclick="app.clearHistory()">清空</button>
-        </div>
-        <div class="history-drawer__list" id="historyList">
-            <div class="history-empty">暂无历史记录</div>
-        </div>
-    </div>
 
     <!-- 加载遮罩 -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -1642,7 +1606,7 @@
         class CalculatorCompare {
             constructor() {
                 this.scenarios = [];
-                this.maxScenarios = 3;
+                this.maxScenarios = 5;
                 this.baseScenarioId = null; // 基准方案ID
             }
 
@@ -1674,10 +1638,10 @@
                 this.renderComparison();
             }
 
-            // 添加对比方案（需要选择社保方案和公积金方案）
+            // 添加对比方案（社保方案和公积金方案默认为空）
             addScenario() {
                 if (this.scenarios.length >= this.maxScenarios) {
-                    showToast('最多只能对比3个方案', 'warning');
+                    showToast('最多只能对比5个方案', 'warning');
                     return false;
                 }
 
@@ -1692,11 +1656,34 @@
                     this.addBaseScenario();
                 }
 
-                // 创建对比方案，使用当前选择的社保和公积金方案作为默认值
-                const socialScheme = document.getElementById('socialScheme').value;
-                const fundScheme = document.getElementById('fundScheme').value;
-                const socialName = document.getElementById('socialScheme').selectedOptions[0].text;
-                const fundName = document.getElementById('fundScheme').selectedOptions[0].text;
+                // 创建对比方案，社保和公积金方案默认为空
+                const scenario = {
+                    id: Date.now(),
+                    name: `对比方案 ${this.scenarios.filter(s => !s.isBase).length + 1}`,
+                    isBase: false,
+                    region: document.getElementById('regionSelect').value,
+                    regionName: document.getElementById('regionSelect').selectedOptions[0].text,
+                    salary: salary,
+                    socialScheme: '', // 默认空值
+                    socialSchemeName: '请选择社保方案',
+                    fundScheme: '', // 默认空值
+                    fundSchemeName: '请选择公积金方案',
+                    results: null
+                };
+
+                this.scenarios.push(scenario);
+                this.renderComparison();
+                showToast('已添加对比方案');
+                return true;
+            }
+
+            // 添加空的对比方案（社保方案和公积金方案为空）
+            addEmptyScenario() {
+                if (this.scenarios.length >= this.maxScenarios) {
+                    return false;
+                }
+
+                const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
 
                 const scenario = {
                     id: Date.now(),
@@ -1705,19 +1692,14 @@
                     region: document.getElementById('regionSelect').value,
                     regionName: document.getElementById('regionSelect').selectedOptions[0].text,
                     salary: salary,
-                    socialScheme: socialScheme,
-                    socialSchemeName: socialName,
-                    fundScheme: fundScheme,
-                    fundSchemeName: fundName,
+                    socialScheme: '', // 空的社保方案
+                    socialSchemeName: '请选择社保方案',
+                    fundScheme: '', // 空的公积金方案
+                    fundSchemeName: '请选择公积金方案',
                     results: null
                 };
 
-                // 立即计算结果
-                scenario.results = this.calculateScenarioResults(scenario);
-
                 this.scenarios.push(scenario);
-                this.renderComparison();
-                showToast('已添加对比方案');
                 return true;
             }
 
@@ -1756,7 +1738,6 @@
                 const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
                 const baseCompany = baseResults ? parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, '')) : 0;
                 const basePersonal = baseResults ? parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, '')) : 0;
-                const baseNet = baseResults ? parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, '')) : 0;
 
                 // 找到该方案对应的列索引
                 const scenarioIndex = this.scenarios.findIndex(s => s.id === scenarioId);
@@ -1792,19 +1773,6 @@
                 const personalCell = document.querySelector(`tr[data-row="personal"] td:nth-child(${scenarioIndex + 2})`);
                 if (personalCell) {
                     personalCell.innerHTML = this.renderCellContent(scenario.results.personalTotal, personalDiff, 'var(--qy-success-600)', false);
-                }
-
-                // 更新预估到手（到手增加是绿色，减少是红色）
-                const netValue = parseFloat(scenario.results.netSalary.replace(/[^0-9.-]/g, ''));
-                const netDiff = netValue - baseNet;
-                const netCell = document.querySelector(`tr[data-row="net"] td:nth-child(${scenarioIndex + 2})`);
-                if (netCell) {
-                    const diffClass = netDiff > 0 ? 'var(--qy-success-500)' : (netDiff < 0 ? 'var(--qy-error-500)' : 'var(--qy-text-muted)');
-                    const diffSign = netDiff > 0 ? '+' : '';
-                    netCell.innerHTML = `
-                        <div style="color: var(--qy-warning-600);">${scenario.results.netSalary}</div>
-                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${netDiff.toFixed(2)}</div>
-                    `;
                 }
 
                 // 更新社保+公积金合计
@@ -1848,18 +1816,15 @@
 
                 const personal = parseFloat(results.personalTotal.replace(/[^0-9.-]/g, ''));
                 const company = parseFloat(results.companyTotal.replace(/[^0-9.-]/g, ''));
-                const net = parseFloat(results.netSalary.replace(/[^0-9.-]/g, ''));
 
-                let basePersonal = 0, baseCompany = 0, baseNet = 0;
+                let basePersonal = 0, baseCompany = 0;
                 if (baseResults) {
                     basePersonal = parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, ''));
                     baseCompany = parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, ''));
-                    baseNet = parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, ''));
                 }
 
                 const personalYearlyDiff = (personal - basePersonal) * 12;
                 const companyYearlyDiff = (company - baseCompany) * 12;
-                const netYearlyDiff = (net - baseNet) * 12;
 
                 const formatYearly = (val) => {
                     const prefix = val > 0 ? '+' : '';
@@ -1871,7 +1836,7 @@
                     <div style="font-size: 11px; line-height: 1.6;">
                         <div>个人年缴: ${formatYearly(personalYearlyDiff)}</div>
                         <div>单位年缴: ${formatYearly(companyYearlyDiff)}</div>
-                        <div>到手年差: ${formatYearly(netYearlyDiff)}</div>
+
                     </div>
                 `;
             }
@@ -1922,12 +1887,10 @@
                     const companyTotal = companySocialTotal + companyFundTotal;
                     const personalTotal = personalSocialTotal + personalFundTotal;
                     const total = companyTotal + personalTotal;
-                    const netSalary = salary - personalTotal;
 
                     return {
                         companyTotal: formatMoney(companyTotal),
                         personalTotal: formatMoney(personalTotal),
-                        netSalary: formatMoney(netSalary),
                         total: formatMoney(total),
                         // 社保合计
                         companySocial: formatMoney(companySocialTotal),
@@ -1949,7 +1912,7 @@
                 return {
                     companyTotal: document.getElementById('companyTotal').textContent,
                     personalTotal: document.getElementById('personalTotal').textContent,
-                    netSalary: document.getElementById('netSalary').textContent,
+                    
                     total: document.getElementById('totalAmount').textContent
                 };
             }
@@ -1961,11 +1924,13 @@
                     return;
                 }
 
-                // 获取社保和公积金选项
+                // 获取社保和公积金选项，添加"请选择"空选项
                 const socialOptions = Array.from(document.getElementById('socialScheme').options)
                     .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
                 const fundOptions = Array.from(document.getElementById('fundScheme').options)
                     .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+                const socialOptionsWithEmpty = '<option value="">请选择社保方案</option>' + socialOptions;
+                const fundOptionsWithEmpty = '<option value="">请选择公积金方案</option>' + fundOptions;
 
                 let html = `
                     <table class="compare-table">
@@ -2005,9 +1970,10 @@
                                     if (s.isBase) {
                                         return `<td>${s.socialSchemeName}</td>`;
                                     } else {
+                                        const selectedSocial = s.socialScheme || '';
                                         return `<td>
                                             <select class="qy-input qy-input--sm" onchange="app.updateCompareScenario(${s.id}, 'social', this.value)" style="min-width: 120px; font-size: 12px; padding: 4px 8px;">
-                                                ${socialOptions.split(`value="${s.socialScheme}"`).join(`value="${s.socialScheme}" selected`)}
+                                                ${socialOptionsWithEmpty.replace(`value="${selectedSocial}"`, `value="${selectedSocial}" selected`)}
                                             </select>
                                         </td>`;
                                     }
@@ -2019,9 +1985,10 @@
                                     if (s.isBase) {
                                         return `<td>${s.fundScheme}%</td>`;
                                     } else {
+                                        const selectedFund = s.fundScheme || '';
                                         return `<td>
                                             <select class="qy-input qy-input--sm" onchange="app.updateCompareScenario(${s.id}, 'fund', this.value)" style="min-width: 100px; font-size: 12px; padding: 4px 8px;">
-                                                ${fundOptions.split(`value="${s.fundScheme}"`).join(`value="${s.fundScheme}" selected`)}
+                                                ${fundOptionsWithEmpty.replace(`value="${selectedFund}"`, `value="${selectedFund}" selected`)}
                                             </select>
                                         </td>`;
                                     }
@@ -2033,7 +2000,6 @@
                                 const baseResults = baseScenario?.results;
                                 const baseCompany = baseResults ? parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, '')) : 0;
                                 const basePersonal = baseResults ? parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, '')) : 0;
-                                const baseNet = baseResults ? parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, '')) : 0;
                                 const baseSocialTotal = baseResults ? parseFloat(baseResults.socialTotal.replace(/[^0-9.-]/g, '')) : 0;
                                 const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
 
@@ -2108,24 +2074,7 @@
                                     </td>`;
                                 }).join('')}
                             </tr>
-                            <tr class="highlight" data-row="net">
-                                <td>预估到手</td>
-                                ${this.scenarios.map(s => {
-                                    if (!s.results) return '<td>-</td>';
-                                    const value = parseFloat(s.results.netSalary.replace(/[^0-9.-]/g, ''));
-                                    if (s.isBase || !baseResults) {
-                                        return `<td style="color: var(--qy-warning-600);">${s.results.netSalary}</td>`;
-                                    }
-                                    const diff = value - baseNet;
-                                    // 到手工资：增加为绿色（好事），减少为红色（坏事）
-                                    const diffClass = diff > 0 ? 'var(--qy-success-500)' : (diff < 0 ? 'var(--qy-error-500)' : 'var(--qy-text-muted)');
-                                    const diffSign = diff > 0 ? '+' : '';
-                                    return `<td style="color: var(--qy-warning-600);">
-                                        ${s.results.netSalary}
-                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
-                                    </td>`;
-                                }).join('')}
-                            </tr>
+
                             <tr data-row="combined" style="background: var(--qy-bg-secondary);">
                                 <td style="font-weight: 600;">社保+公积金合计</td>
                                 ${this.scenarios.map(s => {
@@ -2163,42 +2112,34 @@
                                     if (!s.results) return '<td>-</td>';
                                     const personal = parseFloat(s.results.personalTotal.replace(/[^0-9.-]/g, ''));
                                     const company = parseFloat(s.results.companyTotal.replace(/[^0-9.-]/g, ''));
-                                    const net = parseFloat(s.results.netSalary.replace(/[^0-9.-]/g, ''));
 
-                                    let basePersonal = 0, baseCompany = 0, baseNet = 0;
+                                    let basePersonal = 0, baseCompany = 0;
                                     if (baseResults) {
                                         basePersonal = parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, ''));
                                         baseCompany = parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, ''));
-                                        baseNet = parseFloat(baseResults.netSalary.replace(/[^0-9.-]/g, ''));
                                     }
 
                                     const personalYearlyDiff = (personal - basePersonal) * 12;
                                     const companyYearlyDiff = (company - baseCompany) * 12;
-                                    const netYearlyDiff = (net - baseNet) * 12;
-
+                    
                                     if (s.isBase || !baseResults) {
                                         return `<td style="font-size: 12px; color: var(--qy-text-secondary);">
                                             <div>个人: ${formatMoney(personal * 12)}</div>
                                             <div>单位: ${formatMoney(company * 12)}</div>
-                                            <div style="color: var(--qy-warning-600); margin-top: 2px;">到手: ${formatMoney(net * 12)}</div>
                                         </td>`;
                                     }
 
                                     const personalClass = personalYearlyDiff > 0 ? 'var(--qy-error-500)' : (personalYearlyDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
                                     const companyClass = companyYearlyDiff > 0 ? 'var(--qy-error-500)' : (companyYearlyDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
-                                    const netClass = netYearlyDiff > 0 ? 'var(--qy-success-500)' : (netYearlyDiff < 0 ? 'var(--qy-error-500)' : 'var(--qy-text-muted)');
 
                                     const personalSign = personalYearlyDiff > 0 ? '+' : '';
                                     const companySign = companyYearlyDiff > 0 ? '+' : '';
-                                    const netSign = netYearlyDiff > 0 ? '+' : '';
 
                                     return `<td style="font-size: 12px;">
                                         <div style="color: var(--qy-text-secondary);">个人: ${formatMoney(personal * 12)}</div>
                                         <div style="font-size: 10px; color: ${personalClass}; margin-bottom: 2px;">${personalSign}${formatMoney(personalYearlyDiff)}</div>
                                         <div style="color: var(--qy-text-secondary);">单位: ${formatMoney(company * 12)}</div>
                                         <div style="font-size: 10px; color: ${companyClass}; margin-bottom: 2px;">${companySign}${formatMoney(companyYearlyDiff)}</div>
-                                        <div style="color: var(--qy-warning-600);">到手: ${formatMoney(net * 12)}</div>
-                                        <div style="font-size: 10px; color: ${netClass};">${netSign}${formatMoney(netYearlyDiff)}</div>
                                     </td>`;
                                 }).join('')}
                             </tr>`;
@@ -2305,7 +2246,7 @@
         // ========================================
         class CalculatorApp {
             constructor() {
-                this.history = new CalculatorHistory();
+                // History feature removed
                 this.compare = new CalculatorCompare();
                 this.loading = new LoadingManager();
                 this.init();
@@ -2314,7 +2255,7 @@
             init() {
                 this.bindEvents();
                 this.parseUrlParams();
-                this.renderHistory();
+                // renderHistory removed
                 updatePolicyDisplay(document.getElementById('regionSelect').value);
                 updateCalculation();
             }
@@ -2344,14 +2285,7 @@
                 // 键盘快捷键
                 document.addEventListener('keydown', (e) => this.handleKeyboard(e));
 
-                // 点击历史记录抽屉外部关闭
-                document.addEventListener('click', (e) => {
-                    const drawer = document.getElementById('historyDrawer');
-                    const btn = e.target.closest('.header-actions button');
-                    if (!drawer.contains(e.target) && !btn) {
-                        drawer.classList.remove('is-open');
-                    }
-                });
+
             }
 
             autoSave() {
@@ -2361,7 +2295,7 @@
                     if (salary > 0) {
                         const record = this.captureCurrentState();
                         this.history.add(record);
-                        this.renderHistory();
+                        // renderHistory removed
                     }
                 }, 2000);
             }
@@ -2376,7 +2310,7 @@
                     results: {
                         companyTotal: document.getElementById('companyTotal').textContent,
                         personalTotal: document.getElementById('personalTotal').textContent,
-                        netSalary: document.getElementById('netSalary').textContent,
+                        
                         total: document.getElementById('totalAmount').textContent
                     }
                 };
@@ -2393,7 +2327,7 @@
                             e.preventDefault();
                             const record = this.captureCurrentState();
                             this.history.add(record);
-                            this.renderHistory();
+                            // renderHistory removed
                             showToast('已保存到历史记录');
                             break;
                         case 'p':
@@ -2430,32 +2364,12 @@
             }
 
             renderHistory() {
-                const list = document.getElementById('historyList');
-                const history = this.history.getAll();
-
-                if (history.length === 0) {
-                    list.innerHTML = '<div class="history-empty">暂无历史记录</div>';
-                    return;
-                }
-
-                list.innerHTML = history.map(item => `
-                    <div class="history-item" onclick="app.history.restore(${item.id})">
-                        <div class="history-item__header">
-                            <span class="history-item__region">${item.regionName}</span>
-                            <span class="history-item__time">${formatDate(item.timestamp)}</span>
-                        </div>
-                        <div class="history-item__details">
-                            <span>工资: ¥${item.salary.toLocaleString()}</span>
-                            <span>公积金: ${item.fundScheme}%</span>
-                        </div>
-                        <div class="history-item__amount">${item.results.total}</div>
-                    </div>
-                `).join('');
+                // History feature removed
             }
 
             clearHistory() {
                 this.history.clear();
-                this.renderHistory();
+                // renderHistory removed
                 showToast('历史记录已清空');
             }
 
@@ -2466,6 +2380,10 @@
                     // 如果没有基准方案，自动添加当前方案
                     if (!this.compare.scenarios.find(s => s.isBase)) {
                         this.compare.addBaseScenario();
+                    }
+                    // 如果没有对比方案，自动添加一个空的对比方案
+                    if (!this.compare.scenarios.find(s => !s.isBase)) {
+                        this.compare.addEmptyScenario();
                     }
                     this.compare.renderComparison();
                 }
@@ -2509,11 +2427,6 @@
             overlay.classList.toggle('is-visible', sidebar.classList.contains('is-open'));
         }
 
-        function toggleHistoryDrawer() {
-            const drawer = document.getElementById('historyDrawer');
-            drawer.classList.toggle('is-open');
-        }
-
         function closeAllDrawers() {
             document.getElementById('sidebar').classList.remove('is-open');
             document.getElementById('filterSidebar').classList.remove('is-open');
@@ -2546,7 +2459,7 @@
                 document.getElementById('totalAmount').textContent = '¥ 0.00';
                 document.getElementById('companyTotal').textContent = '¥ 0.00';
                 document.getElementById('personalTotal').textContent = '¥ 0.00';
-                document.getElementById('netSalary').textContent = '¥ 0.00';
+                
                 document.getElementById('combinedTableBody').innerHTML = '';
                 return;
             }
@@ -2683,21 +2596,18 @@
             const companyTotal = companySocialTotal + companyFundTotal;
             const personalTotal = personalSocialTotal + personalFundTotal;
             const total = companyTotal + personalTotal;
-            const netSalary = salary - personalTotal;
 
             // 动画更新金额
             animateValue('totalAmount', total, '¥ ');
             animateValue('companyTotal', companyTotal, '¥ ');
             animateValue('personalTotal', personalTotal, '¥ ');
-            animateValue('netSalary', netSalary, '¥ ');
 
             // 更新图表
-            updateChart(companyTotal, personalTotal, netSalary);
+            updateChart(companyTotal, personalTotal);
 
             // 更新图例
             document.getElementById('legendCompany').textContent = formatMoney(companyTotal);
             document.getElementById('legendPersonal').textContent = formatMoney(personalTotal);
-            document.getElementById('legendNet').textContent = formatMoney(netSalary);
         }
 
         function animateValue(elementId, endValue, prefix = '') {
@@ -2725,8 +2635,8 @@
             requestAnimationFrame(update);
         }
 
-        function updateChart(company, personal, net) {
-            const total = company + personal + net;
+        function updateChart(company, personal) {
+            const total = company + personal;
             const circumference = 2 * Math.PI * 40;
 
             document.getElementById('chartCircle1').style.strokeDasharray = `${(company / total) * circumference} ${circumference}`;
@@ -2769,18 +2679,7 @@
             showToast('已重置计算器');
         }
 
-        function copyResult() {
-            const total = document.getElementById('totalAmount').textContent;
-            const company = document.getElementById('companyTotal').textContent;
-            const personal = document.getElementById('personalTotal').textContent;
-            const net = document.getElementById('netSalary').textContent;
 
-            const text = `社保公积金费用测算\n总费用：${total}\n单位承担：${company}\n个人承担：${personal}\n预估到手：${net}`;
-
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('计算结果已复制到剪贴板');
-            });
-        }
 
         function generateShareLink() {
             const params = new URLSearchParams({
@@ -2801,50 +2700,7 @@
             setTimeout(() => window.print(), 500);
         }
 
-        function exportToExcel() {
-            const salary = document.getElementById('salaryInput').value;
-            const region = document.getElementById('regionSelect').selectedOptions[0].text;
-            const total = document.getElementById('totalAmount').textContent;
-            const company = document.getElementById('companyTotal').textContent;
-            const personal = document.getElementById('personalTotal').textContent;
-            const net = document.getElementById('netSalary').textContent;
 
-            let csv = '\uFEFF';
-            csv += '社保公积金费用计算结果\n';
-            csv += `生成时间,${new Date().toLocaleString('zh-CN')}\n`;
-            csv += `参保地区,${region}\n`;
-            csv += `税前工资,${salary} 元\n\n`;
-
-            csv += '汇总信息\n';
-            csv += `总费用,${total}\n`;
-            csv += `单位承担,${company}\n`;
-            csv += `个人承担,${personal}\n`;
-            csv += `预估到手,${net}\n\n`;
-
-            csv += '费用明细\n';
-            csv += '项目,缴费基数,单位缴纳,个人缴纳,合计\n';
-
-            // 导出所有明细行（不包括合计行）
-            const detailRows = document.querySelectorAll('#combinedTableBody tr:not(.total-row)');
-            detailRows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const name = cells[0].textContent.trim();
-                const standard = cells[1].textContent.trim();
-                // 从单位比例列(cells[4])和个人比例列(cells[5])中获取rate div里的金额
-                const companyAmt = cells[4].querySelector('.rate')?.textContent || cells[4].textContent.trim();
-                const personalAmt = cells[5].querySelector('.rate')?.textContent || cells[5].textContent.trim();
-                const totalAmt = cells[6].textContent.trim();
-                csv += `${name},${standard},${companyAmt},${personalAmt},${totalAmt}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `社保公积金计算结果_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-
-            showToast('Excel 导出成功');
-        }
 
         // ========================================
         // 初始化应用
