@@ -966,6 +966,671 @@
                 gap: var(--qy-space-3);
             }
         }
+
+        /* ========================================
+           Chart Section Styles
+           ======================================== */
+        .chart-section {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-6);
+            margin-bottom: var(--qy-space-6);
+            padding: var(--qy-space-5);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .donut-chart {
+            width: 180px;
+            height: 180px;
+            position: relative;
+        }
+
+        .donut-chart svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .donut-chart circle {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.8s ease;
+        }
+
+        .donut-chart__bg {
+            stroke: var(--qy-gray-200);
+        }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-center__label {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            margin-bottom: var(--qy-space-1);
+        }
+
+        .donut-center__value {
+            font-size: var(--qy-font-size-2xl);
+            font-weight: 700;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-3);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-3);
+        }
+
+        .legend-item__dot {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--qy-radius-full);
+            flex-shrink: 0;
+        }
+
+        .legend-item__label {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        .legend-item__value {
+            font-size: var(--qy-font-size-md);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ========================================
+           Detail Section Styles
+           ======================================== */
+        .detail-section {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            overflow: hidden;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--qy-space-4) var(--qy-space-5);
+            border-bottom: 1px solid var(--qy-border-light);
+            background: var(--qy-bg-secondary);
+        }
+
+        .detail-header__title {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .detail-header__badge {
+            padding: var(--qy-space-1) var(--qy-space-3);
+            font-size: var(--qy-font-size-xs);
+            font-weight: 500;
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-sm);
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .detail-table th,
+        .detail-table td {
+            padding: var(--qy-space-3) var(--qy-space-4);
+            text-align: left;
+            font-size: var(--qy-font-size-md);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .detail-table th {
+            font-weight: 600;
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-secondary);
+        }
+
+        .detail-table td {
+            color: var(--qy-text-primary);
+        }
+
+        .detail-table tbody tr:hover {
+            background: var(--qy-bg-secondary);
+        }
+
+        .detail-table .amount {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .detail-table .total-row {
+            font-weight: 600;
+            background: var(--qy-bg-secondary);
+        }
+
+        .detail-table .total-row td {
+            border-top: 2px solid var(--qy-border-medium);
+            border-bottom: none;
+        }
+
+        .item-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px var(--qy-space-2);
+            font-size: var(--qy-font-size-xs);
+            font-weight: 500;
+            border-radius: var(--qy-radius-sm);
+            margin-right: var(--qy-space-2);
+        }
+
+        .item-tag--social {
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            border: 1px solid var(--qy-primary-200);
+        }
+
+        .item-tag--fund {
+            color: var(--qy-success-600);
+            background: var(--qy-success-50);
+            border: 1px solid var(--qy-success-100);
+        }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            margin-left: var(--qy-space-1);
+            color: var(--qy-text-muted);
+            cursor: help;
+            transition: color var(--qy-transition-fast);
+        }
+
+        .info-icon:hover {
+            color: var(--qy-primary-500);
+        }
+
+        .info-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ========================================
+           Tooltip Styles
+           ======================================== */
+        .tooltip {
+            position: fixed;
+            max-width: 280px;
+            padding: var(--qy-space-3) var(--qy-space-4);
+            background: var(--qy-gray-800);
+            border-radius: var(--qy-radius-md);
+            box-shadow: var(--qy-shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .tooltip.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip__title {
+            font-size: var(--qy-font-size-md);
+            font-weight: 600;
+            color: var(--qy-text-inverse);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .tooltip__desc {
+            font-size: var(--qy-font-size-sm);
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--qy-space-2);
+            line-height: 1.5;
+        }
+
+        .tooltip__rate {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-primary-300);
+            padding-top: var(--qy-space-2);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                flex-direction: column;
+                gap: var(--qy-space-4);
+            }
+
+            .chart-legend {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .detail-table {
+                font-size: var(--qy-font-size-sm);
+            }
+
+            .detail-table th,
+            .detail-table td {
+                padding: var(--qy-space-2) var(--qy-space-3);
+            }
+        }
+
+        /* ========================================
+           Action Bar Styles
+           ======================================== */
+        .action-bar {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-3);
+            margin-top: var(--qy-space-6);
+            padding-top: var(--qy-space-5);
+            border-top: 1px solid var(--qy-border-light);
+            flex-wrap: wrap;
+        }
+
+        .action-bar .qy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+        }
+
+        .action-bar .qy-btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown__menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: var(--qy-space-1);
+            min-width: 140px;
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            box-shadow: var(--qy-shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all var(--qy-transition-fast);
+            z-index: 100;
+        }
+
+        .dropdown.is-open .dropdown__menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown__item {
+            display: block;
+            width: 100%;
+            padding: var(--qy-space-3) var(--qy-space-4);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            color: var(--qy-text-primary);
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .dropdown__item:hover {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-primary-600);
+        }
+
+        .dropdown__item:focus {
+            outline: none;
+            background: var(--qy-primary-50);
+        }
+
+        .dropdown__divider {
+            height: 1px;
+            margin: var(--qy-space-2) 0;
+            background: var(--qy-border-light);
+        }
+
+        /* ========================================
+           Compare Section Styles
+           ======================================== */
+        .compare-section {
+            display: none;
+            margin-top: var(--qy-space-6);
+            padding: var(--qy-space-5);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .compare-section.is-visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .compare-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--qy-space-4);
+            padding-bottom: var(--qy-space-3);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .compare-title {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--qy-space-4);
+        }
+
+        .compare-card {
+            position: relative;
+            padding: var(--qy-space-4);
+            background: var(--qy-bg-secondary);
+            border: 2px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            transition: all var(--qy-transition-normal);
+            cursor: pointer;
+        }
+
+        .compare-card:hover {
+            border-color: var(--qy-primary-200);
+            box-shadow: var(--qy-shadow-md);
+        }
+
+        .compare-card.is-active {
+            border-color: var(--qy-primary-500);
+            background: var(--qy-primary-50);
+        }
+
+        .compare-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .compare-card__city {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .compare-card__remove {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--qy-text-muted);
+            cursor: pointer;
+            border-radius: var(--qy-radius-sm);
+            transition: all var(--qy-transition-fast);
+        }
+
+        .compare-card__remove:hover {
+            background: var(--qy-error-50);
+            color: var(--qy-error-500);
+        }
+
+        .compare-card__meta {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .compare-card__amount {
+            font-size: var(--qy-font-size-2xl);
+            font-weight: 700;
+            color: var(--qy-primary-600);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .compare-card__detail {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-1);
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        .compare-card__detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .compare-card__detail-label {
+            color: var(--qy-text-muted);
+        }
+
+        .compare-card__detail-value {
+            font-weight: 500;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .compare-empty {
+            text-align: center;
+            padding: var(--qy-space-8);
+            color: var(--qy-text-muted);
+        }
+
+        /* ========================================
+           Batch Section Styles
+           ======================================== */
+        .batch-section {
+            display: none;
+            margin-top: var(--qy-space-6);
+            padding: var(--qy-space-5);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .batch-section.is-visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .batch-header {
+            margin-bottom: var(--qy-space-4);
+            padding-bottom: var(--qy-space-3);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .batch-header h2 {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .batch-input-area {
+            margin-bottom: var(--qy-space-4);
+        }
+
+        .batch-input {
+            width: 100%;
+            min-height: 100px;
+            padding: var(--qy-space-3);
+            font-size: var(--qy-font-size-md);
+            font-family: var(--qy-font-primary);
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+            border: 1px solid var(--qy-border-medium);
+            border-radius: var(--qy-radius-md);
+            resize: vertical;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .batch-input:focus {
+            outline: none;
+            border-color: var(--qy-border-focus);
+            box-shadow: var(--qy-focus-ring);
+            background-color: var(--qy-bg-primary);
+        }
+
+        .batch-input::placeholder {
+            color: var(--qy-text-muted);
+        }
+
+        .batch-presets {
+            display: flex;
+            gap: var(--qy-space-2);
+            margin-top: var(--qy-space-2);
+            flex-wrap: wrap;
+        }
+
+        .batch-preset-btn {
+            padding: var(--qy-space-1) var(--qy-space-3);
+            font-size: var(--qy-font-size-sm);
+            font-weight: 500;
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-sm);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .batch-preset-btn:hover {
+            background: var(--qy-primary-100);
+            border-color: var(--qy-primary-300);
+        }
+
+        .batch-preset-btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .batch-table-container {
+            margin-top: var(--qy-space-5);
+            overflow-x: auto;
+        }
+
+        .batch-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--qy-font-size-md);
+        }
+
+        .batch-table th,
+        .batch-table td {
+            padding: var(--qy-space-3) var(--qy-space-4);
+            text-align: left;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .batch-table th {
+            font-weight: 600;
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-secondary);
+            white-space: nowrap;
+        }
+
+        .batch-table td {
+            color: var(--qy-text-primary);
+        }
+
+        .batch-table tbody tr:hover {
+            background: var(--qy-bg-secondary);
+        }
+
+        .batch-table .amount {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .batch-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--qy-space-3);
+            margin-top: var(--qy-space-4);
+            padding-top: var(--qy-space-4);
+            border-top: 1px solid var(--qy-border-light);
+        }
+
+        .batch-stats {
+            display: flex;
+            gap: var(--qy-space-6);
+            margin-bottom: var(--qy-space-4);
+            padding: var(--qy-space-3) var(--qy-space-4);
+            background: var(--qy-bg-secondary);
+            border-radius: var(--qy-radius-md);
+        }
+
+        .batch-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .batch-stat__label {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        .batch-stat__value {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body>
@@ -1223,12 +1888,183 @@
                         <div class="result-card__note" id="netSalaryNote">预估每月</div>
                     </div>
                 </div>
+
+                <!-- Chart Section -->
+                <section class="chart-section" aria-label="费用构成图表">
+                    <div class="chart-container">
+                        <div class="donut-chart">
+                            <svg viewBox="0 0 100 100">
+                                <circle class="donut-chart__bg" cx="50" cy="50" r="40"/>
+                                <circle id="chartCircle1" cx="50" cy="50" r="40" stroke="#2563EB" stroke-dasharray="0 251.2"/>
+                                <circle id="chartCircle2" cx="50" cy="50" r="40" stroke="#22C55E" stroke-dasharray="0 251.2"/>
+                                <circle id="chartCircle3" cx="50" cy="50" r="40" stroke="#F97316" stroke-dasharray="0 251.2"/>
+                            </svg>
+                            <div class="donut-center">
+                                <div class="donut-center__label" id="chartLabel">月缴总额</div>
+                                <div class="donut-center__value" id="chartTotal">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-item__dot" style="background: #2563EB;"></div>
+                            <div>
+                                <div class="legend-item__label">单位社保</div>
+                                <div class="legend-item__value" id="legendCompany">0 元</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-item__dot" style="background: #22C55E;"></div>
+                            <div>
+                                <div class="legend-item__label">个人社保</div>
+                                <div class="legend-item__value" id="legendPersonal">0 元</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-item__dot" style="background: #F97316;"></div>
+                            <div>
+                                <div class="legend-item__label">公积金</div>
+                                <div class="legend-item__value" id="legendFund">0 元</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Detail Table Section -->
+                <section class="detail-section" aria-label="费用明细">
+                    <div class="detail-header">
+                        <div class="detail-header__title">费用明细</div>
+                        <span class="detail-header__badge" id="policyBadge">长沙市 2025</span>
+                    </div>
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>项目</th>
+                                <th>缴费基数</th>
+                                <th class="amount">单位缴纳</th>
+                                <th class="amount">个人缴纳</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailTableBody"></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td>合计</td>
+                                <td>-</td>
+                                <td class="amount" id="totalCompany">0</td>
+                                <td class="amount" id="totalPersonal">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </section>
+
+                <!-- Action Bar -->
+                <div class="action-bar" role="group" aria-label="结果操作">
+                    <button class="qy-btn qy-btn--secondary" onclick="shareResult()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                        分享
+                    </button>
+                    <button class="qy-btn qy-btn--secondary" onclick="copyResult()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        复制
+                    </button>
+                    <div class="dropdown" id="exportDropdown">
+                        <button class="qy-btn qy-btn--secondary" onclick="toggleExportDropdown()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            导出
+                        </button>
+                        <div class="dropdown__menu">
+                            <button class="dropdown__item" onclick="exportToExcel()">导出 Excel</button>
+                            <button class="dropdown__item" onclick="exportToPDF()">导出 PDF</button>
+                        </div>
+                    </div>
+                    <button class="qy-btn qy-btn--primary" onclick="window.print()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"/>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                            <rect x="6" y="14" width="12" height="8"/>
+                        </svg>
+                        打印
+                    </button>
+                </div>
             </div>
+
+            <!-- Compare Section -->
+            <section class="compare-section" id="compareSection" aria-label="方案对比">
+                <div class="compare-header">
+                    <h2 class="compare-title">方案对比</h2>
+                    <div>
+                        <button class="qy-btn qy-btn--primary" onclick="addToCompare()">添加当前方案</button>
+                        <button class="qy-btn qy-btn--text" onclick="clearCompare()">清空</button>
+                    </div>
+                </div>
+                <div class="compare-grid" id="compareGrid">
+                    <div class="compare-empty">暂无对比方案，请先添加计算方案</div>
+                </div>
+            </section>
+
+            <!-- Batch Section -->
+            <section class="batch-section" id="batchSection" aria-label="批量计算">
+                <div class="batch-header"><h2>批量计算</h2></div>
+                <div class="batch-input-area">
+                    <textarea class="batch-input" id="batchInput" placeholder="输入多个工资金额，可用逗号或换行分隔&#10;例如：5000, 8000, 10000, 15000"></textarea>
+                    <div class="batch-presets">
+                        <button class="batch-preset-btn" onclick="setBatchPresets('min')">最低基数档</button>
+                        <button class="batch-preset-btn" onclick="setBatchPresets('common')">常用档位</button>
+                    </div>
+                </div>
+
+                <button class="qy-btn qy-btn--primary" onclick="calculateBatch()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    开始批量计算
+                </button>
+
+                <div class="batch-table-container" id="batchResults" style="display: none;">
+                    <div class="batch-stats" id="batchStats"></div>
+                    <table class="batch-table">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>工资基数</th>
+                                <th class="amount">缴费基数</th>
+                                <th class="amount">单位缴纳</th>
+                                <th class="amount">个人缴纳</th>
+                                <th class="amount">合计</th>
+                                <th class="amount">到手工资</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchTableBody"></tbody>
+                    </table>
+                    <div class="batch-actions">
+                        <button class="qy-btn qy-btn--secondary" onclick="clearBatch()">清空结果</button>
+                        <button class="qy-btn qy-btn--primary" onclick="exportBatchToCSV()">导出CSV</button>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Tooltip Container -->
+    <div id="tooltip" class="tooltip" role="tooltip"></div>
 
     <script>
         // ========================================
@@ -1237,6 +2073,44 @@
         let currentResult = null;
         let currentView = 'monthly';
         let historyList = JSON.parse(localStorage.getItem('calcHistoryList') || '[]');
+        let compareList = JSON.parse(localStorage.getItem('calcCompareList') || '[]');
+        let batchResults = [];
+
+        // ========================================
+        // Insurance Info Data for Tooltips
+        // ========================================
+        const insuranceInfo = {
+            '养老保险': {
+                title: '城镇职工基本养老保险',
+                desc: '退休后领取养老金的基础保障，缴费年限累计满15年可享受退休待遇',
+                rate: '单位: 16%  个人: 8%'
+            },
+            '医疗保险': {
+                title: '城镇职工基本医疗保险',
+                desc: '享受基本医疗报销待遇，个人账户可用于门诊和购药',
+                rate: '单位: 8%  个人: 2%'
+            },
+            '失业保险': {
+                title: '失业保险',
+                desc: '非本人意愿中断就业时可领取失业金，最长可领24个月',
+                rate: '单位: 0.7%  个人: 0.3%'
+            },
+            '工伤保险': {
+                title: '工伤保险',
+                desc: '工作中遭受事故伤害或患职业病时获得医疗救治和经济补偿',
+                rate: '单位: 0.4%  个人: 0%'
+            },
+            '生育保险': {
+                title: '生育保险',
+                desc: '女职工生育时享受生育津贴和生育医疗费用报销',
+                rate: '单位: 0.5%  个人: 0%'
+            },
+            '公积金': {
+                title: '住房公积金',
+                desc: '用于购房、租房、装修等住房消费支出，可提取或贷款使用',
+                rate: '单位与个人缴纳比例相同'
+            }
+        };
 
         // ========================================
         // City Configuration Data
@@ -1496,14 +2370,27 @@
          * Toggle compare section
          */
         function toggleCompareSection() {
-            showToast('方案对比功能开发中', 'info');
+            const section = document.getElementById('compareSection');
+            const isVisible = section.classList.contains('is-visible');
+
+            if (!isVisible && compareList.length === 0 && !currentResult) {
+                showToast('请先进行一次计算', 'warning');
+                return;
+            }
+
+            section.classList.toggle('is-visible');
+
+            if (section.classList.contains('is-visible') && compareList.length === 0 && currentResult) {
+                addToCompare();
+            }
         }
 
         /**
          * Toggle batch calculation section
          */
         function toggleBatchSection() {
-            showToast('批量计算功能开发中', 'info');
+            const section = document.getElementById('batchSection');
+            section.classList.toggle('is-visible');
         }
 
         // ========================================
@@ -1530,6 +2417,156 @@
         }
 
         // ========================================
+        // Chart Update Functions
+        // ========================================
+
+        /**
+         * Update donut chart with current result data
+         */
+        function updateChart() {
+            if (!currentResult) return;
+
+            const multiplier = currentView === 'yearly' ? 12 : 1;
+            const circumference = 251.2; // 2 * PI * 40
+
+            const company = currentResult.socialCompanyTotal * multiplier;
+            const personal = currentResult.socialPersonalTotal * multiplier;
+            const fund = (currentResult.fundCompany + currentResult.fundPersonal) * multiplier;
+            const total = currentResult.total * multiplier;
+
+            // Update center label and value
+            document.getElementById('chartLabel').textContent = currentView === 'yearly' ? '年缴总额' : '月缴总额';
+            document.getElementById('chartTotal').textContent = formatMoney(total);
+
+            // Update legend values
+            document.getElementById('legendCompany').textContent = formatMoney(company) + ' 元';
+            document.getElementById('legendPersonal').textContent = formatMoney(personal) + ' 元';
+            document.getElementById('legendFund').textContent = formatMoney(fund) + ' 元';
+
+            // Calculate ratios
+            const companyRatio = total > 0 ? company / total : 0;
+            const personalRatio = total > 0 ? personal / total : 0;
+            const fundRatio = total > 0 ? fund / total : 0;
+
+            // Animate chart circles with delay
+            setTimeout(() => {
+                const circle1 = document.getElementById('chartCircle1');
+                const circle2 = document.getElementById('chartCircle2');
+                const circle3 = document.getElementById('chartCircle3');
+
+                // Company social insurance (blue)
+                circle1.setAttribute('stroke-dasharray',
+                    `${companyRatio * circumference} ${circumference}`);
+
+                // Personal social insurance (green) - offset by company ratio
+                const offset1 = companyRatio * circumference;
+                circle2.setAttribute('stroke-dasharray',
+                    `${personalRatio * circumference} ${circumference}`);
+                circle2.style.strokeDashoffset = -offset1;
+
+                // Housing fund (orange) - offset by company + personal ratios
+                const offset2 = offset1 + (personalRatio * circumference);
+                circle3.setAttribute('stroke-dasharray',
+                    `${fundRatio * circumference} ${circumference}`);
+                circle3.style.strokeDashoffset = -offset2;
+            }, 100);
+        }
+
+        // ========================================
+        // Table Update Functions
+        // ========================================
+
+        /**
+         * Update detail table with current result data
+         * @param {number} multiplier - 1 for monthly, 12 for yearly
+         */
+        function updateTable(multiplier) {
+            const tbody = document.getElementById('detailTableBody');
+
+            // Build social insurance rows
+            let html = currentResult.socialDetails.map(item => `
+                <tr>
+                    <td>
+                        <span class="item-tag item-tag--social">社保</span>
+                        ${item.name}
+                        <span class="info-icon" onmouseenter="showTooltip(this, '${item.name}')" onmouseleave="hideTooltip()"
+                              tabindex="0" aria-label="查看${item.name}说明">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                        </span>
+                    </td>
+                    <td>${currentResult.base.toLocaleString()}</td>
+                    <td class="amount">${formatMoney(item.company * multiplier)}</td>
+                    <td class="amount">${formatMoney(item.personal * multiplier)}</td>
+                </tr>
+            `).join('');
+
+            // Add housing fund row
+            const fundTotal = (currentResult.fundCompany + currentResult.fundPersonal) * multiplier;
+            html += `
+                <tr>
+                    <td>
+                        <span class="item-tag item-tag--fund">公积金</span>
+                        住房公积金
+                        <span class="info-icon" onmouseenter="showTooltip(this, '公积金')" onmouseleave="hideTooltip()"
+                              tabindex="0" aria-label="查看公积金说明">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                        </span>
+                    </td>
+                    <td>${currentResult.base.toLocaleString()}</td>
+                    <td class="amount">${formatMoney(currentResult.fundCompany * multiplier)}</td>
+                    <td class="amount">${formatMoney(currentResult.fundPersonal * multiplier)}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+
+            // Update totals
+            document.getElementById('totalCompany').textContent = formatMoney(currentResult.totalCompany * multiplier);
+            document.getElementById('totalPersonal').textContent = formatMoney(currentResult.totalPersonal * multiplier);
+        }
+
+        // ========================================
+        // Tooltip Functions
+        // ========================================
+
+        /**
+         * Show tooltip for insurance item
+         * @param {HTMLElement} element - The trigger element
+         * @param {string} insuranceName - Name of the insurance type
+         */
+        function showTooltip(element, insuranceName) {
+            const tooltip = document.getElementById('tooltip');
+            const info = insuranceInfo[insuranceName];
+            if (!info) return;
+
+            tooltip.innerHTML = `
+                <div class="tooltip__title">${info.title}</div>
+                <div class="tooltip__desc">${info.desc}</div>
+                <div class="tooltip__rate">${info.rate}</div>
+            `;
+
+            const rect = element.getBoundingClientRect();
+            tooltip.style.left = rect.left + 'px';
+            tooltip.style.top = (rect.bottom + 8) + 'px';
+            tooltip.classList.add('is-visible');
+        }
+
+        /**
+         * Hide tooltip
+         */
+        function hideTooltip() {
+            document.getElementById('tooltip').classList.remove('is-visible');
+        }
+
+        // ========================================
         // Result Display Functions
         // ========================================
 
@@ -1553,6 +2590,15 @@
             document.getElementById('companyNote').textContent = periodLabel;
             document.getElementById('personalNote').textContent = periodLabel;
             document.getElementById('netSalaryNote').textContent = currentView === 'yearly' ? '预估每年' : '预估每月';
+
+            // Update chart
+            updateChart();
+
+            // Update table
+            updateTable(multiplier);
+
+            // Update policy badge
+            document.getElementById('policyBadge').textContent = `${currentResult.cityName} 2025`;
         }
 
         /**
@@ -1649,7 +2695,7 @@
             for (const [type, rates] of Object.entries(scheme)) {
                 if (type === 'name') continue;
                 socialDetails.push({
-                    type: typeNames[type],
+                    name: typeNames[type],
                     company: base * rates.company,
                     personal: base * rates.personal
                 });
@@ -1738,6 +2784,406 @@
         }
 
         // ========================================
+        // Action Bar Functions
+        // ========================================
+
+        /**
+         * Share result via clipboard
+         */
+        function shareResult() {
+            if (!currentResult) {
+                showToast('请先进行计算', 'warning');
+                return;
+            }
+
+            const period = currentView === 'yearly' ? '年缴' : '月缴';
+            const multiplier = currentView === 'yearly' ? 12 : 1;
+
+            const text = `社保公积金计算结果
+城市：${currentResult.cityName}
+工资基数：¥${currentResult.salary.toLocaleString()}
+缴费基数：¥${currentResult.base.toLocaleString()}
+公积金比例：${currentResult.fundRate}%
+
+${period}费用：
+- 社保公积金合计：¥${formatMoney(currentResult.total * multiplier)}
+- 单位承担：¥${formatMoney(currentResult.totalCompany * multiplier)}
+- 个人承担：¥${formatMoney(currentResult.totalPersonal * multiplier)}
+- 到手工资：¥${formatMoney(currentResult.netSalary * multiplier)}
+
+计算时间：${new Date().toLocaleString('zh-CN')}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('结果已复制到剪贴板', 'success');
+            }).catch(() => {
+                showToast('复制失败，请手动复制', 'error');
+            });
+        }
+
+        /**
+         * Copy result to clipboard
+         */
+        function copyResult() {
+            shareResult();
+        }
+
+        /**
+         * Toggle export dropdown menu
+         */
+        function toggleExportDropdown() {
+            const dropdown = document.getElementById('exportDropdown');
+            dropdown.classList.toggle('is-open');
+        }
+
+        /**
+         * Export result to Excel (CSV format)
+         */
+        function exportToExcel() {
+            if (!currentResult) {
+                showToast('请先进行计算', 'warning');
+                return;
+            }
+
+            const period = currentView === 'yearly' ? '年度' : '月度';
+            const multiplier = currentView === 'yearly' ? 12 : 1;
+
+            // Build CSV content
+            let csv = '\uFEFF'; // BOM for UTF-8
+            csv += '社保公积金计算结果\n';
+            csv += `城市,${currentResult.cityName}\n`;
+            csv += `工资基数,${currentResult.salary}\n`;
+            csv += `缴费基数,${currentResult.base}\n`;
+            csv += `公积金比例,${currentResult.fundRate}%\n\n`;
+
+            csv += `${period}费用明细\n`;
+            csv += '项目,缴费基数,单位缴纳,个人缴纳\n';
+
+            currentResult.socialDetails.forEach(item => {
+                csv += `${item.name},${currentResult.base},${formatMoney(item.company * multiplier)},${formatMoney(item.personal * multiplier)}\n`;
+            });
+
+            csv += `住房公积金,${currentResult.base},${formatMoney(currentResult.fundCompany * multiplier)},${formatMoney(currentResult.fundPersonal * multiplier)}\n`;
+            csv += `合计,-,${formatMoney(currentResult.totalCompany * multiplier)},${formatMoney(currentResult.totalPersonal * multiplier)}\n\n`;
+
+            csv += '汇总信息\n';
+            csv += `项目,金额\n`;
+            csv += `社保公积金合计,${formatMoney(currentResult.total * multiplier)}\n`;
+            csv += `单位承担,${formatMoney(currentResult.totalCompany * multiplier)}\n`;
+            csv += `个人承担,${formatMoney(currentResult.totalPersonal * multiplier)}\n`;
+            csv += `到手工资,${formatMoney(currentResult.netSalary * multiplier)}\n`;
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `社保计算结果_${currentResult.cityName}_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+
+            showToast('Excel导出成功', 'success');
+            toggleExportDropdown();
+        }
+
+        /**
+         * Export result to PDF (open print dialog)
+         */
+        function exportToPDF() {
+            if (!currentResult) {
+                showToast('请先进行计算', 'warning');
+                return;
+            }
+
+            window.print();
+            toggleExportDropdown();
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('exportDropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('is-open');
+            }
+        });
+
+        // ========================================
+        // Compare Section Functions
+        // ========================================
+
+        /**
+         * Add current result to compare list
+         */
+        function addToCompare() {
+            if (!currentResult) {
+                showToast('请先进行计算', 'warning');
+                return;
+            }
+
+            if (compareList.length >= 3) {
+                showToast('最多只能对比3个方案', 'warning');
+                return;
+            }
+
+            // Check if already exists
+            const exists = compareList.some(item =>
+                item.city === currentResult.city &&
+                item.salary === currentResult.salary &&
+                item.fundRate === currentResult.fundRate
+            );
+
+            if (exists) {
+                showToast('该方案已在对比列表中', 'warning');
+                return;
+            }
+
+            const compareItem = {
+                ...currentResult,
+                compareId: Date.now()
+            };
+
+            compareList.push(compareItem);
+            localStorage.setItem('calcCompareList', JSON.stringify(compareList));
+            renderCompare();
+            showToast('已添加对比方案', 'success');
+        }
+
+        /**
+         * Render compare cards
+         */
+        function renderCompare() {
+            const grid = document.getElementById('compareGrid');
+
+            if (compareList.length === 0) {
+                grid.innerHTML = '<div class="compare-empty">暂无对比方案，请先添加计算方案</div>';
+                return;
+            }
+
+            grid.innerHTML = compareList.map((item, index) => `
+                <div class="compare-card ${index === compareList.length - 1 ? 'is-active' : ''}" data-compare-id="${item.compareId}">
+                    <div class="compare-card__header">
+                        <span class="compare-card__city">${item.cityName}</span>
+                        <button class="compare-card__remove" onclick="removeCompare(${item.compareId})" aria-label="删除方案">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="compare-card__meta">
+                        工资 ¥${item.salary.toLocaleString()} · 公积金 ${item.fundRate}%
+                    </div>
+                    <div class="compare-card__amount">¥${formatMoney(item.total)}<span style="font-size: 14px; font-weight: 500;">/月</span></div>
+                    <div class="compare-card__detail">
+                        <div class="compare-card__detail-item">
+                            <span class="compare-card__detail-label">单位承担</span>
+                            <span class="compare-card__detail-value">¥${formatMoney(item.totalCompany)}</span>
+                        </div>
+                        <div class="compare-card__detail-item">
+                            <span class="compare-card__detail-label">个人承担</span>
+                            <span class="compare-card__detail-value">¥${formatMoney(item.totalPersonal)}</span>
+                        </div>
+                        <div class="compare-card__detail-item">
+                            <span class="compare-card__detail-label">到手工资</span>
+                            <span class="compare-card__detail-value">¥${formatMoney(item.netSalary)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Remove a compare item
+         */
+        function removeCompare(compareId) {
+            compareList = compareList.filter(item => item.compareId !== compareId);
+            localStorage.setItem('calcCompareList', JSON.stringify(compareList));
+            renderCompare();
+            showToast('已移除对比方案', 'success');
+        }
+
+        /**
+         * Clear all compare items
+         */
+        function clearCompare() {
+            if (compareList.length === 0) return;
+
+            compareList = [];
+            localStorage.setItem('calcCompareList', JSON.stringify(compareList));
+            renderCompare();
+            showToast('已清空所有对比方案', 'success');
+        }
+
+        // ========================================
+        // Batch Calculation Functions
+        // ========================================
+
+        /**
+         * Set batch input presets
+         */
+        function setBatchPresets(type) {
+            const city = document.getElementById('citySelect').value;
+            const config = cityConfigs[city];
+            let values = [];
+
+            if (type === 'min') {
+                values = [config.baseMin];
+            } else if (type === 'common') {
+                values = [5000, 8000, 10000, 15000, 20000].filter(v => v <= config.baseMax);
+            }
+
+            document.getElementById('batchInput').value = values.join(', ');
+            showToast(`已设置${type === 'min' ? '最低基数' : '常用档位'}`, 'success');
+        }
+
+        /**
+         * Calculate batch results
+         */
+        function calculateBatch() {
+            const input = document.getElementById('batchInput').value;
+            const city = document.getElementById('citySelect').value;
+            const fundRate = parseInt(document.getElementById('fundScheme').value) / 100;
+            const config = cityConfigs[city];
+
+            // Parse salaries from input
+            const salaries = input.split(/[,，\n]/)
+                .map(s => parseFloat(s.trim()))
+                .filter(s => !isNaN(s) && s > 0);
+
+            if (salaries.length === 0) {
+                showToast('没有有效的工资金额', 'error');
+                return;
+            }
+
+            if (salaries.length > 20) {
+                showToast('最多支持20个工资', 'warning');
+                return;
+            }
+
+            const scheme = config.socialSchemes.normal;
+
+            // Calculate for each salary
+            batchResults = salaries.map((salary, index) => {
+                const base = calculateBase(salary, config);
+
+                let socialCompanyTotal = 0;
+                let socialPersonalTotal = 0;
+
+                for (const [type, rates] of Object.entries(scheme)) {
+                    if (type === 'name') continue;
+                    socialCompanyTotal += base * rates.company;
+                    socialPersonalTotal += base * rates.personal;
+                }
+
+                const fundCompany = base * fundRate;
+                const fundPersonal = base * fundRate;
+                const totalCompany = socialCompanyTotal + fundCompany;
+                const totalPersonal = socialPersonalTotal + fundPersonal;
+                const total = totalCompany + totalPersonal;
+
+                return {
+                    index: index + 1,
+                    salary,
+                    base,
+                    totalCompany,
+                    totalPersonal,
+                    total,
+                    netSalary: salary - totalPersonal
+                };
+            });
+
+            renderBatchResults();
+            showToast(`批量计算完成，共${batchResults.length}条结果`, 'success');
+        }
+
+        /**
+         * Render batch results table
+         */
+        function renderBatchResults() {
+            const container = document.getElementById('batchResults');
+            const tbody = document.getElementById('batchTableBody');
+            const statsContainer = document.getElementById('batchStats');
+
+            // Calculate stats
+            const totalSalary = batchResults.reduce((sum, r) => sum + r.salary, 0);
+            const totalCost = batchResults.reduce((sum, r) => sum + r.total, 0);
+            const avgCost = totalCost / batchResults.length;
+
+            statsContainer.innerHTML = `
+                <div class="batch-stat">
+                    <span class="batch-stat__label">计算数量</span>
+                    <span class="batch-stat__value">${batchResults.length} 人</span>
+                </div>
+                <div class="batch-stat">
+                    <span class="batch-stat__label">工资总额</span>
+                    <span class="batch-stat__value">¥${formatMoney(totalSalary)}</span>
+                </div>
+                <div class="batch-stat">
+                    <span class="batch-stat__label">社保公积金总额</span>
+                    <span class="batch-stat__value">¥${formatMoney(totalCost)}</span>
+                </div>
+                <div class="batch-stat">
+                    <span class="batch-stat__label">人均成本</span>
+                    <span class="batch-stat__value">¥${formatMoney(avgCost)}</span>
+                </div>
+            `;
+
+            tbody.innerHTML = batchResults.map(result => `
+                <tr>
+                    <td>${result.index}</td>
+                    <td>¥${result.salary.toLocaleString()}</td>
+                    <td class="amount">¥${formatMoney(result.base)}</td>
+                    <td class="amount">¥${formatMoney(result.totalCompany)}</td>
+                    <td class="amount">¥${formatMoney(result.totalPersonal)}</td>
+                    <td class="amount">¥${formatMoney(result.total)}</td>
+                    <td class="amount">¥${formatMoney(result.netSalary)}</td>
+                </tr>
+            `).join('');
+
+            container.style.display = 'block';
+        }
+
+        /**
+         * Clear batch results
+         */
+        function clearBatch() {
+            batchResults = [];
+            document.getElementById('batchInput').value = '';
+            document.getElementById('batchResults').style.display = 'none';
+            showToast('已清空批量计算结果', 'success');
+        }
+
+        /**
+         * Export batch results to CSV
+         */
+        function exportBatchToCSV() {
+            if (batchResults.length === 0) {
+                showToast('没有可导出的数据', 'warning');
+                return;
+            }
+
+            const city = document.getElementById('citySelect').value;
+            const config = cityConfigs[city];
+
+            let csv = '\uFEFF'; // BOM for UTF-8
+            csv += '批量社保公积金计算结果\n';
+            csv += `城市,${config.name}\n`;
+            csv += `计算时间,${new Date().toLocaleString('zh-CN')}\n\n`;
+
+            csv += '序号,工资基数,缴费基数,单位缴纳,个人缴纳,合计,到手工资\n';
+
+            batchResults.forEach(r => {
+                csv += `${r.index},${r.salary},${r.base},${formatMoney(r.totalCompany)},${formatMoney(r.totalPersonal)},${formatMoney(r.total)},${formatMoney(r.netSalary)}\n`;
+            });
+
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `批量社保计算结果_${config.name}_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+
+            showToast('CSV导出成功', 'success');
+        }
+
+        // ========================================
         // Initialization
         // ========================================
 
@@ -1747,6 +3193,9 @@
 
             // Render saved schemes
             renderSavedSchemes();
+
+            // Render compare list
+            renderCompare();
 
             // Add keyboard shortcut for calculation
             document.addEventListener('keydown', function(e) {
@@ -1759,6 +3208,14 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && e.target.classList.contains('saved-scheme-item')) {
                     e.target.click();
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('exportDropdown');
+                if (dropdown && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('is-open');
                 }
             });
         });
