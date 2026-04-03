@@ -832,6 +832,140 @@
         .calc-saved-section::-webkit-scrollbar-thumb:hover {
             background: var(--qy-gray-400);
         }
+
+        /* ========================================
+           Result Header and View Toggle Styles
+           ======================================== */
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--qy-space-5);
+        }
+
+        .result-header__title {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--qy-bg-tertiary);
+            border-radius: var(--qy-radius-md);
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .view-toggle__btn {
+            padding: var(--qy-space-2) var(--qy-space-4);
+            font-size: var(--qy-font-size-sm);
+            font-weight: 500;
+            color: var(--qy-text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: var(--qy-radius-sm);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .view-toggle__btn:hover {
+            color: var(--qy-text-primary);
+        }
+
+        .view-toggle__btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .view-toggle__btn.is-active {
+            background: var(--qy-bg-primary);
+            color: var(--qy-primary-600);
+            box-shadow: var(--qy-shadow-sm);
+        }
+
+        /* ========================================
+           Result Summary Cards Styles
+           ======================================== */
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--qy-space-4);
+            margin-bottom: var(--qy-space-6);
+        }
+
+        .result-card {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            padding: var(--qy-space-5);
+            transition: all var(--qy-transition-normal);
+        }
+
+        .result-card:hover {
+            box-shadow: var(--qy-shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .result-card.is-primary {
+            background: var(--qy-primary-500);
+            border-color: var(--qy-primary-500);
+            color: var(--qy-text-inverse);
+        }
+
+        .result-card.is-primary .result-card__label,
+        .result-card.is-primary .result-card__note {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .result-card.is-primary .result-card__value {
+            color: var(--qy-text-inverse);
+        }
+
+        .result-card__label {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .result-card__value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+            margin-bottom: var(--qy-space-1);
+        }
+
+        .result-card__unit {
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            margin-left: 2px;
+        }
+
+        .result-card__note {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        /* Responsive adjustments for result cards */
+        @media (max-width: 1200px) {
+            .result-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .result-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--qy-space-3);
+            }
+        }
     </style>
 </head>
 <body>
@@ -1057,7 +1191,38 @@
 
             <!-- Result Area (Hidden by default) -->
             <div id="resultArea" class="calc-result-area" role="region" aria-label="计算结果">
-                <!-- 后续任务将填充内容 -->
+                <!-- Result Header with View Toggle -->
+                <div class="result-header">
+                    <h2 class="result-header__title">计算结果</h2>
+                    <div class="view-toggle" role="group" aria-label="视图切换">
+                        <button class="view-toggle__btn is-active" id="btnMonthly" onclick="switchView('monthly')" aria-pressed="true">月度</button>
+                        <button class="view-toggle__btn" id="btnYearly" onclick="switchView('yearly')" aria-pressed="false">年度</button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="result-summary">
+                    <div class="result-card is-primary">
+                        <div class="result-card__label">社保公积金合计</div>
+                        <div class="result-card__value">¥<span id="totalAmount">0</span></div>
+                        <div class="result-card__note" id="totalNote">每月</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-card__label">单位承担</div>
+                        <div class="result-card__value">¥<span id="companyAmount">0</span></div>
+                        <div class="result-card__note" id="companyNote">每月</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-card__label">个人承担</div>
+                        <div class="result-card__value">¥<span id="personalAmount">0</span></div>
+                        <div class="result-card__note" id="personalNote">每月</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-card__label">到手工资</div>
+                        <div class="result-card__value">¥<span id="netSalaryAmount">0</span></div>
+                        <div class="result-card__note" id="netSalaryNote">预估每月</div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -1066,6 +1231,13 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // ========================================
+        // Global Variables
+        // ========================================
+        let currentResult = null;
+        let currentView = 'monthly';
+        let historyList = JSON.parse(localStorage.getItem('calcHistoryList') || '[]');
+
         // ========================================
         // City Configuration Data
         // ========================================
@@ -1334,6 +1506,104 @@
             showToast('批量计算功能开发中', 'info');
         }
 
+        // ========================================
+        // View Switching Functions
+        // ========================================
+
+        /**
+         * Switch between monthly and yearly views
+         * @param {string} view - 'monthly' or 'yearly'
+         */
+        function switchView(view) {
+            currentView = view;
+
+            // Update button states
+            document.getElementById('btnMonthly').classList.toggle('is-active', view === 'monthly');
+            document.getElementById('btnMonthly').setAttribute('aria-pressed', view === 'monthly');
+            document.getElementById('btnYearly').classList.toggle('is-active', view === 'yearly');
+            document.getElementById('btnYearly').setAttribute('aria-pressed', view === 'yearly');
+
+            // If there's a result, refresh display
+            if (currentResult) {
+                displayResult();
+            }
+        }
+
+        // ========================================
+        // Result Display Functions
+        // ========================================
+
+        /**
+         * Display calculation result with current view
+         */
+        function displayResult() {
+            if (!currentResult) return;
+
+            const multiplier = currentView === 'yearly' ? 12 : 1;
+            const periodLabel = currentView === 'yearly' ? '每年' : '每月';
+
+            // Animate value updates
+            animateValue('totalAmount', currentResult.total * multiplier);
+            animateValue('companyAmount', currentResult.totalCompany * multiplier);
+            animateValue('personalAmount', currentResult.totalPersonal * multiplier);
+            animateValue('netSalaryAmount', currentResult.netSalary * multiplier);
+
+            // Update note labels
+            document.getElementById('totalNote').textContent = periodLabel;
+            document.getElementById('companyNote').textContent = periodLabel;
+            document.getElementById('personalNote').textContent = periodLabel;
+            document.getElementById('netSalaryNote').textContent = currentView === 'yearly' ? '预估每年' : '预估每月';
+        }
+
+        /**
+         * Animate numeric value change
+         * @param {string} elementId - Target element ID
+         * @param {number} endValue - Final value
+         */
+        function animateValue(elementId, endValue) {
+            const element = document.getElementById(elementId);
+            const startValue = parseFloat(element.textContent.replace(/,/g, '')) || 0;
+            const duration = 600;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const current = startValue + (endValue - startValue) * easeProgress;
+                element.textContent = formatMoney(current);
+                if (progress < 1) requestAnimationFrame(update);
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // ========================================
+        // History Management Functions
+        // ========================================
+
+        /**
+         * Add calculation result to history
+         * @param {object} result - Calculation result object
+         */
+        function addToHistory(result) {
+            const exists = historyList.some(item =>
+                item.salary === result.salary &&
+                item.fundRate === result.fundRate &&
+                item.city === result.city
+            );
+
+            if (!exists) {
+                historyList.unshift(result);
+                if (historyList.length > 20) historyList = historyList.slice(0, 20);
+                localStorage.setItem('calcHistoryList', JSON.stringify(historyList));
+            }
+        }
+
+        // ========================================
+        // Calculator Functions
+        // ========================================
+
         /**
          * Perform calculation
          */
@@ -1374,9 +1644,45 @@
             const totalPersonal = socialPersonalTotal + fundPersonal;
             const total = totalCompany + totalPersonal;
 
+            // Build social details array
+            const socialDetails = [];
+            for (const [type, rates] of Object.entries(scheme)) {
+                if (type === 'name') continue;
+                socialDetails.push({
+                    type: typeNames[type],
+                    company: base * rates.company,
+                    personal: base * rates.personal
+                });
+            }
+
+            // Save result to global variable
+            currentResult = {
+                city,
+                cityName: config.name,
+                salary,
+                base,
+                fundRate: fundRate * 100,
+                socialDetails,
+                socialCompanyTotal,
+                socialPersonalTotal,
+                fundCompany,
+                fundPersonal,
+                totalCompany,
+                totalPersonal,
+                total,
+                netSalary: salary - totalPersonal,
+                timestamp: new Date().toISOString()
+            };
+
             // Hide empty state and show result area
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('resultArea').classList.add('is-visible');
+
+            // Display result with animation
+            displayResult();
+
+            // Add to history
+            addToHistory(currentResult);
 
             showToast(`计算完成！月缴合计: ¥${formatMoney(total)}`, 'success');
         }
