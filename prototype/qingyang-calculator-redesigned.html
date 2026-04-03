@@ -407,6 +407,26 @@
             font-size: var(--qy-font-size-lg);
         }
 
+        /* Text Button */
+        .qy-btn--text {
+            background: transparent;
+            color: var(--qy-primary-600);
+            border-color: transparent;
+            padding: 0 var(--qy-space-2);
+        }
+
+        .qy-btn--text:hover {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-700);
+        }
+
+        /* Small Button */
+        .qy-btn--sm {
+            height: 28px;
+            padding: 0 var(--qy-space-3);
+            font-size: var(--qy-font-size-sm);
+        }
+
         /* ========================================
            Saved Schemes Section
            ======================================== */
@@ -1631,6 +1651,190 @@
             color: var(--qy-text-primary);
             font-variant-numeric: tabular-nums;
         }
+
+        /* ========================================
+           History Drawer Styles
+           ======================================== */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 200;
+        }
+
+        .drawer-overlay.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .history-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            max-width: 90vw;
+            height: 100vh;
+            background: var(--qy-bg-primary);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 201;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-drawer.is-open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--qy-space-5);
+            border-bottom: 1px solid var(--qy-border-light);
+            flex-shrink: 0;
+        }
+
+        .drawer-title {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            margin: 0;
+        }
+
+        .drawer-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--qy-bg-secondary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            color: var(--qy-text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+            margin-left: var(--qy-space-3);
+        }
+
+        .drawer-close:hover {
+            background: var(--qy-error-50);
+            color: var(--qy-error-500);
+            border-color: var(--qy-error-200);
+        }
+
+        .drawer-close:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--qy-space-4);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-3);
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--qy-space-4);
+            background: var(--qy-bg-secondary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .history-item:hover {
+            border-color: var(--qy-primary-200);
+            background: var(--qy-primary-50);
+            box-shadow: var(--qy-shadow-sm);
+        }
+
+        .history-item:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .history-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-1);
+        }
+
+        .history-salary {
+            font-size: var(--qy-font-size-md);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .history-meta {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        .history-amount {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-primary-600);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: var(--qy-space-8);
+            color: var(--qy-text-muted);
+            font-size: var(--qy-font-size-md);
+        }
+
+        /* ========================================
+           Print Styles
+           ======================================== */
+        @media print {
+            .calc-sidebar,
+            .calc-header,
+            .calc-page-actions,
+            .action-bar,
+            .compare-section,
+            .batch-section,
+            .history-drawer,
+            .drawer-overlay {
+                display: none !important;
+            }
+            .calc-main { margin-left: 0 !important; }
+            .calc-empty-state { display: none !important; }
+            .calc-result-area { display: block !important; }
+            .result-card, .chart-section, .detail-section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #E2E8F0;
+            }
+        }
+
+        /* ========================================
+           Reduced Motion Preference
+           ======================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2360,10 +2564,68 @@
         }
 
         /**
-         * Toggle history drawer
+         * Toggle history drawer - opens the drawer
          */
         function toggleHistoryDrawer() {
-            showToast('历史记录功能开发中', 'info');
+            document.getElementById('drawerOverlay').classList.add('is-open');
+            document.getElementById('historyDrawer').classList.add('is-open');
+            renderHistory();
+        }
+
+        /**
+         * Close history drawer
+         */
+        function closeHistoryDrawer() {
+            document.getElementById('drawerOverlay').classList.remove('is-open');
+            document.getElementById('historyDrawer').classList.remove('is-open');
+        }
+
+        /**
+         * Render history list in drawer
+         */
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (historyList.length === 0) {
+                list.innerHTML = '<div class="history-empty">暂无历史记录</div>';
+                return;
+            }
+
+            list.innerHTML = historyList.map(item => `
+                <div class="history-item" onclick="loadHistory(${item.id})" tabindex="0" role="button" aria-label="加载历史记录: ${item.salary.toLocaleString()}元">
+                    <div class="history-info">
+                        <span class="history-salary">${item.salary.toLocaleString()} 元</span>
+                        <span class="history-meta">${item.cityName} · 公积金 ${item.fundRate}% · ${new Date(item.timestamp).toLocaleDateString()}</span>
+                    </div>
+                    <span class="history-amount">${formatMoney(item.total)}/月</span>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Load a history item into the form
+         */
+        function loadHistory(id) {
+            const item = historyList.find(h => h.id === id);
+            if (!item) return;
+
+            document.getElementById('citySelect').value = item.city;
+            document.getElementById('salaryInput').value = item.salary;
+            document.getElementById('fundScheme').value = item.fundRate.toString();
+
+            currentResult = item;
+            displayResult();
+            closeHistoryDrawer();
+            showToast('已加载历史记录', 'success');
+        }
+
+        /**
+         * Clear all history
+         */
+        function clearHistory() {
+            historyList = [];
+            localStorage.removeItem('calcHistoryList');
+            renderHistory();
+            showToast('历史记录已清空', 'success');
         }
 
         /**
@@ -3218,7 +3480,27 @@ ${period}费用：
                     dropdown.classList.remove('is-open');
                 }
             });
+
+            // ESC key to close drawer
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeHistoryDrawer();
+            });
         });
     </script>
+
+    <!-- History Drawer -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeHistoryDrawer()"></div>
+    <div class="history-drawer" id="historyDrawer">
+        <div class="drawer-header">
+            <h3 class="drawer-title">计算历史</h3>
+            <div>
+                <button class="qy-btn qy-btn--text qy-btn--sm" onclick="clearHistory()">清空</button>
+                <button class="drawer-close" onclick="closeHistoryDrawer()" aria-label="关闭历史记录">×</button>
+            </div>
+        </div>
+        <div class="drawer-body">
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
 </body>
 </html>
