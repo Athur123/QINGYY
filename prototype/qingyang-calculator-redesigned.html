@@ -588,25 +588,227 @@
         }
 
         /* ========================================
-           Main Content Area (Placeholder)
+           Main Content Area
            ======================================== */
         .calc-main {
             margin-left: 280px;
             min-height: 100vh;
-            padding: var(--qy-space-6);
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Content Container */
+        .calc-content {
+            flex: 1;
+            padding: var(--qy-space-6);
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ========================================
+           Header Styles
+           ======================================== */
+        .calc-header {
+            position: sticky;
+            top: 0;
+            height: 52px;
+            background: var(--qy-bg-primary);
+            border-bottom: 1px solid var(--qy-border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--qy-space-6);
+            z-index: 50;
+        }
+
+        .calc-header__tabs {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-1);
+        }
+
+        .calc-header__tab {
+            display: flex;
+            align-items: center;
+            height: 36px;
+            padding: 0 var(--qy-space-4);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            color: var(--qy-text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .calc-header__tab:hover {
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+        }
+
+        .calc-header__tab:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .calc-header__tab.is-active {
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            font-weight: 600;
+        }
+
+        .calc-header__user {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-3);
+        }
+
+        .calc-header__user-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            height: 36px;
+            padding: 0 var(--qy-space-3);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            color: var(--qy-text-secondary);
+            background: transparent;
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .calc-header__user-btn:hover {
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+            border-color: var(--qy-border-medium);
+        }
+
+        .calc-header__user-btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .calc-header__user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--qy-radius-full);
+            background: var(--qy-primary-500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--qy-text-inverse);
+            font-size: var(--qy-font-size-xs);
+            font-weight: 600;
+        }
+
+        /* ========================================
+           Page Header Styles
+           ======================================== */
+        .calc-page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--qy-space-6);
+            padding-bottom: var(--qy-space-4);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .calc-page-title {
+            font-size: var(--qy-font-size-2xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .calc-page-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-3);
+        }
+
+        .calc-page-action-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            height: 36px;
+            padding: 0 var(--qy-space-4);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-medium);
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .calc-page-action-btn:hover {
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+            border-color: var(--qy-border-light);
+        }
+
+        .calc-page-action-btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .calc-page-action-btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ========================================
+           Empty State Styles
+           ======================================== */
         .calc-empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 60vh;
-            color: var(--qy-text-muted);
+            min-height: 400px;
+            padding: var(--qy-space-8);
+            text-align: center;
         }
 
-        .calc-empty-state svg {
-            margin-bottom: var(--qy-space-4);
+        .calc-empty-state__icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: var(--qy-space-5);
+            color: var(--qy-gray-300);
+        }
+
+        .calc-empty-state__title {
+            font-size: var(--qy-font-size-xl);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .calc-empty-state__desc {
+            font-size: var(--qy-font-size-md);
+            color: var(--qy-text-secondary);
+            max-width: 300px;
+        }
+
+        /* ========================================
+           Result Area Styles
+           ======================================== */
+        .calc-result-area {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .calc-result-area.is-visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* Scrollbar Styles */
@@ -786,15 +988,77 @@
         </div>
     </aside>
 
-    <!-- Main Content (Placeholder) -->
+    <!-- Main Content -->
     <main class="calc-main" id="main-content">
-        <div class="calc-empty-state">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5">
-                <rect x="4" y="4" width="16" height="16" rx="2"/>
-                <line x1="8" y1="10" x2="16" y2="10"/>
-                <line x1="8" y1="14" x2="12" y2="14"/>
-            </svg>
-            <p>请设置计算条件并点击"开始计算"</p>
+        <!-- Sticky Header with Tabs -->
+        <header class="calc-header">
+            <div class="calc-header__tabs">
+                <button class="calc-header__tab">核心人事</button>
+                <button class="calc-header__tab is-active">智能薪酬</button>
+                <button class="calc-header__tab">假勤管理</button>
+            </div>
+            <div class="calc-header__user">
+                <button class="calc-header__user-btn">
+                    <div class="calc-header__user-avatar">管</div>
+                    <span>管理员</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="calc-content">
+            <!-- Page Header with Title and Actions -->
+            <div class="calc-page-header">
+                <h1 class="calc-page-title">社保公积金计算器</h1>
+                <div class="calc-page-actions">
+                    <button class="calc-page-action-btn" onclick="toggleHistoryDrawer()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        历史记录
+                    </button>
+                    <button class="calc-page-action-btn" onclick="toggleCompareSection()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"/>
+                            <line x1="8" y1="12" x2="21" y2="12"/>
+                            <line x1="8" y1="18" x2="21" y2="18"/>
+                            <line x1="3" y1="6" x2="3.01" y2="6"/>
+                            <line x1="3" y1="12" x2="3.01" y2="12"/>
+                            <line x1="3" y1="18" x2="3.01" y2="18"/>
+                        </svg>
+                        方案对比
+                    </button>
+                    <button class="calc-page-action-btn" onclick="toggleBatchSection()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        批量计算
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="calc-empty-state">
+                <svg class="calc-empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <h2 class="calc-empty-state__title">开始计算</h2>
+                <p class="calc-empty-state__desc">请在左侧设置计算条件并点击"开始计算"</p>
+            </div>
+
+            <!-- Result Area (Hidden by default) -->
+            <div id="resultArea" class="calc-result-area" role="region" aria-label="计算结果">
+                <!-- 后续任务将填充内容 -->
+            </div>
         </div>
     </main>
 
@@ -1041,7 +1305,33 @@
             document.getElementById('socialScheme').selectedIndex = 0;
             document.getElementById('fundScheme').selectedIndex = 0;
             document.getElementById('salaryInput').value = '';
+
+            // Show empty state and hide result area
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('resultArea').classList.remove('is-visible');
+
             showToast('计算器已重置', 'success');
+        }
+
+        /**
+         * Toggle history drawer
+         */
+        function toggleHistoryDrawer() {
+            showToast('历史记录功能开发中', 'info');
+        }
+
+        /**
+         * Toggle compare section
+         */
+        function toggleCompareSection() {
+            showToast('方案对比功能开发中', 'info');
+        }
+
+        /**
+         * Toggle batch calculation section
+         */
+        function toggleBatchSection() {
+            showToast('批量计算功能开发中', 'info');
         }
 
         /**
@@ -1083,6 +1373,10 @@
             const totalCompany = socialCompanyTotal + fundCompany;
             const totalPersonal = socialPersonalTotal + fundPersonal;
             const total = totalCompany + totalPersonal;
+
+            // Hide empty state and show result area
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultArea').classList.add('is-visible');
 
             showToast(`计算完成！月缴合计: ¥${formatMoney(total)}`, 'success');
         }
