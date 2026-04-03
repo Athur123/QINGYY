@@ -1,0 +1,166 @@
+{
+  "cities": [
+    {
+      "code": "beijing",
+      "name": "北京",
+      "province": "北京市",
+      "tier": "tier1",
+      "minBase": 6821,
+      "maxBase": 35283,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 9.8, "personal": 2 },
+        "unemployment": { "company": 0.5, "personal": 0.5 },
+        "injury": { "company": 0.2, "personal": 0 },
+        "maternity": { "company": 0.8, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 3 }
+      }
+    },
+    {
+      "code": "shanghai",
+      "name": "上海",
+      "province": "上海市",
+      "tier": "tier1",
+      "minBase": 7384,
+      "maxBase": 36921,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 10, "personal": 2 },
+        "unemployment": { "company": 0.5, "personal": 0.5 },
+        "injury": { "company": 0.16, "personal": 0 },
+        "maternity": { "company": 1, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "guangzhou",
+      "name": "广州",
+      "province": "广东省",
+      "tier": "tier1",
+      "minBase": 5284,
+      "maxBase": 26421,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 6.85, "personal": 2 },
+        "unemployment": { "company": 0.48, "personal": 0.2 },
+        "injury": { "company": 0.2, "personal": 0 },
+        "maternity": { "company": 0.85, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "shenzhen",
+      "name": "深圳",
+      "province": "广东省",
+      "tier": "tier1",
+      "minBase": 4492,
+      "maxBase": 26421,
+      "rates": {
+        "pension": { "company": 15, "personal": 8 },
+        "medical": { "company": 6, "personal": 2 },
+        "unemployment": { "company": 0.7, "personal": 0.3 },
+        "injury": { "company": 0.14, "personal": 0 },
+        "maternity": { "company": 0.5, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "hangzhou",
+      "name": "杭州",
+      "province": "浙江省",
+      "tier": "newTier1",
+      "minBase": 4462,
+      "maxBase": 22311,
+      "rates": {
+        "pension": { "company": 14, "personal": 8 },
+        "medical": { "company": 9.5, "personal": 2 },
+        "unemployment": { "company": 0.5, "personal": 0.5 },
+        "injury": { "company": 0.2, "personal": 0 },
+        "maternity": { "company": 0.4, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "nanjing",
+      "name": "南京",
+      "province": "江苏省",
+      "tier": "newTier1",
+      "minBase": 4494,
+      "maxBase": 24042,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 8, "personal": 2 },
+        "unemployment": { "company": 0.5, "personal": 0.5 },
+        "injury": { "company": 0.4, "personal": 0 },
+        "maternity": { "company": 0.8, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 10 }
+      }
+    },
+    {
+      "code": "chengdu",
+      "name": "成都",
+      "province": "四川省",
+      "tier": "newTier1",
+      "minBase": 4246,
+      "maxBase": 21228,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 8.9, "personal": 2 },
+        "unemployment": { "company": 0.6, "personal": 0.4 },
+        "injury": { "company": 0.2, "personal": 0 },
+        "maternity": { "company": 0.8, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "wuhan",
+      "name": "武汉",
+      "province": "湖北省",
+      "tier": "newTier1",
+      "minBase": 4494,
+      "maxBase": 22430,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 8, "personal": 2 },
+        "unemployment": { "company": 0.7, "personal": 0.3 },
+        "injury": { "company": 0.32, "personal": 0 },
+        "maternity": { "company": 0.7, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "xian",
+      "name": "西安",
+      "province": "陕西省",
+      "tier": "tier2",
+      "minBase": 4227,
+      "maxBase": 21133,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 8, "personal": 2 },
+        "unemployment": { "company": 0.7, "personal": 0.3 },
+        "injury": { "company": 0.35, "personal": 0 },
+        "maternity": { "company": 0.5, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    },
+    {
+      "code": "changsha",
+      "name": "长沙",
+      "province": "湖南省",
+      "tier": "newTier1",
+      "minBase": 4027,
+      "maxBase": 20133,
+      "rates": {
+        "pension": { "company": 16, "personal": 8 },
+        "medical": { "company": 8.7, "personal": 2 },
+        "unemployment": { "company": 0.7, "personal": 0.3 },
+        "injury": { "company": 0.5, "personal": 0 },
+        "maternity": { "company": 0.5, "personal": 0 },
+        "criticalIllness": { "company": 0, "personal": 0 }
+      }
+    }
+  ],
+  "salaryLevels": [5000, 8000, 10000, 15000, 20000],
+  "fundRates": [5, 8, 10, 12]
+}
