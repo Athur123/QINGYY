@@ -1039,6 +1039,242 @@
                 break-inside: avoid;
             }
         }
+
+        /* ========================================
+           批量对比虚拟滚动表格样式
+           ======================================== */
+        .batch-comparison-container {
+            margin-top: var(--qy-space-6);
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-xl);
+            box-shadow: var(--qy-shadow-card);
+            border: 1px solid var(--qy-border-light);
+            overflow: hidden;
+        }
+
+        .batch-comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--qy-space-4) var(--qy-space-5);
+            background: var(--qy-bg-secondary);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .batch-comparison-title {
+            font-size: var(--qy-font-size-lg);
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+        }
+
+        .batch-comparison-title svg {
+            color: var(--qy-primary-500);
+        }
+
+        .batch-comparison-actions {
+            display: flex;
+            gap: var(--qy-space-3);
+        }
+
+        .virtual-table-container {
+            height: 600px;
+            overflow: auto;
+            position: relative;
+            background: var(--qy-bg-primary);
+        }
+
+        .virtual-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: var(--qy-font-size-sm);
+        }
+
+        .virtual-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--qy-bg-primary);
+        }
+
+        .virtual-table th {
+            padding: var(--qy-space-3) var(--qy-space-4);
+            text-align: left;
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-secondary);
+            border-bottom: 2px solid var(--qy-border-light);
+            background: var(--qy-bg-primary);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color var(--qy-transition-fast);
+            white-space: nowrap;
+        }
+
+        .virtual-table th:hover {
+            background: var(--qy-bg-secondary);
+        }
+
+        .virtual-table th.sortable {
+            position: relative;
+            padding-right: var(--qy-space-6);
+        }
+
+        .virtual-table th.sortable::after {
+            content: '';
+            position: absolute;
+            right: var(--qy-space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid var(--qy-text-muted);
+            opacity: 0.5;
+            transition: opacity var(--qy-transition-fast);
+        }
+
+        .virtual-table th.sortable.asc::after {
+            border-top: none;
+            border-bottom: 4px solid var(--qy-primary-500);
+            opacity: 1;
+        }
+
+        .virtual-table th.sortable.desc::after {
+            border-top: 4px solid var(--qy-primary-500);
+            border-bottom: none;
+            opacity: 1;
+        }
+
+        .virtual-table td {
+            padding: var(--qy-space-3) var(--qy-space-4);
+            border-bottom: 1px solid var(--qy-border-light);
+            color: var(--qy-text-primary);
+            height: 50px;
+            vertical-align: middle;
+        }
+
+        .virtual-table tbody tr {
+            transition: background-color var(--qy-transition-fast);
+        }
+
+        .virtual-table tbody tr:hover {
+            background: var(--qy-bg-secondary);
+        }
+
+        .virtual-table tbody tr:nth-child(even) {
+            background: var(--qy-bg-secondary);
+        }
+
+        .virtual-table tbody tr:nth-child(even):hover {
+            background: var(--qy-primary-50);
+        }
+
+        .col-city {
+            position: sticky;
+            left: 0;
+            background: var(--qy-bg-primary);
+            z-index: 5;
+            min-width: 120px;
+            font-weight: var(--qy-font-medium);
+        }
+
+        .virtual-table tbody tr:nth-child(even) .col-city {
+            background: var(--qy-bg-secondary);
+        }
+
+        .col-cost {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-family: var(--qy-font-mono, 'SF Mono', Monaco, monospace);
+        }
+
+        .col-salary,
+        .col-fund {
+            text-align: center;
+        }
+
+        .virtual-spacer {
+            height: 0;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--qy-transition-base), visibility var(--qy-transition-base);
+        }
+
+        .loading-overlay.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--qy-border-light);
+            border-top-color: var(--qy-primary-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .table-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--qy-space-10);
+            color: var(--qy-text-secondary);
+        }
+
+        .table-empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: var(--qy-space-4);
+            color: var(--qy-text-muted);
+        }
+
+        .table-summary {
+            display: flex;
+            gap: var(--qy-space-6);
+            padding: var(--qy-space-3) var(--qy-space-5);
+            background: var(--qy-bg-secondary);
+            border-top: 1px solid var(--qy-border-light);
+            font-size: var(--qy-font-size-sm);
+        }
+
+        .table-summary-item {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+        }
+
+        .table-summary-label {
+            color: var(--qy-text-secondary);
+        }
+
+        .table-summary-value {
+            font-weight: var(--qy-font-semibold);
+            color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body>
@@ -1382,6 +1618,79 @@
                         </div>
                     </div>
 
+                    <!-- 批量对比虚拟滚动表格 -->
+                    <div class="batch-comparison-container" id="batchComparisonContainer" style="display: none;">
+                        <div class="batch-comparison-header">
+                            <div class="batch-comparison-title">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                                </svg>
+                                批量方案对比
+                            </div>
+                            <div class="batch-comparison-actions">
+                                <button class="qy-btn qy-btn--secondary" onclick="batchManager.runBatchComparison()">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                    </svg>
+                                    重新计算
+                                </button>
+                                <button class="qy-btn qy-btn--primary" onclick="exportBatchResults()">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
+                                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                    导出 CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="virtual-table-container" id="virtualTableContainer">
+                            <div class="loading-overlay" id="tableLoadingOverlay">
+                                <div class="loading-spinner"></div>
+                            </div>
+
+                            <table class="virtual-table" id="virtualTable">
+                                <thead>
+                                    <tr>
+                                        <th class="col-city sortable" data-column="city.name" onclick="sortTable('city.name')">城市</th>
+                                        <th class="col-salary sortable" data-column="salary" onclick="sortTable('salary')">薪资档位</th>
+                                        <th class="col-cost sortable" data-column="companyTotal" onclick="sortTable('companyTotal')">单位成本</th>
+                                        <th class="col-cost sortable" data-column="personalTotal" onclick="sortTable('personalTotal')">个人成本</th>
+                                        <th class="col-cost sortable" data-column="totalCost" onclick="sortTable('totalCost')">总成本</th>
+                                        <th class="col-fund sortable" data-column="fundRate" onclick="sortTable('fundRate')">公积金比例</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="virtualTableBody">
+                                    <!-- Virtual scroll content will be rendered here -->
+                                </tbody>
+                            </table>
+
+                            <div class="table-empty-state" id="tableEmptyState" style="display: none;">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" clip-rule="evenodd"/>
+                                </svg>
+                                <p>暂无数据，请点击"重新计算"生成对比方案</p>
+                            </div>
+                        </div>
+
+                        <div class="table-summary" id="tableSummary">
+                            <div class="table-summary-item">
+                                <span class="table-summary-label">总方案数:</span>
+                                <span class="table-summary-value" id="totalScenariosCount">0</span>
+                            </div>
+                            <div class="table-summary-item">
+                                <span class="table-summary-label">最低成本:</span>
+                                <span class="table-summary-value" id="minCostValue">-</span>
+                            </div>
+                            <div class="table-summary-item">
+                                <span class="table-summary-label">最高成本:</span>
+                                <span class="table-summary-value" id="maxCostValue">-</span>
+                            </div>
+                            <div class="table-summary-item">
+                                <span class="table-summary-label">平均成本:</span>
+                                <span class="table-summary-value" id="avgCostValue">-</span>
+                            </div>
+                        </div>
+                    </div>
 
                 </div><!-- /content-main -->
             </div><!-- /content-with-filter -->
@@ -3076,13 +3385,204 @@
             setTimeout(() => window.print(), 500);
         }
 
+        // ========================================
+        // 批量对比虚拟滚动表格功能
+        // ========================================
 
+        // 虚拟滚动状态
+        let virtualScrollState = {
+            scrollTop: 0,
+            startIndex: 0,
+            endIndex: 0,
+            rowHeight: 50,
+            viewportHeight: 600,
+            bufferSize: 5,
+            visibleCount: 12
+        };
+
+        // 渲染虚拟表格
+        function renderVirtualTable() {
+            const tbody = document.getElementById('virtualTableBody');
+            const scenarios = batchManager.filteredScenarios;
+
+            if (!scenarios || scenarios.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('tableEmptyState').style.display = 'flex';
+                updateTableSummary();
+                return;
+            }
+
+            document.getElementById('tableEmptyState').style.display = 'none';
+
+            const range = batchManager.getVisibleRange(virtualScrollState.scrollTop);
+            const visibleScenarios = batchManager.getScenariosInRange(range.startIndex, range.endIndex);
+
+            // 计算总高度和偏移
+            const totalHeight = scenarios.length * virtualScrollState.rowHeight;
+            const offsetY = range.startIndex * virtualScrollState.rowHeight;
+
+            // 创建文档片段
+            const fragment = document.createDocumentFragment();
+
+            // 添加上方占位符
+            const topSpacer = document.createElement('tr');
+            topSpacer.className = 'virtual-spacer';
+            topSpacer.style.height = offsetY + 'px';
+            fragment.appendChild(topSpacer);
+
+            // 渲染可见行
+            visibleScenarios.forEach((scenario, index) => {
+                const actualIndex = range.startIndex + index;
+                const row = document.createElement('tr');
+                row.style.height = virtualScrollState.rowHeight + 'px';
+                row.innerHTML = `
+                    <td class="col-city">${scenario.city.name}</td>
+                    <td class="col-salary">${scenario.salary.toLocaleString()}</td>
+                    <td class="col-cost">${scenario.companyTotal.toFixed(2)}</td>
+                    <td class="col-cost">${scenario.personalTotal.toFixed(2)}</td>
+                    <td class="col-cost">${scenario.totalCost.toFixed(2)}</td>
+                    <td class="col-fund">${scenario.fundRate}%</td>
+                `;
+                fragment.appendChild(row);
+            });
+
+            // 添加下方占位符
+            const bottomHeight = totalHeight - offsetY - (visibleScenarios.length * virtualScrollState.rowHeight);
+            if (bottomHeight > 0) {
+                const bottomSpacer = document.createElement('tr');
+                bottomSpacer.className = 'virtual-spacer';
+                bottomSpacer.style.height = bottomHeight + 'px';
+                fragment.appendChild(bottomSpacer);
+            }
+
+            tbody.innerHTML = '';
+            tbody.appendChild(fragment);
+
+            updateTableSummary();
+        }
+
+        // 处理虚拟滚动事件
+        function handleVirtualScroll() {
+            const container = document.getElementById('virtualTableContainer');
+            virtualScrollState.scrollTop = container.scrollTop;
+            renderVirtualTable();
+        }
+
+        // 排序表格
+        function sortTable(column) {
+            const th = document.querySelector(`th[data-column="${column}"]`);
+            const currentDirection = batchManager.sortConfig.direction;
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+
+            // 更新表头样式
+            document.querySelectorAll('.virtual-table th').forEach(header => {
+                header.classList.remove('asc', 'desc');
+            });
+            th.classList.add(newDirection);
+
+            // 执行排序
+            batchManager.sort(column, newDirection);
+            renderVirtualTable();
+
+            showToast(`已按${th.textContent}${newDirection === 'asc' ? '升序' : '降序'}排列`);
+        }
+
+        // 导出批量对比结果
+        function exportBatchResults() {
+            if (batchManager.filteredScenarios.length === 0) {
+                showToast('暂无数据可导出');
+                return;
+            }
+
+            const csv = batchManager.exportToCSV();
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0, 10);
+
+            link.href = URL.createObjectURL(blob);
+            link.download = `批量方案对比_${timestamp}.csv`;
+            link.click();
+
+            showToast('CSV文件已下载');
+        }
+
+        // 更新表格汇总信息
+        function updateTableSummary() {
+            const scenarios = batchManager.filteredScenarios;
+            document.getElementById('totalScenariosCount').textContent = scenarios.length;
+
+            if (scenarios.length > 0) {
+                const costs = scenarios.map(s => s.totalCost);
+                const min = Math.min(...costs);
+                const max = Math.max(...costs);
+                const avg = costs.reduce((a, b) => a + b, 0) / costs.length;
+
+                document.getElementById('minCostValue').textContent = min.toFixed(2);
+                document.getElementById('maxCostValue').textContent = max.toFixed(2);
+                document.getElementById('avgCostValue').textContent = avg.toFixed(2);
+            } else {
+                document.getElementById('minCostValue').textContent = '-';
+                document.getElementById('maxCostValue').textContent = '-';
+                document.getElementById('avgCostValue').textContent = '-';
+            }
+        }
+
+        // 显示/隐藏批量对比容器
+        function toggleBatchComparison(show = true) {
+            const container = document.getElementById('batchComparisonContainer');
+            if (show) {
+                container.style.display = 'block';
+                // 初始化滚动事件监听
+                const tableContainer = document.getElementById('virtualTableContainer');
+                tableContainer.removeEventListener('scroll', handleVirtualScroll);
+                tableContainer.addEventListener('scroll', handleVirtualScroll);
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // 运行批量对比（扩展BatchComparisonManager）
+        BatchComparisonManager.prototype.runBatchComparison = async function() {
+            const loadingOverlay = document.getElementById('tableLoadingOverlay');
+            loadingOverlay.classList.add('is-visible');
+
+            try {
+                // 加载城市数据
+                if (this.cities.length === 0) {
+                    await this.loadCities();
+                }
+
+                // 生成场景
+                this.generateScenarios();
+
+                // 渲染表格
+                renderVirtualTable();
+
+                // 显示容器
+                toggleBatchComparison(true);
+
+                showToast(`已生成 ${this.scenarios.length} 个对比方案`);
+            } catch (error) {
+                console.error('Batch comparison failed:', error);
+                showToast('批量对比失败，请重试');
+            } finally {
+                loadingOverlay.classList.remove('is-visible');
+            }
+        };
 
         // ========================================
         // 初始化应用
         // ========================================
         const app = new CalculatorApp();
         const batchManager = new BatchComparisonManager();
+
+        // 初始化虚拟滚动容器事件
+        document.addEventListener('DOMContentLoaded', () => {
+            const tableContainer = document.getElementById('virtualTableContainer');
+            if (tableContainer) {
+                tableContainer.addEventListener('scroll', handleVirtualScroll);
+            }
+        });
     </script>
 </body>
 </html>
