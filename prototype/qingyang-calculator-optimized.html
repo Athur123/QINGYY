@@ -2190,6 +2190,382 @@
         }
 
         // ========================================
+        // 批量对比管理器 - 支持大规模城市方案对比
+        // ========================================
+        class BatchComparisonManager {
+            constructor() {
+                this.cities = [];
+                this.scenarios = [];
+                this.filteredScenarios = [];
+                this.filters = {
+                    provinces: [],
+                    tiers: [],
+                    minCost: 0,
+                    maxCost: Infinity
+                };
+                this.sortConfig = {
+                    column: 'totalCost',
+                    direction: 'asc'
+                };
+                this.virtualScroll = {
+                    rowHeight: 48,
+                    viewportHeight: 400,
+                    bufferSize: 5,
+                    visibleCount: 10
+                };
+                this.salaryLevels = [5000, 8000, 10000, 15000, 20000];
+                this.fundRates = [5, 8, 10, 12];
+            }
+
+            // 加载城市数据
+            async loadCities() {
+                try {
+                    const response = await fetch('data/cities.json');
+                    const data = await response.json();
+                    this.cities = data.cities || [];
+                    this.salaryLevels = data.salaryLevels || this.salaryLevels;
+                    this.fundRates = data.fundRates || this.fundRates;
+                    return this.cities;
+                } catch (error) {
+                    console.error('Failed to load cities:', error);
+                    // Fallback to empty array if fetch fails
+                    this.cities = [];
+                    return [];
+                }
+            }
+
+            // 生成所有场景组合 (城市 × 工资 × 公积金比例)
+            generateScenarios() {
+                this.scenarios = [];
+                let id = 1;
+
+                for (const city of this.cities) {
+                    for (const salary of this.salaryLevels) {
+                        for (const fundRate of this.fundRates) {
+                            const scenario = this.calculateScenario(city, salary, fundRate);
+                            scenario.id = id++;
+                            this.scenarios.push(scenario);
+                        }
+                    }
+                }
+
+                // Apply initial sort and filter
+                this.filteredScenarios = [...this.scenarios];
+                this.sort(this.sortConfig.column, this.sortConfig.direction);
+                return this.scenarios;
+            }
+
+            // 计算单个场景的成本
+            calculateScenario(city, salary, fundRate) {
+                // 计算缴费基数（受限于城市最低/最高基数）
+                const base = Math.max(city.minBase, Math.min(salary, city.maxBase));
+                const fundRateDecimal = fundRate / 100;
+
+                // 计算社保费用
+                let companySocialTotal = 0;
+                let personalSocialTotal = 0;
+
+                // 养老保险
+                if (city.rates.pension) {
+                    companySocialTotal += base * (city.rates.pension.company / 100);
+                    personalSocialTotal += base * (city.rates.pension.personal / 100);
+                }
+
+                // 医疗保险
+                if (city.rates.medical) {
+                    companySocialTotal += base * (city.rates.medical.company / 100);
+                    personalSocialTotal += base * (city.rates.medical.personal / 100);
+                }
+
+                // 失业保险
+                if (city.rates.unemployment) {
+                    companySocialTotal += base * (city.rates.unemployment.company / 100);
+                    personalSocialTotal += base * (city.rates.unemployment.personal / 100);
+                }
+
+                // 工伤保险
+                if (city.rates.injury) {
+                    companySocialTotal += base * (city.rates.injury.company / 100);
+                }
+
+                // 生育保险
+                if (city.rates.maternity) {
+                    companySocialTotal += base * (city.rates.maternity.company / 100);
+                }
+
+                // 大病医疗 - 注意：按年收费，需除以12得到月费用
+                if (city.rates.criticalIllness) {
+                    const companyYearly = city.rates.criticalIllness.company || 0;
+                    const personalYearly = city.rates.criticalIllness.personal || 0;
+                    companySocialTotal += companyYearly / 12;
+                    personalSocialTotal += personalYearly / 12;
+                }
+
+                // 计算公积金
+                const companyFundTotal = base * fundRateDecimal;
+                const personalFundTotal = base * fundRateDecimal;
+
+                // 汇总
+                const companyTotal = companySocialTotal + companyFundTotal;
+                const personalTotal = personalSocialTotal + personalFundTotal;
+                const totalCost = companyTotal + personalTotal;
+
+                return {
+                    id: 0, // Will be assigned in generateScenarios
+                    city: {
+                        code: city.code,
+                        name: city.name,
+                        province: city.province,
+                        tier: city.tier,
+                        minBase: city.minBase,
+                        maxBase: city.maxBase
+                    },
+                    salary: salary,
+                    fundRate: fundRate,
+                    base: base,
+                    companySocial: companySocialTotal,
+                    personalSocial: personalSocialTotal,
+                    socialTotal: companySocialTotal + personalSocialTotal,
+                    companyFund: companyFundTotal,
+                    personalFund: personalFundTotal,
+                    fundTotal: companyFundTotal + personalFundTotal,
+                    companyTotal: companyTotal,
+                    personalTotal: personalTotal,
+                    totalCost: totalCost
+                };
+            }
+
+            // 排序功能
+            sort(column, direction = 'asc') {
+                this.sortConfig = { column, direction };
+                this.filteredScenarios.sort((a, b) => {
+                    let valA = a[column];
+                    let valB = b[column];
+
+                    // Handle nested properties
+                    if (column.startsWith('city.')) {
+                        const key = column.split('.')[1];
+                        valA = a.city[key];
+                        valB = b.city[key];
+                    }
+
+                    if (typeof valA === 'string') {
+                        valA = valA.toLowerCase();
+                        valB = valB.toLowerCase();
+                    }
+
+                    if (valA < valB) return direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+                return this.filteredScenarios;
+            }
+
+            // 筛选功能
+            filter(filters) {
+                this.filters = { ...this.filters, ...filters };
+                this.filteredScenarios = this.scenarios.filter(scenario => {
+                    // 省份筛选
+                    if (this.filters.provinces && this.filters.provinces.length > 0) {
+                        if (!this.filters.provinces.includes(scenario.city.province)) {
+                            return false;
+                        }
+                    }
+
+                    // 城市等级筛选
+                    if (this.filters.tiers && this.filters.tiers.length > 0) {
+                        if (!this.filters.tiers.includes(scenario.city.tier)) {
+                            return false;
+                        }
+                    }
+
+                    // 成本范围筛选
+                    if (this.filters.minCost !== undefined && scenario.totalCost < this.filters.minCost) {
+                        return false;
+                    }
+                    if (this.filters.maxCost !== undefined && scenario.totalCost > this.filters.maxCost) {
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                // Re-apply sort after filtering
+                this.sort(this.sortConfig.column, this.sortConfig.direction);
+                return this.filteredScenarios;
+            }
+
+            // 获取虚拟滚动可见范围
+            getVisibleRange(scrollTop = 0) {
+                const startIndex = Math.floor(scrollTop / this.virtualScroll.rowHeight);
+                const visibleCount = Math.ceil(this.virtualScroll.viewportHeight / this.virtualScroll.rowHeight);
+                const bufferedStart = Math.max(0, startIndex - this.virtualScroll.bufferSize);
+                const bufferedEnd = Math.min(
+                    this.filteredScenarios.length,
+                    startIndex + visibleCount + this.virtualScroll.bufferSize
+                );
+
+                return {
+                    startIndex: bufferedStart,
+                    endIndex: bufferedEnd,
+                    visibleStart: startIndex,
+                    visibleEnd: startIndex + visibleCount,
+                    offsetY: bufferedStart * this.virtualScroll.rowHeight,
+                    totalHeight: this.filteredScenarios.length * this.virtualScroll.rowHeight
+                };
+            }
+
+            // 获取指定范围的场景数据（用于虚拟滚动渲染）
+            getScenariosInRange(startIndex, endIndex) {
+                return this.filteredScenarios.slice(startIndex, endIndex);
+            }
+
+            // 获取成本最低的N个方案
+            getTopNCheapest(n = 10) {
+                const sorted = [...this.scenarios].sort((a, b) => a.totalCost - b.totalCost);
+                return sorted.slice(0, n);
+            }
+
+            // 获取成本分布统计
+            getCostDistribution() {
+                if (this.scenarios.length === 0) return null;
+
+                const costs = this.scenarios.map(s => s.totalCost);
+                const min = Math.min(...costs);
+                const max = Math.max(...costs);
+                const avg = costs.reduce((a, b) => a + b, 0) / costs.length;
+
+                // 分位数计算
+                const sorted = [...costs].sort((a, b) => a - b);
+                const p25 = sorted[Math.floor(sorted.length * 0.25)];
+                const p50 = sorted[Math.floor(sorted.length * 0.5)];
+                const p75 = sorted[Math.floor(sorted.length * 0.75)];
+
+                // 区间分布
+                const range = max - min;
+                const bucketSize = range / 5;
+                const distribution = [
+                    { range: `${min.toFixed(0)}-${(min + bucketSize).toFixed(0)}`, count: 0 },
+                    { range: `${(min + bucketSize).toFixed(0)}-${(min + bucketSize * 2).toFixed(0)}`, count: 0 },
+                    { range: `${(min + bucketSize * 2).toFixed(0)}-${(min + bucketSize * 3).toFixed(0)}`, count: 0 },
+                    { range: `${(min + bucketSize * 3).toFixed(0)}-${(min + bucketSize * 4).toFixed(0)}`, count: 0 },
+                    { range: `${(min + bucketSize * 4).toFixed(0)}-${max.toFixed(0)}`, count: 0 }
+                ];
+
+                costs.forEach(cost => {
+                    const bucketIndex = Math.min(4, Math.floor((cost - min) / bucketSize));
+                    distribution[bucketIndex].count++;
+                });
+
+                return {
+                    min,
+                    max,
+                    avg,
+                    median: p50,
+                    p25,
+                    p75,
+                    distribution
+                };
+            }
+
+            // 获取最优工资档位推荐
+            getOptimalSalaryRange(employeeCount = 1) {
+                const recommendations = [];
+
+                // 按城市和公积金比例分组，找出每个组合下的最优工资档位
+                const grouped = {};
+                this.scenarios.forEach(scenario => {
+                    const key = `${scenario.city.code}-${scenario.fundRate}`;
+                    if (!grouped[key]) {
+                        grouped[key] = [];
+                    }
+                    grouped[key].push(scenario);
+                });
+
+                for (const [key, scenarios] of Object.entries(grouped)) {
+                    // 按总成本排序
+                    const sorted = scenarios.sort((a, b) => a.totalCost - b.totalCost);
+                    const cheapest = sorted[0];
+
+                    recommendations.push({
+                        city: cheapest.city,
+                        fundRate: cheapest.fundRate,
+                        optimalSalary: cheapest.salary,
+                        monthlyCost: cheapest.totalCost,
+                        yearlyCost: cheapest.totalCost * 12,
+                        totalYearlyCost: cheapest.totalCost * 12 * employeeCount,
+                        savingsVsHighest: sorted[sorted.length - 1].totalCost - cheapest.totalCost
+                    });
+                }
+
+                // 按年度总成本排序
+                return recommendations.sort((a, b) => a.yearlyCost - b.yearlyCost);
+            }
+
+            // 获取统计摘要
+            getSummary() {
+                const distribution = this.getCostDistribution();
+                const topCheapest = this.getTopNCheapest(5);
+
+                return {
+                    totalScenarios: this.scenarios.length,
+                    filteredCount: this.filteredScenarios.length,
+                    cityCount: new Set(this.scenarios.map(s => s.city.code)).size,
+                    costDistribution: distribution,
+                    topCheapest: topCheapest.map(s => ({
+                        city: s.city.name,
+                        salary: s.salary,
+                        fundRate: s.fundRate,
+                        totalCost: s.totalCost
+                    })),
+                    filters: this.filters,
+                    sort: this.sortConfig
+                };
+            }
+
+            // 导出数据为CSV
+            exportToCSV() {
+                const headers = ['城市', '省份', '城市等级', '工资', '公积金比例', '缴费基数', '单位社保', '个人社保', '社保合计', '单位公积金', '个人公积金', '公积金合计', '单位总计', '个人总计', '总成本'];
+                const rows = this.filteredScenarios.map(s => [
+                    s.city.name,
+                    s.city.province,
+                    s.city.tier,
+                    s.salary,
+                    s.fundRate + '%',
+                    s.base,
+                    s.companySocial.toFixed(2),
+                    s.personalSocial.toFixed(2),
+                    s.socialTotal.toFixed(2),
+                    s.companyFund.toFixed(2),
+                    s.personalFund.toFixed(2),
+                    s.fundTotal.toFixed(2),
+                    s.companyTotal.toFixed(2),
+                    s.personalTotal.toFixed(2),
+                    s.totalCost.toFixed(2)
+                ]);
+
+                const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+                return csv;
+            }
+
+            // 重置所有筛选和排序
+            reset() {
+                this.filters = {
+                    provinces: [],
+                    tiers: [],
+                    minCost: 0,
+                    maxCost: Infinity
+                };
+                this.sortConfig = {
+                    column: 'totalCost',
+                    direction: 'asc'
+                };
+                this.filteredScenarios = [...this.scenarios];
+                return this.filteredScenarios;
+            }
+        }
+
+        // ========================================
         // 加载状态管理器
         // ========================================
         class LoadingManager {
@@ -2706,6 +3082,7 @@
         // 初始化应用
         // ========================================
         const app = new CalculatorApp();
+        const batchManager = new BatchComparisonManager();
     </script>
 </body>
 </html>
