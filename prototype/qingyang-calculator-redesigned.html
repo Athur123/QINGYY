@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社保公积金计算器 - 青阳云HRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           CSS Variables - Design Tokens
+           ======================================== */
+        :root {
+            /* Primary Colors */
+            --qy-primary-50: #EFF6FF;
+            --qy-primary-100: #DBEAFE;
+            --qy-primary-200: #BFDBFE;
+            --qy-primary-300: #93C5FD;
+            --qy-primary-400: #60A5FA;
+            --qy-primary-500: #2563EB;
+            --qy-primary-600: #1D4ED8;
+            --qy-primary-700: #1E40AF;
+
+            /* Success Colors */
+            --qy-success-50: #F0FDF4;
+            --qy-success-100: #DCFCE7;
+            --qy-success-500: #22C55E;
+            --qy-success-600: #16A34A;
+
+            /* Warning Colors */
+            --qy-warning-50: #FFF7ED;
+            --qy-warning-100: #FFEDD5;
+            --qy-warning-500: #F97316;
+            --qy-warning-600: #EA580C;
+
+            /* Error Colors */
+            --qy-error-50: #FEF2F2;
+            --qy-error-100: #FEE2E2;
+            --qy-error-500: #EF4444;
+            --qy-error-600: #DC2626;
+
+            /* Gray Scale */
+            --qy-gray-50: #F8FAFC;
+            --qy-gray-100: #F1F5F9;
+            --qy-gray-200: #E2E8F0;
+            --qy-gray-300: #CBD5E1;
+            --qy-gray-400: #94A3B8;
+            --qy-gray-500: #64748B;
+            --qy-gray-600: #475569;
+            --qy-gray-700: #334155;
+            --qy-gray-800: #1E293B;
+            --qy-gray-900: #0F172A;
+
+            /* Background */
+            --qy-bg-primary: #FFFFFF;
+            --qy-bg-secondary: #F8FAFC;
+            --qy-bg-tertiary: #F1F5F9;
+
+            /* Text */
+            --qy-text-primary: #1E293B;
+            --qy-text-secondary: #64748B;
+            --qy-text-muted: #94A3B8;
+            --qy-text-inverse: #FFFFFF;
+
+            /* Border */
+            --qy-border-light: #E2E8F0;
+            --qy-border-medium: #CBD5E1;
+            --qy-border-focus: #60A5FA;
+
+            /* Shadows */
+            --qy-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+            --qy-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --qy-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --qy-shadow-focus: 0 0 0 3px var(--qy-primary-100);
+
+            /* Typography */
+            --qy-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --qy-font-size-xs: 11px;
+            --qy-font-size-sm: 12px;
+            --qy-font-size-md: 13px;
+            --qy-font-size-lg: 14px;
+            --qy-font-size-xl: 16px;
+            --qy-font-size-2xl: 18px;
+
+            /* Spacing */
+            --qy-space-1: 4px;
+            --qy-space-2: 8px;
+            --qy-space-3: 12px;
+            --qy-space-4: 16px;
+            --qy-space-5: 20px;
+            --qy-space-6: 24px;
+
+            /* Border Radius */
+            --qy-radius-sm: 4px;
+            --qy-radius-md: 8px;
+            --qy-radius-lg: 12px;
+            --qy-radius-xl: 16px;
+            --qy-radius-full: 9999px;
+
+            /* Transitions */
+            --qy-transition-fast: 150ms ease-in-out;
+            --qy-transition-normal: 200ms ease-in-out;
+
+            /* Focus Ring */
+            --qy-focus-ring: 0 0 0 3px var(--qy-primary-100);
+
+            /* Z-Index */
+            --qy-z-toast: 800;
+        }
+
+        /* ========================================
+           Base Styles
+           ======================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--qy-font-primary);
+            font-size: var(--qy-font-size-md);
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+            line-height: 1.5;
+        }
+
+        /* ========================================
+           Sidebar Component Styles
+           ======================================== */
+        .calc-sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--qy-bg-primary);
+            border-right: 1px solid var(--qy-border-light);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        /* Logo Area */
+        .calc-sidebar__logo {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--qy-space-5);
+            border-bottom: 1px solid var(--qy-border-light);
+            flex-shrink: 0;
+        }
+
+        .calc-sidebar__logo svg {
+            width: 120px;
+            height: 32px;
+        }
+
+        /* Navigation Area */
+        .calc-sidebar__nav {
+            padding: var(--qy-space-4);
+            border-bottom: 1px solid var(--qy-border-light);
+            flex-shrink: 0;
+        }
+
+        .calc-sidebar__group {
+            margin-bottom: var(--qy-space-4);
+        }
+
+        .calc-sidebar__group:last-child {
+            margin-bottom: 0;
+        }
+
+        .calc-sidebar__title {
+            font-size: var(--qy-font-size-xs);
+            font-weight: 600;
+            color: var(--qy-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 var(--qy-space-3);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .calc-sidebar__item {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-3);
+            height: 36px;
+            padding: 0 var(--qy-space-3);
+            border-radius: var(--qy-radius-md);
+            color: var(--qy-text-secondary);
+            text-decoration: none;
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            transition: all var(--qy-transition-fast);
+            cursor: pointer;
+        }
+
+        .calc-sidebar__item:hover {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+        }
+
+        .calc-sidebar__item:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .calc-sidebar__item.is-active {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-600);
+        }
+
+        .calc-sidebar__item svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ========================================
+           Form Section Styles
+           ======================================== */
+        .calc-form-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--qy-space-5);
+        }
+
+        .calc-form-title {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-4);
+            padding-bottom: var(--qy-space-3);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .calc-form-group {
+            margin-bottom: var(--qy-space-4);
+        }
+
+        .calc-form-label {
+            display: block;
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .calc-form-label .required {
+            color: var(--qy-error-500);
+            margin-left: 2px;
+        }
+
+        /* Select & Input Styles */
+        .qy-select,
+        .qy-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 var(--qy-space-3);
+            font-size: var(--qy-font-size-md);
+            font-family: var(--qy-font-primary);
+            color: var(--qy-text-primary);
+            background: var(--qy-bg-secondary);
+            border: 1px solid var(--qy-border-medium);
+            border-radius: var(--qy-radius-md);
+            transition: all var(--qy-transition-fast);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 32px;
+        }
+
+        .qy-select:focus,
+        .qy-input:focus {
+            outline: none;
+            border-color: var(--qy-border-focus);
+            box-shadow: var(--qy-focus-ring);
+            background-color: var(--qy-bg-primary);
+        }
+
+        .qy-input::placeholder {
+            color: var(--qy-text-muted);
+        }
+
+        /* Input Wrapper with Prefix */
+        .calc-input-wrapper {
+            position: relative;
+        }
+
+        .calc-input-prefix {
+            position: absolute;
+            left: var(--qy-space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--qy-text-secondary);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        .calc-input-with-prefix {
+            padding-left: 28px;
+        }
+
+        /* Quick Salary Buttons */
+        .quick-salary-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--qy-space-2);
+            margin-top: var(--qy-space-2);
+        }
+
+        .quick-salary-btn {
+            padding: var(--qy-space-1) var(--qy-space-2);
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-primary-600);
+            background: var(--qy-primary-50);
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-sm);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+            font-weight: 500;
+        }
+
+        .quick-salary-btn:hover {
+            background: var(--qy-primary-100);
+            border-color: var(--qy-primary-300);
+        }
+
+        .quick-salary-btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        /* Form Actions */
+        .calc-form-actions {
+            margin-top: var(--qy-space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-3);
+        }
+
+        /* ========================================
+           Button Styles
+           ======================================== */
+        .qy-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--qy-space-2);
+            height: 36px;
+            padding: 0 var(--qy-space-4);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            font-family: var(--qy-font-primary);
+            border-radius: var(--qy-radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+            text-decoration: none;
+            background: none;
+        }
+
+        .qy-btn:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        /* Primary Button */
+        .qy-btn--primary {
+            background: var(--qy-primary-500);
+            color: var(--qy-text-inverse);
+            border-color: var(--qy-primary-500);
+        }
+
+        .qy-btn--primary:hover {
+            background: var(--qy-primary-600);
+            border-color: var(--qy-primary-600);
+        }
+
+        .qy-btn--primary:active {
+            background: var(--qy-primary-700);
+            border-color: var(--qy-primary-700);
+        }
+
+        /* Secondary Button */
+        .qy-btn--secondary {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            border-color: var(--qy-border-medium);
+        }
+
+        .qy-btn--secondary:hover {
+            background: var(--qy-bg-tertiary);
+            border-color: var(--qy-border-light);
+        }
+
+        /* Button Modifiers */
+        .qy-btn--block {
+            width: 100%;
+        }
+
+        .qy-btn--lg {
+            height: 44px;
+            font-size: var(--qy-font-size-lg);
+        }
+
+        /* ========================================
+           Saved Schemes Section
+           ======================================== */
+        .calc-saved-section {
+            padding: var(--qy-space-5);
+            border-top: 1px solid var(--qy-border-light);
+            background: var(--qy-bg-secondary);
+            flex-shrink: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .calc-saved-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .calc-saved-title {
+            font-size: var(--qy-font-size-md);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .btn-save-scheme {
+            padding: var(--qy-space-1) var(--qy-space-2);
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-primary-600);
+            background: transparent;
+            border: 1px solid var(--qy-primary-200);
+            border-radius: var(--qy-radius-sm);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .btn-save-scheme:hover {
+            background: var(--qy-primary-50);
+        }
+
+        .btn-save-scheme:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        /* Saved Scheme Item */
+        .saved-schemes-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-2);
+        }
+
+        .saved-scheme-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--qy-space-3);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .saved-scheme-item:hover {
+            border-color: var(--qy-primary-200);
+            box-shadow: var(--qy-shadow-sm);
+        }
+
+        .saved-scheme-item:focus {
+            outline: none;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .saved-scheme-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .saved-scheme-name {
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            color: var(--qy-text-primary);
+        }
+
+        .saved-scheme-meta {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        .saved-scheme-delete {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--qy-text-muted);
+            cursor: pointer;
+            border-radius: var(--qy-radius-sm);
+            opacity: 0;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .saved-scheme-item:hover .saved-scheme-delete {
+            opacity: 1;
+        }
+
+        .saved-scheme-delete:hover {
+            background: var(--qy-error-50);
+            color: var(--qy-error-500);
+        }
+
+        .saved-scheme-delete:focus {
+            outline: none;
+            opacity: 1;
+            box-shadow: var(--qy-focus-ring);
+        }
+
+        .saved-schemes-empty {
+            text-align: center;
+            padding: var(--qy-space-4);
+            color: var(--qy-text-muted);
+            font-size: var(--qy-font-size-sm);
+        }
+
+        /* ========================================
+           Toast Notification Styles
+           ======================================== */
+        .toast-container {
+            position: fixed;
+            bottom: var(--qy-space-6);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: var(--qy-z-toast);
+            display: flex;
+            flex-direction: column;
+            gap: var(--qy-space-2);
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: var(--qy-space-3) var(--qy-space-5);
+            background: var(--qy-gray-800);
+            color: var(--qy-text-inverse);
+            border-radius: var(--qy-radius-md);
+            font-size: var(--qy-font-size-md);
+            font-weight: 500;
+            box-shadow: var(--qy-shadow-lg);
+            animation: toastIn 0.3s ease;
+            pointer-events: auto;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast.success {
+            background: var(--qy-success-600);
+        }
+
+        .toast.warning {
+            background: var(--qy-warning-600);
+        }
+
+        .toast.error {
+            background: var(--qy-error-600);
+        }
+
+        /* ========================================
+           Main Content Area (Placeholder)
+           ======================================== */
+        .calc-main {
+            margin-left: 280px;
+            min-height: 100vh;
+            padding: var(--qy-space-6);
+        }
+
+        .calc-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            color: var(--qy-text-muted);
+        }
+
+        .calc-empty-state svg {
+            margin-bottom: var(--qy-space-4);
+        }
+
+        /* Scrollbar Styles */
+        .calc-form-section::-webkit-scrollbar,
+        .calc-saved-section::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .calc-form-section::-webkit-scrollbar-track,
+        .calc-saved-section::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .calc-form-section::-webkit-scrollbar-thumb,
+        .calc-saved-section::-webkit-scrollbar-thumb {
+            background: var(--qy-border-medium);
+            border-radius: var(--qy-radius-full);
+        }
+
+        .calc-form-section::-webkit-scrollbar-thumb:hover,
+        .calc-saved-section::-webkit-scrollbar-thumb:hover {
+            background: var(--qy-gray-400);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="calc-sidebar" role="navigation" aria-label="侧边导航">
+        <!-- Logo Area -->
+        <div class="calc-sidebar__logo">
+            <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Logo Icon -->
+                <rect width="32" height="32" rx="8" fill="#2563EB"/>
+                <path d="M16 8L20 14H12L16 8Z" fill="white"/>
+                <path d="M16 24L12 18H20L16 24Z" fill="white" opacity="0.6"/>
+                <!-- Logo Text -->
+                <text x="40" y="22" font-family="Inter, sans-serif" font-size="16" font-weight="700" fill="#1E293B">青阳云</text>
+            </svg>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="calc-sidebar__nav">
+            <!-- Core HR Group -->
+            <div class="calc-sidebar__group">
+                <div class="calc-sidebar__title">核心人事</div>
+                <a href="#" class="calc-sidebar__item">
+                    <!-- Users Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>花名册</span>
+                </a>
+                <a href="#" class="calc-sidebar__item">
+                    <!-- FileText Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                    <span>合同管理</span>
+                </a>
+            </div>
+
+            <!-- Smart Payroll Group -->
+            <div class="calc-sidebar__group">
+                <div class="calc-sidebar__title">智能薪酬</div>
+                <a href="#" class="calc-sidebar__item is-active" aria-current="page">
+                    <!-- Calculator Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2"/>
+                        <line x1="8" y1="6" x2="16" y2="6"/>
+                        <line x1="16" y1="14" x2="16" y2="14"/>
+                        <path d="M8 14h.01"/>
+                        <path d="M8 18h.01"/>
+                        <path d="M12 14h.01"/>
+                        <path d="M12 18h.01"/>
+                        <path d="M16 18h.01"/>
+                    </svg>
+                    <span>费用计算器</span>
+                </a>
+                <a href="#" class="calc-sidebar__item">
+                    <!-- Shield Icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span>社保档案</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Calculator Form -->
+        <div class="calc-form-section">
+            <div class="calc-form-title">计算条件</div>
+
+            <!-- City Select -->
+            <div class="calc-form-group">
+                <label class="calc-form-label" for="citySelect">参保城市</label>
+                <select class="qy-select" id="citySelect" onchange="updateSchemes()">
+                    <option value="changsha">长沙市</option>
+                    <option value="zhuzhou">株洲市</option>
+                    <option value="xiangtan">湘潭市</option>
+                    <option value="hengyang">衡阳市</option>
+                    <option value="changde">常德市</option>
+                </select>
+            </div>
+
+            <!-- Social Insurance Scheme -->
+            <div class="calc-form-group">
+                <label class="calc-form-label" for="socialScheme">社保方案</label>
+                <select class="qy-select" id="socialScheme">
+                    <option value="normal">城镇职工社保（标准）</option>
+                    <option value="flexible">灵活就业人员</option>
+                </select>
+            </div>
+
+            <!-- Housing Fund Scheme -->
+            <div class="calc-form-group">
+                <label class="calc-form-label" for="fundScheme">公积金方案</label>
+                <select class="qy-select" id="fundScheme">
+                    <option value="12">12% 比例（双边）</option>
+                    <option value="10">10% 比例（双边）</option>
+                    <option value="8">8% 比例（双边）</option>
+                    <option value="5">5% 比例（双边）</option>
+                </select>
+            </div>
+
+            <!-- Salary Input -->
+            <div class="calc-form-group">
+                <label class="calc-form-label" for="salaryInput">
+                    月工资收入 <span class="required">*</span>
+                </label>
+                <div class="calc-input-wrapper">
+                    <span class="calc-input-prefix">¥</span>
+                    <input type="number" class="qy-input calc-input-with-prefix" id="salaryInput"
+                           placeholder="8000" value="8000" min="0" step="100">
+                </div>
+                <div class="quick-salary-group">
+                    <button class="quick-salary-btn" onclick="setSalary(4027)">最低基数 ¥4,027</button>
+                    <button class="quick-salary-btn" onclick="setSalary(8000)">¥8,000</button>
+                    <button class="quick-salary-btn" onclick="setSalary(10000)">¥10,000</button>
+                    <button class="quick-salary-btn" onclick="setSalary(15000)">¥15,000</button>
+                    <button class="quick-salary-btn" onclick="setSalary(20133)">最高基数 ¥20,133</button>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="calc-form-actions">
+                <button class="qy-btn qy-btn--secondary qy-btn--block" onclick="resetCalculator()">
+                    重置
+                </button>
+                <button class="qy-btn qy-btn--primary qy-btn--block qy-btn--lg" onclick="calculate()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    开始计算
+                </button>
+            </div>
+        </div>
+
+        <!-- Saved Schemes Section -->
+        <div class="calc-saved-section">
+            <div class="calc-saved-header">
+                <span class="calc-saved-title">常用方案</span>
+                <button class="btn-save-scheme" onclick="saveCurrentScheme()">
+                    + 保存当前
+                </button>
+            </div>
+            <div class="saved-schemes-list" id="savedSchemesList">
+                <div class="saved-schemes-empty">暂无保存的方案</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content (Placeholder) -->
+    <main class="calc-main" id="main-content">
+        <div class="calc-empty-state">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5">
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                <line x1="8" y1="10" x2="16" y2="10"/>
+                <line x1="8" y1="14" x2="12" y2="14"/>
+            </svg>
+            <p>请设置计算条件并点击"开始计算"</p>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ========================================
+        // City Configuration Data
+        // ========================================
+        const cityConfigs = {
+            changsha: {
+                name: '长沙市',
+                baseMin: 4027,
+                baseMax: 20133,
+                socialSchemes: {
+                    normal: {
+                        name: '城镇职工社保',
+                        pension: { company: 0.16, personal: 0.08 },
+                        medical: { company: 0.08, personal: 0.02 },
+                        unemployment: { company: 0.007, personal: 0.003 },
+                        injury: { company: 0.004, personal: 0 },
+                        maternity: { company: 0.005, personal: 0 }
+                    }
+                }
+            },
+            zhuzhou: {
+                name: '株洲市',
+                baseMin: 3770,
+                baseMax: 18852,
+                socialSchemes: {
+                    normal: {
+                        name: '城镇职工社保',
+                        pension: { company: 0.16, personal: 0.08 },
+                        medical: { company: 0.085, personal: 0.02 },
+                        unemployment: { company: 0.007, personal: 0.003 },
+                        injury: { company: 0.004, personal: 0 },
+                        maternity: { company: 0.005, personal: 0 }
+                    }
+                }
+            },
+            xiangtan: {
+                name: '湘潭市',
+                baseMin: 3586,
+                baseMax: 17931,
+                socialSchemes: {
+                    normal: {
+                        name: '城镇职工社保',
+                        pension: { company: 0.16, personal: 0.08 },
+                        medical: { company: 0.08, personal: 0.02 },
+                        unemployment: { company: 0.007, personal: 0.003 },
+                        injury: { company: 0.004, personal: 0 },
+                        maternity: { company: 0.005, personal: 0 }
+                    }
+                }
+            },
+            hengyang: {
+                name: '衡阳市',
+                baseMin: 3350,
+                baseMax: 16752,
+                socialSchemes: {
+                    normal: {
+                        name: '城镇职工社保',
+                        pension: { company: 0.16, personal: 0.08 },
+                        medical: { company: 0.08, personal: 0.02 },
+                        unemployment: { company: 0.007, personal: 0.003 },
+                        injury: { company: 0.004, personal: 0 },
+                        maternity: { company: 0.005, personal: 0 }
+                    }
+                }
+            },
+            changde: {
+                name: '常德市',
+                baseMin: 3400,
+                baseMax: 17004,
+                socialSchemes: {
+                    normal: {
+                        name: '城镇职工社保',
+                        pension: { company: 0.16, personal: 0.08 },
+                        medical: { company: 0.08, personal: 0.02 },
+                        unemployment: { company: 0.007, personal: 0.003 },
+                        injury: { company: 0.004, personal: 0 },
+                        maternity: { company: 0.005, personal: 0 }
+                    }
+                }
+            }
+        };
+
+        // ========================================
+        // Utility Functions
+        // ========================================
+
+        /**
+         * Format amount as currency string
+         * @param {number} amount - Amount to format
+         * @returns {string} Formatted amount
+         */
+        function formatMoney(amount) {
+            return amount.toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        /**
+         * Set salary input value
+         * @param {number} amount - Salary amount
+         */
+        function setSalary(amount) {
+            document.getElementById('salaryInput').value = amount;
+            showToast(`已设置工资为 ¥${amount.toLocaleString()}`, 'success');
+        }
+
+        /**
+         * Calculate insurance base within min/max bounds
+         * @param {number} salary - Input salary
+         * @param {object} config - City configuration
+         * @returns {number} Calculated base
+         */
+        function calculateBase(salary, config) {
+            if (salary < config.baseMin) return config.baseMin;
+            if (salary > config.baseMax) return config.baseMax;
+            return salary;
+        }
+
+        // ========================================
+        // Saved Schemes Functions
+        // ========================================
+
+        // Load saved schemes from localStorage
+        let savedSchemes = JSON.parse(localStorage.getItem('calculatorSavedSchemes') || '[]');
+
+        /**
+         * Render saved schemes list
+         */
+        function renderSavedSchemes() {
+            const container = document.getElementById('savedSchemesList');
+
+            if (savedSchemes.length === 0) {
+                container.innerHTML = '<div class="saved-schemes-empty">暂无保存的方案</div>';
+                return;
+            }
+
+            container.innerHTML = savedSchemes.map(scheme => `
+                <div class="saved-scheme-item" onclick="loadScheme('${scheme.id}')" tabindex="0" role="button" aria-label="加载方案 ${scheme.name}">
+                    <div class="saved-scheme-info">
+                        <span class="saved-scheme-name">${scheme.name}</span>
+                        <span class="saved-scheme-meta">${scheme.cityName} · ¥${scheme.salary.toLocaleString()}</span>
+                    </div>
+                    <button class="saved-scheme-delete" onclick="event.stopPropagation(); deleteScheme('${scheme.id}')" aria-label="删除方案">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Save current calculator configuration as a scheme
+         */
+        function saveCurrentScheme() {
+            const city = document.getElementById('citySelect').value;
+            const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+            const fundRate = document.getElementById('fundScheme').value;
+            const socialScheme = document.getElementById('socialScheme').value;
+
+            if (salary <= 0) {
+                showToast('请先输入有效的工资金额', 'warning');
+                return;
+            }
+
+            const config = cityConfigs[city];
+            const scheme = {
+                id: Date.now().toString(),
+                name: `${config.name}方案${savedSchemes.length + 1}`,
+                city: city,
+                cityName: config.name,
+                salary: salary,
+                fundRate: fundRate,
+                socialScheme: socialScheme,
+                createdAt: new Date().toISOString()
+            };
+
+            // Check for duplicates
+            const exists = savedSchemes.some(s =>
+                s.city === scheme.city &&
+                s.salary === scheme.salary &&
+                s.fundRate === scheme.fundRate
+            );
+
+            if (exists) {
+                showToast('该方案已存在', 'warning');
+                return;
+            }
+
+            savedSchemes.unshift(scheme);
+            if (savedSchemes.length > 10) {
+                savedSchemes = savedSchemes.slice(0, 10);
+            }
+
+            localStorage.setItem('calculatorSavedSchemes', JSON.stringify(savedSchemes));
+            renderSavedSchemes();
+            showToast('方案已保存', 'success');
+        }
+
+        /**
+         * Load a saved scheme
+         * @param {string} id - Scheme ID
+         */
+        function loadScheme(id) {
+            const scheme = savedSchemes.find(s => s.id === id);
+            if (!scheme) return;
+
+            document.getElementById('citySelect').value = scheme.city;
+            document.getElementById('salaryInput').value = scheme.salary;
+            document.getElementById('fundScheme').value = scheme.fundRate;
+            document.getElementById('socialScheme').value = scheme.socialScheme;
+
+            showToast(`已加载方案: ${scheme.name}`, 'success');
+        }
+
+        /**
+         * Delete a saved scheme
+         * @param {string} id - Scheme ID
+         */
+        function deleteScheme(id) {
+            savedSchemes = savedSchemes.filter(s => s.id !== id);
+            localStorage.setItem('calculatorSavedSchemes', JSON.stringify(savedSchemes));
+            renderSavedSchemes();
+            showToast('方案已删除', 'success');
+        }
+
+        // ========================================
+        // Calculator Functions
+        // ========================================
+
+        /**
+         * Reset calculator to default state
+         */
+        function resetCalculator() {
+            document.getElementById('citySelect').selectedIndex = 0;
+            document.getElementById('socialScheme').selectedIndex = 0;
+            document.getElementById('fundScheme').selectedIndex = 0;
+            document.getElementById('salaryInput').value = '';
+            showToast('计算器已重置', 'success');
+        }
+
+        /**
+         * Perform calculation
+         */
+        function calculate() {
+            const city = document.getElementById('citySelect').value;
+            const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+            const fundRate = parseInt(document.getElementById('fundScheme').value) / 100;
+
+            if (salary <= 0) {
+                showToast('请输入有效的工资金额', 'error');
+                return;
+            }
+
+            const config = cityConfigs[city];
+            const base = calculateBase(salary, config);
+            const scheme = config.socialSchemes.normal;
+
+            let socialCompanyTotal = 0;
+            let socialPersonalTotal = 0;
+
+            const typeNames = {
+                pension: '养老保险',
+                medical: '医疗保险',
+                unemployment: '失业保险',
+                injury: '工伤保险',
+                maternity: '生育保险'
+            };
+
+            for (const [type, rates] of Object.entries(scheme)) {
+                if (type === 'name') continue;
+                socialCompanyTotal += base * rates.company;
+                socialPersonalTotal += base * rates.personal;
+            }
+
+            const fundCompany = base * fundRate;
+            const fundPersonal = base * fundRate;
+            const totalCompany = socialCompanyTotal + fundCompany;
+            const totalPersonal = socialPersonalTotal + fundPersonal;
+            const total = totalCompany + totalPersonal;
+
+            showToast(`计算完成！月缴合计: ¥${formatMoney(total)}`, 'success');
+        }
+
+        /**
+         * Update schemes based on selected city
+         */
+        function updateSchemes() {
+            const city = document.getElementById('citySelect').value;
+            const config = cityConfigs[city];
+            showToast(`已切换到${config.name}`, 'success');
+        }
+
+        // ========================================
+        // Toast Notification Functions
+        // ========================================
+
+        /**
+         * Show toast notification
+         * @param {string} message - Message to display
+         * @param {string} type - Toast type: 'info', 'success', 'warning', 'error'
+         */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+
+            // Add to container
+            container.appendChild(toast);
+
+            // Remove after delay
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /**
+         * Create toast container if not exists
+         */
+        function createToastContainer() {
+            if (!document.getElementById('toastContainer')) {
+                const container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+        }
+
+        // ========================================
+        // Initialization
+        // ========================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create toast container
+            createToastContainer();
+
+            // Render saved schemes
+            renderSavedSchemes();
+
+            // Add keyboard shortcut for calculation
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    calculate();
+                }
+            });
+
+            // Add enter key support for saved scheme items
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.classList.contains('saved-scheme-item')) {
+                    e.target.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
