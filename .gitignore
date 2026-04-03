@@ -1,0 +1,49 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+.vscode/
+*.swp
+*.swo
+
+# Playwright MCP
+.playwright-mcp/
+
+# Claude
+.claude/memory/
+
+# Worktrees
+.worktrees/
+
+# Logs
+*.log
+
+# Local config
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+*.pdf
