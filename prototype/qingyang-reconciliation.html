@@ -1704,6 +1704,7 @@
             try {
                 const data = await readFileAsync(file);
                 const workbook = XLSX.read(data, { type: 'array' });
+                const errors = [];
 
                 // 显示预览
                 document.getElementById('importPreview').style.display = 'block';
