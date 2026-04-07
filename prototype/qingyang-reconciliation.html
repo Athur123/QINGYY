@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../styles/qingyang-components.css">
     <link rel="stylesheet" href="../styles/qingyang-forms.css">
     <link rel="stylesheet" href="../styles/qingyang-design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         /* ─── 页面结构样式 / Page Structural Styles ─── */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1594,6 +1595,233 @@
             // 初始渲染
             renderAll();
         });
+
+        // ========== Excel导入功能 ==========
+
+        // 读取文件为ArrayBuffer
+        function readFileAsync(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(new Uint8Array(e.target.result));
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Excel列名映射
+        const COLUMN_MAPPING = {
+            '姓名': 'name',
+            '证件号码': 'idCard',
+            '身份证号': 'idCard',
+            '险种': 'insuranceType',
+            '险种名称': 'insuranceType',
+            '费用月份': 'billingMonth',
+            '费款所属期': 'billingMonth',
+            '申报月份': 'billingMonth',
+            '缴费基数': 'baseAmount',
+            '申报工资': 'baseAmount',
+            '单位缴费额': 'companyFee',
+            '单位缴费金额': 'companyFee',
+            '单位实缴': 'companyFee',
+            '个人缴费额': 'personalFee',
+            '个人缴费金额': 'personalFee',
+            '个人实缴': 'personalFee'
+        };
+
+        // 标准险种枚举
+        const INSURANCE_TYPES = ['养老保险', '医疗保险', '失业保险', '工伤保险', '生育保险', '住房公积金'];
+
+        // 查找字段（兼容多种列名）
+        function findField(row, fields) {
+            for (const field of fields) {
+                if (row[field] !== undefined && row[field] !== null && row[field] !== '') {
+                    return String(row[field]).trim();
+                }
+            }
+            return null;
+        }
+
+        // 标准化费用月份格式
+        function normalizeBillingMonth(value) {
+            if (!value) return null;
+            const str = String(value).replace(/\//, '-');
+            if (/^\d{4}-\d{2}$/.test(str)) return str;
+            if (/^\d{6}$/.test(str)) return str.slice(0, 4) + '-' + str.slice(4, 6);
+            return null;
+        }
+
+        // 标准化行数据
+        function normalizeRow(row, index, errors) {
+            const idCard = findField(row, ['身份证号', '证件号码']);
+            if (!idCard) {
+                errors.push(`第${index + 2}行：缺少身份证号`);
+                return null;
+            }
+
+            const insuranceType = findField(row, ['险种', '险种名称']);
+            if (!insuranceType) {
+                errors.push(`第${index + 2}行：缺少险种`);
+                return null;
+            }
+
+            let billingMonth = findField(row, ['费用月份', '费款所属期', '申报月份']);
+            if (billingMonth) {
+                billingMonth = normalizeBillingMonth(billingMonth);
+            }
+            if (!billingMonth) {
+                errors.push(`第${index + 2}行：费用月份格式不正确`);
+                return null;
+            }
+
+            const baseAmount = parseFloat(findField(row, ['缴费基数', '申报工资'])) || 0;
+            const companyFee = parseFloat(findField(row, ['单位缴费额', '单位缴费金额', '单位实缴'])) || 0;
+            const personalFee = parseFloat(findField(row, ['个人缴费额', '个人缴费金额', '个人实缴'])) || 0;
+
+            return {
+                id: `ledger_${index}`,
+                name: findField(row, ['姓名']) || '',
+                idCard: String(idCard).trim(),
+                insuranceType,
+                billingMonth,
+                baseAmount,
+                companyFee,
+                personalFee
+            };
+        }
+
+        // 处理文件选择
+        async function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const data = await readFileAsync(file);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                // 显示预览
+                document.getElementById('importPreview').style.display = 'block';
+                document.getElementById('importFileName').textContent = file.name;
+                document.getElementById('importFileSize').textContent = formatFileSize(file.size);
+
+                // 填充工作表选择
+                const sheetSelect = document.getElementById('importSheetSelect');
+                sheetSelect.innerHTML = '';
+                if (workbook.SheetNames.length === 0) {
+                    errors.push('Excel文件中没有工作表');
+                    return;
+                }
+                workbook.SheetNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    sheetSelect.appendChild(option);
+                });
+
+                // 默认选择第一个工作表
+                if (workbook.SheetNames.length > 0) {
+                    updateRowCount(workbook, workbook.SheetNames[0]);
+                }
+
+                document.getElementById('btnConfirmImport').disabled = false;
+                document.getElementById('importError').style.display = 'none';
+
+            } catch (error) {
+                showImportError('文件读取失败：' + error.message);
+            }
+        }
+
+        // 更新行数显示
+        function updateRowCount(workbook, sheetName) {
+            const sheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(sheet);
+            document.getElementById('importRowCount').textContent = data.length;
+        }
+
+        // 显示导入错误
+        function showImportError(message) {
+            document.getElementById('importError').style.display = 'block';
+            document.getElementById('importErrorMsg').textContent = message;
+        }
+
+        // 导入确认
+        async function importLedgerData() {
+            const fileInput = document.getElementById('importFileInput');
+            if (!fileInput.files[0]) return;
+
+            const sheetName = document.getElementById('importSheetSelect').value;
+
+            try {
+                const data = await readFileAsync(fileInput.files[0]);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[sheetName];
+                const rawData = XLSX.utils.sheet_to_json(sheet);
+
+                // 转换和校验
+                LEDGER_RECORDS = [];
+                const errors = [];
+
+                rawData.forEach((row, index) => {
+                    const record = normalizeRow(row, index, errors);
+                    if (record) {
+                        LEDGER_RECORDS.push(record);
+                    }
+                });
+
+                if (errors.length > 0) {
+                    showImportError(`发现 ${errors.length} 个错误：\n` + errors.slice(0, 5).join('\n'));
+                    return;
+                }
+
+                // 关闭弹窗
+                closeImportModal();
+
+                // 重新渲染
+                renderAll();
+
+                showToast(`成功导入 ${LEDGER_RECORDS.length} 条记录`);
+
+            } catch (error) {
+                showImportError('导入失败：' + error.message);
+            }
+        }
+
+        // 关闭导入弹窗
+        function closeImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+            document.getElementById('importPreview').style.display = 'none';
+            document.getElementById('importFileInput').value = '';
+            document.getElementById('btnConfirmImport').disabled = true;
+            document.getElementById('importError').style.display = 'none';
+        }
+
+        // 显示导入弹窗
+        function openImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+        }
+
+        // Toast提示
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('toast--show');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('toast--show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
