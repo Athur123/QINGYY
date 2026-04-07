@@ -431,6 +431,94 @@
         #importModal {
             display: none;
         }
+
+        /* ─── 差异明细表格样式 / Diff Detail Table Styles ─── */
+        .table-container {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th,
+        .data-table td {
+            padding: var(--qy-space-3) var(--qy-space-4);
+            text-align: left;
+            font-size: var(--qy-font-size-sm);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+        .data-table th {
+            background: var(--qy-bg-secondary);
+            font-weight: 600;
+            color: var(--qy-text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+        .data-table tbody tr:hover {
+            background: var(--qy-bg-secondary);
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .text-right {
+            text-align: right !important;
+        }
+
+        .diff-type-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: var(--qy-radius-full);
+            font-size: var(--qy-font-size-xs);
+            font-weight: 500;
+        }
+        .diff-type-tag--system {
+            background: var(--qy-error-50);
+            color: var(--qy-error-600);
+        }
+        .diff-type-tag--ledger {
+            background: var(--qy-warning-50);
+            color: var(--qy-warning-600);
+        }
+        .diff-type-tag--amount {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-600);
+        }
+
+        .amount {
+            font-variant-numeric: tabular-nums;
+        }
+        .amount--positive {
+            color: var(--qy-error-600);
+        }
+        .amount--negative {
+            color: var(--qy-success-600);
+        }
+        .amount--zero {
+            color: var(--qy-text-muted);
+        }
+
+        .action-btn {
+            padding: 4px 12px;
+            font-size: var(--qy-font-size-xs);
+            font-weight: 500;
+            border-radius: var(--qy-radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+        .action-btn--primary {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-600);
+        }
+        .action-btn--primary:hover {
+            background: var(--qy-primary-100);
+        }
     </style>
 </head>
 <body>
