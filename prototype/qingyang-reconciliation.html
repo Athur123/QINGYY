@@ -1118,7 +1118,481 @@
     </div>
 
     <script>
-        // 后续Task实现
+        // ========== 数据模型 ==========
+
+        // 系统记录模拟数据
+        const SYSTEM_RECORDS = [
+            {
+                id: 'sys_001',
+                name: '张三',
+                idCard: '430105199001011234',
+                customer: '某科技有限公司',
+                settlement: '结算主体A',
+                scheme: '长沙标准方案',
+                insuranceType: '养老保险',
+                baseAmount: 6000,
+                companyFee: 1234,
+                personalFee: 480,
+                declareStatus: '申报成功',
+                declareDate: '2026-04-05',
+                billingMonth: '2026-04'
+            },
+            {
+                id: 'sys_002',
+                name: '张三',
+                idCard: '430105199001011234',
+                customer: '某科技有限公司',
+                settlement: '结算主体A',
+                scheme: '长沙标准方案',
+                insuranceType: '医疗保险',
+                baseAmount: 6000,
+                companyFee: 600,
+                personalFee: 200,
+                declareStatus: '申报失败',
+                declareDate: '',
+                billingMonth: '2026-04'
+            },
+            {
+                id: 'sys_003',
+                name: '李四',
+                idCard: '430106199102022345',
+                customer: '某科技有限公司',
+                settlement: '结算主体A',
+                scheme: '长沙标准方案',
+                insuranceType: '养老保险',
+                baseAmount: 4500,
+                companyFee: 925,
+                personalFee: 360,
+                declareStatus: '申报成功',
+                declareDate: '2026-04-08',
+                billingMonth: '2026-04'
+            },
+            {
+                id: 'sys_004',
+                name: '王五',
+                idCard: '430107199203033456',
+                customer: '另一家公司',
+                settlement: '结算主体B',
+                scheme: '长沙标准方案',
+                insuranceType: '住房公积金',
+                baseAmount: 3000,
+                companyFee: 300,
+                personalFee: 300,
+                declareStatus: '待申报',
+                declareDate: '',
+                billingMonth: '2026-04'
+            },
+            {
+                id: 'sys_005',
+                name: '赵六',
+                idCard: '430108199304044567',
+                customer: '第三家公司',
+                settlement: '结算主体A',
+                scheme: '长沙低收入方案',
+                insuranceType: '养老保险',
+                baseAmount: 8000,
+                companyFee: 1648,
+                personalFee: 640,
+                declareStatus: '申报成功',
+                declareDate: '2026-04-10',
+                billingMonth: '2026-04'
+            }
+        ];
+
+        // 台账记录（从Excel导入）
+        let LEDGER_RECORDS = [];
+
+        // 差异记录
+        let DIFFERENCE_RECORDS = [];
+
+        // 差异类型枚举
+        const DIFF_TYPE = {
+            SYSTEM_ONLY: 'system',    // 系统有，台账无
+            LEDGER_ONLY: 'ledger',    // 台账有，系统无
+            AMOUNT_DIFF: 'amount'    // 金额差异
+        };
+
+        // 当前筛选状态
+        const currentFilters = {
+            billingMonth: '2026-04',
+            region: '',
+            settlement: '',
+            insuranceType: '',
+            customer: ''
+        };
+
+        // 分页状态
+        const pagination = {
+            page: 1,
+            pageSize: 10,
+            total: 0
+        };
+
+        // 当前Tab
+        let currentTab = 'diff';
+
+        // 获取筛选后的系统记录
+        function getFilteredSystemRecords() {
+            return SYSTEM_RECORDS.filter(record => {
+                if (currentFilters.billingMonth && record.billingMonth !== currentFilters.billingMonth) return false;
+                if (currentFilters.region && record.region !== currentFilters.region) return false;
+                if (currentFilters.settlement && record.settlement !== currentFilters.settlement) return false;
+                if (currentFilters.insuranceType && record.insuranceType !== currentFilters.insuranceType) return false;
+                if (currentFilters.customer && !record.customer.includes(currentFilters.customer)) return false;
+                return true;
+            });
+        }
+
+        // 计算差异
+        function calculateDifferences() {
+            DIFFERENCE_RECORDS = [];
+
+            const systemMap = new Map();
+            getFilteredSystemRecords().forEach(record => {
+                const key = `${record.idCard}_${record.insuranceType}_${record.billingMonth}`;
+                systemMap.set(key, record);
+            });
+
+            const ledgerMap = new Map();
+            LEDGER_RECORDS.forEach(record => {
+                const key = `${record.idCard}_${record.insuranceType}_${record.billingMonth}`;
+                if (!ledgerMap.has(key)) {
+                    ledgerMap.set(key, record);
+                } else {
+                    // 同一记录取金额最大
+                    const existing = ledgerMap.get(key);
+                    const existingTotal = existing.companyFee + existing.personalFee;
+                    const newTotal = record.companyFee + record.personalFee;
+                    if (newTotal > existingTotal) {
+                        ledgerMap.set(key, record);
+                    }
+                }
+            });
+
+            // 系统有，台账无
+            systemMap.forEach((sysRecord, key) => {
+                if (!ledgerMap.has(key)) {
+                    DIFFERENCE_RECORDS.push({
+                        id: `diff_${key}`,
+                        diffType: DIFF_TYPE.SYSTEM_ONLY,
+                        systemRecord: sysRecord,
+                        ledgerRecord: null,
+                        diffAmount: sysRecord.companyFee + sysRecord.personalFee,
+                        billingMonth: sysRecord.billingMonth
+                    });
+                }
+            });
+
+            // 台账有，系统无
+            ledgerMap.forEach((ledgerRecord, key) => {
+                if (!systemMap.has(key)) {
+                    DIFFERENCE_RECORDS.push({
+                        id: `diff_${key}`,
+                        diffType: DIFF_TYPE.LEDGER_ONLY,
+                        systemRecord: null,
+                        ledgerRecord: ledgerRecord,
+                        diffAmount: -(ledgerRecord.companyFee + ledgerRecord.personalFee),
+                        billingMonth: ledgerRecord.billingMonth
+                    });
+                }
+            });
+
+            // 金额差异
+            systemMap.forEach((sysRecord, key) => {
+                if (ledgerMap.has(key)) {
+                    const ledgerRecord = ledgerMap.get(key);
+                    const sysTotal = sysRecord.companyFee + sysRecord.personalFee;
+                    const ledgerTotal = ledgerRecord.companyFee + ledgerRecord.personalFee;
+                    if (sysTotal !== ledgerTotal) {
+                        DIFFERENCE_RECORDS.push({
+                            id: `diff_${key}`,
+                            diffType: DIFF_TYPE.AMOUNT_DIFF,
+                            systemRecord: sysRecord,
+                            ledgerRecord: ledgerRecord,
+                            diffAmount: sysTotal - ledgerTotal,
+                            billingMonth: sysRecord.billingMonth
+                        });
+                    }
+                }
+            });
+
+            return DIFFERENCE_RECORDS;
+        }
+
+        // 格式化金额
+        function formatMoney(amount) {
+            return '¥' + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // 身份证号脱敏
+        function maskIdCard(idCard) {
+            if (!idCard) return '-';
+            return idCard.replace(/(\d{3})\d{11}(\d{4})/, '$1***********$2');
+        }
+
+        // 渲染汇总卡片
+        function renderSummaryCards() {
+            const systemRecords = getFilteredSystemRecords();
+            const systemCount = new Set(systemRecords.map(r => `${r.idCard}_${r.insuranceType}`)).size;
+            const systemAmount = systemRecords.reduce((sum, r) => sum + r.companyFee + r.personalFee, 0);
+
+            document.getElementById('summarySystemCount').textContent = systemCount.toLocaleString();
+            document.getElementById('summarySystemAmount').textContent = formatMoney(systemAmount);
+
+            if (LEDGER_RECORDS.length > 0) {
+                const ledgerCount = new Set(LEDGER_RECORDS.map(r => `${r.idCard}_${r.insuranceType}`)).size;
+                const ledgerAmount = LEDGER_RECORDS.reduce((sum, r) => sum + r.companyFee + r.personalFee, 0);
+                document.getElementById('summaryLedgerCount').textContent = ledgerCount.toLocaleString();
+                document.getElementById('summaryLedgerAmount').textContent = formatMoney(ledgerAmount);
+            }
+
+            const diffs = calculateDifferences();
+            const diffCount = diffs.length;
+            const diffAmount = diffs.reduce((sum, d) => sum + d.diffAmount, 0);
+
+            document.getElementById('summaryDiffCount').textContent = diffCount.toLocaleString();
+            document.getElementById('summaryDiffAmount').textContent = (diffAmount < 0 ? '-' : '') + formatMoney(Math.abs(diffAmount));
+
+            // 差异类型分布
+            const systemOnlyCount = diffs.filter(d => d.diffType === DIFF_TYPE.SYSTEM_ONLY).length;
+            const ledgerOnlyCount = diffs.filter(d => d.diffType === DIFF_TYPE.LEDGER_ONLY).length;
+            const amountDiffCount = diffs.filter(d => d.diffType === DIFF_TYPE.AMOUNT_DIFF).length;
+
+            document.getElementById('diffTypeSystemOnlyCount').textContent = systemOnlyCount;
+            document.getElementById('diffTypeLedgerOnlyCount').textContent = ledgerOnlyCount;
+            document.getElementById('diffTypeAmountDiffCount').textContent = amountDiffCount;
+        }
+
+        // 渲染差异明细表
+        function renderDiffTable() {
+            const tbody = document.getElementById('diffTableBody');
+            const diffs = calculateDifferences();
+
+            const start = (pagination.page - 1) * pagination.pageSize;
+            const end = start + pagination.pageSize;
+            const pageData = diffs.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="13" style="text-align: center; padding: 40px; color: var(--qy-text-muted);">
+                            暂无差异数据，请先导入台账进行比对
+                        </td>
+                    </tr>
+                `;
+                pagination.total = diffs.length;
+                renderPagination();
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(diff => {
+                const sysRecord = diff.systemRecord;
+                const ledgerRecord = diff.ledgerRecord;
+
+                const diffTypeLabels = {
+                    [DIFF_TYPE.SYSTEM_ONLY]: '系统多',
+                    [DIFF_TYPE.LEDGER_ONLY]: '台账多',
+                    [DIFF_TYPE.AMOUNT_DIFF]: '金额差'
+                };
+
+                const diffTypeClasses = {
+                    [DIFF_TYPE.SYSTEM_ONLY]: 'diff-type-tag--system',
+                    [DIFF_TYPE.LEDGER_ONLY]: 'diff-type-tag--ledger',
+                    [DIFF_TYPE.AMOUNT_DIFF]: 'diff-type-tag--amount'
+                };
+
+                const amountClass = diff.diffAmount > 0 ? 'amount--positive' : diff.diffAmount < 0 ? 'amount--negative' : 'amount--zero';
+
+                return `
+                    <tr>
+                        <td>${diff.billingMonth}</td>
+                        <td>${sysRecord ? sysRecord.name : (ledgerRecord ? ledgerRecord.name : '-')}</td>
+                        <td>${maskIdCard(sysRecord ? sysRecord.idCard : (ledgerRecord ? ledgerRecord.idCard : ''))}</td>
+                        <td>${sysRecord ? sysRecord.customer : '-'}</td>
+                        <td>${sysRecord ? sysRecord.insuranceType : (ledgerRecord ? ledgerRecord.insuranceType : '-')}</td>
+                        <td class="text-right">${sysRecord ? sysRecord.baseAmount.toLocaleString() : '-'}</td>
+                        <td class="text-right">${sysRecord ? formatMoney(sysRecord.companyFee + sysRecord.personalFee) : '-'}</td>
+                        <td class="text-right">${ledgerRecord ? ledgerRecord.baseAmount.toLocaleString() : '-'}</td>
+                        <td class="text-right">${ledgerRecord ? formatMoney(ledgerRecord.companyFee + ledgerRecord.personalFee) : '-'}</td>
+                        <td class="text-right amount ${amountClass}">${formatMoney(Math.abs(diff.diffAmount))}</td>
+                        <td>${sysRecord ? sysRecord.declareStatus : '-'}</td>
+                        <td><span class="diff-type-tag ${diffTypeClasses[diff.diffType]}">${diffTypeLabels[diff.diffType]}</span></td>
+                        <td><button class="action-btn action-btn--primary" onclick="showDetail('${diff.id}')">查看详情</button></td>
+                    </tr>
+                `;
+            }).join('');
+
+            pagination.total = diffs.length;
+            renderPagination();
+        }
+
+        // 渲染分页器
+        function renderPagination() {
+            const maxPage = Math.max(1, Math.ceil(pagination.total / pagination.pageSize));
+
+            document.getElementById('pageTotalCount').textContent = pagination.total;
+            document.getElementById('pageTotal').textContent = maxPage;
+            document.getElementById('inputPageNum').value = pagination.page;
+
+            document.getElementById('btnPrevPage').disabled = pagination.page <= 1;
+            document.getElementById('btnNextPage').disabled = pagination.page >= maxPage;
+        }
+
+        // 渲染当前表格
+        function renderCurrentTable() {
+            if (currentTab === 'diff') {
+                renderDiffTable();
+            } else if (currentTab === 'system') {
+                renderSystemTable();
+            } else if (currentTab === 'ledger') {
+                renderLedgerTable();
+            }
+        }
+
+        // 统一渲染
+        function renderAll() {
+            renderSummaryCards();
+            renderCurrentTable();
+        }
+
+        // 渲染系统全量表
+        function renderSystemTable() {
+            const tbody = document.getElementById('systemTableBody');
+            const records = getFilteredSystemRecords();
+
+            const start = (pagination.page - 1) * pagination.pageSize;
+            const end = start + pagination.pageSize;
+            const pageData = records.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: var(--qy-text-muted);">
+                            暂无系统记录
+                        </td>
+                    </tr>
+                `;
+                pagination.total = records.length;
+                renderPagination();
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(record => `
+                <tr>
+                    <td>${record.name}</td>
+                    <td>${maskIdCard(record.idCard)}</td>
+                    <td>${record.customer}</td>
+                    <td>${record.insuranceType}</td>
+                    <td class="text-right">${record.baseAmount.toLocaleString()}</td>
+                    <td class="text-right">${formatMoney(record.companyFee)}</td>
+                    <td class="text-right">${formatMoney(record.personalFee)}</td>
+                    <td>${record.declareStatus}</td>
+                    <td>${record.declareDate || '-'}</td>
+                </tr>
+            `).join('');
+
+            pagination.total = records.length;
+            renderPagination();
+        }
+
+        // 渲染台账全量表
+        function renderLedgerTable() {
+            const tbody = document.getElementById('ledgerTableBody');
+
+            const start = (pagination.page - 1) * pagination.pageSize;
+            const end = start + pagination.pageSize;
+            const pageData = LEDGER_RECORDS.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--qy-text-muted);">
+                            暂无台账数据，请先导入Excel
+                        </td>
+                    </tr>
+                `;
+                pagination.total = LEDGER_RECORDS.length;
+                renderPagination();
+                return;
+            }
+
+            tbody.innerHTML = pageData.map(record => `
+                <tr>
+                    <td>${record.name}</td>
+                    <td>${maskIdCard(record.idCard)}</td>
+                    <td>${record.insuranceType}</td>
+                    <td class="text-right">${record.baseAmount.toLocaleString()}</td>
+                    <td class="text-right">${formatMoney(record.companyFee)}</td>
+                    <td class="text-right">${formatMoney(record.personalFee)}</td>
+                    <td>${record.billingMonth}</td>
+                </tr>
+            `).join('');
+
+            pagination.total = LEDGER_RECORDS.length;
+            renderPagination();
+        }
+
+        // 显示详情弹窗
+        function showDetail(diffId) {
+            const diff = DIFFERENCE_RECORDS.find(d => d.id === diffId);
+            if (!diff) return;
+
+            // 填充标题
+            const name = diff.systemRecord ? diff.systemRecord.name : (diff.ledgerRecord ? diff.ledgerRecord.name : '');
+            const insuranceType = diff.systemRecord ? diff.systemRecord.insuranceType : (diff.ledgerRecord ? diff.ledgerRecord.insuranceType : '');
+            document.getElementById('detailModalTitle').textContent = `差异详情：${name} - ${diff.billingMonth} - ${insuranceType}`;
+
+            // 填充系统记录
+            if (diff.systemRecord) {
+                document.getElementById('detailCustomer').textContent = diff.systemRecord.customer;
+                document.getElementById('detailScheme').textContent = diff.systemRecord.scheme;
+                document.getElementById('detailSystemBase').textContent = diff.systemRecord.baseAmount.toLocaleString();
+                document.getElementById('detailSystemCompany').textContent = formatMoney(diff.systemRecord.companyFee);
+                document.getElementById('detailSystemPersonal').textContent = formatMoney(diff.systemRecord.personalFee);
+                document.getElementById('detailStatus').textContent = diff.systemRecord.declareStatus;
+                document.getElementById('detailDeclareDate').textContent = diff.systemRecord.declareDate || '-';
+            }
+
+            // 填充台账记录
+            if (diff.ledgerRecord) {
+                document.getElementById('detailLedgerBase').textContent = diff.ledgerRecord.baseAmount.toLocaleString();
+                document.getElementById('detailLedgerCompany').textContent = formatMoney(diff.ledgerRecord.companyFee);
+                document.getElementById('detailLedgerPersonal').textContent = formatMoney(diff.ledgerRecord.personalFee);
+            }
+
+            // 差异分析
+            let analysisHtml = '';
+            if (diff.diffType === DIFF_TYPE.AMOUNT_DIFF && diff.systemRecord && diff.ledgerRecord) {
+                const sysTotal = diff.systemRecord.companyFee + diff.systemRecord.personalFee;
+                const ledgerTotal = diff.ledgerRecord.companyFee + diff.ledgerRecord.personalFee;
+                analysisHtml = `金额差异：<strong>${formatMoney(Math.abs(diff.diffAmount))}</strong><br>`;
+                if (diff.systemRecord.companyFee !== diff.ledgerRecord.companyFee) {
+                    analysisHtml += `单位缴差额：${formatMoney(Math.abs(diff.systemRecord.companyFee - diff.ledgerRecord.companyFee))}<br>`;
+                }
+                if (diff.systemRecord.personalFee !== diff.ledgerRecord.personalFee) {
+                    analysisHtml += `个人缴差额：${formatMoney(Math.abs(diff.systemRecord.personalFee - diff.ledgerRecord.personalFee))}`;
+                }
+            } else if (diff.diffType === DIFF_TYPE.SYSTEM_ONLY) {
+                analysisHtml = `<strong>系统有记录，台账无记录</strong><br>可能原因：申报失败未通知 / 不该减员被减了 / 漏申报`;
+            } else if (diff.diffType === DIFF_TYPE.LEDGER_ONLY) {
+                analysisHtml = `<strong>台账有记录，系统无记录</strong><br>可能原因：漏采集名单 / 误增员`;
+            }
+            document.getElementById('detailAnalysis').innerHTML = analysisHtml;
+
+            // 显示弹窗
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 默认显示当前月份
+            const now = new Date();
+            const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            currentFilters.billingMonth = currentMonth;
+
+            // 初始渲染
+            renderAll();
+        });
     </script>
 </body>
 </html>
