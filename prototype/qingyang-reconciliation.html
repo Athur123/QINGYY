@@ -485,6 +485,134 @@
         .action-btn--primary:hover {
             background: var(--qy-primary-100);
         }
+
+        /* ─── Detail Modal ─── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-lg);
+            box-shadow: var(--qy-shadow-xl);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--qy-space-4) var(--qy-space-5);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .modal__title {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        .modal__close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: var(--qy-text-muted);
+            cursor: pointer;
+            border-radius: var(--qy-radius-md);
+            transition: all var(--qy-transition-fast);
+        }
+
+        .modal__close:hover {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+        }
+
+        .modal__body {
+            padding: var(--qy-space-5);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal__footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--qy-space-2);
+            padding: var(--qy-space-4) var(--qy-space-5);
+            border-top: 1px solid var(--qy-border-light);
+        }
+
+        /* 对比区域 */
+        .detail-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--qy-space-4);
+            margin-bottom: var(--qy-space-5);
+        }
+
+        .detail-compare__header {
+            font-size: var(--qy-font-size-sm);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            padding-bottom: var(--qy-space-2);
+            margin-bottom: var(--qy-space-2);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .detail-compare__col:first-child .detail-compare__header {
+            color: var(--qy-primary-600);
+        }
+
+        .detail-compare__row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--qy-space-2) 0;
+            font-size: var(--qy-font-size-sm);
+        }
+
+        .detail-compare__label {
+            color: var(--qy-text-muted);
+        }
+
+        .detail-compare__value {
+            color: var(--qy-text-primary);
+            font-weight: 500;
+        }
+
+        /* 差异分析 */
+        .detail-analysis {
+            background: var(--qy-bg-secondary);
+            border-radius: var(--qy-radius-md);
+            padding: var(--qy-space-4);
+        }
+
+        .detail-analysis__title {
+            font-size: var(--qy-font-size-sm);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .detail-analysis__content {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -716,7 +844,91 @@
     </div>
 
     <!-- 14. 详情弹窗占位 -->
-    <div id="detailModal"></div>
+    <div class="modal-overlay" id="detailModal" style="display: none;">
+        <div class="modal">
+            <div class="modal__header">
+                <h3 class="modal__title" id="detailModalTitle">差异详情：张三 - 2026年4月 - 养老保险</h3>
+                <button class="modal__close" id="detailModalClose">&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="detail-compare">
+                    <div class="detail-compare__col">
+                        <div class="detail-compare__header">系统记录</div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">客户</span>
+                            <span class="detail-compare__value" id="detailCustomer">某科技有限公司</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">参保方案</span>
+                            <span class="detail-compare__value" id="detailScheme">长沙标准方案</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">缴费基数</span>
+                            <span class="detail-compare__value" id="detailSystemBase">6,000</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">单位缴费</span>
+                            <span class="detail-compare__value" id="detailSystemCompany">¥1,234</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">个人缴费</span>
+                            <span class="detail-compare__value" id="detailSystemPersonal">¥480</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">申报状态</span>
+                            <span class="detail-compare__value" id="detailStatus">申报成功</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">申报时间</span>
+                            <span class="detail-compare__value" id="detailDeclareDate">2026-04-05</span>
+                        </div>
+                    </div>
+                    <div class="detail-compare__col">
+                        <div class="detail-compare__header">社保局台账</div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">客户</span>
+                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">（台账不显示客户）</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">参保方案</span>
+                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">—</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">缴费基数</span>
+                            <span class="detail-compare__value" id="detailLedgerBase">6,000</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">单位缴费</span>
+                            <span class="detail-compare__value" id="detailLedgerCompany">¥1,200</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label">个人缴费</span>
+                            <span class="detail-compare__value" id="detailLedgerPersonal">¥480</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">申报状态</span>
+                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">（台账无状态字段）</span>
+                        </div>
+                        <div class="detail-compare__row">
+                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">申报时间</span>
+                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-analysis">
+                    <div class="detail-analysis__title">差异分析</div>
+                    <div class="detail-analysis__content" id="detailAnalysis">
+                        金额差异：<strong id="detailDiffAmount">¥34</strong>（单位缴差额）
+                    </div>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="qy-btn qy-btn--secondary" id="btnMarkChecked">标记已核查</button>
+                <button class="qy-btn qy-btn--secondary" id="btnAdjustRecord">调整系统记录</button>
+                <button class="qy-btn qy-btn--primary" id="btnCloseDetail">关闭</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 15. 导入弹窗占位 -->
     <div id="importModal"></div>
