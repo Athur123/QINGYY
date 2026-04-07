@@ -617,6 +617,127 @@
             color: var(--qy-text-secondary);
             line-height: 1.6;
         }
+
+        /* ─── Import Modal Styles ─── */
+        .import-info {
+            text-align: center;
+            margin-bottom: var(--qy-space-5);
+        }
+
+        .import-info__icon {
+            color: var(--qy-primary-400);
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .import-info__title {
+            font-size: var(--qy-font-size-lg);
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            margin-bottom: var(--qy-space-1);
+        }
+
+        .import-info__desc {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-muted);
+            margin-bottom: var(--qy-space-2);
+        }
+
+        .import-info__format {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+            background: var(--qy-bg-secondary);
+            padding: var(--qy-space-2) var(--qy-space-3);
+            border-radius: var(--qy-radius-md);
+            display: inline-block;
+        }
+
+        .import-dropzone {
+            border: 2px dashed var(--qy-border-medium);
+            border-radius: var(--qy-radius-lg);
+            padding: var(--qy-space-6);
+            text-align: center;
+            transition: all var(--qy-transition-fast);
+            cursor: pointer;
+        }
+
+        .import-dropzone:hover,
+        .import-dropzone--active {
+            border-color: var(--qy-primary-400);
+            background: var(--qy-primary-50);
+        }
+
+        .import-dropzone__text {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        .import-dropzone__link {
+            color: var(--qy-primary-600);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .import-preview {
+            margin-top: var(--qy-space-4);
+        }
+
+        .import-preview__file {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            padding: var(--qy-space-3);
+            background: var(--qy-bg-secondary);
+            border-radius: var(--qy-radius-md);
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .import-preview__icon {
+            font-size: 20px;
+        }
+
+        .import-preview__name {
+            flex: 1;
+            font-size: var(--qy-font-size-sm);
+            font-weight: 500;
+            color: var(--qy-text-primary);
+        }
+
+        .import-preview__size {
+            font-size: var(--qy-font-size-xs);
+            color: var(--qy-text-muted);
+        }
+
+        .import-preview__sheet {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+            margin-bottom: var(--qy-space-3);
+        }
+
+        .import-preview__sheet label {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        .import-preview__sheet select {
+            flex: 1;
+        }
+
+        .import-preview__count {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+            text-align: center;
+        }
+
+        .import-error {
+            margin-top: var(--qy-space-3);
+            padding: var(--qy-space-3);
+            background: var(--qy-error-50);
+            border: 1px solid var(--qy-error-200);
+            border-radius: var(--qy-radius-md);
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-error-600);
+        }
     </style>
 </head>
 <body>
@@ -935,7 +1056,61 @@
     </div>
 
     <!-- 15. 导入弹窗占位 -->
-    <div id="importModal"></div>
+    <div class="modal-overlay" id="importModal" style="display: none;">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal__header">
+                <h3 class="modal__title">导入社保局台账</h3>
+                <button class="modal__close" id="importModalClose" aria-label="关闭">&times;</button>
+            </div>
+            <div class="modal__body">
+                <div class="import-info">
+                    <div class="import-info__icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <div class="import-info__title">上传台账文件</div>
+                    <div class="import-info__desc">支持 .xlsx、.xls、.csv 格式</div>
+                    <div class="import-info__format">
+                        必填字段：姓名、身份证号、险种、费用月份、<br>
+                        缴费基数、单位缴费额、个人缴费额
+                    </div>
+                </div>
+                <div class="import-dropzone" id="importDropzone">
+                    <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                    <div class="import-dropzone__text">
+                        拖拽文件到此处，或 <label for="importFileInput" class="import-dropzone__link">点击上传</label>
+                    </div>
+                </div>
+                <div class="import-preview" id="importPreview" style="display: none;">
+                    <div class="import-preview__file">
+                        <span class="import-preview__icon">📄</span>
+                        <span class="import-preview__name" id="importFileName">台账数据.xlsx</span>
+                        <span class="import-preview__size" id="importFileSize">12.5 KB</span>
+                    </div>
+                    <div class="import-preview__sheet">
+                        <label>请选择工作表：</label>
+                        <select class="qy-select" id="importSheetSelect">
+                            <!-- 动态填充 -->
+                        </select>
+                    </div>
+                    <div class="import-preview__count">
+                        共 <strong id="importRowCount">0</strong> 条记录
+                    </div>
+                </div>
+                <div class="import-error" id="importError" style="display: none;">
+                    <strong>导入失败：</strong>
+                    <span id="importErrorMsg"></span>
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="qy-btn qy-btn--secondary" id="btnCancelImport">取消</button>
+                <button class="qy-btn qy-btn--primary" id="btnConfirmImport" disabled>确认导入</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 后续Task实现
