@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社保对账复核 - 青阳云 HRO管理系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 青阳云设计系统样式文件 -->
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        /* ─── 页面结构样式 / Page Structural Styles ─── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--qy-font-primary);
+            background: var(--qy-bg-tertiary);
+            color: var(--qy-text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Layout ─── */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background: var(--qy-bg-primary);
+            border-right: 1px solid var(--qy-border-light);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .logo h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--qy-primary-500);
+            letter-spacing: -0.3px;
+        }
+
+        .logo span {
+            font-size: 11px;
+            color: var(--qy-text-muted);
+            font-weight: 400;
+        }
+
+        .nav-section {
+            padding: 12px 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-group-title {
+            padding: 0 16px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--qy-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 12px 0 6px;
+        }
+
+        .nav-tree { list-style: none; padding: 0 10px; }
+
+        .nav-item { margin-bottom: 2px; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 9px 12px;
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--qy-text-secondary);
+            font-size: 13px;
+            transition: all var(--qy-transition-fast);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-600);
+            font-weight: 500;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background: var(--qy-primary-500);
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* ─── Main Content ─── */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* ─── Page Header ─── */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--qy-text-primary);
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+        }
+
+        /* ─── Filter Bar ─── */
+        .filter-bar {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--qy-text-secondary);
+        }
+
+        .filter-group .qy-select,
+        .filter-group .qy-input {
+            min-width: 160px;
+        }
+
+        .filter-group.search {
+            margin-left: auto;
+        }
+
+        /* ─── Summary Cards ─── */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .summary-card {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            padding: 20px;
+        }
+
+        .summary-card .card-label {
+            font-size: 12px;
+            color: var(--qy-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .summary-card .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--qy-text-primary);
+            margin-bottom: 4px;
+        }
+
+        .summary-card .card-subtitle {
+            font-size: 12px;
+            color: var(--qy-text-muted);
+            margin-bottom: 8px;
+        }
+
+        .summary-card .card-amount {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--qy-primary-600);
+        }
+
+        .summary-card.diff .card-amount {
+            color: var(--qy-error-600);
+        }
+
+        /* ─── Diff Type Bar ─── */
+        .diff-type-bar {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            padding: 12px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .diff-type-bar .bar-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--qy-text-primary);
+        }
+
+        .diff-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--qy-text-secondary);
+        }
+
+        .diff-chip .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .diff-chip .dot.red { background: var(--qy-error-500); }
+        .diff-chip .dot.orange { background: var(--qy-warning-500); }
+        .diff-chip .dot.blue { background: var(--qy-primary-500); }
+
+        /* ─── Toolbar ─── */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ─── View Tabs ─── */
+        .view-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg) var(--qy-radius-lg) 0 0;
+            padding: 8px 12px;
+            border-bottom: none;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--qy-text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .tab-btn:hover {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--qy-primary-50);
+            color: var(--qy-primary-600);
+        }
+
+        /* ─── Table Container ─── */
+        .table-container {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-top: none;
+            border-radius: 0 0 var(--qy-radius-lg) var(--qy-radius-lg);
+            overflow: hidden;
+        }
+
+        #systemTableContainer,
+        #ledgerTableContainer {
+            display: none;
+        }
+
+        /* ─── Data Table ─── */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+
+        .data-table th {
+            background: var(--qy-gray-50);
+            font-weight: 600;
+            color: var(--qy-text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .data-table th.text-right,
+        .data-table td.text-right {
+            text-align: right;
+        }
+
+        .data-table td {
+            color: var(--qy-text-primary);
+        }
+
+        .data-table tbody tr:hover td {
+            background: var(--qy-bg-secondary);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ─── Pagination ─── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-top: none;
+            border-radius: 0 0 var(--qy-radius-lg) var(--qy-radius-lg);
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pagination-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            cursor: pointer;
+            transition: all var(--qy-transition-fast);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-page input {
+            width: 48px;
+            text-align: center;
+        }
+
+        .pagination-size select {
+            min-width: 100px;
+        }
+
+        /* ─── Modal Placeholders ─── */
+        #detailModal,
+        #importModal {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 2. 侧边栏 -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>青阳云</h1>
+                <span>HRO管理系统</span>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-group-title">智能薪酬分组</div>
+                <ul class="nav-tree">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">员工参保档案</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active">对账复核</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">社保方案计算</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 3. 主内容区 -->
+        <main class="main-content">
+            <!-- 4. 页面标题区 -->
+            <header class="page-header">
+                <h1>社保对账复核</h1>
+                <p>核对系统应缴明细与社保局台账差异，定位申报遗漏</p>
+            </header>
+
+            <!-- 5. 筛选条件栏 -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>费用月份</label>
+                    <select class="qy-select">
+                        <option>2026-03</option>
+                        <option>2026-02</option>
+                        <option>2026-01</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>参保主体</label>
+                    <select class="qy-select">
+                        <option>全部</option>
+                        <option>上海分公司</option>
+                        <option>北京分公司</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>结算主体</label>
+                    <select class="qy-select">
+                        <option>全部</option>
+                        <option>青阳云科技</option>
+                        <option>青阳人力资源</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>险种</label>
+                    <select class="qy-select">
+                        <option>全部</option>
+                        <option>养老</option>
+                        <option>医疗</option>
+                        <option>失业</option>
+                        <option>工伤</option>
+                        <option>生育</option>
+                        <option>公积金</option>
+                    </select>
+                </div>
+                <div class="filter-group search">
+                    <label>客户搜索</label>
+                    <input type="text" class="qy-input" placeholder="输入客户名称搜索">
+                </div>
+            </div>
+
+            <!-- 6. 汇总卡片区 -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="card-label">系统记录</div>
+                    <div class="card-value">1,256</div>
+                    <div class="card-subtitle">应缴人数</div>
+                    <div class="card-amount">¥3,456,789</div>
+                </div>
+                <div class="summary-card">
+                    <div class="card-label">社保局台账</div>
+                    <div class="card-value">——</div>
+                    <div class="card-subtitle">实缴人数</div>
+                    <div class="card-amount">¥——</div>
+                </div>
+                <div class="summary-card diff">
+                    <div class="card-label">差异汇总</div>
+                    <div class="card-value">——</div>
+                    <div class="card-subtitle">差异条数</div>
+                    <div class="card-amount">¥——</div>
+                </div>
+            </div>
+
+            <!-- 7. 差异类型分布区 -->
+            <div class="diff-type-bar">
+                <span class="bar-label">差异类型分布：</span>
+                <span class="diff-chip">
+                    <span class="dot red"></span>
+                    系统有·台账无
+                    <span>0人</span>
+                </span>
+                <span class="diff-chip">
+                    <span class="dot orange"></span>
+                    系统无·台账有
+                    <span>0人</span>
+                </span>
+                <span class="diff-chip">
+                    <span class="dot blue"></span>
+                    金额差异
+                    <span>0人</span>
+                </span>
+            </div>
+
+            <!-- 8. 工具栏 -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="qy-btn qy-btn--primary">导入台账Excel</button>
+                </div>
+                <div class="toolbar-right">
+                    <button class="qy-btn qy-btn--secondary">导出差异明细</button>
+                    <button class="qy-btn qy-btn--secondary">查看系统全量</button>
+                    <button class="qy-btn qy-btn--secondary">查看台账全量</button>
+                </div>
+            </div>
+
+            <!-- 9. Tab视图区 -->
+            <div class="view-tabs">
+                <button class="tab-btn active" data-tab="diff">差异明细</button>
+                <button class="tab-btn" data-tab="system">系统全量</button>
+                <button class="tab-btn" data-tab="ledger">台账全量</button>
+            </div>
+
+            <!-- 10. 差异明细表格容器 -->
+            <div id="diffTableContainer" class="table-container">
+                <table class="qy-table data-table">
+                    <thead>
+                        <tr>
+                            <th>费用月份</th>
+                            <th>姓名</th>
+                            <th>身份证</th>
+                            <th>客户</th>
+                            <th>险种</th>
+                            <th class="text-right">系统基数</th>
+                            <th class="text-right">系统金额</th>
+                            <th class="text-right">台账基数</th>
+                            <th class="text-right">台账金额</th>
+                            <th class="text-right">差异额</th>
+                            <th>系统状态</th>
+                            <th>差异类型</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="diffTableBody">
+                        <!-- 后续JS填充 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 11. 系统全量表格容器 -->
+            <div id="systemTableContainer" class="table-container">
+                <table class="qy-table data-table">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>身份证</th>
+                            <th>客户</th>
+                            <th>险种</th>
+                            <th class="text-right">缴费基数</th>
+                            <th class="text-right">单位缴费</th>
+                            <th class="text-right">个人缴费</th>
+                            <th>申报状态</th>
+                            <th>申报时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id="systemTableBody">
+                        <!-- 后续JS填充 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 12. 台账全量表格容器 -->
+            <div id="ledgerTableContainer" class="table-container">
+                <table class="qy-table data-table">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>身份证</th>
+                            <th>险种</th>
+                            <th class="text-right">缴费基数</th>
+                            <th class="text-right">单位缴费</th>
+                            <th class="text-right">个人缴费</th>
+                            <th>费用月份</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledgerTableBody">
+                        <!-- 后续JS填充 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 13. 分页器 -->
+            <div class="pagination">
+                <div class="pagination-info">共 <span id="totalCount">0</span> 条信息</div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="prevPage" disabled>上一页</button>
+                    <div class="pagination-page">
+                        <span>第</span>
+                        <input type="number" class="qy-input" id="pageInput" value="1" min="1">
+                        <span>页</span>
+                    </div>
+                    <button class="pagination-btn" id="nextPage" disabled>下一页</button>
+                    <div class="pagination-size">
+                        <select class="qy-select" id="pageSize">
+                            <option value="10">10条/页</option>
+                            <option value="20">20条/页</option>
+                            <option value="50">50条/页</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 14. 详情弹窗占位 -->
+    <div id="detailModal"></div>
+
+    <!-- 15. 导入弹窗占位 -->
+    <div id="importModal"></div>
+
+    <script>
+        // 后续Task实现
+    </script>
+</body>
+</html>
