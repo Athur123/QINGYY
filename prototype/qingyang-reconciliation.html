@@ -487,6 +487,10 @@
         }
 
         /* ─── Detail Modal ─── */
+        .text-muted {
+            color: var(--qy-text-muted);
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -845,10 +849,10 @@
 
     <!-- 14. 详情弹窗占位 -->
     <div class="modal-overlay" id="detailModal" style="display: none;">
-        <div class="modal">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
             <div class="modal__header">
                 <h3 class="modal__title" id="detailModalTitle">差异详情：张三 - 2026年4月 - 养老保险</h3>
-                <button class="modal__close" id="detailModalClose">&times;</button>
+                <button class="modal__close" id="detailModalClose" aria-label="关闭">&times;</button>
             </div>
             <div class="modal__body">
                 <div class="detail-compare">
@@ -886,12 +890,12 @@
                     <div class="detail-compare__col">
                         <div class="detail-compare__header">社保局台账</div>
                         <div class="detail-compare__row">
-                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">客户</span>
-                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">（台账不显示客户）</span>
+                            <span class="detail-compare__label text-muted">客户</span>
+                            <span class="detail-compare__value text-muted">（台账不显示客户）</span>
                         </div>
                         <div class="detail-compare__row">
-                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">参保方案</span>
-                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">—</span>
+                            <span class="detail-compare__label text-muted">参保方案</span>
+                            <span class="detail-compare__value text-muted">—</span>
                         </div>
                         <div class="detail-compare__row">
                             <span class="detail-compare__label">缴费基数</span>
@@ -906,12 +910,12 @@
                             <span class="detail-compare__value" id="detailLedgerPersonal">¥480</span>
                         </div>
                         <div class="detail-compare__row">
-                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">申报状态</span>
-                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">（台账无状态字段）</span>
+                            <span class="detail-compare__label text-muted">申报状态</span>
+                            <span class="detail-compare__value text-muted">（台账无状态字段）</span>
                         </div>
                         <div class="detail-compare__row">
-                            <span class="detail-compare__label" style="color: var(--qy-text-muted);">申报时间</span>
-                            <span class="detail-compare__value" style="color: var(--qy-text-muted);">—</span>
+                            <span class="detail-compare__label text-muted">申报时间</span>
+                            <span class="detail-compare__value text-muted">—</span>
                         </div>
                     </div>
                 </div>
