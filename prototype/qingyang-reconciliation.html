@@ -1787,7 +1787,7 @@
         // 显示导入错误
         function showImportError(message) {
             document.getElementById('importError').style.display = 'block';
-            document.getElementById('importErrorMsg').textContent = message;
+            document.getElementById('importErrorMsg').innerHTML = message.replace(/\n/g, '<br>');
         }
 
         // 导入确认
