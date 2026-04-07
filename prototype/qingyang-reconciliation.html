@@ -720,7 +720,12 @@
         }
 
         .import-preview__sheet select {
-            flex: 1;
+            width: 100%;
+            padding: var(--qy-space-2) var(--qy-space-3);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            font-size: var(--qy-font-size-sm);
+            background: var(--qy-bg-primary);
         }
 
         .import-preview__count {
@@ -1086,13 +1091,13 @@
                 </div>
                 <div class="import-preview" id="importPreview" style="display: none;">
                     <div class="import-preview__file">
-                        <span class="import-preview__icon">📄</span>
+                        <span class="import-preview__icon">[文件]</span>
                         <span class="import-preview__name" id="importFileName">台账数据.xlsx</span>
                         <span class="import-preview__size" id="importFileSize">12.5 KB</span>
                     </div>
                     <div class="import-preview__sheet">
                         <label>请选择工作表：</label>
-                        <select class="qy-select" id="importSheetSelect">
+                        <select id="importSheetSelect">
                             <!-- 动态填充 -->
                         </select>
                     </div>
