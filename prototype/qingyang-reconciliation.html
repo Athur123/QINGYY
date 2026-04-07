@@ -744,6 +744,45 @@
             font-size: var(--qy-font-size-sm);
             color: var(--qy-error-600);
         }
+
+        /* ─── Toast 提示样式 ─── */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 12px 24px;
+            border-radius: var(--qy-radius-md);
+            font-size: var(--qy-font-size-sm);
+            font-weight: 500;
+            box-shadow: var(--qy-shadow-lg);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+        }
+
+        .toast--success {
+            background: var(--qy-success-500);
+            color: white;
+        }
+
+        .toast--warning {
+            background: var(--qy-warning-500);
+            color: white;
+        }
+
+        .toast--error {
+            background: var(--qy-error-500);
+            color: white;
+        }
+
+        .toast--info {
+            background: var(--qy-primary-500);
+            color: white;
+        }
+
+        .toast--show {
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -867,12 +906,12 @@
             <!-- 8. 工具栏 -->
             <div class="toolbar">
                 <div class="toolbar-left">
-                    <button class="qy-btn qy-btn--primary">导入台账Excel</button>
+                    <button class="qy-btn qy-btn--primary" id="btnImportLedger">导入台账Excel</button>
                 </div>
                 <div class="toolbar-right">
-                    <button class="qy-btn qy-btn--secondary">导出差异明细</button>
-                    <button class="qy-btn qy-btn--secondary">查看系统全量</button>
-                    <button class="qy-btn qy-btn--secondary">查看台账全量</button>
+                    <button class="qy-btn qy-btn--secondary" id="btnExportDiff">导出差异明细</button>
+                    <button class="qy-btn qy-btn--secondary" id="btnViewSystem">查看系统全量</button>
+                    <button class="qy-btn qy-btn--secondary" id="btnViewLedger">查看台账全量</button>
                 </div>
             </div>
 
@@ -1823,6 +1862,130 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
+
+        // ========== Tab切换 ==========
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+
+            // 更新Tab样式
+            document.querySelectorAll('.view-tab').forEach(t => {
+                t.classList.toggle('view-tab--active', t.dataset.tab === tabName);
+            });
+
+            // 显示/隐藏表格
+            document.getElementById('diffTableContainer').style.display = tabName === 'diff' ? 'block' : 'none';
+            document.getElementById('systemTableContainer').style.display = tabName === 'system' ? 'block' : 'none';
+            document.getElementById('ledgerTableContainer').style.display = tabName === 'ledger' ? 'block' : 'none';
+
+            // 重置到第一页
+            pagination.page = 1;
+
+            // 渲染对应表格
+            renderCurrentTable();
+        }
+
+        // Tab点击事件
+        document.querySelectorAll('.view-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        // ========== Excel导出 ==========
+
+        function exportDiffRecords() {
+            const diffs = calculateDifferences();
+            if (diffs.length === 0) {
+                showToast('暂无差异数据可导出', 'warning');
+                return;
+            }
+
+            const exportData = diffs.map(diff => {
+                const sysRecord = diff.systemRecord;
+                const ledgerRecord = diff.ledgerRecord;
+
+                return {
+                    '费用月份': diff.billingMonth,
+                    '姓名': sysRecord ? sysRecord.name : (ledgerRecord ? ledgerRecord.name : ''),
+                    '身份证号': sysRecord ? sysRecord.idCard : (ledgerRecord ? ledgerRecord.idCard : ''),
+                    '客户': sysRecord ? sysRecord.customer : '-',
+                    '险种': sysRecord ? sysRecord.insuranceType : (ledgerRecord ? ledgerRecord.insuranceType : ''),
+                    '系统基数': sysRecord ? sysRecord.baseAmount : '-',
+                    '系统单位缴': sysRecord ? sysRecord.companyFee : '-',
+                    '系统个人缴': sysRecord ? sysRecord.personalFee : '-',
+                    '台账基数': ledgerRecord ? ledgerRecord.baseAmount : '-',
+                    '台账单位缴': ledgerRecord ? ledgerRecord.companyFee : '-',
+                    '台账个人缴': ledgerRecord ? ledgerRecord.personalFee : '-',
+                    '差异额': Math.abs(diff.diffAmount),
+                    '差异类型': {
+                        [DIFF_TYPE.SYSTEM_ONLY]: '系统多',
+                        [DIFF_TYPE.LEDGER_ONLY]: '台账多',
+                        [DIFF_TYPE.AMOUNT_DIFF]: '金额差异'
+                    }[diff.diffType],
+                    '系统状态': sysRecord ? sysRecord.declareStatus : '-'
+                };
+            });
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '差异明细');
+
+            const fileName = `社保台账差异_${currentFilters.billingMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            showToast(`已导出 ${exportData.length} 条差异记录`);
+        }
+
+        // ========== 弹窗事件 ==========
+
+        // 详情弹窗关闭
+        document.getElementById('detailModalClose').addEventListener('click', () => {
+            document.getElementById('detailModal').style.display = 'none';
+        });
+
+        document.getElementById('btnCloseDetail').addEventListener('click', () => {
+            document.getElementById('detailModal').style.display = 'none';
+        });
+
+        // 导入弹窗
+        document.getElementById('btnImportLedger').addEventListener('click', openImportModal);
+
+        document.getElementById('importModalClose').addEventListener('click', closeImportModal);
+
+        document.getElementById('btnCancelImport').addEventListener('click', closeImportModal);
+
+        document.getElementById('btnConfirmImport').addEventListener('click', importLedgerData);
+
+        // 文件选择
+        document.getElementById('importFileInput').addEventListener('change', handleFileSelect);
+
+        // 工作表选择变更
+        document.getElementById('importSheetSelect').addEventListener('change', async (e) => {
+            const fileInput = document.getElementById('importFileInput');
+            if (!fileInput.files[0]) return;
+            const data = await readFileAsync(fileInput.files[0]);
+            const workbook = XLSX.read(data, { type: 'array' });
+            updateRowCount(workbook, e.target.value);
+        });
+
+        // 工具栏按钮
+        document.getElementById('btnExportDiff').addEventListener('click', exportDiffRecords);
+
+        document.getElementById('btnViewSystem').addEventListener('click', () => switchTab('system'));
+
+        document.getElementById('btnViewLedger').addEventListener('click', () => switchTab('ledger'));
+
+        // 标记已核查按钮（占位）
+        document.getElementById('btnMarkChecked').addEventListener('click', () => {
+            showToast('已标记为已核查', 'success');
+            document.getElementById('detailModal').style.display = 'none';
+        });
+
+        // 调整系统记录按钮（占位）
+        document.getElementById('btnAdjustRecord').addEventListener('click', () => {
+            showToast('跳转功能开发中', 'info');
+        });
     </script>
 </body>
 </html>
