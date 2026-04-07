@@ -825,21 +825,21 @@
             <div class="summary-cards">
                 <div class="summary-card">
                     <div class="summary-card-label">系统记录</div>
-                    <div class="summary-card-value">1,256</div>
+                    <div class="summary-card-value" id="summarySystemCount">1,256</div>
                     <div class="summary-card-sub">应缴人数</div>
-                    <div class="summary-card-amount">¥3,456,789</div>
+                    <div class="summary-card-amount" id="summarySystemAmount">¥3,456,789</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-card-label">社保局台账</div>
-                    <div class="summary-card-value">——</div>
+                    <div class="summary-card-value" id="summaryLedgerCount">——</div>
                     <div class="summary-card-sub">实缴人数</div>
-                    <div class="summary-card-amount">¥——</div>
+                    <div class="summary-card-amount" id="summaryLedgerAmount">¥——</div>
                 </div>
                 <div class="summary-card diff">
                     <div class="summary-card-label">差异汇总</div>
-                    <div class="summary-card-value">——</div>
+                    <div class="summary-card-value" id="summaryDiffCount">——</div>
                     <div class="summary-card-sub">差异条数</div>
-                    <div class="summary-card-amount">¥——</div>
+                    <div class="summary-card-amount" id="summaryDiffAmount">¥——</div>
                 </div>
             </div>
 
@@ -849,17 +849,17 @@
                 <span class="diff-type-chip">
                     <span class="diff-type-chip__dot diff-type-chip__dot--system"></span>
                     系统有·台账无
-                    <span>0人</span>
+                    <span id="diffTypeSystemOnlyCount">0</span>人
                 </span>
                 <span class="diff-type-chip">
                     <span class="diff-type-chip__dot diff-type-chip__dot--ledger"></span>
                     系统无·台账有
-                    <span>0人</span>
+                    <span id="diffTypeLedgerOnlyCount">0</span>人
                 </span>
                 <span class="diff-type-chip">
                     <span class="diff-type-chip__dot diff-type-chip__dot--amount"></span>
                     金额差异
-                    <span>0人</span>
+                    <span id="diffTypeAmountDiffCount">0</span>人
                 </span>
             </div>
 
@@ -952,15 +952,16 @@
 
             <!-- 13. 分页器 -->
             <div class="pagination">
-                <div class="pagination__info">共 <span id="totalCount">0</span> 条信息</div>
+                <div class="pagination__info">共 <span id="pageTotalCount">0</span> 条信息</div>
                 <div class="pagination__controls">
-                    <button class="pagination-btn" id="prevPage" disabled>上一页</button>
+                    <button class="pagination-btn" id="btnPrevPage" disabled>上一页</button>
                     <div class="pagination__page">
                         <span class="pagination__total">第</span>
-                        <input type="number" class="qy-input pagination__input" id="pageInput" value="1" min="1">
+                        <input type="number" class="qy-input pagination__input" id="inputPageNum" value="1" min="1">
                         <span class="pagination__total">页</span>
+                        <span>/ 共 <span id="pageTotal">1</span> 页</span>
                     </div>
-                    <button class="pagination-btn" id="nextPage" disabled>下一页</button>
+                    <button class="pagination-btn" id="btnNextPage" disabled>下一页</button>
                     <div class="pagination__size">
                         <select class="qy-select" id="pageSize">
                             <option value="10">10条/页</option>
