@@ -160,24 +160,24 @@
             align-items: flex-end;
         }
 
-        .filter-group {
+        .filter-item {
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
-        .filter-group label {
+        .filter-label {
             font-size: 12px;
             font-weight: 500;
             color: var(--qy-text-secondary);
         }
 
-        .filter-group .qy-select,
-        .filter-group .qy-input {
+        .filter-item .qy-select,
+        .filter-item .qy-input {
             min-width: 160px;
         }
 
-        .filter-group.search {
+        .filter-item.search {
             margin-left: auto;
         }
 
@@ -196,32 +196,32 @@
             padding: 20px;
         }
 
-        .summary-card .card-label {
+        .summary-card .summary-card-label {
             font-size: 12px;
             color: var(--qy-text-secondary);
             margin-bottom: 8px;
         }
 
-        .summary-card .card-value {
+        .summary-card .summary-card-value {
             font-size: 28px;
             font-weight: 700;
             color: var(--qy-text-primary);
             margin-bottom: 4px;
         }
 
-        .summary-card .card-subtitle {
+        .summary-card .summary-card-sub {
             font-size: 12px;
             color: var(--qy-text-muted);
             margin-bottom: 8px;
         }
 
-        .summary-card .card-amount {
+        .summary-card .summary-card-amount {
             font-size: 18px;
             font-weight: 600;
             color: var(--qy-primary-600);
         }
 
-        .summary-card.diff .card-amount {
+        .summary-card.diff .summary-card-amount {
             color: var(--qy-error-600);
         }
 
@@ -244,7 +244,7 @@
             color: var(--qy-text-primary);
         }
 
-        .diff-chip {
+        .diff-type-chip {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -252,15 +252,15 @@
             color: var(--qy-text-secondary);
         }
 
-        .diff-chip .dot {
+        .diff-type-chip__dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
         }
 
-        .diff-chip .dot.red { background: var(--qy-error-500); }
-        .diff-chip .dot.orange { background: var(--qy-warning-500); }
-        .diff-chip .dot.blue { background: var(--qy-primary-500); }
+        .diff-type-chip__dot--system { background: var(--qy-error-500); }
+        .diff-type-chip__dot--ledger { background: var(--qy-warning-500); }
+        .diff-type-chip__dot--amount { background: var(--qy-primary-500); }
 
         /* ─── Toolbar ─── */
         .toolbar {
@@ -287,7 +287,7 @@
             border-bottom: none;
         }
 
-        .tab-btn {
+        .view-tab {
             padding: 8px 16px;
             font-size: 13px;
             font-weight: 500;
@@ -299,12 +299,12 @@
             transition: all var(--qy-transition-fast);
         }
 
-        .tab-btn:hover {
+        .view-tab:hover {
             background: var(--qy-bg-secondary);
             color: var(--qy-text-primary);
         }
 
-        .tab-btn.active {
+        .view-tab--active {
             background: var(--qy-primary-50);
             color: var(--qy-primary-600);
         }
@@ -377,12 +377,12 @@
             border-radius: 0 0 var(--qy-radius-lg) var(--qy-radius-lg);
         }
 
-        .pagination-info {
+        .pagination__info {
             font-size: 13px;
             color: var(--qy-text-secondary);
         }
 
-        .pagination-controls {
+        .pagination__controls {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -415,12 +415,12 @@
             gap: 8px;
         }
 
-        .pagination-page input {
+        .pagination__page input {
             width: 48px;
             text-align: center;
         }
 
-        .pagination-size select {
+        .pagination__size select {
             min-width: 100px;
         }
 
@@ -465,32 +465,32 @@
 
             <!-- 5. 筛选条件栏 -->
             <div class="filter-bar">
-                <div class="filter-group">
-                    <label>费用月份</label>
+                <div class="filter-item">
+                    <label class="filter-label">费用月份</label>
                     <select class="qy-select">
                         <option>2026-03</option>
                         <option>2026-02</option>
                         <option>2026-01</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>参保主体</label>
+                <div class="filter-item">
+                    <label class="filter-label">参保主体</label>
                     <select class="qy-select">
                         <option>全部</option>
                         <option>上海分公司</option>
                         <option>北京分公司</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>结算主体</label>
+                <div class="filter-item">
+                    <label class="filter-label">结算主体</label>
                     <select class="qy-select">
                         <option>全部</option>
                         <option>青阳云科技</option>
                         <option>青阳人力资源</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label>险种</label>
+                <div class="filter-item">
+                    <label class="filter-label">险种</label>
                     <select class="qy-select">
                         <option>全部</option>
                         <option>养老</option>
@@ -501,8 +501,8 @@
                         <option>公积金</option>
                     </select>
                 </div>
-                <div class="filter-group search">
-                    <label>客户搜索</label>
+                <div class="filter-item search">
+                    <label class="filter-label">客户搜索</label>
                     <input type="text" class="qy-input" placeholder="输入客户名称搜索">
                 </div>
             </div>
@@ -510,40 +510,40 @@
             <!-- 6. 汇总卡片区 -->
             <div class="summary-cards">
                 <div class="summary-card">
-                    <div class="card-label">系统记录</div>
-                    <div class="card-value">1,256</div>
-                    <div class="card-subtitle">应缴人数</div>
-                    <div class="card-amount">¥3,456,789</div>
+                    <div class="summary-card-label">系统记录</div>
+                    <div class="summary-card-value">1,256</div>
+                    <div class="summary-card-sub">应缴人数</div>
+                    <div class="summary-card-amount">¥3,456,789</div>
                 </div>
                 <div class="summary-card">
-                    <div class="card-label">社保局台账</div>
-                    <div class="card-value">——</div>
-                    <div class="card-subtitle">实缴人数</div>
-                    <div class="card-amount">¥——</div>
+                    <div class="summary-card-label">社保局台账</div>
+                    <div class="summary-card-value">——</div>
+                    <div class="summary-card-sub">实缴人数</div>
+                    <div class="summary-card-amount">¥——</div>
                 </div>
                 <div class="summary-card diff">
-                    <div class="card-label">差异汇总</div>
-                    <div class="card-value">——</div>
-                    <div class="card-subtitle">差异条数</div>
-                    <div class="card-amount">¥——</div>
+                    <div class="summary-card-label">差异汇总</div>
+                    <div class="summary-card-value">——</div>
+                    <div class="summary-card-sub">差异条数</div>
+                    <div class="summary-card-amount">¥——</div>
                 </div>
             </div>
 
             <!-- 7. 差异类型分布区 -->
             <div class="diff-type-bar">
                 <span class="bar-label">差异类型分布：</span>
-                <span class="diff-chip">
-                    <span class="dot red"></span>
+                <span class="diff-type-chip">
+                    <span class="diff-type-chip__dot diff-type-chip__dot--system"></span>
                     系统有·台账无
                     <span>0人</span>
                 </span>
-                <span class="diff-chip">
-                    <span class="dot orange"></span>
+                <span class="diff-type-chip">
+                    <span class="diff-type-chip__dot diff-type-chip__dot--ledger"></span>
                     系统无·台账有
                     <span>0人</span>
                 </span>
-                <span class="diff-chip">
-                    <span class="dot blue"></span>
+                <span class="diff-type-chip">
+                    <span class="diff-type-chip__dot diff-type-chip__dot--amount"></span>
                     金额差异
                     <span>0人</span>
                 </span>
@@ -563,9 +563,9 @@
 
             <!-- 9. Tab视图区 -->
             <div class="view-tabs">
-                <button class="tab-btn active" data-tab="diff">差异明细</button>
-                <button class="tab-btn" data-tab="system">系统全量</button>
-                <button class="tab-btn" data-tab="ledger">台账全量</button>
+                <button class="view-tab view-tab--active" data-tab="diff">差异明细</button>
+                <button class="view-tab" data-tab="system">系统全量</button>
+                <button class="view-tab" data-tab="ledger">台账全量</button>
             </div>
 
             <!-- 10. 差异明细表格容器 -->
@@ -638,16 +638,16 @@
 
             <!-- 13. 分页器 -->
             <div class="pagination">
-                <div class="pagination-info">共 <span id="totalCount">0</span> 条信息</div>
-                <div class="pagination-controls">
+                <div class="pagination__info">共 <span id="totalCount">0</span> 条信息</div>
+                <div class="pagination__controls">
                     <button class="pagination-btn" id="prevPage" disabled>上一页</button>
-                    <div class="pagination-page">
-                        <span>第</span>
-                        <input type="number" class="qy-input" id="pageInput" value="1" min="1">
-                        <span>页</span>
+                    <div class="pagination__page">
+                        <span class="pagination__total">第</span>
+                        <input type="number" class="qy-input pagination__input" id="pageInput" value="1" min="1">
+                        <span class="pagination__total">页</span>
                     </div>
                     <button class="pagination-btn" id="nextPage" disabled>下一页</button>
-                    <div class="pagination-size">
+                    <div class="pagination__size">
                         <select class="qy-select" id="pageSize">
                             <option value="10">10条/页</option>
                             <option value="20">20条/页</option>
