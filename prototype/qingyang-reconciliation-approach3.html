@@ -545,11 +545,14 @@
             { id: 'b4', name: '吴十', idCard: '430112199708088901', customer: '某科技有限公司', insuranceType: '失业保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 100, sysPersonal: 50, ledgerCompany: 100, ledgerPersonal: 50, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED },
         ];
 
+        // 调基补差匹配规则：成员+险种+补差月份（汇总后）+金额 完全一致 → 允许手动确认
+        // 同月多笔调基：按 身份证+险种+补差月份 分组，金额求和后再比对
+        // 确认时系统自动将台账的 paidMonth（实缴月份）写入记录
         // 调基补差差异数据（包含同月份多笔示例）
         const TIAOJI_DIFFS = [
             { id: 't1', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: 156, sysPersonal: 78, ledgerCompany: 156, ledgerPersonal: 78, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001' },
             { id: 't2', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '医疗保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: null, sysPersonal: null, ledgerCompany: 37, ledgerPersonal: 19, matchStatus: RECORD_TYPES.LEDGER_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001' },
-            { id: 't3', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 223, sysPersonal: 111, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED, adjustmentId: 'TJ-202601-001', sysMultiple: 2, ledgerMultiple: 1 },
+            { id: 't3', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 446, sysPersonal: 222, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.SYSTEM_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001' },
             { id: 't4', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-02', paidMonth: '2026-03', sysCompany: 223, sysPersonal: 111, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED, adjustmentId: 'TJ-202601-001' },
         ];
 
@@ -747,8 +750,6 @@
                 const diffCls = diff_val !== null && diff_val !== 0 ? 'money-cell__diff' : '';
                 const hasDiff = diff_val !== null && diff_val !== 0;
                 const diffDetail = hasDiff ? `<span class="money-cell__split">${diffCompany !== null ? '单位:' + (diffCompany > 0 ? '+' : '') + formatMoney(diffCompany) : ''} ${diffPersonal !== null ? '个人:' + (diffPersonal > 0 ? '+' : '') + formatMoney(diffPersonal) : ''}</span>` : '';
-                const sysMultipleBadge = diff.sysMultiple ? `<span style="font-size:10px;color:var(--tiaoji-primary);margin-left:4px;">×${diff.sysMultiple}笔合并</span>` : '';
-                const ledgerMultipleBadge = diff.ledgerMultiple ? `<span style="font-size:10px;color:var(--tiaoji-primary);margin-left:4px;">×${diff.ledgerMultiple}笔合并</span>` : '';
 
                 // 系统实缴月份：已确认显示月份，未确认显示—
                 const sysPaidMonthDisplay = diff.verifyStatus === VERIFY_STATUS.VERIFIED ? `<span class="month-badge" style="background:var(--qy-success-100);color:var(--qy-success-700);">${diff.paidMonth}</span>` : `<span style="color:var(--qy-text-muted);">—</span>`;
@@ -770,14 +771,14 @@
                     <td><span class="month-badge">${diff.billingMonth}</span></td>
                     <td>
                         <div class="money-cell">
-                            <span class="money-cell__total">${diff.sysCompany !== null ? formatMoney(sysTotal) : '—'}${sysMultipleBadge}</span>
+                            <span class="money-cell__total">${diff.sysCompany !== null ? formatMoney(sysTotal) : '—'}</span>
                             <span class="money-cell__split">${diff.sysCompany !== null ? '单位:' + formatMoney(diff.sysCompany) : ''} ${diff.sysPersonal !== null ? '个人:' + formatMoney(diff.sysPersonal) : ''}</span>
                         </div>
                     </td>
                     <td>${sysPaidMonthDisplay}</td>
                     <td>
                         <div class="money-cell">
-                            <span class="money-cell__total">${diff.ledgerCompany !== null ? formatMoney(ledgerTotal) : '—'}${ledgerMultipleBadge}</span>
+                            <span class="money-cell__total">${diff.ledgerCompany !== null ? formatMoney(ledgerTotal) : '—'}</span>
                             <span class="money-cell__split">${diff.ledgerCompany !== null ? '单位:' + formatMoney(diff.ledgerCompany) : ''} ${diff.ledgerPersonal !== null ? '个人:' + formatMoney(diff.ledgerPersonal) : ''}</span>
                         </div>
                     </td>
