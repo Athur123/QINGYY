@@ -666,6 +666,8 @@
         }
 
         // 补缴表格渲染
+        // 补缴匹配规则：成员+险种+补缴月份+金额 完全一致 → 允许手动确认核对
+        // 确认时系统自动将台账的 paidMonth（实缴月份）写入记录
         function renderBujiaoTable() {
             const tbody = document.getElementById('bujiaoTableBody');
             tbody.innerHTML = BUJIAO_DIFFS.map(diff => {
