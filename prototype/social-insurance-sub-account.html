@@ -2,179 +2,255 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>参保规则编辑 - 二级户管理 - 青阳云</title>
-    <link rel="stylesheet" href="../styles/qingyang-variables.css">
-    <link rel="stylesheet" href="../styles/qingyang-components.css">
-    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+
+    <!-- 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 设计系统CSS -->
+    <link rel="stylesheet" href="../styles/qingyang-design-system.css">
+
     <style>
         /* 页面专属样式 */
-        .page-container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-        .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-        .page-title { font-size: 18px; font-weight: 600; }
+        .sub-account-drawer {
+            --qy-drawer-width: 520px;
+        }
 
-        /* Tab导航 */
-        .tab-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--qy-border-light); margin-bottom: 24px; }
-        .tab-item { padding: 12px 20px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--qy-text-secondary); transition: all 0.2s; }
-        .tab-item:hover { color: var(--qy-text-primary); }
-        .tab-item.active { color: var(--qy-primary-600); border-bottom-color: var(--qy-primary-600); font-weight: 500; }
+        /* 二级户列表样式覆盖 */
+        .sub-account-list {
+            margin-top: var(--qy-space-4);
+        }
 
-        /* 二级户表格 */
-        .sub-account-list { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); border: 1px solid var(--qy-border-light); overflow: hidden; }
-        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
-        .list-count { font-size: 14px; color: var(--qy-text-secondary); }
-        .qy-table { width: 100%; border-collapse: collapse; }
-        .qy-table th { text-align: left; padding: 12px 16px; background: var(--qy-bg-secondary); font-weight: 500; font-size: 13px; color: var(--qy-text-secondary); border-bottom: 1px solid var(--qy-border-light); }
-        .qy-table td { padding: 14px 16px; border-bottom: 1px solid var(--qy-border-light); font-size: 13px; }
-        .qy-table tr:last-child td { border-bottom: none; }
-        .qy-table .action-btns { display: flex; gap: 8px; }
+        .sub-account-table {
+            margin-top: var(--qy-space-3);
+        }
 
-        /* 弹窗样式 */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-container { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 90%; max-width: 500px; overflow: hidden; }
-        .modal-header { padding: 20px; border-bottom: 1px solid var(--qy-border-light); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 16px; font-weight: 600; margin: 0; }
-        .modal-body { padding: 20px; }
-        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--qy-border-light); display: flex; justify-content: flex-end; gap: 12px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--qy-text-primary); }
-        .form-row { display: flex; align-items: center; gap: 8px; }
+        /* 费率输入组 */
+        .rate-input-group {
+            display: flex;
+            align-items: center;
+            gap: var(--qy-space-2);
+        }
 
-        /* 表单输入样式 */
-        .form-input--full { width: 100%; }
-        .form-input--short { width: 120px; }
+        .rate-input-group .qy-input {
+            width: 120px;
+        }
 
-        /* 底部操作栏 */
-        .action-bar { margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px; }
+        /* 空状态 */
+        .sub-account-empty {
+            padding: var(--qy-space-12) var(--qy-space-6);
+        }
     </style>
 </head>
 <body>
-    <div class="page-container">
-        <!-- 页面标题 -->
-        <div class="page-header">
-            <button class="qy-btn qy-btn--text" id="btn-back">← 返回</button>
-            <h1 class="page-title">编辑参保规则</h1>
-        </div>
+    <!-- Skip Link -->
+    <a href="#main-content" class="qy-skip-link">跳转到主要内容</a>
 
-        <!-- Tab导航 -->
-        <div class="tab-nav" role="tablist">
-            <div class="tab-item" data-tab="basic" role="tab" aria-selected="false" tabindex="0">基本信息</div>
-            <div class="tab-item" data-tab="insurance" role="tab" aria-selected="false" tabindex="0">参保险种</div>
-            <div class="tab-item" data-tab="config" role="tab" aria-selected="false" tabindex="0">规则配置</div>
-            <div class="tab-item active" data-tab="sub-account" role="tab" aria-selected="true" tabindex="0">二级户管理</div>
-        </div>
-
-        <!-- 二级户管理内容 -->
-        <div class="tab-content" id="tab-sub-account">
-            <div class="sub-account-list">
-                <div class="list-header">
-                    <span class="list-count">二级户列表（共 <span id="sub-account-count">2</span> 个）</span>
-                    <button class="qy-btn qy-btn--primary" id="btn-add">+ 新增二级户</button>
-                </div>
-                <table class="qy-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">二级户名称</th>
-                            <th scope="col">用工单位编码</th>
-                            <th scope="col">用工单位全称</th>
-                            <th scope="col">工伤保险费率</th>
-                            <th scope="col">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sub-account-tbody">
-                        <!-- 动态填充 -->
-                    </tbody>
-                </table>
+    <div class="qy-layout">
+        <!-- 侧边栏 -->
+        <aside class="qy-sidebar" role="navigation" aria-label="侧边导航">
+            <div class="qy-sidebar__logo">
+                <h1>青阳云HRO</h1>
             </div>
-        </div>
+            <nav class="qy-sidebar__nav">
+                <div class="qy-sidebar__group">
+                    <div class="qy-sidebar__title">智能薪酬</div>
+                    <a href="#" class="qy-sidebar__item">
+                        <span>保险福利</span>
+                    </a>
+                    <a href="#" class="qy-sidebar__item is-active" aria-current="page">
+                        <span>参保规则</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
 
-        <!-- 底部操作栏 -->
-        <div class="action-bar">
-            <button class="qy-btn qy-btn--secondary" id="btn-cancel">取消</button>
-            <button class="qy-btn qy-btn--primary" id="btn-save">保存</button>
-        </div>
+        <!-- 主内容区 -->
+        <main class="qy-main" id="main-content">
+            <!-- 顶部导航 -->
+            <header class="qy-header" role="banner">
+                <nav class="qy-header__nav" role="tablist" aria-label="顶部导航">
+                    <button class="qy-header__tab">核心人事</button>
+                    <button class="qy-header__tab is-active">智能薪酬</button>
+                    <button class="qy-header__tab">假勤管理</button>
+                </nav>
+                <div class="qy-header__user">
+                    <button class="qy-btn qy-btn--text">管理员</button>
+                </div>
+            </header>
+
+            <!-- 页面内容 -->
+            <div class="qy-page">
+                <!-- 页面标题 -->
+                <div class="qy-page__header">
+                    <h1 class="qy-page__title">编辑参保规则</h1>
+                    <button class="qy-btn qy-btn--text" id="btn-back">← 返回</button>
+                </div>
+
+                <!-- 保险类型选项卡 -->
+                <div class="qy-insurance-tabs" role="tablist" aria-label="参保规则Tab">
+                    <button class="qy-insurance-tabs__item" role="tab" aria-selected="false">基本信息</button>
+                    <button class="qy-insurance-tabs__item" role="tab" aria-selected="false">参保险种</button>
+                    <button class="qy-insurance-tabs__item" role="tab" aria-selected="false">规则配置</button>
+                    <button class="qy-insurance-tabs__item is-active" role="tab" aria-selected="true">二级户管理</button>
+                </div>
+
+                <!-- 表格工具栏 -->
+                <div class="qy-table-toolbar">
+                    <div class="qy-table-toolbar__left">
+                        <span class="qy-text-secondary">二级户列表（共 <span id="sub-account-count">2</span> 个）</span>
+                    </div>
+                    <div class="qy-table-toolbar__right">
+                        <button class="qy-btn qy-btn--primary" id="btn-add">+ 新增二级户</button>
+                    </div>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="qy-table-container" role="region" aria-label="二级户列表">
+                    <table class="qy-table" id="sub-account-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">二级户名称</th>
+                                <th scope="col">用工单位编码</th>
+                                <th scope="col">用工单位全称</th>
+                                <th scope="col">工伤保险费率</th>
+                                <th scope="col" class="qy-table__actions">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sub-account-tbody">
+                            <!-- 动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <nav class="qy-pagination" aria-label="分页">
+                    <span class="qy-pagination__total">共 <span id="sub-account-count-bottom">2</span> 条数据</span>
+                    <div class="qy-pagination__pages">
+                        <button class="qy-pagination__btn" disabled aria-label="上一页">‹</button>
+                        <button class="qy-pagination__btn qy-pagination__btn--active" aria-current="page">1</button>
+                        <button class="qy-pagination__btn" aria-label="下一页">›</button>
+                    </div>
+                </nav>
+
+                <!-- 底部操作栏 -->
+                <div class="action-bar" style="margin-top: var(--qy-space-6); display: flex; justify-content: flex-end; gap: var(--qy-space-3);">
+                    <button class="qy-btn qy-btn--secondary" id="btn-cancel">取 消</button>
+                    <button class="qy-btn qy-btn--primary" id="btn-save">保 存</button>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- 新增/编辑弹窗 -->
-    <div class="modal-overlay" id="modal-form">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3 id="modal-title">新增二级户</h3>
-                <button class="qy-btn qy-btn--text" id="btn-close-modal">×</button>
+    <!-- 新增/编辑抽屉 -->
+    <div class="qy-drawer qy-drawer--right sub-account-drawer" id="drawer-form">
+        <div class="qy-drawer__overlay"></div>
+        <div class="qy-drawer__container">
+            <div class="qy-drawer__header">
+                <span class="qy-drawer__title" id="drawer-title">新增二级户</span>
+                <button class="qy-drawer__close" id="btn-close-drawer" aria-label="关闭">×</button>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="qy-label">* 二级户名称</label>
-                    <input type="text" class="qy-input form-input--full" id="input-name" placeholder="如：XX公司-普通工种">
-                </div>
-                <div class="form-group">
-                    <label class="qy-label">* 用工单位编码</label>
-                    <input type="text" class="qy-input form-input--full" id="input-code" placeholder="请输入用工单位编码">
-                </div>
-                <div class="form-group">
-                    <label class="qy-label">* 用工单位全称</label>
-                    <input type="text" class="qy-input form-input--full" id="input-company" placeholder="请输入用工单位全称">
-                </div>
-                <div class="form-group">
-                    <label class="qy-label">* 工伤保险费率</label>
-                    <div class="form-row">
-                        <input type="number" class="qy-input form-input--short" id="input-rate" placeholder="0.00" step="0.01" min="0" max="100">
-                        <span>%</span>
+            <div class="qy-drawer__body">
+                <div class="qy-drawer__section">
+                    <div class="qy-form-group">
+                        <label class="qy-label" for="input-name">* 二级户名称</label>
+                        <input type="text" class="qy-input" id="input-name" placeholder="如：XX公司-普通工种" style="width: 100%;">
+                    </div>
+                    <div class="qy-form-group">
+                        <label class="qy-label" for="input-code">* 用工单位编码</label>
+                        <input type="text" class="qy-input" id="input-code" placeholder="请输入用工单位编码" style="width: 100%;">
+                    </div>
+                    <div class="qy-form-group">
+                        <label class="qy-label" for="input-company">* 用工单位全称</label>
+                        <input type="text" class="qy-input" id="input-company" placeholder="请输入用工单位全称" style="width: 100%;">
+                    </div>
+                    <div class="qy-form-group">
+                        <label class="qy-label" for="input-rate">* 工伤保险费率</label>
+                        <div class="rate-input-group">
+                            <input type="number" class="qy-input" id="input-rate" placeholder="0.00" step="0.01" min="0" max="100">
+                            <span>%</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="qy-btn qy-btn--secondary" id="btn-modal-cancel">取消</button>
-                <button class="qy-btn qy-btn--primary" id="btn-modal-confirm">确定</button>
+            <div class="qy-drawer__footer">
+                <button class="qy-btn qy-btn--secondary" id="btn-drawer-cancel">取 消</button>
+                <button class="qy-btn qy-btn--primary" id="btn-drawer-confirm">确 认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div class="qy-drawer qy-drawer--right" id="drawer-delete" style="--qy-drawer-width: 400px;">
+        <div class="qy-drawer__overlay"></div>
+        <div class="qy-drawer__container">
+            <div class="qy-drawer__header">
+                <span class="qy-drawer__title">确认删除</span>
+                <button class="qy-drawer__close" id="btn-close-delete" aria-label="关闭">×</button>
+            </div>
+            <div class="qy-drawer__body">
+                <p style="margin: 0;">删除后不可恢复，是否确认删除该二级户？</p>
+            </div>
+            <div class="qy-drawer__footer">
+                <button class="qy-btn qy-btn--secondary" id="btn-delete-cancel">取 消</button>
+                <button class="qy-btn qy-btn--danger" id="btn-delete-confirm">确认删除</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Tab切换
-        const tabItems = document.querySelectorAll('.tab-item');
-        tabItems.forEach(item => {
-            item.addEventListener('click', () => {
-                tabItems.forEach(t => {
-                    t.classList.remove('active');
-                    t.setAttribute('aria-selected', 'false');
-                });
-                item.classList.add('active');
-                item.setAttribute('aria-selected', 'true');
-            });
-        });
-
         // 预置示例数据
         const subAccounts = [
             { id: 'SA001', name: '北京软件技术公司-普通工种', companyCode: 'BJ001', companyName: '北京软件技术公司', injuryRate: 0.5 },
             { id: 'SA002', name: '北京软件技术公司-高危工种', companyCode: 'BJ001', companyName: '北京软件技术公司', injuryRate: 1.5 }
         ];
 
-        const modal = document.getElementById('modal-form');
-        const modalTitle = document.getElementById('modal-title');
+        // DOM 元素
+        const drawerForm = document.getElementById('drawer-form');
+        const drawerDelete = document.getElementById('drawer-delete');
+        const drawerTitle = document.getElementById('drawer-title');
+        const tbody = document.getElementById('sub-account-tbody');
+        const countSpan = document.getElementById('sub-account-count');
+        const countBottomSpan = document.getElementById('sub-account-count-bottom');
+
         let editingId = null;
+        let deletingId = null;
+
+        // Tab切换
+        const tabItems = document.querySelectorAll('.qy-insurance-tabs__item');
+        tabItems.forEach(item => {
+            item.addEventListener('click', () => {
+                tabItems.forEach(t => {
+                    t.classList.remove('is-active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                item.classList.add('is-active');
+                item.setAttribute('aria-selected', 'true');
+            });
+        });
 
         // 渲染列表
         function renderSubAccountList() {
-            const tbody = document.getElementById('sub-account-tbody');
-            const countSpan = document.getElementById('sub-account-count');
             tbody.innerHTML = subAccounts.map(acc => `
                 <tr>
                     <td>${acc.name}</td>
                     <td>${acc.companyCode}</td>
                     <td>${acc.companyName}</td>
                     <td>${acc.injuryRate}%</td>
-                    <td class="action-btns">
-                        <button class="qy-btn qy-btn--text" data-action="edit" data-id="${acc.id}">编辑</button>
-                        <button class="qy-btn qy-btn--text" data-action="delete" data-id="${acc.id}">删除</button>
+                    <td class="qy-table__actions">
+                        <button class="qy-btn-action qy-btn-action--text" data-action="edit" data-id="${acc.id}">编辑</button>
+                        <button class="qy-btn-action qy-btn-action--text" data-action="delete" data-id="${acc.id}">删除</button>
                     </td>
                 </tr>
             `).join('');
-            countSpan.textContent = subAccounts.length;
+            const count = subAccounts.length;
+            countSpan.textContent = count;
+            countBottomSpan.textContent = count;
         }
 
         // 事件委托处理表格操作
-        document.getElementById('sub-account-tbody').addEventListener('click', (e) => {
+        tbody.addEventListener('click', (e) => {
             const btn = e.target.closest('button[data-action]');
             if (!btn) return;
 
@@ -182,50 +258,48 @@
             const id = btn.dataset.id;
 
             if (action === 'edit') {
-                editSubAccount(id);
+                openEditDrawer(id);
             } else if (action === 'delete') {
-                deleteSubAccount(id);
+                openDeleteDrawer(id);
             }
         });
 
-        // 打开新增弹窗
+        // 打开新增抽屉
         document.getElementById('btn-add').addEventListener('click', () => {
             editingId = null;
-            modalTitle.textContent = '新增二级户';
+            drawerTitle.textContent = '新增二级户';
             clearForm();
-            modal.classList.add('active');
+            drawerForm.classList.add('is-open');
         });
 
-        // 打开编辑弹窗
-        function editSubAccount(id) {
+        // 打开编辑抽屉
+        function openEditDrawer(id) {
             const acc = subAccounts.find(a => a.id === id);
             if (!acc) return;
             editingId = id;
-            modalTitle.textContent = '编辑二级户';
+            drawerTitle.textContent = '编辑二级户';
             document.getElementById('input-name').value = acc.name;
             document.getElementById('input-code').value = acc.companyCode;
             document.getElementById('input-company').value = acc.companyName;
             document.getElementById('input-rate').value = acc.injuryRate;
-            modal.classList.add('active');
+            drawerForm.classList.add('is-open');
         }
 
-        // 删除二级户
-        function deleteSubAccount(id) {
-            if (!confirm('删除后不可恢复，是否确认？')) return;
-            const index = subAccounts.findIndex(a => a.id === id);
-            if (index !== -1) {
-                subAccounts.splice(index, 1);
-                renderSubAccountList();
-            }
+        // 打开删除确认抽屉
+        function openDeleteDrawer(id) {
+            deletingId = id;
+            drawerDelete.classList.add('is-open');
         }
 
-        // 关闭弹窗
-        function closeModal() {
-            modal.classList.remove('active');
-            clearForm();
+        // 关闭抽屉
+        function closeDrawer(drawer) {
+            drawer.classList.remove('is-open');
         }
-        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
-        document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
+
+        document.getElementById('btn-close-drawer').addEventListener('click', () => closeDrawer(drawerForm));
+        document.getElementById('btn-drawer-cancel').addEventListener('click', () => closeDrawer(drawerForm));
+        document.getElementById('btn-close-delete').addEventListener('click', () => closeDrawer(drawerDelete));
+        document.getElementById('btn-delete-cancel').addEventListener('click', () => closeDrawer(drawerDelete));
 
         // 清空表单
         function clearForm() {
@@ -235,7 +309,21 @@
             document.getElementById('input-rate').value = '';
         }
 
-        document.getElementById('btn-modal-confirm').addEventListener('click', () => {
+        // 确认删除
+        document.getElementById('btn-delete-confirm').addEventListener('click', () => {
+            if (deletingId) {
+                const index = subAccounts.findIndex(a => a.id === deletingId);
+                if (index !== -1) {
+                    subAccounts.splice(index, 1);
+                    renderSubAccountList();
+                }
+            }
+            closeDrawer(drawerDelete);
+            deletingId = null;
+        });
+
+        // 确认保存
+        document.getElementById('btn-drawer-confirm').addEventListener('click', () => {
             const name = document.getElementById('input-name').value.trim();
             const companyCode = document.getElementById('input-code').value.trim();
             const companyName = document.getElementById('input-company').value.trim();
@@ -266,7 +354,19 @@
             }
 
             renderSubAccountList();
-            closeModal();
+            closeDrawer(drawerForm);
+        });
+
+        // ESC 关闭抽屉
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (drawerForm.classList.contains('is-open')) {
+                    closeDrawer(drawerForm);
+                }
+                if (drawerDelete.classList.contains('is-open')) {
+                    closeDrawer(drawerDelete);
+                }
+            }
         });
 
         // 页面加载完成后初始化
