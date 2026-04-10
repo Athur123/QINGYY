@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>参保规则编辑 - 二级户管理 - 青阳云</title>
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        /* 页面专属样式 */
+        .page-container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .page-title { font-size: 18px; font-weight: 600; }
+
+        /* Tab导航 */
+        .tab-nav { display: flex; gap: 4px; border-bottom: 1px solid var(--qy-border-light); margin-bottom: 24px; }
+        .tab-item { padding: 12px 20px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--qy-text-secondary); transition: all 0.2s; }
+        .tab-item:hover { color: var(--qy-text-primary); }
+        .tab-item.active { color: var(--qy-primary-600); border-bottom-color: var(--qy-primary-600); font-weight: 500; }
+
+        /* 二级户表格 */
+        .sub-account-list { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); border: 1px solid var(--qy-border-light); overflow: hidden; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
+        .list-count { font-size: 14px; color: var(--qy-text-secondary); }
+        .qy-table { width: 100%; border-collapse: collapse; }
+        .qy-table th { text-align: left; padding: 12px 16px; background: var(--qy-bg-secondary); font-weight: 500; font-size: 13px; color: var(--qy-text-secondary); border-bottom: 1px solid var(--qy-border-light); }
+        .qy-table td { padding: 14px 16px; border-bottom: 1px solid var(--qy-border-light); font-size: 13px; }
+        .qy-table tr:last-child td { border-bottom: none; }
+        .qy-table .action-btns { display: flex; gap: 8px; }
+
+        /* 弹窗样式 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-container { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 90%; max-width: 500px; overflow: hidden; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--qy-border-light); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 16px; font-weight: 600; margin: 0; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--qy-border-light); display: flex; justify-content: flex-end; gap: 12px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--qy-text-primary); }
+        .form-row { display: flex; align-items: center; gap: 8px; }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <button class="qy-btn qy-btn--text" id="btn-back">← 返回</button>
+            <h1 class="page-title">编辑参保规则</h1>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <div class="tab-item" data-tab="basic">基本信息</div>
+            <div class="tab-item" data-tab="insurance">参保险种</div>
+            <div class="tab-item" data-tab="config">规则配置</div>
+            <div class="tab-item active" data-tab="sub-account">二级户管理</div>
+        </div>
+
+        <!-- 二级户管理内容 -->
+        <div class="tab-content" id="tab-sub-account">
+            <div class="sub-account-list">
+                <div class="list-header">
+                    <span class="list-count">二级户列表（共 <span id="sub-account-count">2</span> 个）</span>
+                    <button class="qy-btn qy-btn--primary" id="btn-add">+ 新增二级户</button>
+                </div>
+                <table class="qy-table">
+                    <thead>
+                        <tr>
+                            <th>二级户名称</th>
+                            <th>用工单位编码</th>
+                            <th>用工单位全称</th>
+                            <th>工伤保险费率</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sub-account-tbody">
+                        <!-- 动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 底部操作栏 -->
+        <div class="action-bar" style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+            <button class="qy-btn qy-btn--secondary" id="btn-cancel">取消</button>
+            <button class="qy-btn qy-btn--primary" id="btn-save">保存</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑弹窗 -->
+    <div class="modal-overlay" id="modal-form">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="modal-title">新增二级户</h3>
+                <button class="qy-btn qy-btn--text" id="btn-close-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="qy-label">* 二级户名称</label>
+                    <input type="text" class="qy-input" id="input-name" placeholder="如：XX公司-普通工种" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label class="qy-label">* 用工单位编码</label>
+                    <input type="text" class="qy-input" id="input-code" placeholder="请输入用工单位编码" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label class="qy-label">* 用工单位全称</label>
+                    <input type="text" class="qy-input" id="input-company" placeholder="请输入用工单位全称" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label class="qy-label">* 工伤保险费率</label>
+                    <div class="form-row">
+                        <input type="number" class="qy-input" id="input-rate" placeholder="0.00" style="width: 120px;" step="0.01" min="0" max="100">
+                        <span>%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="qy-btn qy-btn--secondary" id="btn-modal-cancel">取消</button>
+                <button class="qy-btn qy-btn--primary" id="btn-modal-confirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换
+        const tabItems = document.querySelectorAll('.tab-item');
+        tabItems.forEach(item => {
+            item.addEventListener('click', () => {
+                tabItems.forEach(t => t.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // 预置示例数据
+        const subAccounts = [
+            { id: 'SA001', name: '北京软件技术公司-普通工种', companyCode: 'BJ001', companyName: '北京软件技术公司', injuryRate: 0.5 },
+            { id: 'SA002', name: '北京软件技术公司-高危工种', companyCode: 'BJ001', companyName: '北京软件技术公司', injuryRate: 1.5 }
+        ];
+
+        // 渲染列表
+        function renderSubAccountList() {
+            const tbody = document.getElementById('sub-account-tbody');
+            const countSpan = document.getElementById('sub-account-count');
+            tbody.innerHTML = subAccounts.map(acc => `
+                <tr>
+                    <td>${acc.name}</td>
+                    <td>${acc.companyCode}</td>
+                    <td>${acc.companyName}</td>
+                    <td>${acc.injuryRate}%</td>
+                    <td class="action-btns">
+                        <button class="qy-btn qy-btn--text" onclick="editSubAccount('${acc.id}')">编辑</button>
+                        <button class="qy-btn qy-btn--text" onclick="deleteSubAccount('${acc.id}')">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+            countSpan.textContent = subAccounts.length;
+        }
+
+        const modal = document.getElementById('modal-form');
+        const modalTitle = document.getElementById('modal-title');
+        let editingId = null;
+
+        // 打开新增弹窗
+        document.getElementById('btn-add').addEventListener('click', () => {
+            editingId = null;
+            modalTitle.textContent = '新增二级户';
+            clearForm();
+            modal.classList.add('active');
+        });
+
+        // 打开编辑弹窗
+        window.editSubAccount = function(id) {
+            const acc = subAccounts.find(a => a.id === id);
+            if (!acc) return;
+            editingId = id;
+            modalTitle.textContent = '编辑二级户';
+            document.getElementById('input-name').value = acc.name;
+            document.getElementById('input-code').value = acc.companyCode;
+            document.getElementById('input-company').value = acc.companyName;
+            document.getElementById('input-rate').value = acc.injuryRate;
+            modal.classList.add('active');
+        };
+
+        // 关闭弹窗
+        function closeModal() {
+            modal.classList.remove('active');
+            clearForm();
+        }
+        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+        document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
+
+        // 清空表单
+        function clearForm() {
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-code').value = '';
+            document.getElementById('input-company').value = '';
+            document.getElementById('input-rate').value = '';
+        }
+
+        document.getElementById('btn-modal-confirm').addEventListener('click', () => {
+            const name = document.getElementById('input-name').value.trim();
+            const companyCode = document.getElementById('input-code').value.trim();
+            const companyName = document.getElementById('input-company').value.trim();
+            const injuryRate = parseFloat(document.getElementById('input-rate').value);
+
+            // 表单验证
+            if (!name || !companyCode || !companyName || isNaN(injuryRate)) {
+                alert('请填写所有必填字段');
+                return;
+            }
+            if (injuryRate < 0 || injuryRate > 100) {
+                alert('工伤保险费率必须在0~100之间');
+                return;
+            }
+
+            if (editingId) {
+                // 更新
+                const index = subAccounts.findIndex(a => a.id === editingId);
+                if (index !== -1) {
+                    subAccounts[index] = { ...subAccounts[index], name, companyCode, companyName, injuryRate };
+                }
+            } else {
+                // 新增
+                subAccounts.push({
+                    id: 'SA' + Date.now(),
+                    name, companyCode, companyName, injuryRate
+                });
+            }
+
+            renderSubAccountList();
+            closeModal();
+        });
+
+        window.deleteSubAccount = function(id) {
+            if (!confirm('删除后不可恢复，是否确认？')) return;
+            const index = subAccounts.findIndex(a => a.id === id);
+            if (index !== -1) {
+                subAccounts.splice(index, 1);
+                renderSubAccountList();
+            }
+        };
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSubAccountList();
+        });
+    </script>
+</body>
+</html>
