@@ -39,6 +39,13 @@
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--qy-text-primary); }
         .form-row { display: flex; align-items: center; gap: 8px; }
+
+        /* 表单输入样式 */
+        .form-input--full { width: 100%; }
+        .form-input--short { width: 120px; }
+
+        /* 底部操作栏 */
+        .action-bar { margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px; }
     </style>
 </head>
 <body>
@@ -50,11 +57,11 @@
         </div>
 
         <!-- Tab导航 -->
-        <div class="tab-nav">
-            <div class="tab-item" data-tab="basic">基本信息</div>
-            <div class="tab-item" data-tab="insurance">参保险种</div>
-            <div class="tab-item" data-tab="config">规则配置</div>
-            <div class="tab-item active" data-tab="sub-account">二级户管理</div>
+        <div class="tab-nav" role="tablist">
+            <div class="tab-item" data-tab="basic" role="tab" aria-selected="false" tabindex="0">基本信息</div>
+            <div class="tab-item" data-tab="insurance" role="tab" aria-selected="false" tabindex="0">参保险种</div>
+            <div class="tab-item" data-tab="config" role="tab" aria-selected="false" tabindex="0">规则配置</div>
+            <div class="tab-item active" data-tab="sub-account" role="tab" aria-selected="true" tabindex="0">二级户管理</div>
         </div>
 
         <!-- 二级户管理内容 -->
@@ -67,11 +74,11 @@
                 <table class="qy-table">
                     <thead>
                         <tr>
-                            <th>二级户名称</th>
-                            <th>用工单位编码</th>
-                            <th>用工单位全称</th>
-                            <th>工伤保险费率</th>
-                            <th>操作</th>
+                            <th scope="col">二级户名称</th>
+                            <th scope="col">用工单位编码</th>
+                            <th scope="col">用工单位全称</th>
+                            <th scope="col">工伤保险费率</th>
+                            <th scope="col">操作</th>
                         </tr>
                     </thead>
                     <tbody id="sub-account-tbody">
@@ -82,7 +89,7 @@
         </div>
 
         <!-- 底部操作栏 -->
-        <div class="action-bar" style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+        <div class="action-bar">
             <button class="qy-btn qy-btn--secondary" id="btn-cancel">取消</button>
             <button class="qy-btn qy-btn--primary" id="btn-save">保存</button>
         </div>
@@ -98,20 +105,20 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="qy-label">* 二级户名称</label>
-                    <input type="text" class="qy-input" id="input-name" placeholder="如：XX公司-普通工种" style="width: 100%;">
+                    <input type="text" class="qy-input form-input--full" id="input-name" placeholder="如：XX公司-普通工种">
                 </div>
                 <div class="form-group">
                     <label class="qy-label">* 用工单位编码</label>
-                    <input type="text" class="qy-input" id="input-code" placeholder="请输入用工单位编码" style="width: 100%;">
+                    <input type="text" class="qy-input form-input--full" id="input-code" placeholder="请输入用工单位编码">
                 </div>
                 <div class="form-group">
                     <label class="qy-label">* 用工单位全称</label>
-                    <input type="text" class="qy-input" id="input-company" placeholder="请输入用工单位全称" style="width: 100%;">
+                    <input type="text" class="qy-input form-input--full" id="input-company" placeholder="请输入用工单位全称">
                 </div>
                 <div class="form-group">
                     <label class="qy-label">* 工伤保险费率</label>
                     <div class="form-row">
-                        <input type="number" class="qy-input" id="input-rate" placeholder="0.00" style="width: 120px;" step="0.01" min="0" max="100">
+                        <input type="number" class="qy-input form-input--short" id="input-rate" placeholder="0.00" step="0.01" min="0" max="100">
                         <span>%</span>
                     </div>
                 </div>
@@ -128,8 +135,12 @@
         const tabItems = document.querySelectorAll('.tab-item');
         tabItems.forEach(item => {
             item.addEventListener('click', () => {
-                tabItems.forEach(t => t.classList.remove('active'));
+                tabItems.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
                 item.classList.add('active');
+                item.setAttribute('aria-selected', 'true');
             });
         });
 
@@ -138,6 +149,10 @@
             { id: 'SA001', name: '北京软件技术公司-普通工种', companyCode: 'BJ001', companyName: '北京软件技术公司', injuryRate: 0.5 },
             { id: 'SA002', name: '北京软件技术公司-高危工种', companyCode: 'BJ001', companyName: '北京软件技术公司', injuryRate: 1.5 }
         ];
+
+        const modal = document.getElementById('modal-form');
+        const modalTitle = document.getElementById('modal-title');
+        let editingId = null;
 
         // 渲染列表
         function renderSubAccountList() {
@@ -150,17 +165,28 @@
                     <td>${acc.companyName}</td>
                     <td>${acc.injuryRate}%</td>
                     <td class="action-btns">
-                        <button class="qy-btn qy-btn--text" onclick="editSubAccount('${acc.id}')">编辑</button>
-                        <button class="qy-btn qy-btn--text" onclick="deleteSubAccount('${acc.id}')">删除</button>
+                        <button class="qy-btn qy-btn--text" data-action="edit" data-id="${acc.id}">编辑</button>
+                        <button class="qy-btn qy-btn--text" data-action="delete" data-id="${acc.id}">删除</button>
                     </td>
                 </tr>
             `).join('');
             countSpan.textContent = subAccounts.length;
         }
 
-        const modal = document.getElementById('modal-form');
-        const modalTitle = document.getElementById('modal-title');
-        let editingId = null;
+        // 事件委托处理表格操作
+        document.getElementById('sub-account-tbody').addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+
+            if (action === 'edit') {
+                editSubAccount(id);
+            } else if (action === 'delete') {
+                deleteSubAccount(id);
+            }
+        });
 
         // 打开新增弹窗
         document.getElementById('btn-add').addEventListener('click', () => {
@@ -171,7 +197,7 @@
         });
 
         // 打开编辑弹窗
-        window.editSubAccount = function(id) {
+        function editSubAccount(id) {
             const acc = subAccounts.find(a => a.id === id);
             if (!acc) return;
             editingId = id;
@@ -181,7 +207,17 @@
             document.getElementById('input-company').value = acc.companyName;
             document.getElementById('input-rate').value = acc.injuryRate;
             modal.classList.add('active');
-        };
+        }
+
+        // 删除二级户
+        function deleteSubAccount(id) {
+            if (!confirm('删除后不可恢复，是否确认？')) return;
+            const index = subAccounts.findIndex(a => a.id === id);
+            if (index !== -1) {
+                subAccounts.splice(index, 1);
+                renderSubAccountList();
+            }
+        }
 
         // 关闭弹窗
         function closeModal() {
@@ -232,15 +268,6 @@
             renderSubAccountList();
             closeModal();
         });
-
-        window.deleteSubAccount = function(id) {
-            if (!confirm('删除后不可恢复，是否确认？')) return;
-            const index = subAccounts.findIndex(a => a.id === id);
-            if (index !== -1) {
-                subAccounts.splice(index, 1);
-                renderSubAccountList();
-            }
-        };
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', () => {
