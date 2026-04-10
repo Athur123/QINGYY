@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地区社保规则配置 - 青阳云</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 青阳云设计系统样式 -->
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        :root {
+            --font-primary: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { max-width: 100vw; overflow-x: hidden; }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── App Layout ─── */
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 220px; flex-shrink: 0;
+            background: var(--qy-bg-primary);
+            border-right: 1px solid var(--qy-border-light);
+            display: flex; flex-direction: column;
+            position: fixed; height: 100vh; z-index: 100;
+        }
+        .logo { padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
+        .logo h1 { font-size: 16px; font-weight: 700; color: var(--qy-primary-600); }
+        .logo span { font-size: 11px; color: var(--qy-text-muted); }
+        .nav-section { padding: 8px 0; flex: 1; overflow-y: auto; }
+        .nav-group { padding: 10px 16px 4px; font-size: 10px; font-weight: 600;
+            color: var(--qy-text-muted); text-transform: uppercase; letter-spacing: 0.7px; }
+        .nav-tree { list-style: none; padding: 0 10px; }
+        .nav-item { margin-bottom: 1px; }
+        .nav-link {
+            display: flex; align-items: center; padding: 8px 12px;
+            border-radius: var(--qy-radius-md); cursor: pointer; text-decoration: none;
+            color: var(--qy-text-secondary); font-size: 13px;
+            transition: all var(--qy-transition-fast); position: relative;
+        }
+        .nav-link:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .nav-link.active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 600; }
+        .nav-link.active::before {
+            content: ''; position: absolute; left: 0; top: 50%;
+            transform: translateY(-50%); width: 3px; height: 18px;
+            background: var(--qy-primary-500); border-radius: 0 2px 2px 0;
+        }
+        .nav-icon { width: 15px; height: 15px; margin-right: 9px; flex-shrink: 0; }
+        .nav-children { list-style: none; padding-left: 24px; }
+        .nav-children .nav-link { font-size: 12px; padding: 6px 10px; }
+        .sidebar-footer {
+            padding: 12px 16px; border-top: 1px solid var(--qy-border-light);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .avatar-sm {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--qy-primary-400), var(--qy-primary-600));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 11px; font-weight: 600; flex-shrink: 0;
+        }
+
+        /* ─── Main ─── */
+        .main-content { flex: 1; margin-left: 220px; padding: 24px; }
+
+        /* ─── Page Header ─── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--qy-text-primary);
+        }
+
+        /* ─── Filter Bar ─── */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .filter-bar .qy-select { width: 180px; }
+
+        /* ─── Table ─── */
+        .qy-table { width: 100%; }
+        .qy-table th { text-align: left; }
+        .condition-summary, .action-summary { font-size: 12px; color: var(--qy-text-secondary); }
+
+        /* ─── Demo Section ─── */
+        .demo-section {
+            margin-top: 32px;
+            padding: 20px;
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-lg);
+            border: 1px solid var(--qy-border-light);
+        }
+        .demo-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--qy-text-primary);
+        }
+        .demo-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .demo-controls .qy-select { width: 240px; }
+
+        /* ─── Modal Overlay (for future Task 2) ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-container {
+            background: var(--qy-bg-primary);
+            border-radius: var(--qy-radius-lg);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--qy-border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { font-size: 16px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--qy-text-muted); }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--qy-border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .form-section { margin-bottom: 24px; }
+        .form-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--qy-text-primary);
+        }
+        .qy-form-row { display: flex; gap: 16px; margin-bottom: 12px; }
+        .qy-form-row .qy-form-group { flex: 1; }
+        .condition-group {
+            background: var(--qy-bg-secondary);
+            padding: 12px;
+            border-radius: var(--qy-radius-md);
+            margin-bottom: 12px;
+        }
+        .condition-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .condition-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .condition-item .qy-select,
+        .condition-item .qy-input { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>青谷云 HRO</h1>
+                <span>智能薪酬管理系统</span>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-group">系统设置</div>
+                <ul class="nav-tree">
+                    <li class="nav-item"><a class="nav-link" href="#">地区管理</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">社保规则配置</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">参保户头管理</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">派遣单位管理</a></li>
+                </ul>
+                <div class="nav-group">智能薪酬</div>
+                <ul class="nav-tree">
+                    <li class="nav-item"><a class="nav-link" href="#">保险福利</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">员工参保档案</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="avatar-sm">阿</div>
+                <div>
+                    <div style="font-size: 13px; font-weight: 500;">张三</div>
+                    <div style="font-size: 11px; color: var(--qy-text-muted);">系统管理员</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>地区社保规则配置</h1>
+                <button class="qy-btn qy-btn--primary" id="btn-new-rule">+ 新建规则</button>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <select id="filter-region" class="qy-select">
+                    <option value="">全部地区</option>
+                    <option value="gd-gz-th">广东省/广州市/天河区</option>
+                    <option value="gd-gz-yx">广东省/广州市/越秀区</option>
+                    <option value="hn-cs-yl">湖南省/长沙市/岳麓区</option>
+                </select>
+                <select id="filter-status" class="qy-select">
+                    <option value="">全部状态</option>
+                    <option value="active">生效</option>
+                    <option value="inactive">停用</option>
+                    <option value="draft">草稿</option>
+                </select>
+            </div>
+
+            <!-- Rule List Table -->
+            <table class="qy-table">
+                <thead>
+                    <tr>
+                        <th>地区</th>
+                        <th>版本</th>
+                        <th>状态</th>
+                        <th>条件摘要</th>
+                        <th>动作摘要</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="rule-list-body">
+                    <!-- Dynamic content -->
+                </tbody>
+            </table>
+
+            <!-- Demo Section for Task 4 -->
+            <div class="demo-section">
+                <h3>参保预览演示（Task 4 完成后可用）</h3>
+                <div class="demo-controls">
+                    <select id="demo-employee" class="qy-select">
+                        <option value="E001">张三（派遣员工+项目A）</option>
+                        <option value="E002">李四（正式员工）</option>
+                        <option value="E003">王五（派遣员工+项目A+P5）</option>
+                    </select>
+                    <select id="demo-account" class="qy-select">
+                        <option value="ACC001">广州天河标准户</option>
+                    </select>
+                    <button class="qy-btn qy-btn--primary" onclick="openInsurancePreviewDemo()">预览参保</button>
+                    <button class="qy-btn qy-btn--secondary" onclick="simulateBatchImport()">批量导入预览</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Container (for Task 2+) -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modal-title">新建地区社保规则</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closeModal()">取消</button>
+                <button class="qy-btn qy-btn--primary" onclick="saveRule()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // Mock Data
+        // ═══════════════════════════════════════════════════════════
+
+        const mockRules = [
+            {
+                id: 'R001',
+                region: { province: '广东省', city: '广州市', district: '天河区' },
+                name: '天河区派遣员工特殊规则',
+                version: 3,
+                status: 'active',
+                priority: 1,
+                conditions: [
+                    { field: 'employeeType', operator: 'in', value: ['派遣员工'] },
+                    { field: 'projectId', operator: 'in', value: ['项目A'] }
+                ],
+                actions: {
+                    '工伤': { type: 'dispatch_ratio' },
+                    '养老': { type: 'specified_ratio', value: 14 },
+                    '医疗': { type: 'account_ratio' }
+                },
+                effectStart: '2026-01-01',
+                effectEnd: '2026-12-31'
+            },
+            {
+                id: 'R002',
+                region: { province: '广东省', city: '广州市', district: '越秀区' },
+                name: '越秀区派遣员工规则',
+                version: 1,
+                status: 'inactive',
+                priority: 2,
+                conditions: [
+                    { field: 'employeeType', operator: 'in', value: ['派遣员工'] }
+                ],
+                actions: {
+                    '工伤': { type: 'specified_ratio', value: 0.6 }
+                },
+                effectStart: '2026-01-01',
+                effectEnd: null
+            },
+            {
+                id: 'R003',
+                region: { province: '湖南省', city: '长沙市', district: '岳麓区' },
+                name: '长沙市正式员工规则',
+                version: 1,
+                status: 'draft',
+                priority: 3,
+                conditions: [
+                    { field: 'employeeType', operator: 'in', value: ['正式员工'] }
+                ],
+                actions: {
+                    '工伤': { type: 'account_ratio' },
+                    '养老': { type: 'account_ratio' }
+                },
+                effectStart: null,
+                effectEnd: null
+            }
+        ];
+
+        // Mock employees for demo
+        const mockEmployees = [
+            { id: 'E001', name: '张三', type: '派遣员工', projectId: '项目A', customerId: '客户X', position: '技术岗', level: 'P5', dispatchUnitId: 'DU001' },
+            { id: 'E002', name: '李四', type: '正式员工', projectId: '项目B', customerId: '客户Y', position: '销售岗', level: 'P6', dispatchUnitId: null },
+            { id: 'E003', name: '王五', type: '派遣员工', projectId: '项目A', customerId: '客户X', position: '技术岗', level: 'P5', dispatchUnitId: 'DU001' }
+        ];
+
+        const mockAccounts = [
+            {
+                id: 'ACC001',
+                name: '广州天河标准户',
+                region: { province: '广东省', city: '广州市', district: '天河区' },
+                defaultRatios: { '工伤': 0.4, '养老': 14, '医疗': 8, '失业': 0.5, '生育': 0.8, '公积金': 12 }
+            }
+        ];
+
+        const mockDispatchUnits = [
+            { id: 'DU001', name: '派遣单位A', workInjuryRatio: 0.6 },
+            { id: 'DU002', name: '派遣单位B', workInjuryRatio: 0.5 }
+        ];
+
+        const ruleHistory = {
+            'R001': [
+                { version: 3, status: 'active', modifiedAt: '2026-04-10 10:00', modifiedBy: '张三' },
+                { version: 2, status: 'inactive', modifiedAt: '2026-04-05 14:30', modifiedBy: '李四' },
+                { version: 1, status: 'inactive', modifiedAt: '2026-04-01 09:00', modifiedBy: '王五' }
+            ]
+        };
+
+        // ═══════════════════════════════════════════════════════════
+        // Helper Functions
+        // ═══════════════════════════════════════════════════════════
+
+        function getStatusType(status) {
+            if (status === 'active') return 'success';
+            if (status === 'inactive') return 'default';
+            if (status === 'draft') return 'warning';
+            return 'default';
+        }
+
+        function getStatusText(status) {
+            if (status === 'active') return '生效';
+            if (status === 'inactive') return '停用';
+            if (status === 'draft') return '草稿';
+            return status;
+        }
+
+        function renderConditionSummary(conditions) {
+            return conditions.map(group => {
+                const groupStr = group.conditions.map(c => {
+                    const op = c.operator === 'in' ? '∈' : '∉';
+                    return `${c.field}${op}[${c.value.join(',')}]`;
+                }).join(` ${group.logicalType} `);
+                return `(${groupStr})`;
+            }).join(' AND ');
+        }
+
+        function renderActionSummary(actions) {
+            return Object.entries(actions).map(([type, action]) => {
+                if (action.type === 'dispatch_ratio') return `${type}:派遣比例`;
+                if (action.type === 'specified_ratio') return `${type}:${action.value}%`;
+                return `${type}:户头比例`;
+            }).join(', ');
+        }
+
+        function getEmployeeById(id) { return mockEmployees.find(e => e.id === id); }
+        function getAccountById(id) { return mockAccounts.find(a => a.id === id); }
+        function getDispatchUnitById(id) { return mockDispatchUnits.find(d => d.id === id); }
+
+        function isWithinEffectPeriod(rule) {
+            const today = new Date();
+            const start = rule.effectStart ? new Date(rule.effectStart) : null;
+            const end = rule.effectEnd ? new Date(rule.effectEnd) : null;
+            if (start && today < start) return false;
+            if (end && today > end) return false;
+            return true;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Render Functions
+        // ═══════════════════════════════════════════════════════════
+
+        function renderRuleList(rules) {
+            const tbody = document.getElementById('rule-list-body');
+            tbody.innerHTML = rules.map(rule => `
+                <tr data-rule-id="${rule.id}">
+                    <td>${rule.region.province}/${rule.region.city}/${rule.region.district}</td>
+                    <td>v${rule.version}</td>
+                    <td><span class="qy-tag qy-tag--${getStatusType(rule.status)}">${getStatusText(rule.status)}</span></td>
+                    <td><span class="condition-summary">${renderConditionSummary(rule.conditions)}</span></td>
+                    <td><span class="action-summary">${renderActionSummary(rule.actions)}</span></td>
+                    <td>
+                        <button class="qy-btn qy-btn--text" onclick="editRule('${rule.id}')">编辑</button>
+                        <button class="qy-btn qy-btn--text" onclick="toggleRule('${rule.id}')">${rule.status === 'active' ? '停用' : '启用'}</button>
+                        <button class="qy-btn qy-btn--text" onclick="cloneRule('${rule.id}')">复制</button>
+                        <button class="qy-btn qy-btn--text" onclick="showHistory('${rule.id}')">历史</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Rule Matching Algorithm (Task 3)
+        // ═══════════════════════════════════════════════════════════
+
+        function evaluateCondition(condition, employee) {
+            const { field, operator, value } = condition;
+            const employeeValue = employee[field];
+
+            if (operator === 'in') {
+                return value.includes(employeeValue);
+            } else if (operator === 'notIn') {
+                return !value.includes(employeeValue);
+            } else if (operator === '=') {
+                return employeeValue === value;
+            } else if (operator === '!=') {
+                return employeeValue !== value;
+            }
+            return false;
+        }
+
+        function evaluateConditionGroup(conditions, logicalType, employee) {
+            if (logicalType === 'AND') {
+                return conditions.every(c => evaluateCondition(c, employee));
+            } else {
+                return conditions.some(c => evaluateCondition(c, employee));
+            }
+        }
+
+        function evaluateRule(rule, employee) {
+            return rule.conditions.every(group =>
+                evaluateConditionGroup(group.conditions, group.logicalType, employee)
+            );
+        }
+
+        function matchesRegion(ruleRegion, employeeRegion) {
+            if (ruleRegion.district && ruleRegion.district !== employeeRegion.district) {
+                return false;
+            }
+            if (ruleRegion.city && ruleRegion.city !== employeeRegion.city) {
+                return false;
+            }
+            if (ruleRegion.province && ruleRegion.province !== employeeRegion.province) {
+                return false;
+            }
+            return true;
+        }
+
+        function detectConflicts(matchedRules) {
+            const conflicts = [];
+            const insuranceTypes = ['工伤', '养老', '医疗', '失业', '生育', '公积金'];
+
+            for (const type of insuranceTypes) {
+                const typeActions = matchedRules.map(r => r.actions[type]).filter(Boolean);
+                if (typeActions.length < 2) continue;
+
+                const uniqueActions = new Set(typeActions.map(a => JSON.stringify(a)));
+                if (uniqueActions.size > 1) {
+                    conflicts.push({
+                        insuranceType: type,
+                        rules: matchedRules.map(r => ({
+                            id: r.id,
+                            name: r.name,
+                            priority: r.priority,
+                            action: r.actions[type]
+                        }))
+                    });
+                }
+            }
+            return conflicts;
+        }
+
+        function resolveAction(action, employee) {
+            if (action.type === 'dispatch_ratio') {
+                const dispatchUnit = getDispatchUnitById(employee.dispatchUnitId);
+                return {
+                    type: 'dispatch_ratio',
+                    source: dispatchUnit?.name || '未知派遣单位',
+                    value: dispatchUnit?.workInjuryRatio || 0
+                };
+            } else if (action.type === 'specified_ratio') {
+                return { type: 'specified_ratio', value: action.value };
+            } else {
+                return { type: 'account_ratio', value: action.value || 0 };
+            }
+        }
+
+        function matchRules(employee, accountId) {
+            const account = getAccountById(accountId);
+            if (!account) return { matched: false, conflicts: [] };
+
+            const region = account.region;
+            const regionRules = mockRules.filter(rule => {
+                if (rule.status !== 'active') return false;
+                if (!isWithinEffectPeriod(rule)) return false;
+                return matchesRegion(rule.region, region);
+            }).sort((a, b) => a.priority - b.priority);
+
+            const matchedRules = regionRules.filter(rule => evaluateRule(rule, employee));
+            const conflicts = detectConflicts(matchedRules);
+
+            if (conflicts.length > 0) {
+                return { matched: false, conflicts, matchedRules };
+            }
+
+            const actions = {};
+            matchedRules.forEach(rule => {
+                Object.entries(rule.actions).forEach(([insuranceType, action]) => {
+                    actions[insuranceType] = resolveAction(action, employee);
+                });
+            });
+
+            return {
+                matched: matchedRules.length > 0,
+                ruleId: matchedRules[0]?.id,
+                ruleName: matchedRules[0]?.name,
+                ruleVersion: matchedRules[0]?.version,
+                actions,
+                conflicts: []
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Action Handlers
+        // ═══════════════════════════════════════════════════════════
+
+        function editRule(ruleId) {
+            const rule = mockRules.find(r => r.id === ruleId);
+            if (rule) {
+                alert(`编辑规则: ${rule.name}\n\n版本: v${rule.version}\n优先级: ${rule.priority}\n\nTask 2 将实现完整的编辑表单`);
+            }
+        }
+
+        function toggleRule(ruleId) {
+            const rule = mockRules.find(r => r.id === ruleId);
+            if (rule) {
+                const newStatus = rule.status === 'active' ? 'inactive' : 'active';
+                const newStatusText = newStatus === 'active' ? '生效' : '停用';
+                rule.status = newStatus;
+                renderRuleList(mockRules);
+                alert(`规则 "${rule.name}" 已${newStatusText}`);
+            }
+        }
+
+        function cloneRule(ruleId) {
+            const rule = mockRules.find(r => r.id === ruleId);
+            if (rule) {
+                alert(`复制规则: ${rule.name}\n\nTask 2 将实现完整的复制功能`);
+            }
+        }
+
+        function showHistory(ruleId) {
+            const rule = mockRules.find(r => r.id === ruleId);
+            const history = ruleHistory[ruleId] || [];
+
+            let html = `<h3 style="margin-bottom:16px;">规则历史 - ${rule?.name || ruleId}</h3>`;
+            html += `<table class="qy-table"><thead><tr><th>版本</th><th>状态</th><th>修改时间</th><th>修改人</th><th>操作</th></tr></thead><tbody>`;
+
+            history.forEach(h => {
+                const isActive = h.status === 'active';
+                html += `<tr>
+                    <td>v${h.version} ${isActive ? '●' : ''}</td>
+                    <td>${isActive ? '当前生效' : '已停用'}</td>
+                    <td>${h.modifiedAt}</td>
+                    <td>${h.modifiedBy}</td>
+                    <td>
+                        <button class="qy-btn qy-btn--text" onclick="viewHistoryVersion('${ruleId}', ${h.version})">查看</button>
+                        ${!isActive ? `<button class="qy-btn qy-btn--text" onclick="rollback('${ruleId}', ${h.version})">回滚</button>` : ''}
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            html += '<div id="history-detail" style="margin-top:16px;display:none;"><h4>版本详情</h4><div id="history-detail-content"></div></div>';
+
+            document.getElementById('modal-title').textContent = '规则历史';
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        function viewHistoryVersion(ruleId, version) {
+            const history = ruleHistory[ruleId] || [];
+            const snapshot = history.find(h => h.version === version);
+            const rule = mockRules.find(r => r.id === ruleId);
+
+            if (snapshot) {
+                document.getElementById('history-detail').style.display = 'block';
+                document.getElementById('history-detail-content').innerHTML = `
+                    <p><strong>规则名称：</strong>${rule?.name || '-'}</p>
+                    <p><strong>地区：</strong>${rule?.region.province || ''}/${rule?.region.city || ''}/${rule?.region.district || ''}</p>
+                    <p><strong>条件：</strong>${rule ? renderConditionSummary(rule.conditions) : '-'}</p>
+                    <p><strong>动作：</strong>${rule ? renderActionSummary(rule.actions) : '-'}</p>
+                `;
+            }
+        }
+
+        function rollback(ruleId, version) {
+            if (confirm(`确定回滚到 v${version} 版本吗？`)) {
+                alert(`已回滚到 v${version} 版本`);
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        function saveRule() {
+            alert('保存规则功能由 Task 2 实现');
+            closeModal();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Insurance Preview (Task 4)
+        // ═══════════════════════════════════════════════════════════
+
+        function openInsurancePreviewDemo() {
+            const employeeId = document.getElementById('demo-employee').value;
+            const accountId = document.getElementById('demo-account').value;
+            const employee = getEmployeeById(employeeId);
+            const account = getAccountById(accountId);
+
+            if (!employee || !account) {
+                alert('请选择员工和参保户头');
+                return;
+            }
+
+            const matchResult = matchRules(employee, accountId);
+
+            let html = `
+                <div style="margin-bottom:16px;">
+                    <p><strong>员工：</strong>${employee.name} (${employee.type})</p>
+                    <p><strong>参保户头：</strong>${account.name}</p>
+                    <p><strong>规则来源：</strong>${matchResult.matched ? `${account.region.district} 规则 v${matchResult.ruleVersion}` : '使用参保户头默认比例（无匹配规则）'}</p>
+                </div>
+            `;
+
+            if (matchResult.conflicts.length > 0) {
+                html += `<div class="qy-alert qy-alert--warning" style="margin-bottom:16px;">
+                    <h4>⚠️ 规则冲突</h4>
+                    <p>员工同时匹配了多条规则，存在以下冲突：</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        ${matchResult.conflicts.map(c => `
+                            <li><strong>${c.insuranceType}：</strong>
+                                ${c.rules.map(r => `${r.name}（优先级${r.priority}）：${r.action.type}`).join(' vs ')}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>`;
+            }
+
+            const salary = 8000;
+            html += `<table class="qy-table"><thead><tr><th>险种</th><th>比例来源</th><th>比例值</th><th>金额（元）</th></tr></thead><tbody>`;
+
+            ['工伤', '养老', '医疗', '失业', '生育', '公积金'].forEach(type => {
+                const action = matchResult.actions[type] || { type: 'account_ratio', value: account.defaultRatios[type] };
+                const ratio = action.value / 100;
+                const amount = salary * ratio;
+
+                let sourceText = '';
+                if (action.type === 'dispatch_ratio') sourceText = `${action.source}比例`;
+                else if (action.type === 'specified_ratio') sourceText = '指定比例';
+                else sourceText = '参保户头比例';
+
+                html += `<tr>
+                    <td>${type}</td>
+                    <td>${sourceText}</td>
+                    <td>${action.value}%</td>
+                    <td>${amount.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+
+            document.getElementById('modal-title').textContent = '参保确认';
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Batch Import Preview (Task 6)
+        // ═══════════════════════════════════════════════════════════
+
+        function simulateBatchImport() {
+            const results = { success: 0, conflicts: [] };
+
+            mockEmployees.forEach(employee => {
+                const accountId = 'ACC001';
+                const matchResult = matchRules(employee, accountId);
+
+                if (matchResult.conflicts.length > 0) {
+                    results.conflicts.push({ employee, matchResult });
+                } else {
+                    results.success++;
+                }
+            });
+
+            const html = `
+                <div style="margin-bottom:16px;">
+                    <p>共导入 <strong>${mockEmployees.length}</strong> 条，其中：</p>
+                    <ul style="margin:8px 0 0 20px;">
+                        <li style="color:var(--qy-success-600);">✅ <strong>${results.success}</strong> 条规则匹配成功</li>
+                        <li style="color:var(--qy-warning-600);">⚠️ <strong>${results.conflicts.length}</strong> 条存在冲突</li>
+                    </ul>
+                </div>
+                ${results.conflicts.length > 0 ? `
+                <div>
+                    <h4 style="margin-bottom:12px;">冲突明细</h4>
+                    <table class="qy-table"><thead><tr><th>员工</th><th>冲突险种</th><th>涉及规则</th></tr></thead><tbody>
+                        ${results.conflicts.map(c => `
+                            <tr>
+                                <td>${c.employee.name}</td>
+                                <td>${c.matchResult.conflicts.map(ch => ch.insuranceType).join(', ')}</td>
+                                <td>${c.matchResult.conflicts[0]?.rules.map(r => r.name).join(', ')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody></table>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('modal-title').textContent = '批量导入预览';
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // Initialize
+        // ═══════════════════════════════════════════════════════════
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderRuleList(mockRules);
+
+            document.getElementById('btn-new-rule').addEventListener('click', function() {
+                document.getElementById('modal-title').textContent = '新建地区社保规则';
+                document.getElementById('modal-body').innerHTML = `
+                    <div class="form-section">
+                        <h3>Step 1: 选择地区</h3>
+                        <div class="qy-form-row">
+                            <div class="qy-form-group">
+                                <label>省级</label>
+                                <select class="qy-select" style="width:100%;">
+                                    <option value="">请选择</option>
+                                    <option value="广东省">广东省</option>
+                                    <option value="湖南省">湖南省</option>
+                                </select>
+                            </div>
+                            <div class="qy-form-group">
+                                <label>市级</label>
+                                <select class="qy-select" style="width:100%;" disabled>
+                                    <option value="">请先选择省级</option>
+                                </select>
+                            </div>
+                            <div class="qy-form-group">
+                                <label>区级</label>
+                                <select class="qy-select" style="width:100%;" disabled>
+                                    <option value="">请先选择市级</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-section">
+                        <h3>Step 2: 配置条件</h3>
+                        <p style="color:var(--qy-text-muted);font-size:13px;">Task 2 将实现完整的条件构建器</p>
+                    </div>
+                    <div class="form-section">
+                        <h3>Step 3: 配置动作</h3>
+                        <p style="color:var(--qy-text-muted);font-size:13px;">Task 2 将实现完整的动作配置</p>
+                    </div>
+                    <div class="form-section">
+                        <h3>Step 4: 基本信息</h3>
+                        <div class="qy-form-row">
+                            <div class="qy-form-group">
+                                <label>规则名称</label>
+                                <input type="text" class="qy-input" placeholder="请输入规则名称" style="width:100%;">
+                            </div>
+                            <div class="qy-form-group">
+                                <label>优先级</label>
+                                <input type="number" class="qy-input" value="1" style="width:100%;">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('modal-overlay').classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
