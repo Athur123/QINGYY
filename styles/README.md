@@ -252,12 +252,22 @@ var(--qy-shadow-lg)   /* 大阴影 */
       <span class="qy-drawer__title">抽屉标题</span>
       <span class="qy-drawer__close">×</span>
     </div>
-    <div class="qy-drawer__body">内容</div>
+    <div class="qy-drawer__body">
+      <div class="qy-drawer__section">
+        <div class="qy-drawer__section-title">分段标题</div>
+        <!-- 表单内容 -->
+      </div>
+    </div>
+    <div class="qy-drawer__footer">
+      <button class="qy-btn qy-btn--secondary">取 消</button>
+      <button class="qy-btn qy-btn--primary">确 认</button>
+    </div>
   </div>
 </div>
 ```
 
 **位置：** `qy-drawer--left/right/top/bottom`
+**宽度：** 右侧/左侧抽屉默认宽度 520px
 
 ### 消息提示 / Message
 
