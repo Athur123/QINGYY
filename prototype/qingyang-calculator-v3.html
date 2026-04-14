@@ -501,7 +501,7 @@
         /* 响应式 */
         @media (max-width: 1024px) {
             .result-summary { grid-template-columns: repeat(2, 1fr); }
-            .detail-sections { grid-template-columns: 1fr; }
+            .detail-sections .detail-card { max-width: 100%; }
             .compare-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -1123,49 +1123,16 @@
 
                         <!-- 明细表格 -->
                         <section class="detail-sections" id="detailSection" aria-label="费用明细">
-                            <!-- 社保明细 -->
                             <div class="detail-card">
                                 <div class="detail-card__header">
                                     <div class="detail-card__title">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--qy-primary-500);">
-                                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                                            <path d="M9 11l3 3L22 4"/>
+                                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                                         </svg>
-                                        社保费用明细
+                                        费用明细
                                     </div>
-                                    <span class="detail-card__badge" id="socialPolicyBadge">长沙市 2025</span>
-                                </div>
-                                <table class="detail-table">
-                                    <thead>
-                                        <tr>
-                                            <th>险种</th>
-                                            <th>缴费基数</th>
-                                            <th class="amount">单位缴纳</th>
-                                            <th class="amount">个人缴纳</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="socialTableBody"></tbody>
-                                    <tfoot>
-                                        <tr class="total-row">
-                                            <td>社保合计</td>
-                                            <td>-</td>
-                                            <td class="amount" id="socialCompanyTotal">0</td>
-                                            <td class="amount" id="socialPersonalTotal">0</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-
-                            <!-- 公积金明细 -->
-                            <div class="detail-card">
-                                <div class="detail-card__header">
-                                    <div class="detail-card__title">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--qy-primary-500);">
-                                            <rect x="2" y="5" width="20" height="14" rx="2"/>
-                                            <line x1="2" y1="10" x2="22" y2="10"/>
-                                        </svg>
-                                        公积金费用明细
-                                    </div>
-                                    <span class="detail-card__badge" id="fundPolicyBadge">长沙市 2025</span>
+                                    <span class="detail-card__badge" id="policyBadge">长沙市 2025</span>
                                 </div>
                                 <table class="detail-table">
                                     <thead>
@@ -1176,9 +1143,14 @@
                                             <th class="amount">个人缴纳</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>住房公积金</td>
+                                    <tbody id="detailTableBody">
+                                        <!-- 社保部分由 JS 动态生成 -->
+                                        <!-- 公积金静态行 -->
+                                        <tr class="fund-row">
+                                            <td>
+                                                <span class="item-tag fund">公积金</span>
+                                                住房公积金
+                                            </td>
                                             <td id="fundBase">8,000</td>
                                             <td class="amount" id="fundCompany">960</td>
                                             <td class="amount" id="fundPersonal">960</td>
@@ -1186,10 +1158,10 @@
                                     </tbody>
                                     <tfoot>
                                         <tr class="total-row">
-                                            <td>公积金合计</td>
+                                            <td>合计</td>
                                             <td>-</td>
-                                            <td class="amount" id="fundCompanyTotal">960</td>
-                                            <td class="amount" id="fundPersonalTotal">960</td>
+                                            <td class="amount" id="totalCompany">0</td>
+                                            <td class="amount" id="totalPersonal">0</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -1405,27 +1377,33 @@
             animateValue('companyAmount', result.totalCompany, '');
             animateValue('personalAmount', result.totalPersonal, '');
 
-            const tbody = document.getElementById('socialTableBody');
+            const tbody = document.getElementById('detailTableBody');
             tbody.innerHTML = result.socialDetails.map(item => `
                 <tr>
-                    <td>${item.name}</td>
+                    <td>
+                        <span class="item-tag social">社保</span>
+                        ${item.name}
+                    </td>
                     <td>${item.base.toLocaleString()}</td>
                     <td class="amount">${formatMoney(item.company)}</td>
                     <td class="amount">${formatMoney(item.personal)}</td>
                 </tr>
-            `).join('');
+            `).join('') + `
+                <tr class="fund-row">
+                    <td>
+                        <span class="item-tag fund">公积金</span>
+                        住房公积金
+                    </td>
+                    <td>${result.base.toLocaleString()}</td>
+                    <td class="amount">${formatMoney(result.fundCompany)}</td>
+                    <td class="amount">${formatMoney(result.fundPersonal)}</td>
+                </tr>
+            `;
 
-            document.getElementById('socialCompanyTotal').textContent = formatMoney(result.socialCompanyTotal);
-            document.getElementById('socialPersonalTotal').textContent = formatMoney(result.socialPersonalTotal);
+            document.getElementById('totalCompany').textContent = formatMoney(result.totalCompany);
+            document.getElementById('totalPersonal').textContent = formatMoney(result.totalPersonal);
 
-            document.getElementById('fundBase').textContent = result.base.toLocaleString();
-            document.getElementById('fundCompany').textContent = formatMoney(result.fundCompany);
-            document.getElementById('fundPersonal').textContent = formatMoney(result.fundPersonal);
-            document.getElementById('fundCompanyTotal').textContent = formatMoney(result.fundCompany);
-            document.getElementById('fundPersonalTotal').textContent = formatMoney(result.fundPersonal);
-
-            document.getElementById('socialPolicyBadge').textContent = `${result.cityName} 2025`;
-            document.getElementById('fundPolicyBadge').textContent = `${result.cityName} 2025`;
+            document.getElementById('policyBadge').textContent = `${result.cityName} 2025`;
 
             updateChart(result.totalCompany, result.socialPersonalTotal, result.fundCompany + result.fundPersonal, result.total);
         }

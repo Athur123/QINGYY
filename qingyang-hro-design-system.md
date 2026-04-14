@@ -1,9 +1,11 @@
-# 青阳云HRO设计系统 v1.0
+# 青阳云HRO设计系统 v1.2
 
-> **类型**: B2B SaaS / 企业级人力资源管理系统  
-> **风格**: Professional / Clean / Efficient  
-> **版本**: v1.0  
-> **日期**: 2026-04-03
+> **类型**: B2B SaaS / 企业级人力资源管理系统
+> **风格**: Professional / Clean / Efficient
+> **版本**: v1.2
+> **日期**: 2026-04-10
+>
+> **更新说明**: v1.2 新增抽屉组件规范（Drawer）、更新抽屉默认宽度至520px、添加底部按钮栏和分段标题样式，对齐实际系统实现
 
 ---
 
@@ -487,7 +489,49 @@ body {
   border-color: var(--qy-primary-400);
   box-shadow: var(--qy-focus-ring);
 }
-```
+
+/* Combobox（下拉输入框组合）========== */
+/* 用于筛选工具栏中的下拉选择，如"按结算主体"、"湖南立人科技有限公司" */
+.qy-combobox {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 var(--qy-space-3);
+  background: var(--qy-bg-secondary);
+  border: 1px solid var(--qy-border-medium);
+  border-radius: var(--qy-radius-md);
+  cursor: pointer;
+  transition: all var(--qy-transition-fast);
+}
+
+.qy-combobox:hover {
+  border-color: var(--qy-border-focus);
+}
+
+.qy-combobox:focus-within {
+  outline: none;
+  border-color: var(--qy-primary-400);
+  box-shadow: var(--qy-focus-ring);
+}
+
+.qy-combobox__text {
+  font-size: var(--qy-font-size-sm);
+  color: var(--qy-text-primary);
+  white-space: nowrap;
+}
+
+.qy-combobox__arrow {
+  display: flex;
+  align-items: center;
+  margin-left: var(--qy-space-2);
+  color: var(--qy-text-secondary);
+}
+
+.qy-combobox__arrow svg {
+  width: 12px;
+  height: 12px;
+}
+
 
 ---
 
@@ -594,7 +638,62 @@ body {
   color: var(--qy-text-secondary);
   margin-top: var(--qy-space-1);
 }
-```
+
+/* ========== Stats Cards（统计数据卡片）========== */
+/* 用于展示关键指标的统计卡片，如参保状态统计 */
+.qy-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--qy-space-4);
+  padding: var(--qy-space-4) 0;
+  margin-bottom: var(--qy-space-4);
+  flex-wrap: wrap;
+}
+
+.qy-stats-bar__item {
+  display: flex;
+  align-items: center;
+  gap: var(--qy-space-3);
+  padding: var(--qy-space-3) var(--qy-space-4);
+  background: var(--qy-bg-primary);
+  border: 1px solid var(--qy-border-light);
+  border-radius: var(--qy-radius-md);
+  cursor: pointer;
+  transition: all var(--qy-transition-fast);
+}
+
+.qy-stats-bar__item:hover {
+  background: var(--qy-bg-secondary);
+}
+
+.qy-stats-bar__item.is-active {
+  background: var(--qy-primary-50);
+  border-color: var(--qy-primary-200);
+}
+
+.qy-stats-bar__count {
+  font-size: var(--qy-font-size-lg);
+  font-weight: var(--qy-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--qy-text-primary);
+}
+
+.qy-stats-bar__item.is-active .qy-stats-bar__count {
+  color: var(--qy-primary-600);
+}
+
+.qy-stats-bar__label {
+  font-size: var(--qy-font-size-sm);
+  color: var(--qy-text-secondary);
+}
+
+.qy-stats-bar__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--qy-border-light);
+  margin: 0 var(--qy-space-2);
+}
+
 
 ---
 
@@ -726,6 +825,65 @@ body {
   background: var(--qy-warning-50);
   border-color: #FED7AA;
 }
+
+/* ========== Inline Warning Banner（内联警告横幅）========== */
+/* 用于列表页顶部的重要提示，如"XX人未参保" */
+.qy-warning-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--qy-space-3) var(--qy-space-4);
+  background: var(--qy-warning-50);
+  border: 1px solid #FED7AA;
+  border-radius: var(--qy-radius-md);
+  margin-bottom: var(--qy-space-4);
+}
+
+.qy-warning-banner__content {
+  display: flex;
+  align-items: center;
+  gap: var(--qy-space-3);
+}
+
+.qy-warning-banner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--qy-warning-500);
+}
+
+.qy-warning-banner__text {
+  font-size: var(--qy-font-size-sm);
+  color: var(--qy-text-primary);
+}
+
+.qy-warning-banner__names {
+  color: var(--qy-primary-500);
+  font-weight: var(--qy-font-weight-medium);
+}
+
+.qy-warning-banner__count {
+  font-weight: var(--qy-font-weight-semibold);
+}
+
+.qy-warning-banner__action {
+  font-size: var(--qy-font-size-sm);
+  font-weight: var(--qy-font-weight-medium);
+  color: var(--qy-primary-500);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--qy-space-1) var(--qy-space-2);
+  border-radius: var(--qy-radius-sm);
+  transition: background var(--qy-transition-fast);
+}
+
+.qy-warning-banner__action:hover {
+  background: var(--qy-primary-50);
+}
+
 
 .qy-alert__content {
   flex: 1;
@@ -880,6 +1038,49 @@ body {
 .qy-table--comfortable td {
   padding: var(--qy-space-4);
 }
+
+/* 表格工具栏（表格上方的筛选、操作栏） */
+.qy-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qy-space-4);
+  margin-bottom: var(--qy-space-4);
+  flex-wrap: wrap;
+}
+
+.qy-table-toolbar__left,
+.qy-table-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--qy-space-3);
+  flex-wrap: wrap;
+}
+
+/* 单元格内联信息（表格单元格中的组合信息，如合同信息） */
+.qy-cell-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qy-cell-info__primary {
+  font-size: var(--qy-font-size-sm);
+  color: var(--qy-text-primary);
+}
+
+.qy-cell-info__secondary {
+  font-size: var(--qy-font-size-xs);
+  color: var(--qy-text-secondary);
+}
+
+/* 空值显示 */
+.qy-table td:empty::after,
+.qy-table td:has(> .qy-placeholder) {
+  content: '--';
+  color: var(--qy-text-muted);
+}
+
 ```
 
 ---
@@ -888,23 +1089,23 @@ body {
 
 ```html
 <nav class="qy-pagination" aria-label="分页">
-  <span class="qy-pagination__total">共 275 条</span>
+  <span class="qy-pagination__total">共 260 条数据</span>
   <div class="qy-pagination__pages">
     <button class="qy-pagination__btn" disabled aria-label="上一页">‹</button>
     <button class="qy-pagination__btn qy-pagination__btn--active" aria-current="page">1</button>
     <button class="qy-pagination__btn">2</button>
     <button class="qy-pagination__btn">3</button>
-    <span class="qy-pagination__ellipsis">...</span>
-    <button class="qy-pagination__btn">28</button>
+    <span class="qy-pagination__ellipsis">•••</span>
+    <button class="qy-pagination__btn">26</button>
     <button class="qy-pagination__btn" aria-label="下一页">›</button>
   </div>
   <div class="qy-pagination__options">
-    <select class="qy-select qy-select--sm" aria-label="每页条数">
-      <option>10条/页</option>
-      <option selected>20条/页</option>
-      <option>50条/页</option>
-      <option>100条/页</option>
-    </select>
+    <div class="qy-combobox" aria-label="每页条数">
+      <span class="qy-combobox__text">10 条/页</span>
+      <span class="qy-combobox__arrow">
+        <svg viewBox="0 0 12 12" fill="currentColor"><path d="M3 4.5L6 7.5L9 4.5"/></svg>
+      </span>
+    </div>
     <span class="qy-pagination__jump">
       跳至 <input type="text" class="qy-input qy-input--sm" style="width: 48px;"> 页
     </span>
@@ -918,10 +1119,10 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: var(--qy-space-4) 0;
+  font-size: var(--qy-font-size-sm);
 }
 
 .qy-pagination__total {
-  font-size: var(--qy-font-size-sm);
   color: var(--qy-text-secondary);
 }
 
@@ -965,6 +1166,7 @@ body {
 .qy-pagination__ellipsis {
   color: var(--qy-text-muted);
   padding: 0 var(--qy-space-1);
+  letter-spacing: 2px;
 }
 
 .qy-pagination__options {
@@ -977,9 +1179,9 @@ body {
   display: flex;
   align-items: center;
   gap: var(--qy-space-2);
-  font-size: var(--qy-font-size-sm);
   color: var(--qy-text-secondary);
 }
+
 ```
 
 ---
@@ -1054,7 +1256,61 @@ body {
 
 ---
 
-### 10. 空状态 Empty State
+### 10. 保险类型选项卡 Insurance Tabs
+
+```html
+<div class="qy-insurance-tabs" role="tablist" aria-label="保险类型">
+  <button class="qy-insurance-tabs__item is-active" role="tab" aria-selected="true">社保</button>
+  <button class="qy-insurance-tabs__item" role="tab" aria-selected="false">公积金</button>
+  <button class="qy-insurance-tabs__item" role="tab" aria-selected="false">商保</button>
+</div>
+```
+
+```css
+.qy-insurance-tabs {
+  display: flex;
+  gap: var(--qy-space-6);
+  padding-bottom: var(--qy-space-4);
+  border-bottom: 1px solid var(--qy-border-light);
+  margin-bottom: var(--qy-space-4);
+}
+
+.qy-insurance-tabs__item {
+  position: relative;
+  padding: var(--qy-space-2) 0;
+  font-size: var(--qy-font-size-base);
+  font-weight: var(--qy-font-weight-medium);
+  color: var(--qy-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--qy-transition-fast);
+}
+
+.qy-insurance-tabs__item:hover {
+  color: var(--qy-text-primary);
+}
+
+.qy-insurance-tabs__item.is-active {
+  color: var(--qy-primary-600);
+  font-weight: var(--qy-font-weight-semibold);
+}
+
+.qy-insurance-tabs__item.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -var(--qy-space-4);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--qy-primary-500);
+  border-radius: 1px;
+}
+```
+
+---
+
+### 11. 空状态 Empty State
 
 ```html
 <div class="qy-empty">
@@ -1103,6 +1359,57 @@ body {
   max-width: 400px;
 }
 ```
+
+---
+
+### 12. 抽屉 Drawer
+
+抽屉是从页面侧边滑出的面板，用于展示详情、表单或辅助操作。
+
+```html
+<div class="qy-drawer qy-drawer--right is-open">
+  <div class="qy-drawer__overlay"></div>
+  <div class="qy-drawer__container">
+    <div class="qy-drawer__header">
+      <span class="qy-drawer__title">抽屉标题</span>
+      <span class="qy-drawer__close">×</span>
+    </div>
+    <div class="qy-drawer__body">
+      <div class="qy-drawer__section">
+        <div class="qy-drawer__section-title">分段标题</div>
+        <!-- 表单内容 -->
+      </div>
+    </div>
+    <div class="qy-drawer__footer">
+      <button class="qy-btn qy-btn--secondary">取 消</button>
+      <button class="qy-btn qy-btn--primary">确 认</button>
+    </div>
+  </div>
+</div>
+```
+
+**位置变体：** `qy-drawer--left` `qy-drawer--right` `qy-drawer--top` `qy-drawer--bottom`
+
+**CSS变量：**
+```css
+--qy-drawer-width: 520px;           /* 右侧/左侧抽屉宽度 */
+--qy-drawer-height: 300px;          /* 顶部/底部抽屉高度 */
+--qy-drawer-max-width: 90vw;        /* 最大宽度 */
+--qy-drawer-overlay: rgba(0,0,0,0.5); /* 遮罩颜色 */
+```
+
+**规格：**
+- 抽屉宽度：520px（右侧/左侧）
+- 抽屉高度：300px（顶部/底部）
+- 遮罩层：rgba(0,0,0,0.5)
+- 标题字号：16px，字重 600
+- 分段标题字号：14px，字重 600
+- 底部按钮栏内边距：16px 20px
+- 表单分组间距：16px
+
+**实际应用：**
+- `employeeManage/employee/index` 花名册添加人员抽屉
+- `employeeManage/employee/detail` 员工详情抽屉
 
 ---
 
@@ -1179,24 +1486,61 @@ body {
           </button>
         </div>
 
+        <!-- 保险类型选项卡 -->
+        <div class="qy-insurance-tabs" role="tablist">
+          <button class="qy-insurance-tabs__item is-active">社保</button>
+          <button class="qy-insurance-tabs__item">公积金</button>
+          <button class="qy-insurance-tabs__item">商保</button>
+        </div>
+
+        <!-- Stats Bar（统计数据条） -->
+        <div class="qy-stats-bar">
+          <div class="qy-stats-bar__item is-active">
+            <span class="qy-stats-bar__count">0</span>
+            <span class="qy-stats-bar__label">已参保</span>
+          </div>
+          <div class="qy-stats-bar__item">
+            <span class="qy-stats-bar__count">260</span>
+            <span class="qy-stats-bar__label">未参保</span>
+          </div>
+          <div class="qy-stats-bar__item">
+            <span class="qy-stats-bar__count">0</span>
+            <span class="qy-stats-bar__label">已停保</span>
+          </div>
+          <div class="qy-stats-bar__divider"></div>
+          <button class="qy-btn qy-btn--secondary">离职员工</button>
+        </div>
+
         <!-- Warning Banner（可选） -->
-        <div class="qy-alert qy-alert--warning qy-alert--banner" role="alert">
-          <span class="qy-alert__content">256人未参保</span>
-          <a href="#" class="qy-alert__action">查看详情</a>
+        <div class="qy-warning-banner">
+          <div class="qy-warning-banner__content">
+            <span class="qy-warning-banner__icon">⚠️</span>
+            <span class="qy-warning-banner__text">
+              <span class="qy-warning-banner__names">李先生，谭...等</span>
+              <span class="qy-warning-banner__count">260</span>人在职未参保
+            </span>
+          </div>
+          <button class="qy-warning-banner__action">立即处理</button>
         </div>
 
         <!-- 筛选工具栏 -->
-        <div class="qy-toolbar">
-          <div class="qy-toolbar__left">
-            <select class="qy-select" style="width: 140px;" aria-label="结算主体">
-              <option>按结算主体</option>
-            </select>
-            <select class="qy-select" style="width: 180px;" aria-label="公司">
-              <option>湖南立人科技有限公司</option>
-            </select>
-            <input type="text" class="qy-input" style="width: 240px;" placeholder="姓名/工号/身份证">
+        <div class="qy-table-toolbar">
+          <div class="qy-table-toolbar__left">
+            <div class="qy-combobox" aria-label="结算主体">
+              <span class="qy-combobox__text">按结算主体</span>
+              <span class="qy-combobox__arrow">▼</span>
+            </div>
+            <div class="qy-combobox" aria-label="公司">
+              <span class="qy-combobox__text">湖南立人科技有限公司</span>
+              <span class="qy-combobox__arrow">▼</span>
+            </div>
+            <input type="text" class="qy-input" style="width: 200px;" placeholder="姓名/手机号/证件号">
             <button class="qy-btn qy-btn--primary">搜索</button>
             <button class="qy-btn qy-btn--secondary">高级搜索</button>
+          </div>
+          <div class="qy-table-toolbar__right">
+            <button class="qy-btn qy-btn--primary">批量导入</button>
+            <button class="qy-btn qy-btn--secondary">•••</button>
           </div>
         </div>
 
@@ -1238,24 +1582,23 @@ body {
 
         <!-- 分页 -->
         <nav class="qy-pagination" aria-label="分页">
-          <span class="qy-pagination__total">共 275 条</span>
+          <span class="qy-pagination__total">共 260 条数据</span>
           <div class="qy-pagination__pages">
             <button class="qy-pagination__btn" disabled>‹</button>
             <button class="qy-pagination__btn qy-pagination__btn--active" aria-current="page">1</button>
             <button class="qy-pagination__btn">2</button>
             <button class="qy-pagination__btn">3</button>
-            <span class="qy-pagination__ellipsis">...</span>
-            <button class="qy-pagination__btn">28</button>
+            <span class="qy-pagination__ellipsis">•••</span>
+            <button class="qy-pagination__btn">26</button>
             <button class="qy-pagination__btn">›</button>
           </div>
           <div class="qy-pagination__options">
-            <select class="qy-select" style="width: 90px;" aria-label="每页条数">
-              <option>10条/页</option>
-              <option selected>20条/页</option>
-              <option>50条/页</option>
-            </select>
+            <div class="qy-combobox">
+              <span class="qy-combobox__text">10 条/页</span>
+              <span class="qy-combobox__arrow">▼</span>
+            </div>
             <span class="qy-pagination__jump">
-              跳至 <input type="text" class="qy-input" style="width: 48px;"> 页
+              跳至 <input type="text" class="qy-input qy-input--sm" style="width: 48px;"> 页
             </span>
           </div>
         </nav>
@@ -1462,6 +1805,125 @@ body {
   font-weight: var(--qy-font-weight-medium);
   color: var(--qy-text-primary);
 }
+
+/* ========== 离职员工按钮 ========== */
+.qy-btn--with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qy-space-2);
+}
+
+
+---
+
+## 参考页面模板：员工参保档案页
+
+本模板展示智能薪酬 → 保险福利 → 员工参保档案页面的完整布局结构。
+
+```html
+<!-- 页面结构 -->
+<div class="qy-page">
+  <!-- 保险类型选项卡 -->
+  <div class="qy-insurance-tabs" role="tablist">
+    <button class="qy-insurance-tabs__item is-active">社保</button>
+    <button class="qy-insurance-tabs__item">公积金</button>
+    <button class="qy-insurance-tabs__item">商保</button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="qy-stats-bar">
+    <!-- 全部（默认激活） -->
+    <div class="qy-stats-bar__item is-active">
+      <span class="qy-stats-bar__count">0</span>
+      <span class="qy-stats-bar__label">已参保</span>
+    </div>
+    <div class="qy-stats-bar__item">
+      <span class="qy-stats-bar__count">260</span>
+      <span class="qy-stats-bar__label">未参保</span>
+    </div>
+    <div class="qy-stats-bar__item">
+      <span class="qy-stats-bar__count">0</span>
+      <span class="qy-stats-bar__label">已停保</span>
+    </div>
+    <div class="qy-stats-bar__divider"></div>
+    <button class="qy-btn qy-btn--secondary qy-btn--with-icon">
+      离职员工 <span class="qy-icon">▶</span>
+    </button>
+  </div>
+
+  <!-- Warning Banner（当有待处理事项时显示） -->
+  <div class="qy-warning-banner">
+    <div class="qy-warning-banner__content">
+      <span class="qy-warning-banner__icon">⚠️</span>
+      <span class="qy-warning-banner__text">
+        <span class="qy-warning-banner__names">李先生，谭，...</span>等
+        <span class="qy-warning-banner__count">260</span>人在职未参保
+      </span>
+    </div>
+    <button class="qy-warning-banner__action">立即处理</button>
+  </div>
+
+  <!-- 表格工具栏 -->
+  <div class="qy-table-toolbar">
+    <div class="qy-table-toolbar__left">
+      <div class="qy-combobox"><span class="qy-combobox__text">按结算主体</span></div>
+      <div class="qy-combobox"><span class="qy-combobox__text">湖南立人科技有限公司</span></div>
+      <input type="text" class="qy-input" placeholder="姓名/手机号/证件号">
+      <button class="qy-btn qy-btn--primary">搜索</button>
+      <button class="qy-btn qy-btn--secondary">高级搜索</button>
+    </div>
+    <div class="qy-table-toolbar__right">
+      <button class="qy-btn qy-btn--primary">批量导入</button>
+      <button class="qy-btn qy-btn--secondary">•••</button>
+    </div>
+  </div>
+
+  <!-- 数据表格 -->
+  <div class="qy-table-container">
+    <table class="qy-table">
+      <!-- 表头 -->
+      <thead>
+        <tr>
+          <th class="qy-table__checkbox"><input type="checkbox"></th>
+          <th>姓名</th>
+          <th>手机号</th>
+          <th>证件号码</th>
+          <!-- ... 更多列 -->
+          <th class="qy-table__actions">操作</th>
+        </tr>
+      </thead>
+      <!-- 表体 -->
+      <tbody>
+        <tr>
+          <td class="qy-table__checkbox"><input type="checkbox"></td>
+          <td>张三</td>
+          <td>18621014611</td>
+          <td>430923199003168111</td>
+          <!-- ... 更多单元格 -->
+          <td class="qy-table__actions">
+            <button class="qy-btn-action qy-btn-action--text">详情</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 分页 -->
+  <nav class="qy-pagination">
+    <span class="qy-pagination__total">共 260 条数据</span>
+    <div class="qy-pagination__pages">
+      <button class="qy-pagination__btn" disabled>‹</button>
+      <button class="qy-pagination__btn qy-pagination__btn--active">1</button>
+      <button class="qy-pagination__btn">2</button>
+      <!-- ... -->
+      <button class="qy-pagination__btn">›</button>
+    </div>
+    <div class="qy-pagination__options">
+      <div class="qy-combobox"><span class="qy-combobox__text">10 条/页</span></div>
+      <span class="qy-pagination__jump">跳至 <input type="text"> 页</span>
+    </div>
+  </nav>
+</div>
 ```
 
 ---
@@ -1471,7 +1933,7 @@ body {
 在交付每个页面/组件前，请确认以下检查项：
 
 ### 视觉质量
-- [ ] 没有使用emoji作为图标
+- [ ] 没有使用emoji作为图标（系统图标使用SVG/图标字体）
 - [ ] 所有图标来自同一图标库，风格一致
 - [ ] 按下状态不会引起布局偏移
 - [ ] 使用语义化颜色token，没有硬编码色值
@@ -1497,6 +1959,13 @@ body {
 - [ ] 数据表格支持排序、筛选、分页
 - [ ] 批量操作清晰可发现
 - [ ] 空状态提供明确引导
+
+### 保险福利模块特定
+- [ ] 使用 qy-insurance-tabs 展示保险类型切换
+- [ ] 使用 qy-stats-bar 展示参保状态统计
+- [ ] 使用 qy-warning-banner 展示待处理提醒
+- [ ] 使用 qy-combobox 替代原生 select 用于筛选器
+- [ ] 使用 qy-table-toolbar 布局筛选和操作按钮
 
 ---
 

@@ -406,6 +406,31 @@
             color: var(--qy-text-primary);
         }
 
+        .result-card-subtitle {
+            font-size: var(--qy-font-size-sm);
+            color: var(--qy-text-secondary);
+        }
+
+        .base-amount {
+            font-weight: 500;
+        }
+
+        .base-range {
+            font-size: 11px;
+            color: var(--qy-text-muted);
+            margin-top: 2px;
+        }
+
+        /* 表格单元格内容居中 */
+        .calc-table td[data-label="单位缴费基数"],
+        .calc-table td[data-label="个人缴费基数"],
+        .calc-table td[data-label="单位固定"],
+        .calc-table td[data-label="个人固定"],
+        .calc-table td[data-label="单位比例"],
+        .calc-table td[data-label="个人比例"] {
+            text-align: center;
+        }
+
         .result-card-icon {
             width: 32px;
             height: 32px;
@@ -439,13 +464,14 @@
             border-bottom: 1px solid var(--qy-border-light);
         }
 
-        .calc-table th:first-child { width: 10%; padding-left: var(--qy-space-4); }
-        .calc-table th:nth-child(2) { width: 12%; }
-        .calc-table th:nth-child(3),
-        .calc-table th:nth-child(4) { width: 10%; text-align: center; }
-        .calc-table th:nth-child(5),
-        .calc-table th:nth-child(6) { width: 16%; text-align: center; }
-        .calc-table th:last-child { width: 12%; text-align: right; padding-right: var(--qy-space-4); }
+        .calc-table th:first-child { width: 8%; padding-left: var(--qy-space-4); }
+        .calc-table th:nth-child(2) { width: 14%; text-align: center; }
+        .calc-table th:nth-child(3) { width: 14%; text-align: center; }
+        .calc-table th:nth-child(4),
+        .calc-table th:nth-child(5) { width: 11%; text-align: center; }
+        .calc-table th:nth-child(6),
+        .calc-table th:nth-child(7) { width: 14%; text-align: center; }
+        .calc-table th:last-child { width: 14%; text-align: right; padding-right: var(--qy-space-4); }
 
         .calc-table td {
             padding: var(--qy-space-2);
@@ -1135,8 +1161,17 @@
                             </select>
                         </div>
                         <div class="filter-item">
+                            <label class="filter-label">参保主体</label>
+                            <select class="qy-input" id="dispatchUnit">
+                                <option value="">请选择（可选）</option>
+                                <option value="unit1">某某科技有限公司</option>
+                                <option value="unit2">某某人力资源公司</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
                             <label class="filter-label">社保方案</label>
                             <select class="qy-input" id="socialScheme" onchange="updateCalculation()">
+                                <option value="">不参加社保</option>
                                 <option value="normal">长沙市标准方案</option>
                                 <option value="high">高基数方案</option>
                                 <option value="low">低基数方案</option>
@@ -1145,18 +1180,11 @@
                         <div class="filter-item">
                             <label class="filter-label">公积金方案</label>
                             <select class="qy-input" id="fundScheme" onchange="updateCalculation()">
+                                <option value="">不参加公积金</option>
                                 <option value="12">12% 比例</option>
                                 <option value="10">10% 比例</option>
                                 <option value="8">8% 比例</option>
                                 <option value="5">5% 比例</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label class="filter-label">派遣单位</label>
-                            <select class="qy-input" id="dispatchUnit">
-                                <option value="">请选择（可选）</option>
-                                <option value="unit1">某某科技有限公司</option>
-                                <option value="unit2">某某人力资源公司</option>
                             </select>
                         </div>
                     </div>
@@ -1167,10 +1195,10 @@
                                 <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
                             </svg>
-                            工资设置
+                            参保设置
                         </div>
                         <div class="filter-item">
-                            <label class="filter-label">税前月工资</label>
+                            <label class="filter-label">申报工资</label>
                             <input type="number" class="qy-input" id="salaryInput" placeholder="请输入工资" value="8000">
                             <div class="form-error" id="salaryError"></div>
                         </div>
@@ -1224,12 +1252,6 @@
                                     </svg>
                                     方案对比
                                 </button>
-                                <button class="qy-btn qy-btn--secondary" onclick="generateShareLink()">
-                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 6px;">
-                                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-                                    </svg>
-                                    分享结果
-                                </button>
                             </div>
                         </div>
 
@@ -1241,12 +1263,12 @@
                                     <div class="summary-amount" id="totalAmount">¥ 0.00</div>
                                     <div class="summary-detail">
                                         <div class="summary-item">
-                                            <span class="summary-item-label">单位承担</span>
+                                            <span class="summary-item-label">单位应缴</span>
                                             <span class="summary-item-value" id="companyTotal">¥ 0.00</span>
                                         </div>
                                         <div class="summary-divider"></div>
                                         <div class="summary-item">
-                                            <span class="summary-item-label">个人承担</span>
+                                            <span class="summary-item-label">个人应缴</span>
                                             <span class="summary-item-value" id="personalTotal">¥ 0.00</span>
                                         </div>
 
@@ -1270,12 +1292,12 @@
                                     <div class="chart-legend">
                                         <div class="legend-item">
                                             <div class="legend-color" style="background: var(--qy-primary-500)"></div>
-                                            <span class="legend-text">单位承担</span>
+                                            <span class="legend-text">单位应缴</span>
                                             <span class="legend-value" id="legendCompany">¥ 0.00</span>
                                         </div>
                                         <div class="legend-item">
                                             <div class="legend-color" style="background: var(--qy-success-500)"></div>
-                                            <span class="legend-text">个人承担</span>
+                                            <span class="legend-text">个人应缴</span>
                                             <span class="legend-value" id="legendPersonal">¥ 0.00</span>
                                         </div>
 
@@ -1309,76 +1331,26 @@
                                 <div class="result-card-icon social-icon">社</div>
                                 社保公积金费用明细
                             </div>
+                            <div class="result-card-subtitle" id="salaryDisplay">
+                                申报工资：¥<span id="salaryDisplayValue">8,000</span> 元
+                            </div>
                         </div>
                         <div class="result-card-body">
                             <table class="calc-table">
                                 <thead>
                                     <tr>
                                         <th>项目</th>
-                                        <th>缴费基数</th>
+                                        <th style="text-align: center">单位缴费基数</th>
+                                        <th style="text-align: center">个人缴费基数</th>
                                         <th style="text-align: center">单位固定</th>
                                         <th style="text-align: center">个人固定</th>
                                         <th style="text-align: center">单位比例</th>
                                         <th style="text-align: center">个人比例</th>
-                                        <th style="text-align: right">应缴费用</th>
+                                        <th style="text-align: right">存缴金额</th>
                                     </tr>
                                 </thead>
                                 <tbody id="combinedTableBody"></tbody>
                             </table>
-                        </div>
-                    </div>
-
-                    <!-- 政策卡片区域 -->
-                    <div class="policy-section">
-                        <!-- 社保政策卡片 -->
-                        <div class="policy-card">
-                            <div class="policy-header">
-                                <svg class="policy-icon" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="policy-title" id="policyTitle">长沙市 2025 年社保政策</span>
-                                <span class="qy-tag qy-tag--warning">最近更新</span>
-                            </div>
-                            <div class="policy-content" id="policyContent">
-                                <p>• 最低缴费基数：4,357 元 / 最高缴费基数：26,010 元</p>
-                                <p>• 申报工资低于最低基数将按 4,357 元计算，高于最高基数按 26,010 元计算</p>
-                                <p>• 工伤保险、生育保险个人无需缴纳</p>
-                                <p>• 大病医疗按年固定缴费 180 元/年（个人承担，按月分摊 15 元/月）</p>
-                            </div>
-                            <div class="policy-footer">
-                                <a href="#" class="policy-link">
-                                    查看完整政策
-                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- 公积金政策卡片 -->
-                        <div class="policy-card policy-card--fund">
-                            <div class="policy-header">
-                                <svg class="policy-icon policy-icon--fund" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="policy-title" id="fundPolicyTitle">长沙市 2025 年公积金政策</span>
-                                <span class="qy-tag qy-tag--success">热门</span>
-                            </div>
-                            <div class="policy-content" id="fundPolicyContent">
-                                <p>• 缴存比例：5%、8%、10%、12% 四档可选</p>
-                                <p>• 单位和个人缴存比例一致</p>
-                                <p>• 最低缴存额：单位/个人各 261 元/月（按最低基数 5% 计算）</p>
-                                <p>• 最高缴存额：单位/个人各 3,121 元/月（按最高基数 12% 计算）</p>
-                            </div>
-                            <div class="policy-footer">
-                                <a href="#" class="policy-link">
-                                    查看完整政策
-                                    <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                </a>
-                            </div>
                         </div>
                     </div>
 
@@ -1435,7 +1407,7 @@
                     '最低缴费基数：4,357 元 / 最高缴费基数：26,010 元',
                     '申报工资低于最低基数将按 4,357 元计算，高于最高基数按 26,010 元计算',
                     '工伤保险、生育保险个人无需缴纳',
-                    '大病医疗按年固定缴费 180 元/年（个人承担，按月分摊 15 元/月）'
+                    '大病医疗按年固定缴费 180 元/年（个人应缴，按月分摊 15 元/月）'
                 ],
                 fundRules: [
                     '缴存比例：5%、8%、10%、12% 四档可选',
@@ -1614,6 +1586,15 @@
             addBaseScenario() {
                 const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
 
+                const socialScheme = document.getElementById('socialScheme').value;
+                const fundScheme = document.getElementById('fundScheme').value;
+
+                // 不允许同时为空
+                if (!socialScheme && !fundScheme) {
+                    showToast('请至少选择社保方案或公积金方案', 'warning');
+                    return;
+                }
+
                 const scenario = {
                     id: 'base', // 固定ID表示基准方案
                     name: '当前方案',
@@ -1718,10 +1699,23 @@
                     const fundName = Array.from(fundSelect.options).find(o => o.value === value)?.text || value;
                     scenario.fundScheme = value;
                     scenario.fundSchemeName = fundName;
+                } else if (type === 'region') {
+                    const regionSelect = document.getElementById('regionSelect');
+                    const regionName = Array.from(regionSelect.options).find(o => o.value === value)?.text || (value ? value : '请选择地区');
+                    scenario.region = value;
+                    scenario.regionName = regionName;
                 }
 
                 // 即时计算
                 scenario.results = this.calculateScenarioResults(scenario);
+
+                // 检查是否同时为空
+                if (!scenario.socialScheme && !scenario.fundScheme) {
+                    // 标记结果为无效
+                    scenario.results = null;
+                    showToast('请至少选择社保方案或公积金方案', 'warning');
+                }
+
                 // 局部更新，避免全量渲染导致闪烁
                 this.updateScenarioRow(scenarioId);
                 return true;
@@ -1734,8 +1728,6 @@
 
                 const baseScenario = this.scenarios.find(s => s.isBase);
                 const baseResults = baseScenario?.results;
-                const baseSocialTotal = baseResults ? parseFloat(baseResults.socialTotal.replace(/[^0-9.-]/g, '')) : 0;
-                const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
                 const baseCompany = baseResults ? parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, '')) : 0;
                 const basePersonal = baseResults ? parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, '')) : 0;
 
@@ -1743,23 +1735,7 @@
                 const scenarioIndex = this.scenarios.findIndex(s => s.id === scenarioId);
                 if (scenarioIndex === -1) return;
 
-                // 更新社保合计
-                const socialValue = parseFloat(scenario.results.socialTotal.replace(/[^0-9.-]/g, ''));
-                const socialDiff = socialValue - baseSocialTotal;
-                const socialCell = document.querySelector(`tr[data-row="social"] td:nth-child(${scenarioIndex + 2})`);
-                if (socialCell) {
-                    socialCell.innerHTML = this.renderCellContent(scenario.results.socialTotal, socialDiff, 'var(--qy-primary-600)', true);
-                }
-
-                // 更新公积金合计
-                const fundValue = parseFloat(scenario.results.fundTotal.replace(/[^0-9.-]/g, ''));
-                const fundDiff = fundValue - baseFundTotal;
-                const fundCell = document.querySelector(`tr[data-row="fund"] td:nth-child(${scenarioIndex + 2})`);
-                if (fundCell) {
-                    fundCell.innerHTML = this.renderCellContent(scenario.results.fundTotal, fundDiff, 'var(--qy-success-600)', true);
-                }
-
-                // 更新单位承担
+                // 更新单位应缴
                 const companyValue = parseFloat(scenario.results.companyTotal.replace(/[^0-9.-]/g, ''));
                 const companyDiff = companyValue - baseCompany;
                 const companyCell = document.querySelector(`tr[data-row="company"] td:nth-child(${scenarioIndex + 2})`);
@@ -1767,7 +1743,7 @@
                     companyCell.innerHTML = this.renderCellContent(scenario.results.companyTotal, companyDiff, 'var(--qy-primary-600)', false);
                 }
 
-                // 更新个人承担
+                // 更新个人应缴
                 const personalValue = parseFloat(scenario.results.personalTotal.replace(/[^0-9.-]/g, ''));
                 const personalDiff = personalValue - basePersonal;
                 const personalCell = document.querySelector(`tr[data-row="personal"] td:nth-child(${scenarioIndex + 2})`);
@@ -1776,6 +1752,10 @@
                 }
 
                 // 更新社保+公积金合计
+                const socialValue = parseFloat(scenario.results.socialTotal.replace(/[^0-9.-]/g, ''));
+                const fundValue = parseFloat(scenario.results.fundTotal.replace(/[^0-9.-]/g, ''));
+                const baseSocialTotal = baseResults ? parseFloat(baseResults.socialTotal.replace(/[^0-9.-]/g, '')) : 0;
+                const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
                 const combinedTotal = socialValue + fundValue;
                 const baseCombined = baseSocialTotal + baseFundTotal;
                 const combinedDiff = combinedTotal - baseCombined;
@@ -1827,7 +1807,7 @@
                 const companyYearlyDiff = (company - baseCompany) * 12;
 
                 const formatYearly = (val) => {
-                    const prefix = val > 0 ? '+' : '';
+                    const prefix = val > 0 ? '+' : (val < 0 ? '-' : '');
                     const color = val > 0 ? 'var(--qy-error-500)' : (val < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
                     return `<span style="color: ${color};">${prefix}¥${Math.abs(val).toLocaleString()}</span>`;
                 };
@@ -1843,10 +1823,15 @@
 
             // 计算指定方案的结果
             calculateScenarioResults(scenario) {
+                // 如果地区为空，不计算
+                if (!scenario.region) {
+                    return null;
+                }
+
                 // 保存当前值
                 const currentSocialScheme = document.getElementById('socialScheme').value;
                 const currentFundScheme = document.getElementById('fundScheme').value;
-                
+
                 try {
                     // 临时设置方案值进行计算
                     document.getElementById('socialScheme').value = scenario.socialScheme;
@@ -1929,8 +1914,11 @@
                     .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
                 const fundOptions = Array.from(document.getElementById('fundScheme').options)
                     .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+                const regionOptions = Array.from(document.getElementById('regionSelect').options)
+                    .map(o => `<option value="${o.value}">${o.text}</option>`).join('');
                 const socialOptionsWithEmpty = '<option value="">请选择社保方案</option>' + socialOptions;
                 const fundOptionsWithEmpty = '<option value="">请选择公积金方案</option>' + fundOptions;
+                const regionOptionsWithEmpty = '<option value="">请选择地区</option>' + regionOptions;
 
                 let html = `
                     <table class="compare-table">
@@ -1958,11 +1946,18 @@
                         <tbody>
                             <tr>
                                 <td>参保地区</td>
-                                ${this.scenarios.map(s => `<td>${s.regionName}</td>`).join('')}
-                            </tr>
-                            <tr>
-                                <td>税前工资</td>
-                                ${this.scenarios.map(s => `<td>¥${s.salary.toLocaleString()}</td>`).join('')}
+                                ${this.scenarios.map(s => {
+                                    if (s.isBase) {
+                                        return `<td>${s.regionName}</td>`;
+                                    } else {
+                                        const selectedRegion = s.region || '';
+                                        return `<td>
+                                            <select class="qy-input qy-input--sm" onchange="app.updateCompareScenario(${s.id}, 'region', this.value)" style="min-width: 120px; font-size: 12px; padding: 4px 8px;">
+                                                ${regionOptionsWithEmpty.replace(`value="${selectedRegion}"`, `value="${selectedRegion}" selected`)}
+                                            </select>
+                                        </td>`;
+                                    }
+                                }).join('')}
                             </tr>
                             <tr>
                                 <td>社保方案</td>
@@ -1980,7 +1975,7 @@
                                 }).join('')}
                             </tr>
                             <tr>
-                                <td>公积金比例</td>
+                                <td>公积金方案</td>
                                 ${this.scenarios.map(s => {
                                     if (s.isBase) {
                                         return `<td>${s.fundScheme}%</td>`;
@@ -1994,54 +1989,20 @@
                                     }
                                 }).join('')}
                             </tr>
+                            <tr>
+                                <td>申报工资</td>
+                                ${this.scenarios.map(s => `<td>¥${s.salary.toLocaleString()}</td>`).join('')}
+                            </tr>
                             <!-- 获取基准方案用于计算变化 -->
                             ${(() => {
                                 const baseScenario = this.scenarios.find(s => s.isBase);
                                 const baseResults = baseScenario?.results;
                                 const baseCompany = baseResults ? parseFloat(baseResults.companyTotal.replace(/[^0-9.-]/g, '')) : 0;
                                 const basePersonal = baseResults ? parseFloat(baseResults.personalTotal.replace(/[^0-9.-]/g, '')) : 0;
-                                const baseSocialTotal = baseResults ? parseFloat(baseResults.socialTotal.replace(/[^0-9.-]/g, '')) : 0;
-                                const baseFundTotal = baseResults ? parseFloat(baseResults.fundTotal.replace(/[^0-9.-]/g, '')) : 0;
 
                                 return `
-                            <!-- 社保合计行 -->
-                            <tr class="highlight" data-row="social" style="background: var(--qy-primary-50);">
-                                <td style="color: var(--qy-primary-700);">社保合计</td>
-                                ${this.scenarios.map(s => {
-                                    if (!s.results) return '<td>-</td>';
-                                    const value = parseFloat(s.results.socialTotal.replace(/[^0-9.-]/g, ''));
-                                    if (s.isBase || !baseResults) {
-                                        return `<td style="color: var(--qy-primary-600); font-weight: 600;">${s.results.socialTotal}</td>`;
-                                    }
-                                    const diff = value - baseSocialTotal;
-                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
-                                    const diffSign = diff > 0 ? '+' : '';
-                                    return `<td style="color: var(--qy-primary-600); font-weight: 600;">
-                                        ${s.results.socialTotal}
-                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
-                                    </td>`;
-                                }).join('')}
-                            </tr>
-                            <!-- 公积金合计行 -->
-                            <tr class="highlight" data-row="fund" style="background: var(--qy-success-50);">
-                                <td style="color: var(--qy-success-700);">公积金合计</td>
-                                ${this.scenarios.map(s => {
-                                    if (!s.results) return '<td>-</td>';
-                                    const value = parseFloat(s.results.fundTotal.replace(/[^0-9.-]/g, ''));
-                                    if (s.isBase || !baseResults) {
-                                        return `<td style="color: var(--qy-success-600); font-weight: 600;">${s.results.fundTotal}</td>`;
-                                    }
-                                    const diff = value - baseFundTotal;
-                                    const diffClass = diff > 0 ? 'var(--qy-error-500)' : (diff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
-                                    const diffSign = diff > 0 ? '+' : '';
-                                    return `<td style="color: var(--qy-success-600); font-weight: 600;">
-                                        ${s.results.fundTotal}
-                                        <div style="font-size: 11px; color: ${diffClass}; margin-top: 2px;">${diffSign}${diff.toFixed(2)}</div>
-                                    </td>`;
-                                }).join('')}
-                            </tr>
                             <tr class="highlight" data-row="company">
-                                <td>单位承担</td>
+                                <td>单位应缴</td>
                                 ${this.scenarios.map(s => {
                                     if (!s.results) return '<td>-</td>';
                                     const value = parseFloat(s.results.companyTotal.replace(/[^0-9.-]/g, ''));
@@ -2058,7 +2019,7 @@
                                 }).join('')}
                             </tr>
                             <tr class="highlight" data-row="personal">
-                                <td>个人承担</td>
+                                <td>个人应缴</td>
                                 ${this.scenarios.map(s => {
                                     if (!s.results) return '<td>-</td>';
                                     const value = parseFloat(s.results.personalTotal.replace(/[^0-9.-]/g, ''));
@@ -2132,14 +2093,14 @@
                                     const personalClass = personalYearlyDiff > 0 ? 'var(--qy-error-500)' : (personalYearlyDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
                                     const companyClass = companyYearlyDiff > 0 ? 'var(--qy-error-500)' : (companyYearlyDiff < 0 ? 'var(--qy-success-500)' : 'var(--qy-text-muted)');
 
-                                    const personalSign = personalYearlyDiff > 0 ? '+' : '';
-                                    const companySign = companyYearlyDiff > 0 ? '+' : '';
+                                    const personalSign = personalYearlyDiff > 0 ? '+' : (personalYearlyDiff < 0 ? '-' : '');
+                                    const companySign = companyYearlyDiff > 0 ? '+' : (companyYearlyDiff < 0 ? '-' : '');
 
                                     return `<td style="font-size: 12px;">
                                         <div style="color: var(--qy-text-secondary);">个人: ${formatMoney(personal * 12)}</div>
-                                        <div style="font-size: 10px; color: ${personalClass}; margin-bottom: 2px;">${personalSign}${formatMoney(personalYearlyDiff)}</div>
+                                        <div style="font-size: 10px; color: ${personalClass}; margin-bottom: 2px;">${personalSign}${formatMoney(Math.abs(personalYearlyDiff))}</div>
                                         <div style="color: var(--qy-text-secondary);">单位: ${formatMoney(company * 12)}</div>
-                                        <div style="font-size: 10px; color: ${companyClass}; margin-bottom: 2px;">${companySign}${formatMoney(companyYearlyDiff)}</div>
+                                        <div style="font-size: 10px; color: ${companyClass}; margin-bottom: 2px;">${companySign}${formatMoney(Math.abs(companyYearlyDiff))}</div>
                                     </td>`;
                                 }).join('')}
                             </tr>`;
@@ -2465,7 +2426,19 @@
             }
 
             const base = calculateBase(salary);
-            const fundRate = parseFloat(document.getElementById('fundScheme').value) / 100;
+            const socialScheme = document.getElementById('socialScheme').value;
+            const fundSchemeValue = document.getElementById('fundScheme').value;
+
+            // 不允许同时为空
+            if (!socialScheme && !fundSchemeValue) {
+                document.getElementById('totalAmount').textContent = '¥ 0.00';
+                document.getElementById('companyTotal').textContent = '¥ 0.00';
+                document.getElementById('personalTotal').textContent = '¥ 0.00';
+                document.getElementById('combinedTableBody').innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--qy-text-muted);">请至少选择社保方案或公积金方案</td></tr>';
+                return;
+            }
+
+            const fundRate = fundSchemeValue ? parseFloat(fundSchemeValue) / 100 : 0;
 
             let companySocialTotal = 0;
             let personalSocialTotal = 0;
@@ -2481,6 +2454,9 @@
             tableBody.innerHTML = '';
 
             let rowIndex = 0;
+
+            // 只有选择了社保方案才渲染社保明细
+            if (socialScheme) {
             for (const [key, config] of Object.entries(insuranceConfig)) {
                 if (config.type === 'social') {
                     let companyAmount, personalAmount;
@@ -2492,7 +2468,11 @@
                     if (config.billingType === 'rate') {
                         companyAmount = base * config.companyRate;
                         personalAmount = base * config.personalRate;
-                        billingStandardCell = `<span class="amount">${base.toLocaleString()}<span class="amount-unit">元</span></span>`;
+                        billingStandardCell = `
+                            <div class="base-amount">${base.toLocaleString()}<span class="amount-unit">元</span></div>
+                            <div class="base-range">(${baseRange.min.toLocaleString()} ~ ${baseRange.max.toLocaleString()})</div>`;
+                        companyBaseCell = billingStandardCell;
+                        personalBaseCell = billingStandardCell;
                         companyFixedCell = '<span class="text-muted">-</span>';
                         personalFixedCell = '<span class="text-muted">-</span>';
                         companyRateCell = `<div>${(config.companyRate * 100).toFixed(1)}%</div><div class="rate">${companyAmount.toFixed(2)}</div>`;
@@ -2500,7 +2480,7 @@
                         // 累加比例
                         companySocialRateTotal += config.companyRate;
                         personalSocialRateTotal += config.personalRate;
-                        // 比例缴费项目，应缴费用显示月缴金额
+                        // 比例缴费项目，存缴金额显示月缴金额
                         amountCell = `<span class="amount">${(companyAmount + personalAmount).toFixed(2)}</span>`;
                     } else if (config.billingType === 'fixed_yearly') {
                         const companyYearly = config.companyFixed || 0;
@@ -2509,6 +2489,8 @@
                         companyAmount = companyYearly / 12;
                         personalAmount = personalYearly / 12;
                         billingStandardCell = `<span class="billing-badge">按年固定</span>`;
+                        companyBaseCell = billingStandardCell;
+                        personalBaseCell = billingStandardCell;
                         // 固定费用只在固定列显示，比例列显示 -
                         companyFixedCell = companyYearly > 0 ? `<span class="amount-fixed">¥${companyYearly}/年</span>` : '<span class="text-muted">-</span>';
                         personalFixedCell = personalYearly > 0 ? `<span class="amount-fixed">¥${personalYearly}/年</span>` : '<span class="text-muted">-</span>';
@@ -2518,7 +2500,7 @@
                         companySocialFixedTotal += companyYearly;
                         personalSocialFixedTotal += personalYearly;
 
-                        // 按年缴费的项目，应缴费用显示年缴金额
+                        // 按年缴费的项目，存缴金额显示年缴金额
                         const yearlyTotal = companyYearly + personalYearly;
                         amountCell = `<span class="amount-fixed">¥${yearlyTotal}/年</span>`;
                     }
@@ -2530,18 +2512,22 @@
                     row.style.animationDelay = `${rowIndex * 0.05}s`;
                     row.innerHTML = `
                         <td data-label="项目"><span class="ins-type-badge badge-social">${config.name}</span></td>
-                        <td data-label="缴费基数">${billingStandardCell}</td>
+                        <td data-label="单位缴费基数" style="text-align: center">${companyBaseCell}</td>
+                        <td data-label="个人缴费基数" style="text-align: center">${personalBaseCell}</td>
                         <td data-label="单位固定" style="text-align: center">${companyFixedCell}</td>
                         <td data-label="个人固定" style="text-align: center">${personalFixedCell}</td>
                         <td data-label="单位比例" style="text-align: center">${companyRateCell}</td>
                         <td data-label="个人比例" style="text-align: center">${personalRateCell}</td>
-                        <td data-label="应缴费用" style="text-align: right">${amountCell}</td>
+                        <td data-label="存缴金额" style="text-align: right">${amountCell}</td>
                     `;
                     tableBody.appendChild(row);
                     rowIndex++;
                 }
             }
+            }
 
+            // 只有选择了社保方案才显示社保合计
+            if (socialScheme) {
             // 社保合计行
             const socialTotalRow = document.createElement('tr');
             socialTotalRow.className = 'total-row';
@@ -2549,17 +2535,21 @@
             const personalSocialFixedDisplay = personalSocialFixedTotal > 0 ? `<span class="amount-fixed">¥${personalSocialFixedTotal}/年</span>` : '<span class="text-muted">-</span>';
             socialTotalRow.innerHTML = `
                 <td data-label="项目" style="text-align: right; font-weight: 600;">社保合计</td>
-                <td data-label="缴费基数"><span class="text-muted">-</span></td>
+                <td data-label="单位缴费基数"><span class="text-muted">-</span></td>
+                <td data-label="个人缴费基数"><span class="text-muted">-</span></td>
                 <td data-label="单位固定" style="text-align: center">${companySocialFixedDisplay}</td>
                 <td data-label="个人固定" style="text-align: center">${personalSocialFixedDisplay}</td>
                 <td data-label="单位比例" style="text-align: center"><div>${(companySocialRateTotal * 100).toFixed(1)}%</div><div class="rate">${companySocialTotal.toFixed(2)}</div></td>
                 <td data-label="个人比例" style="text-align: center"><div>${(personalSocialRateTotal * 100).toFixed(1)}%</div><div class="rate">${personalSocialTotal.toFixed(2)}</div></td>
-                <td data-label="应缴费用" style="text-align: right"><span class="amount">${(companySocialTotal + personalSocialTotal).toFixed(2)}</span></td>
+                <td data-label="存缴金额" style="text-align: right"><span class="amount">${(companySocialTotal + personalSocialTotal).toFixed(2)}</span></td>
             `;
             tableBody.appendChild(socialTotalRow);
+            }
 
+            // 只有选择了公积金方案才渲染公积金明细
+            if (fundSchemeValue) {
             // 生成公积金表格
-            
+
 
             const fundConfig = insuranceConfig.fund;
             companyFundTotal = base * fundRate;
@@ -2567,14 +2557,18 @@
 
             const fundRow = document.createElement('tr');
             fundRow.className = 'fund-row';
+            const fundBaseCell = `
+                <div class="base-amount">${base.toLocaleString()}<span class="amount-unit">元</span></div>
+                <div class="base-range">(${baseRange.min.toLocaleString()} ~ ${baseRange.max.toLocaleString()})</div>`;
             fundRow.innerHTML = `
                 <td data-label="项目"><span class="ins-type-badge badge-fund">${fundConfig.name}</span></td>
-                <td data-label="缴费基数"><span class="amount">${base.toLocaleString()}<span class="amount-unit">元</span></span></td>
+                <td data-label="单位缴费基数" style="text-align: center">${fundBaseCell}</td>
+                <td data-label="个人缴费基数" style="text-align: center">${fundBaseCell}</td>
                 <td data-label="单位固定" style="text-align: center"><span class="text-muted">-</span></td>
                 <td data-label="个人固定" style="text-align: center"><span class="text-muted">-</span></td>
                 <td data-label="单位比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${companyFundTotal.toFixed(2)}</div></td>
                 <td data-label="个人比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${personalFundTotal.toFixed(2)}</div></td>
-                <td data-label="应缴费用" style="text-align: right"><span class="amount">${(companyFundTotal + personalFundTotal).toFixed(2)}</span></td>
+                <td data-label="存缴金额" style="text-align: right"><span class="amount">${(companyFundTotal + personalFundTotal).toFixed(2)}</span></td>
             `;
             tableBody.appendChild(fundRow);
 
@@ -2583,19 +2577,27 @@
             fundTotalRow.className = 'total-row';
             fundTotalRow.innerHTML = `
                 <td data-label="项目" style="text-align: right; font-weight: 600;">公积金合计</td>
-                <td data-label="缴费基数"><span class="text-muted">-</span></td>
+                <td data-label="单位缴费基数"><span class="text-muted">-</span></td>
+                <td data-label="个人缴费基数"><span class="text-muted">-</span></td>
                 <td data-label="单位固定" style="text-align: center"><span class="text-muted">-</span></td>
                 <td data-label="个人固定" style="text-align: center"><span class="text-muted">-</span></td>
                 <td data-label="单位比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${companyFundTotal.toFixed(2)}</div></td>
                 <td data-label="个人比例" style="text-align: center"><div>${(fundRate * 100).toFixed(0)}%</div><div class="rate">${personalFundTotal.toFixed(2)}</div></td>
-                <td data-label="应缴费用" style="text-align: right"><span class="amount">${(companyFundTotal + personalFundTotal).toFixed(2)}</span></td>
+                <td data-label="存缴金额" style="text-align: right"><span class="amount">${(companyFundTotal + personalFundTotal).toFixed(2)}</span></td>
             `;
             tableBody.appendChild(fundTotalRow);
+            }
 
             // 更新汇总数据
             const companyTotal = companySocialTotal + companyFundTotal;
             const personalTotal = personalSocialTotal + personalFundTotal;
             const total = companyTotal + personalTotal;
+
+            // 更新申报工资显示
+            const salaryDisplayValue = document.getElementById('salaryDisplayValue');
+            if (salaryDisplayValue) {
+                salaryDisplayValue.textContent = salary.toLocaleString();
+            }
 
             // 动画更新金额
             animateValue('totalAmount', total, '¥ ');
@@ -2649,16 +2651,25 @@
             const policy = regionPolicies[region];
             if (!policy) return;
 
-            document.getElementById('policyTitle').textContent = `${policy.name} ${policy.year} 年社保政策`;
+            const policyTitleEl = document.getElementById('policyTitle');
+            const policyContentEl = document.getElementById('policyContent');
+            const fundPolicyTitleEl = document.getElementById('fundPolicyTitle');
+            const fundPolicyContentEl = document.getElementById('fundPolicyContent');
 
-            const contentHtml = policy.rules.map(rule => `<p>• ${rule}</p>`).join('');
-            document.getElementById('policyContent').innerHTML = contentHtml;
+            if (policyTitleEl) policyTitleEl.textContent = `${policy.name} ${policy.year} 年社保政策`;
+
+            if (policyContentEl) {
+                const contentHtml = policy.rules.map(rule => `<p>• ${rule}</p>`).join('');
+                policyContentEl.innerHTML = contentHtml;
+            }
 
             // 更新公积金政策
             if (policy.fundRules) {
-                document.getElementById('fundPolicyTitle').textContent = `${policy.name} ${policy.year} 年公积金政策`;
-                const fundContentHtml = policy.fundRules.map(rule => `<p>• ${rule}</p>`).join('');
-                document.getElementById('fundPolicyContent').innerHTML = fundContentHtml;
+                if (fundPolicyTitleEl) fundPolicyTitleEl.textContent = `${policy.name} ${policy.year} 年公积金政策`;
+                if (fundPolicyContentEl) {
+                    const fundContentHtml = policy.fundRules.map(rule => `<p>• ${rule}</p>`).join('');
+                    fundPolicyContentEl.innerHTML = fundContentHtml;
+                }
             }
 
             baseRange.min = policy.minBase;

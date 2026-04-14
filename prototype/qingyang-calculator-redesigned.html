@@ -1117,3 +1117,685 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+
+        // ========================================
+        // 保险配置
+        // ========================================
+        const insuranceConfig = {
+            pension: {
+                name: '养老保险',
+                type: 'social',
+                billingType: 'rate',
+                companyRate: 0.16,
+                personalRate: 0.08
+            },
+            medical: {
+                name: '医疗保险',
+                type: 'social',
+                billingType: 'rate',
+                companyRate: 0.065,
+                personalRate: 0.02
+            },
+            unemployment: {
+                name: '失业保险',
+                type: 'social',
+                billingType: 'rate',
+                companyRate: 0.005,
+                personalRate: 0.005
+            },
+            injury: {
+                name: '工伤保险',
+                type: 'social',
+                billingType: 'rate',
+                companyRate: 0.012,
+                personalRate: 0
+            },
+            maternity: {
+                name: '生育保险',
+                type: 'social',
+                billingType: 'rate',
+                companyRate: 0.007,
+                personalRate: 0
+            }
+        };
+
+        // 城市基数配置
+        const cityBaseRanges = {
+            changsha: { min: 4027, max: 20133, name: '长沙市' },
+            zhuzhou: { min: 4027, max: 20133, name: '株洲市' },
+            xiangtan: { min: 4027, max: 20133, name: '湘潭市' },
+            hengyang: { min: 4027, max: 20133, name: '衡阳市' },
+            changde: { min: 4027, max: 20133, name: '常德市' }
+        };
+
+        let currentBaseRange = cityBaseRanges.changsha;
+
+        // ========================================
+        // 工具函数
+        // ========================================
+        function formatMoney(amount) {
+            return '¥ ' + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatNumber(amount) {
+            return amount.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function calculateBase(salary) {
+            if (salary < currentBaseRange.min) return currentBaseRange.min;
+            if (salary > currentBaseRange.max) return currentBaseRange.max;
+            return salary;
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function setSalary(amount) {
+            document.getElementById('salaryInput').value = amount;
+        }
+
+        function updateBaseRange() {
+            const city = document.getElementById('regionSelect').value;
+            currentBaseRange = cityBaseRanges[city];
+            document.getElementById('baseRangeHint').textContent =
+                `基数范围: ${currentBaseRange.min.toLocaleString()} - ${currentBaseRange.max.toLocaleString()} 元`;
+        }
+
+        // ========================================
+        // 方案对比管理器（支持数百个方案）
+        // ========================================
+        class EnhancedCompareManager {
+            constructor() {
+                this.scenarios = [];
+                this.filteredScenarios = [];
+                this.selectedScenarios = new Set();
+                this.columns = [
+                    { key: 'region', label: '参保城市', visible: true },
+                    { key: 'salary', label: '工资基数', visible: true },
+                    { key: 'socialScheme', label: '社保方案', visible: true },
+                    { key: 'fundRate', label: '公积金比例', visible: true },
+                    { key: 'companySocial', label: '单位社保', visible: true },
+                    { key: 'personalSocial', label: '个人社保', visible: true },
+                    { key: 'companyFund', label: '单位公积金', visible: true },
+                    { key: 'personalFund', label: '个人公积金', visible: true },
+                    { key: 'companyTotal', label: '单位合计', visible: true },
+                    { key: 'personalTotal', label: '个人合计', visible: true },
+                    { key: 'total', label: '月缴总额', visible: true },
+                    { key: 'yearlyDiff', label: '年缴差额', visible: true }
+                ];
+                this.batchMode = false;
+            }
+
+            // 添加方案
+            addScenario() {
+                const salary = parseFloat(document.getElementById('salaryInput').value) || 8000;
+                const region = document.getElementById('regionSelect').value;
+                const regionName = document.getElementById('regionSelect').selectedOptions[0].text;
+                const socialScheme = document.getElementById('socialScheme').value;
+                const socialSchemeName = document.getElementById('socialScheme').selectedOptions[0].text;
+                const fundRate = parseFloat(document.getElementById('fundScheme').value);
+
+                const scenario = {
+                    id: Date.now() + Math.random(),
+                    name: `方案 ${this.scenarios.length + 1}`,
+                    region,
+                    regionName,
+                    salary,
+                    socialScheme,
+                    socialSchemeName,
+                    fundRate,
+                    fundRateName: `${fundRate}%`,
+                    isOptimal: false,
+                    results: null
+                };
+
+                scenario.results = this.calculateResults(scenario);
+                this.scenarios.push(scenario);
+                this.filteredScenarios = [...this.scenarios];
+                this.updateOptimalScenarios();
+                this.render();
+                this.saveToStorage();
+
+                showToast('方案已添加', 'success');
+            }
+
+            // 批量添加多个方案（用于演示数百个方案）
+            addMultipleScenarios(count) {
+                const baseSalary = parseFloat(document.getElementById('salaryInput').value) || 8000;
+                const region = document.getElementById('regionSelect').value;
+                const regionName = document.getElementById('regionSelect').selectedOptions[0].text;
+                const fundRates = [5, 8, 10, 12];
+
+                for (let i = 0; i < count; i++) {
+                    const salary = baseSalary + (Math.random() * 10000 - 5000);
+                    const fundRate = fundRates[Math.floor(Math.random() * fundRates.length)];
+
+                    const scenario = {
+                        id: Date.now() + Math.random() + i,
+                        name: `方案 ${this.scenarios.length + i + 1}`,
+                        region,
+                        regionName,
+                        salary: Math.round(salary),
+                        socialScheme: 'normal',
+                        socialSchemeName: '城镇职工社保',
+                        fundRate,
+                        fundRateName: `${fundRate}%`,
+                        isOptimal: false,
+                        results: null
+                    };
+
+                    scenario.results = this.calculateResults(scenario);
+                    this.scenarios.push(scenario);
+                }
+
+                this.filteredScenarios = [...this.scenarios];
+                this.updateOptimalScenarios();
+                this.render();
+                this.saveToStorage();
+
+                showToast(`已添加 ${count} 个方案`, 'success');
+            }
+
+            // 计算方案结果
+            calculateResults(scenario) {
+                const base = calculateBase(scenario.salary);
+                const fundRate = scenario.fundRate / 100;
+
+                // 计算社保
+                let companySocial = 0;
+                let personalSocial = 0;
+
+                for (const [key, config] of Object.entries(insuranceConfig)) {
+                    if (config.billingType === 'rate') {
+                        companySocial += base * config.companyRate;
+                        personalSocial += base * config.personalRate;
+                    }
+                }
+
+                // 计算公积金
+                const companyFund = base * fundRate;
+                const personalFund = base * fundRate;
+
+                // 合计
+                const companyTotal = companySocial + companyFund;
+                const personalTotal = personalSocial + personalFund;
+                const total = companyTotal + personalTotal;
+
+                // 个人到手工资
+                const netSalary = scenario.salary - personalTotal;
+
+                return {
+                    base,
+                    companySocial,
+                    personalSocial,
+                    companyFund,
+                    personalFund,
+                    companyTotal,
+                    personalTotal,
+                    total,
+                    netSalary
+                };
+            }
+
+            // 更新最优方案标记
+            updateOptimalScenarios() {
+                if (this.scenarios.length === 0) return;
+
+                // 重置标记
+                this.scenarios.forEach(s => s.isOptimal = false);
+
+                // 找出个人缴费最低的方案
+                let minPersonal = Infinity;
+                let minPersonalScenario = null;
+
+                for (const scenario of this.scenarios) {
+                    if (scenario.results && scenario.results.personalTotal < minPersonal) {
+                        minPersonal = scenario.results.personalTotal;
+                        minPersonalScenario = scenario;
+                    }
+                }
+
+                if (minPersonalScenario) {
+                    minPersonalScenario.isOptimal = true;
+                }
+            }
+
+            // 删除方案
+            removeScenario(id) {
+                this.scenarios = this.scenarios.filter(s => s.id !== id);
+                this.selectedScenarios.delete(id);
+                this.filteredScenarios = [...this.scenarios];
+                this.updateOptimalScenarios();
+                this.render();
+                this.saveToStorage();
+                showToast('方案已删除', 'warning');
+            }
+
+            // 清空所有
+            clearAll() {
+                if (this.scenarios.length === 0) return;
+
+                if (confirm(`确定要清空所有 ${this.scenarios.length} 个方案吗？`)) {
+                    this.scenarios = [];
+                    this.filteredScenarios = [];
+                    this.selectedScenarios.clear();
+                    this.render();
+                    this.saveToStorage();
+                    showToast('已清空所有方案', 'warning');
+                }
+            }
+
+            // 搜索过滤
+            filter(searchTerm) {
+                if (!searchTerm) {
+                    this.filteredScenarios = [...this.scenarios];
+                } else {
+                    const term = searchTerm.toLowerCase();
+                    this.filteredScenarios = this.scenarios.filter(s =>
+                        s.name.toLowerCase().includes(term) ||
+                        s.regionName.toLowerCase().includes(term) ||
+                        s.socialSchemeName.toLowerCase().includes(term)
+                    );
+                }
+                this.render();
+            }
+
+            // 渲染表格
+            render() {
+                const count = this.filteredScenarios.length;
+                document.getElementById('compareCount').textContent = count;
+
+                const emptyState = document.getElementById('emptyState');
+                const table = document.getElementById('comparisonTable');
+
+                if (count === 0) {
+                    emptyState.style.display = 'flex';
+                    table.style.display = 'none';
+                    document.getElementById('batchBar').style.display = 'none';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+                table.style.display = 'table';
+
+                // 显示批量操作栏
+                const batchBar = document.getElementById('batchBar');
+                if (this.selectedScenarios.size > 0) {
+                    batchBar.style.display = 'flex';
+                    document.getElementById('selectedCount').textContent =
+                        `已选择 ${this.selectedScenarios.size} 项`;
+                } else {
+                    batchBar.style.display = 'none';
+                }
+
+                // 渲染表头
+                this.renderHeader();
+
+                // 渲染表格体（使用虚拟滚动优化）
+                this.renderTableBody();
+            }
+
+            // 渲染表头
+            renderHeader() {
+                const headerRow = document.getElementById('tableHeadRow');
+                let html = `
+                    <th class="sticky-col">
+                        <input type="checkbox" id="headerCheckbox"
+                            ${this.selectedScenarios.size === this.filteredScenarios.length && this.filteredScenarios.length > 0 ? 'checked' : ''}
+                            onchange="toggleSelectAll()">
+                    </th>
+                    <th class="sticky-col">方案信息</th>
+                `;
+
+                for (const col of this.columns) {
+                    if (col.visible) {
+                        html += `<th>${col.label}</th>`;
+                    }
+                }
+
+                html += '<th>操作</th>';
+                headerRow.innerHTML = html;
+            }
+
+            // 渲染表格体
+            renderTableBody() {
+                const tbody = document.getElementById('tableBody');
+                const scenarios = this.filteredScenarios;
+
+                // 使用虚拟滚动优化大数据集
+                const pageSize = 50;
+                const totalPages = Math.ceil(scenarios.length / pageSize);
+
+                let html = '';
+                for (let i = 0; i < scenarios.length; i++) {
+                    const s = scenarios[i];
+                    const r = s.results;
+                    const isSelected = this.selectedScenarios.has(s.id);
+
+                    html += `
+                        <tr class="${s.isOptimal ? 'optimal-row' : ''} ${isSelected ? 'selected-row' : ''}" data-id="${s.id}">
+                            <td class="sticky-col">
+                                <input type="checkbox"
+                                    ${isSelected ? 'checked' : ''}
+                                    onchange="toggleSelect('${s.id}')">
+                            </td>
+                            <td class="sticky-col">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div>
+                                        <div style="font-weight: 600; color: #1E293B;">${s.name}</div>
+                                        ${s.isOptimal ? '<span class="optimal-badge">最优</span>' : ''}
+                                    </div>
+                                </div>
+                            </td>
+                    `;
+
+                    for (const col of this.columns) {
+                        if (!col.visible) continue;
+
+                        let value = '-';
+                        let displayValue = '-';
+
+                        switch (col.key) {
+                            case 'region':
+                                displayValue = s.regionName;
+                                break;
+                            case 'salary':
+                                displayValue = formatNumber(s.salary);
+                                break;
+                            case 'socialScheme':
+                                displayValue = s.socialSchemeName;
+                                break;
+                            case 'fundRate':
+                                displayValue = s.fundRateName;
+                                break;
+                            case 'companySocial':
+                                displayValue = formatMoney(r.companySocial);
+                                break;
+                            case 'personalSocial':
+                                displayValue = formatMoney(r.personalSocial);
+                                break;
+                            case 'companyFund':
+                                displayValue = formatMoney(r.companyFund);
+                                break;
+                            case 'personalFund':
+                                displayValue = formatMoney(r.personalFund);
+                                break;
+                            case 'companyTotal':
+                                displayValue = formatMoney(r.companyTotal);
+                                break;
+                            case 'personalTotal':
+                                displayValue = formatMoney(r.personalTotal);
+                                break;
+                            case 'total':
+                                displayValue = formatMoney(r.total);
+                                break;
+                            case 'yearlyDiff':
+                                const base = this.scenarios[0]?.results;
+                                if (base && r) {
+                                    const diff = (r.personalTotal - base.personalTotal) * 12;
+                                    const sign = diff >= 0 ? '+' : '';
+                                    const color = diff > 0 ? '#DC2626' : (diff < 0 ? '#22C55E' : '#64748B');
+                                    displayValue = `<span style="color: ${color}">${sign}${formatMoney(Math.abs(diff))}</span>`;
+                                } else {
+                                    displayValue = '-';
+                                }
+                                break;
+                        }
+
+                        html += `<td>${displayValue}</td>`;
+                    }
+
+                    html += `
+                            <td>
+                                <button class="toolbar-btn" onclick="compareManager.removeScenario('${s.id}')"
+                                    style="padding: 4px 8px; font-size: 12px; color: #DC2626;">
+                                    删除
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                tbody.innerHTML = html;
+            }
+
+            // 切换选择
+            toggleSelect(id) {
+                if (this.selectedScenarios.has(id)) {
+                    this.selectedScenarios.delete(id);
+                } else {
+                    this.selectedScenarios.add(id);
+                }
+                this.render();
+            }
+
+            // 全选/取消全选
+            toggleSelectAll() {
+                const allSelected = this.selectedScenarios.size === this.filteredScenarios.length;
+
+                if (allSelected) {
+                    this.selectedScenarios.clear();
+                } else {
+                    this.filteredScenarios.forEach(s => this.selectedScenarios.add(s.id));
+                }
+
+                this.render();
+            }
+
+            // 批量删除
+            batchDelete() {
+                if (this.selectedScenarios.size === 0) return;
+
+                if (confirm(`确定要删除选中的 ${this.selectedScenarios.size} 个方案吗？`)) {
+                    this.scenarios = this.scenarios.filter(s => !this.selectedScenarios.has(s.id));
+                    this.selectedScenarios.clear();
+                    this.filteredScenarios = [...this.scenarios];
+                    this.updateOptimalScenarios();
+                    this.render();
+                    this.saveToStorage();
+                    showToast('已删除选中方案', 'warning');
+                }
+            }
+
+            // 批量导出
+            batchExport() {
+                const selected = this.scenarios.filter(s => this.selectedScenarios.has(s.id));
+                if (selected.length === 0) {
+                    showToast('请先选择要导出的方案', 'warning');
+                    return;
+                }
+
+                let csv = '方案名称,参保城市,工资基数,社保方案,公积金比例,单位社保,个人社保,单位公积金,个人公积金,单位合计,个人合计,月缴总额\n';
+
+                for (const s of selected) {
+                    const r = s.results;
+                    csv += `${s.name},${s.regionName},${s.salary},${s.socialSchemeName},${s.fundRateName},`;
+                    csv += `${r.companySocial},${r.personalSocial},${r.companyFund},${r.personalFund},`;
+                    csv += `${r.companyTotal},${r.personalTotal},${r.total}\n`;
+                }
+
+                const blob = new Blob([﻿ + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `方案对比_${new Date().toLocaleDateString()}.csv`;
+                link.click();
+
+                showToast('导出成功', 'success');
+            }
+
+            // 保存到本地存储
+            saveToStorage() {
+                localStorage.setItem('qy_calculator_scenarios', JSON.stringify(this.scenarios));
+            }
+
+            // 从本地存储加载
+            loadFromStorage() {
+                const data = localStorage.getItem('qy_calculator_scenarios');
+                if (data) {
+                    this.scenarios = JSON.parse(data);
+                    this.filteredScenarios = [...this.scenarios];
+                    this.updateOptimalScenarios();
+                    this.render();
+                }
+            }
+        }
+
+        // 初始化对比管理器
+        const compareManager = new EnhancedCompareManager();
+
+        // ========================================
+        // 计算功能
+        // ========================================
+        function calculate() {
+            const salary = parseFloat(document.getElementById('salaryInput').value) || 0;
+
+            if (salary <= 0) {
+                showToast('请输入有效的工资金额', 'error');
+                return;
+            }
+
+            const base = calculateBase(salary);
+            const fundRate = parseFloat(document.getElementById('fundScheme').value) / 100;
+
+            // 计算社保
+            let companySocial = 0;
+            let personalSocial = 0;
+
+            for (const [key, config] of Object.entries(insuranceConfig)) {
+                if (config.billingType === 'rate') {
+                    companySocial += base * config.companyRate;
+                    personalSocial += base * config.personalRate;
+                }
+            }
+
+            // 计算公积金
+            const companyFund = base * fundRate;
+            const personalFund = base * fundRate;
+
+            // 合计
+            const companyTotal = companySocial + companyFund;
+            const personalTotal = personalSocial + personalFund;
+            const total = companyTotal + personalTotal;
+            const netSalary = salary - personalTotal;
+
+            // 更新汇总卡片
+            document.getElementById('summaryCard').style.display = 'flex';
+            document.getElementById('companyTotal').textContent = formatMoney(companyTotal);
+            document.getElementById('personalTotal').textContent = formatMoney(personalTotal);
+            document.getElementById('totalAmount').textContent = formatMoney(total);
+            document.getElementById('netSalary').textContent = formatMoney(netSalary);
+
+            // 更新图表
+            document.getElementById('chartTotal').textContent = formatMoney(total);
+            document.getElementById('legendCompanySocial').textContent = formatMoney(companySocial);
+            document.getElementById('legendPersonalSocial').textContent = formatMoney(personalSocial);
+            document.getElementById('legendFund').textContent = formatMoney(companyFund + personalFund);
+
+            // 更新环形图
+            const totalVal = total || 1;
+            const circumference = 251.2;
+
+            const circle1 = document.getElementById('chartCircle1');
+            const circle2 = document.getElementById('chartCircle2');
+            const circle3 = document.getElementById('chartCircle3');
+
+            const offset1 = circumference - (companySocial / totalVal) * circumference;
+            const offset2 = offset1 - (personalSocial / totalVal) * circumference;
+            const offset3 = offset2 - ((companyFund + personalFund) / totalVal) * circumference;
+
+            circle1.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle1.style.strokeDashoffset = offset1;
+
+            circle2.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle2.style.strokeDashoffset = offset2;
+
+            circle3.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle3.style.strokeDashoffset = offset3;
+
+            showToast('计算完成', 'success');
+        }
+
+        // ========================================
+        // UI 交互函数
+        // ========================================
+        function addCompareScenario() {
+            compareManager.addScenario();
+        }
+
+        function clearAllScenarios() {
+            compareManager.clearAll();
+        }
+
+        function filterScenarios() {
+            const searchTerm = document.getElementById('searchInput').value;
+            compareManager.filter(searchTerm);
+        }
+
+        function toggleSelect(id) {
+            compareManager.toggleSelect(id);
+        }
+
+        function toggleSelectAll() {
+            compareManager.toggleSelectAll();
+        }
+
+        function batchDelete() {
+            compareManager.batchDelete();
+        }
+
+        function batchExport() {
+            compareManager.batchExport();
+        }
+
+        function toggleComparePanel() {
+            const panel = document.getElementById('comparePanel');
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function exportResults() {
+            if (compareManager.scenarios.length === 0) {
+                showToast('暂无方案可导出', 'warning');
+                return;
+            }
+
+            let csv = '方案名称,参保城市,工资基数,社保方案,公积金比例,单位社保,个人社保,单位公积金,个人公积金,单位合计,个人合计,月缴总额\n';
+
+            for (const s of compareManager.scenarios) {
+                const r = s.results;
+                csv += `${s.name},${s.regionName},${s.salary},${s.socialSchemeName},${s.fundRateName},`;
+                csv += `${r.companySocial},${r.personalSocial},${r.companyFund},${r.personalFund},`;
+                csv += `${r.companyTotal},${r.personalTotal},${r.total}\n`;
+            }
+
+            const blob = new Blob([﻿ + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `社保公积金方案对比_${new Date().toLocaleDateString()}.csv`;
+            link.click();
+
+            showToast('导出成功', 'success');
+        }
+
+        // ========================================
+        // 初始化
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBaseRange();
+            compareManager.loadFromStorage();
+
+            // 演示：添加50个示例方案
+            setTimeout(() => {
+                if (compareManager.scenarios.length === 0) {
+                    compareManager.addMultipleScenarios(50);
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
