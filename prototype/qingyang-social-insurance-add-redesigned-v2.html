@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社保增员 - 青阳云HRO</title>
+  <link rel="stylesheet" href="../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../styles/qingyang-components.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #10B981;
+      --success-light: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #F59E0B;
+      --warning-light: #FFFBEB;
+      --error: #EF4444;
+      --error-light: #FEF2F2;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      color: var(--gray-800);
+      background: var(--gray-100);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ========== Layout ========== */
+    .page-container { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 240px;
+      background: #fff;
+      border-right: 1px solid var(--gray-200);
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .sidebar-logo { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); }
+    .sidebar-logo h1 { font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: -0.02em; }
+    .sidebar-nav { list-style: none; padding: 12px 0; }
+    .sidebar-nav-item { padding: 10px 24px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--gray-600); font-size: 14px; border-left: 3px solid transparent; transition: all 150ms; }
+    .sidebar-nav-item:hover { background: var(--gray-50); color: var(--gray-800); }
+    .sidebar-nav-item.active { background: var(--primary-light); color: var(--primary); border-left-color: var(--primary); font-weight: 500; }
+    .sidebar-nav-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gray-200); }
+    .sidebar-nav-group-label { padding: 8px 24px 4px; font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .topbar { height: 56px; background: #fff; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .topbar-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-500); }
+    .topbar-breadcrumb a { color: var(--gray-500); text-decoration: none; transition: color 150ms; }
+    .topbar-breadcrumb a:hover { color: var(--primary); }
+    .topbar-breadcrumb span { color: var(--gray-800); font-weight: 500; }
+    .topbar-user { display: flex; align-items: center; gap: 10px; }
+    .topbar-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+    .topbar-user-name { font-size: 13px; color: var(--gray-700); font-weight: 500; }
+
+    .content-area { flex: 1; padding: 32px; overflow-y: auto; }
+
+    /* ========== Page Header ========== */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .page-title { font-size: 22px; font-weight: 700; color: var(--gray-900); letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; }
+    .page-title .back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 13px; color: var(--gray-600); cursor: pointer; transition: all 150ms; }
+    .page-title .back-btn:hover { border-color: var(--gray-300); color: var(--gray-800); }
+
+    /* ========== Step Indicator ========== */
+    .steps { display: flex; align-items: center; margin-bottom: 32px; background: white; padding: 20px 24px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); }
+    .step { display: flex; align-items: center; gap: 12px; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: var(--gray-100); color: var(--gray-400); border: 2px solid var(--gray-200); transition: all 200ms; }
+    .step.active .step-num { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); }
+    .step.completed .step-num { background: var(--success); color: white; border-color: var(--success); }
+    .step-label { font-size: 14px; color: var(--gray-400); font-weight: 500; }
+    .step.active .step-label { color: var(--gray-800); }
+    .step.completed .step-label { color: var(--gray-600); }
+    .step-line { flex: 1; height: 2px; background: var(--gray-200); margin: 0 20px; min-width: 40px; border-radius: 1px; }
+    .step.completed + .step-line, .step-line.completed { background: var(--success); }
+
+    /* ========== Cards ========== */
+    .card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .card-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--gray-800); display: flex; align-items: center; gap: 10px; }
+    .card-title .icon { width: 20px; height: 20px; color: var(--primary); }
+    .card-body { padding: 24px; }
+
+    /* ========== Form Fields ========== */
+    .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 28px; margin-bottom: 20px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-field-label { font-size: 13px; color: var(--gray-600); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .form-field-label .required { color: var(--error); font-weight: 600; }
+    .form-field-value { font-size: 14px; padding: 10px 14px; background: var(--gray-50); border-radius: var(--radius-md); min-height: 42px; display: flex; align-items: center; border: 1px solid transparent; }
+    .form-field-value.is-filled { background: var(--primary-light); color: var(--primary); font-weight: 500; border-color: var(--primary-border); }
+    .form-field-value.is-empty { color: var(--gray-400); }
+
+    .form-input { height: 42px; padding: 0 14px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px; font-family: inherit; width: 100%; background: white; color: var(--gray-800); transition: all 150ms; }
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    .form-input::placeholder { color: var(--gray-400); }
+    .form-input.has-error { border-color: var(--error); }
+
+    .form-select { height: 42px; padding: 0 36px 0 14px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px; font-family: inherit; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; appearance: none; cursor: pointer; width: 100%; color: var(--gray-800); transition: all 150ms; }
+    .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+    /* ========== Unified Section ========== */
+    .unified-section {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #F0F4FF 100%);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .unified-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      pointer-events: none;
+    }
+    .unified-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .unified-icon { width: 24px; height: 24px; color: var(--primary); }
+    .unified-title { font-size: 15px; font-weight: 600; color: var(--gray-800); }
+    .unified-badge { font-size: 11px; padding: 4px 10px; background: var(--primary); color: white; border-radius: 20px; font-weight: 600; letter-spacing: 0.02em; }
+    .unified-hint { font-size: 12px; color: var(--gray-500); margin-left: auto; display: flex; align-items: center; gap: 6px; background: white; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid var(--gray-200); }
+    .unified-hint .icon { width: 14px; height: 14px; color: var(--gray-400); }
+    .unified-form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 24px; }
+
+    /* ========== Insurance Selection ========== */
+    .insurance-selection { display: flex; flex-wrap: wrap; gap: 10px; }
+    .insurance-checkbox { display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); cursor: pointer; transition: all 150ms; user-select: none; }
+    .insurance-checkbox:hover { border-color: var(--primary); background: var(--primary-light); }
+    .insurance-checkbox.checked { border-color: var(--primary); background: var(--primary-light); }
+    .insurance-checkbox input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+    .insurance-checkbox .ins-name { font-weight: 500; color: var(--gray-700); }
+    .insurance-checkbox.checked .ins-name { color: var(--primary); }
+    .insurance-checkbox .ins-badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; margin-left: 2px; font-weight: 600; }
+    .insurance-checkbox .ins-badge.essential { background: var(--error-light); color: var(--error); }
+    .insurance-checkbox .ins-badge.optional { background: var(--gray-100); color: var(--gray-500); }
+
+    /* ========== Insurance Detail List ========== */
+    .insurance-detail-list { margin-top: 8px; }
+    .insurance-detail-item {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      margin-bottom: 12px;
+      background: white;
+      overflow: hidden;
+      transition: all 200ms;
+    }
+    .insurance-detail-item:hover { box-shadow: var(--shadow-md); }
+    .insurance-detail-header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      background: white;
+      gap: 16px;
+      cursor: pointer;
+    }
+    .insurance-detail-header .ins-name { font-weight: 600; color: var(--gray-800); display: flex; align-items: center; gap: 10px; min-width: 140px; }
+    .insurance-detail-header .ins-badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+    .insurance-detail-header .ins-badge.essential { background: var(--error-light); color: var(--error); }
+    .insurance-detail-header .ins-badge.optional { background: var(--gray-100); color: var(--gray-500); }
+    .insurance-detail-header .ins-values { display: flex; gap: 24px; flex: 1; }
+    .insurance-detail-header .ins-values .value-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .insurance-detail-header .ins-values .label { color: var(--gray-400); font-weight: 500; }
+    .insurance-detail-header .ins-values .val { color: var(--gray-800); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .insurance-detail-header .btn-adjust {
+      font-size: 13px;
+      padding: 8px 14px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gray-600);
+      font-weight: 500;
+      transition: all 150ms;
+    }
+    .insurance-detail-header .btn-adjust:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .insurance-detail-header .btn-adjust .icon { width: 14px; height: 14px; transition: transform 200ms; }
+    .insurance-detail-item.expanded .btn-adjust { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .insurance-detail-item.expanded .btn-adjust .icon { transform: rotate(45deg); }
+
+    .insurance-detail-body { padding: 0; max-height: 0; overflow: hidden; transition: max-height 300ms ease-out, padding 300ms ease-out; }
+    .insurance-detail-item.expanded .insurance-detail-body { padding: 16px 20px; max-height: 400px; background: var(--gray-50); border-top: 1px solid var(--gray-100); }
+
+    /* Detail Groups - 4 columns, simple flat style */
+    .detail-groups { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--gray-200); border: 1px solid var(--gray-200); border-radius: var(--radius-md); overflow: hidden; }
+    .detail-group { background: white; padding: 12px 14px; }
+    .detail-group-header { font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--gray-100); }
+    .detail-group.unit .detail-group-header { color: var(--primary); border-bottom-color: var(--primary-border); }
+    .detail-group.personal .detail-group-header { color: var(--success); border-bottom-color: var(--success-border); }
+
+    .detail-fields { display: flex; flex-direction: column; gap: 6px; }
+    .detail-field { display: flex; justify-content: space-between; align-items: center; }
+    .detail-field-label { font-size: 12px; color: var(--gray-500); }
+    .detail-field-value { font-size: 13px; font-weight: 500; color: var(--gray-800); }
+    .detail-field-value.is-empty { color: var(--gray-400); }
+    .detail-field-value.unit { color: var(--primary); }
+    .detail-field-value.personal { color: var(--success); }
+    .detail-input { width: 80px; height: 28px; padding: 0 8px; border: 1px solid var(--gray-300); border-radius: var(--radius-sm); font-size: 12px; font-family: inherit; text-align: center; }
+    .detail-input:focus { outline: none; border-color: var(--primary); }
+    .detail-input.unit { border-color: var(--primary-border); color: var(--primary); background: var(--primary-light); }
+    .detail-input.personal { border-color: var(--success-border); color: var(--success); background: var(--success-light); }
+
+    .detail-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+    .detail-tag.active { background: var(--success-light); color: var(--success); }
+    .detail-tag.none { background: var(--gray-100); color: var(--gray-500); }
+
+    /* ========== Footer ========== */
+    .form-footer { padding: 20px 32px; background: white; border-top: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: flex-end; gap: 12px; position: sticky; bottom: 0; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06); }
+    .btn { height: 42px; padding: 0 24px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 150ms; }
+    .btn-secondary { background: white; border-color: var(--gray-300); color: var(--gray-700); }
+    .btn-secondary:hover { background: var(--gray-50); border-color: var(--gray-400); }
+    .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3); }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(37, 99, 235, 0.35); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { background: var(--gray-300); cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 600ms linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ========== Toast ========== */
+    .toast { position: fixed; top: 24px; right: 24px; padding: 14px 20px; border-radius: var(--radius-lg); font-size: 14px; box-shadow: var(--shadow-lg); z-index: 1000; animation: slideIn 250ms ease-out; display: flex; align-items: center; gap: 12px; font-weight: 500; }
+    .toast-success { background: var(--success); color: white; }
+    .toast-error { background: var(--error); color: white; }
+    .toast .icon { width: 20px; height: 20px; flex-shrink: 0; }
+    @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ========== Empty State ========== */
+    .empty-state { text-align: center; padding: 60px 24px; background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); }
+    .empty-state .icon { width: 56px; height: 56px; color: var(--gray-300); margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; color: var(--gray-500); }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 1200px) {
+      .detail-groups { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+      .unified-form { grid-template-columns: 1fr; }
+      .detail-groups { grid-template-columns: 1fr; }
+      .insurance-detail-header { flex-wrap: wrap; }
+      .insurance-detail-header .ins-values { flex-wrap: wrap; gap: 12px; }
+      .form-footer { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-container">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>青阳云</h1></div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">核心人事</li>
+      <li class="sidebar-nav-item active">智能薪酬</li>
+      <li class="sidebar-nav-group">
+        <div class="sidebar-nav-group-label">薪酬管理</div>
+        <div class="sidebar-nav-item" style="padding-left: 36px; color: var(--primary);">社保</div>
+        <div class="sidebar-nav-item">公积金</div>
+        <div class="sidebar-nav-item">商保</div>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="#">智能薪酬</a>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <a href="#">异动申报</a>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span>社保增员</span>
+      </div>
+      <div class="topbar-user">
+        <div class="topbar-user-avatar">管</div>
+        <span class="topbar-user-name">管理员</span>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">
+          社保增员
+          <button class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回
+          </button>
+        </h1>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="steps">
+        <div class="step completed">
+          <div class="step-num">✓</div>
+          <div class="step-label">选择员工</div>
+        </div>
+        <div class="step-line completed"></div>
+        <div class="step active">
+          <div class="step-num">2</div>
+          <div class="step-label">填写参保信息</div>
+        </div>
+      </div>
+
+      <!-- Employee Info Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            员工信息
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-field-label">姓名</label>
+              <div class="form-field-value is-filled">丁建政</div>
+            </div>
+            <div class="form-field">
+              <label class="form-field-label">手机号</label>
+              <div class="form-field-value">13317807976</div>
+            </div>
+            <div class="form-field">
+              <label class="form-field-label">证件号码</label>
+              <div class="form-field-value" style="font-variant-numeric: tabular-nums;">430201198009117533</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insurance Config Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            参保配置
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-field-label"><span class="required">*</span> 参保规则</label>
+              <select class="form-select">
+                <option value="">请选择</option>
+                <option value="rule1">牛马参保规则</option>
+                <option value="rule2" selected>多比例（多比例）</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-field-label"><span class="required">*</span> 参保主体</label>
+              <select class="form-select">
+                <option value="">请选择</option>
+                <option value="subj1">北京软件技术公司</option>
+                <option value="subj2">上海分公司</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-field-label">参保地区</label>
+              <div class="form-field-value is-filled">北京市</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unified Declaration Section -->
+      <div class="unified-section">
+        <div class="unified-header">
+          <svg class="unified-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span class="unified-title">统一申报信息</span>
+          <span class="unified-badge">批量</span>
+          <div class="unified-hint">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4"/>
+              <path d="M12 8h.01"/>
+            </svg>
+            修改将同步到所有险种
+          </div>
+        </div>
+        <div class="unified-form">
+          <div class="form-field">
+            <label class="form-field-label"><span class="required">*</span> 申报工资</label>
+            <input type="text" class="form-input" id="unifiedSalary" value="6,001" oninput="syncToAllInsurances()">
+          </div>
+          <div class="form-field">
+            <label class="form-field-label"><span class="required">*</span> 生效年月</label>
+            <select class="form-select" id="unifiedMonth" onchange="syncToAllInsurances()">
+              <option value="">请选择</option>
+              <option value="202601">2026年01月</option>
+              <option value="202602" selected>2026年02月</option>
+              <option value="202603">2026年03月</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field-label"><span class="required">*</span> 参保原因</label>
+            <select class="form-select" id="unifiedReason" onchange="syncToAllInsurances()">
+              <option value="">请选择</option>
+              <option value="XYGRZ" selected>新员工入职</option>
+              <option value="BZGRZ">本月新增</option>
+              <option value="QT">其他</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insurance Selection Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="9" y1="21" x2="9" y2="9"/>
+            </svg>
+            选择险种
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="insurance-selection" id="insuranceSelection">
+            <label class="insurance-checkbox checked">
+              <input type="checkbox" checked onchange="toggleInsurance(1)">
+              <span class="ins-name">养老保险</span>
+              <span class="ins-badge essential">必选</span>
+            </label>
+            <label class="insurance-checkbox checked">
+              <input type="checkbox" checked onchange="toggleInsurance(2)">
+              <span class="ins-name">医疗保险</span>
+              <span class="ins-badge essential">必选</span>
+            </label>
+            <label class="insurance-checkbox checked">
+              <input type="checkbox" checked onchange="toggleInsurance(3)">
+              <span class="ins-name">工伤保险</span>
+              <span class="ins-badge essential">必选</span>
+            </label>
+            <label class="insurance-checkbox checked">
+              <input type="checkbox" checked onchange="toggleInsurance(4)">
+              <span class="ins-name">失业保险</span>
+              <span class="ins-badge essential">必选</span>
+            </label>
+            <label class="insurance-checkbox checked">
+              <input type="checkbox" checked onchange="toggleInsurance(5)">
+              <span class="ins-name">大病险种</span>
+              <span class="ins-badge optional">可选</span>
+            </label>
+            <label class="insurance-checkbox">
+              <input type="checkbox" onchange="toggleInsurance(6)">
+              <span class="ins-name">多比例测试险种2</span>
+              <span class="ins-badge optional">可选</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insurance Detail List -->
+      <div class="insurance-detail-list" id="detailList">
+
+        <!-- Item 1: 养老保险 -->
+        <div class="insurance-detail-item" id="ins-item-1">
+          <div class="insurance-detail-header" onclick="toggleDetail(1)">
+            <div class="ins-name">
+              养老保险
+              <span class="ins-badge essential">必选</span>
+            </div>
+            <div class="ins-values">
+              <div class="value-item"><span class="label">申报工资</span><span class="val" id="salary-1">6,001</span></div>
+              <div class="value-item"><span class="label">生效</span><span class="val" id="month-1">2026-02</span></div>
+              <div class="value-item"><span class="label">原因</span><span class="val" id="reason-1">新员工入职</span></div>
+            </div>
+            <button class="btn-adjust" onclick="event.stopPropagation();toggleDetail(1)">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+              单独调整
+            </button>
+          </div>
+          <div class="insurance-detail-body">
+            <div class="detail-groups">
+              <div class="detail-group unit">
+                <div class="detail-group-header">单位参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input unit" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value unit">16%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value unit">960.16</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group personal">
+                <div class="detail-group-header">个人参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input personal" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value personal">8%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value personal">480.08</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group status">
+                <div class="detail-group-header">当前参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保状态</span>
+                    <div class="detail-field-value"><span class="detail-tag active">参保中</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保年月</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group change">
+                <div class="detail-group-header">当前异动信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动类型</span>
+                    <div class="detail-field-value"><span class="detail-tag none">无</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动状态</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2: 医疗保险 -->
+        <div class="insurance-detail-item" id="ins-item-2">
+          <div class="insurance-detail-header" onclick="toggleDetail(2)">
+            <div class="ins-name">
+              医疗保险
+              <span class="ins-badge essential">必选</span>
+            </div>
+            <div class="ins-values">
+              <div class="value-item"><span class="label">申报工资</span><span class="val" id="salary-2">6,001</span></div>
+              <div class="value-item"><span class="label">生效</span><span class="val" id="month-2">2026-02</span></div>
+              <div class="value-item"><span class="label">原因</span><span class="val" id="reason-2">新员工入职</span></div>
+            </div>
+            <button class="btn-adjust" onclick="event.stopPropagation();toggleDetail(2)">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+              单独调整
+            </button>
+          </div>
+          <div class="insurance-detail-body">
+            <div class="detail-groups">
+              <div class="detail-group unit">
+                <div class="detail-group-header">单位参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input unit" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value unit">9.9%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value unit">594.10</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group personal">
+                <div class="detail-group-header">个人参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input personal" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value personal">2%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value personal">120.02</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group status">
+                <div class="detail-group-header">当前参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保状态</span>
+                    <div class="detail-field-value"><span class="detail-tag active">参保中</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保年月</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group change">
+                <div class="detail-group-header">当前异动信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动类型</span>
+                    <div class="detail-field-value"><span class="detail-tag none">无</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动状态</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 3: 工伤保险 -->
+        <div class="insurance-detail-item" id="ins-item-3">
+          <div class="insurance-detail-header" onclick="toggleDetail(3)">
+            <div class="ins-name">
+              工伤保险
+              <span class="ins-badge essential">必选</span>
+            </div>
+            <div class="ins-values">
+              <div class="value-item"><span class="label">申报工资</span><span class="val" id="salary-3">6,001</span></div>
+              <div class="value-item"><span class="label">生效</span><span class="val" id="month-3">2026-02</span></div>
+              <div class="value-item"><span class="label">原因</span><span class="val" id="reason-3">新员工入职</span></div>
+            </div>
+            <button class="btn-adjust" onclick="event.stopPropagation();toggleDetail(3)">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+              单独调整
+            </button>
+          </div>
+          <div class="insurance-detail-body">
+            <div class="detail-groups">
+              <div class="detail-group unit">
+                <div class="detail-group-header">单位参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input unit" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value unit">0.4%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value unit">24.00</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group personal">
+                <div class="detail-group-header">个人参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input personal" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value personal">0%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value personal">0.00</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group status">
+                <div class="detail-group-header">当前参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保状态</span>
+                    <div class="detail-field-value"><span class="detail-tag active">参保中</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保年月</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group change">
+                <div class="detail-group-header">当前异动信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动类型</span>
+                    <div class="detail-field-value"><span class="detail-tag none">无</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动状态</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 4: 失业保险 -->
+        <div class="insurance-detail-item" id="ins-item-4">
+          <div class="insurance-detail-header" onclick="toggleDetail(4)">
+            <div class="ins-name">
+              失业保险
+              <span class="ins-badge essential">必选</span>
+            </div>
+            <div class="ins-values">
+              <div class="value-item"><span class="label">申报工资</span><span class="val" id="salary-4">6,001</span></div>
+              <div class="value-item"><span class="label">生效</span><span class="val" id="month-4">2026-02</span></div>
+              <div class="value-item"><span class="label">原因</span><span class="val" id="reason-4">新员工入职</span></div>
+            </div>
+            <button class="btn-adjust" onclick="event.stopPropagation();toggleDetail(4)">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+              单独调整
+            </button>
+          </div>
+          <div class="insurance-detail-body">
+            <div class="detail-groups">
+              <div class="detail-group unit">
+                <div class="detail-group-header">单位参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input unit" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value unit">0.5%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value unit">30.01</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group personal">
+                <div class="detail-group-header">个人参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input personal" value="6,001">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value personal">0.5%</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value personal">30.01</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group status">
+                <div class="detail-group-header">当前参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保状态</span>
+                    <div class="detail-field-value"><span class="detail-tag active">参保中</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保年月</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group change">
+                <div class="detail-group-header">当前异动信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动类型</span>
+                    <div class="detail-field-value"><span class="detail-tag none">无</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动状态</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 5: 大病险种 -->
+        <div class="insurance-detail-item" id="ins-item-5">
+          <div class="insurance-detail-header" onclick="toggleDetail(5)">
+            <div class="ins-name">
+              大病险种
+              <span class="ins-badge optional">可选</span>
+            </div>
+            <div class="ins-values">
+              <div class="value-item"><span class="label">申报工资</span><span class="val" id="salary-5">6,001</span></div>
+              <div class="value-item"><span class="label">生效</span><span class="val" id="month-5">2026-02</span></div>
+              <div class="value-item"><span class="label">原因</span><span class="val" id="reason-5">新员工入职</span></div>
+            </div>
+            <button class="btn-adjust" onclick="event.stopPropagation();toggleDetail(5)">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+              单独调整
+            </button>
+          </div>
+          <div class="insurance-detail-body">
+            <div class="detail-groups">
+              <div class="detail-group unit">
+                <div class="detail-group-header">单位参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input unit" value="—">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group personal">
+                <div class="detail-group-header">个人参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">缴费基数</span>
+                    <input type="text" class="detail-input personal" value="—">
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保比例</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">存缴额</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group status">
+                <div class="detail-group-header">当前参保信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保状态</span>
+                    <div class="detail-field-value"><span class="detail-tag active">参保中</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">参保年月</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="detail-group change">
+                <div class="detail-group-header">当前异动信息</div>
+                <div class="detail-fields">
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动类型</span>
+                    <div class="detail-field-value"><span class="detail-tag none">无</span></div>
+                  </div>
+                  <div class="detail-field">
+                    <span class="detail-field-label">异动状态</span>
+                    <div class="detail-field-value is-empty">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <p>请至少选择一个险种</p>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="form-footer">
+      <button class="btn btn-secondary" onclick="history.back()">取消</button>
+      <button class="btn btn-secondary" onclick="saveDraft()">保存草稿</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="handleSubmit()">
+        <span class="btn-text">提 交</span>
+      </button>
+    </div>
+
+  </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+  const selectedInsurances = new Set([1, 2, 3, 4, 5]);
+  const expandedItems = new Set();
+
+  const reasonMap = { 'XYGRZ': '新员工入职', 'BZGRZ': '本月新增', 'QT': '其他' };
+
+  function toggleInsurance(id) {
+    const checkbox = document.querySelector(`#insuranceSelection .insurance-checkbox:nth-child(${id}) input`);
+    const label = document.querySelector(`#insuranceSelection .insurance-checkbox:nth-child(${id})`);
+    if (checkbox.checked) {
+      selectedInsurances.add(id);
+      label.classList.add('checked');
+    } else {
+      selectedInsurances.delete(id);
+      label.classList.remove('checked');
+      expandedItems.delete(id);
+    }
+    updateInsuranceList();
+  }
+
+  function updateInsuranceList() {
+    const allItems = document.querySelectorAll('.insurance-detail-item');
+    const emptyState = document.getElementById('emptyState');
+    allItems.forEach((item, index) => {
+      const id = index + 1;
+      if (selectedInsurances.has(id)) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+        expandedItems.delete(id);
+      }
+    });
+    emptyState.style.display = selectedInsurances.size === 0 ? 'block' : 'none';
+  }
+
+  function toggleDetail(id) {
+    const item = document.getElementById('ins-item-' + id);
+    const btn = item.querySelector('.btn-adjust');
+    if (expandedItems.has(id)) {
+      expandedItems.delete(id);
+      item.classList.remove('expanded');
+      btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>单独调整`;
+    } else {
+      expandedItems.add(id);
+      item.classList.add('expanded');
+      btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>收起详情`;
+    }
+  }
+
+  function syncToAllInsurances() {
+    const salary = document.getElementById('unifiedSalary').value;
+    const monthSelect = document.getElementById('unifiedMonth');
+    const month = monthSelect.options[monthSelect.selectedIndex].text.replace('年', '-').replace('月', '');
+    const reasonSelect = document.getElementById('unifiedReason');
+    const reason = reasonMap[reasonSelect.value] || reasonSelect.options[reasonSelect.selectedIndex].text;
+    selectedInsurances.forEach(id => {
+      document.getElementById('salary-' + id).textContent = salary;
+      document.getElementById('month-' + id).textContent = month;
+      document.getElementById('reason-' + id).textContent = reason;
+    });
+  }
+
+  function saveDraft() { showToast('草稿已保存', 'success'); }
+
+  function handleSubmit() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span><span>提交中...</span>';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-text">提 交</span>';
+      showToast('社保增员提交成功！', 'success');
+    }, 1500);
+  }
+
+  function showToast(message, type) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + type;
+    const iconSvg = type === 'success'
+      ? '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+    toast.innerHTML = iconSvg + message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  updateInsuranceList();
+</script>
+
+</body>
+</html>
