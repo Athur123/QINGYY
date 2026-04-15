@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社保对账复核 - 三单分离模式 v4 - 青阳云 HRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        :root {
+            --huijiao-primary: #2563EB;
+            --huijiao-light: #DBEAFE;
+            --bujiao-primary: #7C3AED;
+            --bujiao-light: #EDE9FE;
+            --tiaoji-primary: #0891B2;
+            --tiaoji-light: #E0F2FE;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .qy-layout { display: flex; width: 100%; height: 100vh; max-width: none; overflow: hidden; }
+        .qy-sidebar { width: 160px; height: 100%; background: var(--qy-bg-primary); border-right: 1px solid var(--qy-border-light); flex-shrink: 0; overflow-y: auto; }
+        .qy-main { flex: 1; min-width: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; margin-left: 0; padding-left: 0; }
+        .qy-page { flex: 1; width: 100%; padding: 20px 24px; overflow-y: auto; overflow-x: auto; }
+
+        /* Sidebar */
+        .qy-sidebar__logo { padding: 20px 16px; border-bottom: 1px solid var(--qy-border-light); }
+        .qy-sidebar__logo h1 { font-size: 16px; font-weight: 700; color: var(--qy-primary-500); }
+        .qy-sidebar__logo span { font-size: 11px; color: var(--qy-text-muted); }
+        .qy-sidebar__nav { padding: 12px 8px; }
+        .qy-sidebar__group { margin-bottom: 16px; }
+        .qy-sidebar__title { font-size: 10px; font-weight: 600; color: var(--qy-text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 8px; margin-bottom: 4px; }
+        .qy-sidebar__item { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: var(--qy-radius-md); color: var(--qy-text-secondary); text-decoration: none; font-size: 13px; cursor: pointer; transition: all var(--qy-transition-fast); }
+        .qy-sidebar__item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .qy-sidebar__item.is-active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 500; }
+
+        /* Header */
+        .qy-header { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 52px; background: var(--qy-bg-primary); border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .qy-header__nav { display: flex; gap: 4px; }
+        .qy-header__tab { padding: 8px 16px; border: none; background: none; font-size: 13px; color: var(--qy-text-secondary); cursor: pointer; border-radius: var(--qy-radius-md); transition: all var(--qy-transition-fast); }
+        .qy-header__tab:hover { background: var(--qy-bg-secondary); }
+        .qy-header__tab.is-active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 500; }
+
+        /* Page */
+        .qy-page__header { margin-bottom: 20px; padding-left: 0; margin-left: 0; }
+        .qy-page__title { font-size: 20px; font-weight: 700; color: var(--qy-text-primary); margin-bottom: 4px; margin-left: 0; }
+        .qy-page__subtitle { font-size: 13px; color: var(--qy-text-secondary); margin-left: 0; }
+
+        /* Toolbar */
+        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; padding-left: 0; margin-left: 0; }
+        .toolbar__left, .toolbar__right { display: flex; align-items: center; gap: 12px; }
+        .qy-select { height: 32px; padding: 0 32px 0 12px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); background: var(--qy-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; font-size: 13px; color: var(--qy-text-primary); cursor: pointer; appearance: none; }
+        .qy-select:focus { outline: none; border-color: var(--qy-primary-400); box-shadow: var(--qy-shadow-focus); }
+        .qy-input { height: 32px; padding: 0 12px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); background: var(--qy-bg-primary); font-size: 13px; color: var(--qy-text-primary); width: 140px; }
+        .qy-input:focus { outline: none; border-color: var(--qy-primary-400); box-shadow: var(--qy-shadow-focus); }
+        .qy-input::placeholder { color: var(--qy-text-muted); }
+        .qy-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border: none; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--qy-transition-fast); white-space: nowrap; }
+        .qy-btn--primary { background: var(--qy-primary-500); color: white; }
+        .qy-btn--primary:hover { background: var(--qy-primary-600); }
+        .qy-btn--secondary { background: var(--qy-bg-primary); color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium); }
+        .qy-btn--secondary:hover { background: var(--qy-bg-secondary); }
+        .qy-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .qy-btn svg { flex-shrink: 0; }
+
+        /* Tab Bar */
+        .tab-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-left: 0; margin-left: 0; }
+        .tab-list { display: flex; gap: 0; border-bottom: 1px solid var(--qy-border-light); }
+        .tab-item { padding: 10px 20px; border: none; background: none; font-size: 13px; color: var(--qy-text-secondary); cursor: pointer; position: relative; transition: all var(--qy-transition-fast); }
+        .tab-item:hover { color: var(--qy-text-primary); }
+        .tab-item.is-active { color: var(--qy-primary-600); font-weight: 500; }
+        .tab-item.is-active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--qy-primary-500); }
+        .tab-item--huijiao.is-active { color: var(--huijiao-primary); }
+        .tab-item--huijiao.is-active::after { background: var(--huijiao-primary); }
+        .tab-item--bujiao.is-active { color: var(--bujiao-primary); }
+        .tab-item--bujiao.is-active::after { background: var(--bujiao-primary); }
+        .tab-item--tiaoji.is-active { color: var(--tiaoji-primary); }
+        .tab-item--tiaoji.is-active::after { background: var(--tiaoji-primary); }
+        .tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 6px; font-size: 11px; font-weight: 600; background: var(--qy-bg-tertiary); border-radius: var(--qy-radius-full); margin-left: 6px; color: var(--qy-text-secondary); }
+        .tab-item--huijiao.is-active .tab-badge { background: var(--huijiao-light); color: var(--huijiao-primary); }
+        .tab-item--bujiao.is-active .tab-badge { background: var(--bujiao-light); color: var(--bujiao-primary); }
+        .tab-item--tiaoji.is-active .tab-badge { background: var(--tiaoji-light); color: var(--tiaoji-primary); }
+
+        /* Match Row Table */
+        .match-table { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow: hidden; }
+        .match-table__header { display: grid; grid-template-columns: 1fr 40px 1fr 100px 80px; gap: 0; border-bottom: 1px solid var(--qy-border-light); }
+        .match-table__col { padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--qy-text-secondary); text-transform: uppercase; background: var(--qy-bg-secondary); }
+        .match-table__col--center { text-align: center; }
+        .match-table__body { max-height: 400px; overflow-y: auto; }
+        .match-table__row { display: grid; grid-template-columns: 1fr 40px 1fr 100px 80px; gap: 0; border-bottom: 1px solid var(--qy-border-light); align-items: center; }
+        .match-table__row:last-child { border-bottom: none; }
+        .match-table__row:hover { background: var(--qy-bg-secondary); }
+        .match-table__row--matched { background: #F0FDF4; }
+        .match-table__row--matched:hover { background: #DCFCE7; }
+        .match-table__row--system-more { background: #FEF2F2; }
+        .match-table__row--system-more:hover { background: #FEE2E2; }
+        .match-table__row--ledger-more { background: #FFFBEB; }
+        .match-table__row--ledger-more:hover { background: #FEF3C7; }
+        .match-table__cell { padding: 12px 14px; font-size: 13px; }
+        .match-table__cell--center { text-align: center; }
+        .match-table__arrow { display: flex; align-items: center; justify-content: center; color: var(--qy-text-muted); font-size: 16px; }
+        .match-table__arrow--matched { color: var(--qy-success-500); }
+        .match-table__arrow--error { color: var(--qy-error-500); }
+        .match-table__arrow--warning { color: var(--qy-warning-500); }
+
+        /* Match Row Inner Grid */
+        .match-record { display: flex; flex-direction: column; gap: 4px; }
+        .match-record__name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .match-record__detail { font-size: 11px; color: var(--qy-text-secondary); display: flex; gap: 12px; }
+        .match-record__money { font-weight: 600; color: var(--qy-text-primary); }
+        .match-record__money--muted { color: var(--qy-text-muted); }
+        .match-record--empty { color: var(--qy-text-muted); font-style: italic; }
+
+        /* Status Badge */
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--qy-radius-full); font-size: 11px; font-weight: 600; }
+        .status-badge--matched { background: #DCFCE7; color: #166534; }
+        .status-badge--matched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-badge--system-more { background: #FEE2E2; color: #991B1B; }
+        .status-badge--system-more::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-badge--ledger-more { background: #FEF3C7; color: #854D0E; }
+        .status-badge--ledger-more::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* Verify Badge */
+        .verify-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--qy-radius-full); font-size: 11px; font-weight: 600; }
+        .verify-badge--verified { background: #DCFCE7; color: #166534; }
+        .verify-badge--pending { background: #FEF3C7; color: #854D0E; }
+        .verify-badge--amount-confirmed { background: #DBEAFE; color: #1E40AF; }
+
+        /* Match Tag - next to name */
+        .match-tag { display: inline-flex; align-items: center; gap: 3px; padding: 1px 4px; border-radius: 2px; font-size: 10px; font-weight: 500; color: var(--qy-success-600); vertical-align: middle; margin-left: 4px; border: 1px solid var(--qy-success-200); }
+
+        /* Action Buttons */
+        .btn-action { padding: 4px 10px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); transition: all var(--qy-transition-fast); }
+        .btn-action:hover { background: var(--qy-primary-50); }
+
+        /* Table Footer */
+        .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--qy-border-light); background: var(--qy-bg-secondary); }
+        .table-footer__left { display: flex; gap: 12px; }
+        .table-footer__right { font-size: 12px; color: var(--qy-text-secondary); }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+        .toast { padding: 10px 20px; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; box-shadow: var(--qy-shadow-lg); transition: all var(--qy-transition-normal); opacity: 0; transform: translateY(10px); pointer-events: auto; white-space: nowrap; }
+        .toast.is-visible { opacity: 1; transform: translateY(0); }
+        .toast--success { background: var(--qy-success-500); color: white; }
+        .toast--warning { background: var(--qy-warning-500); color: white; }
+        .toast--error { background: var(--qy-error-500); color: white; }
+        .toast--info { background: var(--qy-primary-500); color: white; }
+
+        /* Checkbox */
+        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--qy-primary-500); }
+
+        /* Month Badge */
+        .month-badge { display: inline-block; padding: 2px 6px; background: var(--qy-bg-secondary); border-radius: var(--qy-radius-sm); font-size: 11px; color: var(--qy-text-secondary); }
+
+        /* Dashboard Summary (inline) */
+        .dashboard-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .dashboard-summary__card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); cursor: pointer; transition: all var(--qy-transition-fast); overflow: hidden; min-height: 90px; }
+        .dashboard-summary__card:hover { box-shadow: var(--qy-shadow-md); }
+        .dashboard-summary__card--huijiao { border-left: 3px solid var(--huijiao-primary); }
+        .dashboard-summary__card--bujiao { border-left: 3px solid var(--bujiao-primary); }
+        .dashboard-summary__card--tiaoji { border-left: 3px solid var(--tiaoji-primary); }
+        .dashboard-summary__card--summary { background: var(--qy-bg-secondary); border-left: 3px solid var(--qy-text-muted); }
+        .dashboard-summary__card.is-active { box-shadow: 0 0 0 2px var(--huijiao-primary); }
+        .dashboard-summary__card--huijiao.is-active { box-shadow: 0 0 0 2px var(--huijiao-primary); }
+        .dashboard-summary__card--bujiao.is-active { box-shadow: 0 0 0 2px var(--bujiao-primary); }
+        .dashboard-summary__card--tiaoji.is-active { box-shadow: 0 0 0 2px var(--tiaoji-primary); }
+        .dashboard-summary__card--summary.is-active { box-shadow: 0 0 0 2px var(--qy-text-muted); }
+        .dashboard-summary__icon { width: 36px; height: 36px; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .dashboard-summary__card--huijiao .dashboard-summary__icon { background: var(--huijiao-light); }
+        .dashboard-summary__card--bujiao .dashboard-summary__icon { background: var(--bujiao-light); }
+        .dashboard-summary__card--tiaoji .dashboard-summary__icon { background: var(--tiaoji-light); }
+        .dashboard-summary__card--summary .dashboard-summary__icon { background: var(--qy-bg-tertiary); }
+        .dashboard-summary__info { flex: 1; min-width: 0; overflow: hidden; }
+        .dashboard-summary__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dashboard-summary__stats { font-size: 11px; color: var(--qy-text-secondary); display: flex; gap: 8px; flex-wrap: nowrap; }
+        .dashboard-summary__stat { display: flex; align-items: center; gap: 2px; white-space: nowrap; }
+        .dashboard-summary__stat-value { font-weight: 600; color: var(--qy-text-primary); }
+        .dashboard-summary__money { display: flex; flex-direction: column; gap: 1px; min-width: 100px; flex-shrink: 0; }
+        .dashboard-summary__money-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; gap: 8px; }
+        .dashboard-summary__money-label { color: var(--qy-text-muted); flex-shrink: 0; }
+        .dashboard-summary__money-value { font-weight: 600; color: var(--qy-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .dashboard-summary__diff { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
+        .dashboard-summary__diff-value { font-size: 14px; font-weight: 700; color: var(--qy-error-500); line-height: 1.2; }
+        .dashboard-summary__diff-label { font-size: 10px; color: var(--qy-text-muted); white-space: nowrap; }
+        .dashboard-summary__summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 1px 0; gap: 8px; }
+        .dashboard-summary__summary-label { color: var(--qy-text-secondary); flex-shrink: 0; }
+        .dashboard-summary__summary-value { font-weight: 600; color: var(--qy-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .dashboard-summary__summary-value--highlight { color: var(--qy-error-500); }
+
+        /* Alert Banner */
+        .alert-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; margin-bottom: 16px; margin-left: 0; padding-left: 16px; }
+        .alert-banner__icon { font-size: 16px; }
+        .alert-banner__text { font-size: 13px; color: #991B1B; }
+        .alert-banner__text strong { font-weight: 600; }
+
+        /* Diff Type Filter */
+        .diff-filter { display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 16px; }
+        .diff-filter__label { font-size: 12px; color: var(--qy-text-secondary); font-weight: 500; }
+        .diff-filter__item { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--qy-radius-sm); cursor: pointer; font-size: 12px; transition: all var(--qy-transition-fast); border: 1px solid transparent; }
+        .diff-filter__item:hover { background: var(--qy-bg-secondary); }
+        .diff-filter__item.is-active { border-color: currentColor; }
+        .diff-filter__item--system { color: #991B1B; }
+        .diff-filter__item--system.is-active { background: #FEE2E2; }
+        .diff-filter__item--ledger { color: #854D0E; }
+        .diff-filter__item--ledger.is-active { background: #FEF3C7; }
+        .diff-filter__item--all { color: var(--qy-text-secondary); }
+        .diff-filter__item--all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .diff-filter__dot { width: 8px; height: 8px; border-radius: 50%; }
+        .diff-filter__dot--system { background: #EF4444; }
+        .diff-filter__dot--ledger { background: #F59E0B; }
+        .diff-filter__count { font-weight: 600; }
+
+        /* Detail Drawer */
+        .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity var(--qy-transition-normal); }
+        .drawer-overlay.is-visible { opacity: 1; visibility: visible; }
+        .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 520px; max-width: 100%; background: var(--qy-bg-primary); box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--qy-transition-slow); }
+        .drawer-overlay.is-visible .drawer { transform: translateX(0); }
+        .drawer__header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .drawer__title { font-size: 16px; font-weight: 600; color: var(--qy-text-primary); }
+        .drawer__close { width: 32px; height: 32px; border: none; background: none; font-size: 20px; color: var(--qy-text-muted); cursor: pointer; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; }
+        .drawer__close:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .drawer__body { flex: 1; overflow-y: auto; padding: 20px; }
+        .drawer__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .drawer-section { margin-bottom: 24px; }
+        .drawer-section__title { font-size: 13px; font-weight: 600; color: var(--qy-text-primary); padding-bottom: 10px; border-bottom: 1px solid var(--qy-border-light); margin-bottom: 12px; }
+        .drawer-section--system .drawer-section__title { color: var(--huijiao-primary); }
+        .drawer-section--ledger .drawer-section__title { color: var(--bujiao-primary); }
+        .drawer-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--qy-border-light); }
+        .drawer-row:last-child { border-bottom: none; }
+        .drawer-row__label { color: var(--qy-text-muted); flex-shrink: 0; }
+        .drawer-row__value { color: var(--qy-text-primary); font-weight: 500; text-align: right; }
+        .drawer-row__value--muted { color: var(--qy-text-muted); }
+        .drawer-analysis { background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md); padding: 14px; }
+        .drawer-analysis__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 8px; }
+        .drawer-analysis__content { font-size: 13px; color: var(--qy-text-secondary); line-height: 1.6; }
+        .drawer-analysis__cause { margin-top: 8px; font-size: 12px; color: var(--qy-text-muted); }
+        .drawer-multiple { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--qy-text-secondary); }
+        .drawer-multiple__badge { display: inline-flex; align-items: center; padding: 1px 6px; background: var(--tiaoji-light); color: var(--tiaoji-primary); border-radius: var(--qy-radius-sm); font-weight: 500; }
+
+        /* Data Table */
+        .data-table { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow-x: auto; }
+        .data-table .qy-table { table-layout: fixed; width: 100%; min-width: 1200px; }
+        .data-table .qy-table th { white-space: nowrap; }
+        .data-table .qy-table td { vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .data-table .qy-table th:first-child,
+        .data-table .qy-table td:first-child { width: 40px; text-align: center; }
+        .data-table .qy-table th:last-child,
+        .data-table .qy-table td:last-child { width: 90px; text-align: center; }
+        .data-table .qy-table tr.row-matched:hover td { background: var(--qy-bg-secondary); }
+        .data-table .qy-table tr.row-system td { background: #FEF2F2; }
+        .data-table .qy-table tr.row-system:hover td { background: #FEE2E2; }
+        .data-table .qy-table tr.row-ledger td { background: #FFFBEB; }
+        .data-table .qy-table tr.row-ledger:hover td { background: #FEF3C7; }
+
+        /* Column widths */
+        .data-table .qy-table th:nth-child(1), .data-table .qy-table td:nth-child(1) { width: 40px; text-align: center; }
+        .data-table .qy-table th:nth-child(2), .data-table .qy-table td:nth-child(2) { width: 100px; overflow: visible; text-overflow: clip; white-space: normal; }
+        .data-table .qy-table th:nth-child(3), .data-table .qy-table td:nth-child(3) { width: 120px; }
+        .data-table .qy-table th:nth-child(4), .data-table .qy-table td:nth-child(4) { width: 100px; }
+        .data-table .qy-table th:nth-child(5), .data-table .qy-table td:nth-child(5) { width: 70px; }
+        .data-table .qy-table th:nth-child(6), .data-table .qy-table td:nth-child(6) { width: 70px; }
+        .data-table .qy-table th:nth-child(7), .data-table .qy-table td:nth-child(7) { width: 130px; }
+        .data-table .qy-table th:nth-child(8), .data-table .qy-table td:nth-child(8) { width: 90px; }
+        .data-table .qy-table th:nth-child(9), .data-table .qy-table td:nth-child(9) { width: 130px; }
+        .data-table .qy-table th:nth-child(10), .data-table .qy-table td:nth-child(10) { width: 90px; }
+        .data-table .qy-table th:nth-child(11), .data-table .qy-table td:nth-child(11) { width: 90px; }
+        .data-table .qy-table th:nth-child(12), .data-table .qy-table td:nth-child(12) { width: 70px; }
+        .data-table .qy-table th:nth-child(13), .data-table .qy-table td:nth-child(13) { width: 90px; text-align: center; }
+
+        /* Money Cell */
+        .money-cell { display: flex; flex-direction: column; gap: 2px; }
+        .money-cell__total { font-weight: 600; }
+        .money-cell__split { font-size: 11px; color: var(--qy-text-muted); display: flex; gap: 8px; }
+        .money-cell__diff { color: var(--qy-error-500); font-weight: 500; }
+        .money-cell__diff--positive { color: var(--qy-success-500); }
+
+        /* Month Badge */
+        .month-badge { display: inline-block; padding: 2px 6px; background: var(--qy-bg-secondary); border-radius: var(--qy-radius-sm); font-size: 11px; color: var(--qy-text-secondary); }
+        .month-badge--highlight { background: var(--bujiao-light); color: var(--bujiao-primary); }
+
+        /* Status Badge */
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--qy-radius-full); font-size: 11px; font-weight: 600; }
+        .status-badge--matched { background: #DCFCE7; color: #166534; }
+        .status-badge--matched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-badge--system-more { background: #FEE2E2; color: #991B1B; }
+        .status-badge--system-more::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-badge--ledger-more { background: #FEF3C7; color: #854D0E; }
+        .status-badge--ledger-more::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* Verify Badge */
+        .verify-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--qy-radius-full); font-size: 11px; font-weight: 600; }
+        .verify-badge--verified { background: #DCFCE7; color: #166534; }
+        .verify-badge--pending { background: #FEF3C7; color: #854D0E; }
+        .verify-badge--amount-confirmed { background: #DBEAFE; color: #1E40AF; }
+
+        /* Match Tag - next to name */
+        .match-tag { display: inline-flex; align-items: center; gap: 3px; padding: 1px 4px; border-radius: 2px; font-size: 10px; font-weight: 500; color: var(--qy-success-600); vertical-align: middle; margin-left: 4px; border: 1px solid var(--qy-success-200); }
+
+        /* Action Buttons */
+        .btn-action { padding: 4px 10px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); transition: all var(--qy-transition-fast); }
+        .btn-action:hover { background: var(--qy-primary-50); }
+
+        /* Table Footer */
+        .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--qy-border-light); background: var(--qy-bg-secondary); }
+        .table-footer__left { display: flex; gap: 12px; }
+        .table-footer__right { font-size: 12px; color: var(--qy-text-secondary); }
+
+    </style>
+</head>
+<body>
+    <div class="qy-layout">
+        <!-- Sidebar -->
+        <aside class="qy-sidebar">
+            <div class="qy-sidebar__logo">
+                <h1>青阳云</h1>
+                <span>HRO管理系统</span>
+            </div>
+            <nav class="qy-sidebar__nav">
+                <div class="qy-sidebar__group">
+                    <div class="qy-sidebar__title">智能薪酬</div>
+                    <a class="qy-sidebar__item">
+                        <span>📋</span> 员工参保档案
+                    </a>
+                    <a class="qy-sidebar__item is-active">
+                        <span>🔍</span> 对账复核
+                    </a>
+                    <a class="qy-sidebar__item">
+                        <span>🧮</span> 社保方案计算
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="qy-main">
+            <header class="qy-header">
+                <nav class="qy-header__nav">
+                    <button class="qy-header__tab">核心人事</button>
+                    <button class="qy-header__tab is-active">智能薪酬</button>
+                    <button class="qy-header__tab">假勤管理</button>
+                    <button class="qy-header__tab">审批中心</button>
+                </nav>
+                <button class="qy-btn qy-btn--text" style="height: 32px;">管理员</button>
+            </header>
+
+            <div class="qy-page">
+                <div class="qy-page__header">
+                    <h1 class="qy-page__title">社保对账复核</h1>
+                    <p class="qy-page__subtitle">三单分离模式 — 汇缴/补缴/调基补差独立对账（PRD v4）</p>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar__left">
+                        <select class="qy-select" id="filterMonth">
+                            <option value="2026-04">2026年4月</option>
+                            <option value="2026-03">2026年3月</option>
+                        </select>
+                        <select class="qy-select" id="filterSettlement">
+                            <option value="">按结算主体</option>
+                        </select>
+                        <button class="qy-btn qy-btn--primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            搜索
+                        </button>
+                    </div>
+                    <div class="toolbar__right">
+                        <button class="qy-btn qy-btn--secondary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            导出
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Summary -->
+                <div class="dashboard-summary" id="dashboardSummary">
+                    <div class="dashboard-summary__card dashboard-summary__card--summary" id="summaryCard">
+                        <div class="dashboard-summary__icon">📊</div>
+                        <div class="dashboard-summary__info">
+                            <div class="dashboard-summary__title">账单总额</div>
+                            <div class="dashboard-summary__stats">
+                                <span class="dashboard-summary__stat">已确认 <span class="dashboard-summary__stat-value" id="summaryChecked">0</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="summaryTotal">0</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统</span>
+                                <span class="dashboard-summary__money-value" id="summarySysAmount">¥0</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账</span>
+                                <span class="dashboard-summary__money-value" id="summaryLedgerAmount">¥0</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__diff">
+                            <div class="dashboard-summary__diff-value" id="summaryTotalDiff">0</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-summary__card dashboard-summary__card--huijiao is-active" data-tab="huijiao">
+                        <div class="dashboard-summary__icon">💰</div>
+                        <div class="dashboard-summary__info">
+                            <div class="dashboard-summary__title">汇缴账单</div>
+                            <div class="dashboard-summary__stats">
+                                <span class="dashboard-summary__stat">已核对 <span class="dashboard-summary__stat-value" id="huijiaoChecked">1,238</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="huijiaoTotal">1,256</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统金额</span>
+                                <span class="dashboard-summary__money-value" id="huijiaoSysAmount">¥1,256,000</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账金额</span>
+                                <span class="dashboard-summary__money-value" id="huijiaoLedgerAmount">¥1,234,560</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__diff">
+                            <div class="dashboard-summary__diff-value" id="huijiaoDiffCount">18</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-summary__card dashboard-summary__card--bujiao" data-tab="bujiao">
+                        <div class="dashboard-summary__icon">📋</div>
+                        <div class="dashboard-summary__info">
+                            <div class="dashboard-summary__title">补缴账单</div>
+                            <div class="dashboard-summary__stats">
+                                <span class="dashboard-summary__stat">已确认 <span class="dashboard-summary__stat-value" id="bujiaoChecked">8</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="bujiaoTotal">12</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统金额</span>
+                                <span class="dashboard-summary__money-value" id="bujiaoSysAmount">¥28,500</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账金额</span>
+                                <span class="dashboard-summary__money-value" id="bujiaoLedgerAmount">¥26,800</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__diff">
+                            <div class="dashboard-summary__diff-value" id="bujiaoDiffCount">4</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-summary__card dashboard-summary__card--tiaoji" data-tab="tiaoji">
+                        <div class="dashboard-summary__icon">⚡</div>
+                        <div class="dashboard-summary__info">
+                            <div class="dashboard-summary__title">调基补差账单</div>
+                            <div class="dashboard-summary__stats">
+                                <span class="dashboard-summary__stat">已确认 <span class="dashboard-summary__stat-value" id="tiaojiChecked">3</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="tiaojiTotal">5</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统金额</span>
+                                <span class="dashboard-summary__money-value" id="tiaojiSysAmount">¥12,300</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账金额</span>
+                                <span class="dashboard-summary__money-value" id="tiaojiLedgerAmount">¥11,500</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__diff">
+                            <div class="dashboard-summary__diff-value" id="tiaojiDiffCount">2</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Bar -->
+                <div class="tab-bar">
+                    <div class="tab-list">
+                        <button class="tab-item tab-item--huijiao is-active" data-tab="huijiao">
+                            汇缴对账
+                            <span class="tab-badge">1,256</span>
+                        </button>
+                        <button class="tab-item tab-item--bujiao" data-tab="bujiao">
+                            补缴对账
+                            <span class="tab-badge">12</span>
+                        </button>
+                        <button class="tab-item tab-item--tiaoji" data-tab="tiaoji">
+                            调基补差对账
+                            <span class="tab-badge">5</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Diff Type Filter -->
+                <div class="diff-filter" id="diffFilter">
+                    <span class="diff-filter__label">差异筛选：</span>
+                    <div class="diff-filter__item diff-filter__item--all is-active" data-filter="all" onclick="toggleDiffFilter('all')">
+                        全部 <span class="diff-filter__count" id="diffCountAll">24</span>
+                    </div>
+                    <div class="diff-filter__item diff-filter__item--system" data-filter="system" onclick="toggleDiffFilter('system')">
+                        <span class="diff-filter__dot diff-filter__dot--system"></span>
+                        系统多 <span class="diff-filter__count" id="diffCountSystem">12</span>
+                    </div>
+                    <div class="diff-filter__item diff-filter__item--ledger" data-filter="ledger" onclick="toggleDiffFilter('ledger')">
+                        <span class="diff-filter__dot diff-filter__dot--ledger"></span>
+                        台账多 <span class="diff-filter__count" id="diffCountLedger">12</span>
+                    </div>
+                </div>
+
+                <!-- 汇缴 View -->
+                <div id="huijiaoView" style="display: none;">
+                    <div class="data-table">
+                        <table class="qy-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" onchange="toggleSelectAll('huijiao')"></th>
+                                    <th>姓名</th>
+                                    <th>身份证号</th>
+                                    <th>客户</th>
+                                    <th>险种</th>
+                                    <th>汇缴月份</th>
+                                    <th>费用月份</th>
+                                    <th>系统金额</th>
+                                    <th>台账金额</th>
+                                    <th>差异</th>
+                                    <th>核对状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="huijiaoTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-footer__left">
+                            <button class="qy-btn qy-btn--secondary" id="huijiaoSelectAll" onclick="toggleSelectAll('huijiao')">全选</button>
+                            <button class="qy-btn qy-btn--secondary" disabled id="huijiaoBatchConfirm">确认所选</button>
+                            <button class="qy-btn qy-btn--secondary" disabled id="huijiaoBatchCancel">取消确认</button>
+                        </div>
+                        <div class="table-footer__right">共 <strong>4</strong> 条差异 / 1页</div>
+                    </div>
+                </div>
+
+                <!-- 补缴 View -->
+                <div id="bujiaoView" style="display: none;">
+                    <div class="data-table">
+                        <table class="qy-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" onchange="toggleSelectAll('bujiao')"></th>
+                                    <th>姓名</th>
+                                    <th>身份证号</th>
+                                    <th>客户</th>
+                                    <th>险种</th>
+                                    <th>补缴月份</th>
+                                    <th>系统金额</th>
+                                    <th>系统实缴月份</th>
+                                    <th>台账金额</th>
+                                    <th>台账实缴月份</th>
+                                    <th>差异</th>
+                                    <th>核对状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bujiaoTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-footer__left">
+                            <button class="qy-btn qy-btn--secondary" id="bujiaoSelectAll" onclick="toggleSelectAll('bujiao')">全选</button>
+                            <button class="qy-btn qy-btn--primary" disabled id="bujiaoBatchConfirm" onclick="batchConfirm('bujiao')">确认所选</button>
+                            <button class="qy-btn qy-btn--secondary" disabled id="bujiaoBatchCancel" onclick="batchCancelConfirm('bujiao')">取消确认</button>
+                        </div>
+                        <div class="table-footer__right">共 <strong>4</strong> 条差异 / 1页</div>
+                    </div>
+                </div>
+
+                <!-- 调基补差 View -->
+                <div id="tiaojiView" style="display: none;">
+                    <div class="data-table">
+                        <table class="qy-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" onchange="toggleSelectAll('tiaoji')"></th>
+                                    <th>姓名</th>
+                                    <th>身份证号</th>
+                                    <th>客户</th>
+                                    <th>险种</th>
+                                    <th>补差月份</th>
+                                    <th>系统金额</th>
+                                    <th>系统实缴月份</th>
+                                    <th>台账金额</th>
+                                    <th>台账实缴月份</th>
+                                    <th>差异</th>
+                                    <th>核对状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tiaojiTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-footer__left">
+                            <button class="qy-btn qy-btn--secondary" id="tiaojiSelectAll" onclick="toggleSelectAll('tiaoji')">全选</button>
+                            <button class="qy-btn qy-btn--primary" disabled id="tiaojiBatchConfirm" onclick="batchConfirm('tiaoji')">确认所选</button>
+                            <button class="qy-btn qy-btn--secondary" disabled id="tiaojiBatchCancel" onclick="batchCancelConfirm('tiaoji')">取消确认</button>
+                        </div>
+                        <div class="table-footer__right">共 <strong>3</strong> 条差异 / 1页</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Detail Drawer -->
+    <div class="drawer-overlay" id="detailDrawer" onclick="closeDetailDrawer(event)">
+        <div class="drawer">
+            <div class="drawer__header">
+                <h3 class="drawer__title" id="drawerTitle">差异详情</h3>
+                <button class="drawer__close" onclick="closeDetailDrawer()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="drawer__body" id="drawerBody">
+                <!-- JS动态填充 -->
+            </div>
+            <div class="drawer__footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closeDetailDrawer()">关闭</button>
+                <button class="qy-btn qy-btn--primary" id="drawerConfirmBtn" onclick="confirmFromDrawer()">确认核对</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 数据模型 ==========
+
+        const RECORD_TYPES = {
+            MATCHED: 'matched',
+            SYSTEM_MORE: 'system_more',
+            LEDGER_MORE: 'ledger_more'
+        };
+
+        const VERIFY_STATUS = {
+            PENDING: 'PENDING',           // 待核对
+            AMOUNT_CONFIRMED: 'AMOUNT_CONFIRMED', // 金额已确认
+            VERIFIED: 'VERIFIED',         // 已核对完成
+            CHECKED: 'CHECKED'            // 已核对（汇缴专用）
+        };
+
+        // 汇缴差异数据 - 汇缴专用 CHECKED 状态
+        const HUIJIAO_DIFFS = [
+            { id: 'h1', name: '张三', idCard: '430105199001011234', customer: '某科技有限公司', insuranceType: '养老保险', billingMonth: '2026-04', paidMonth: '2026-04', insuranceStatus: '已参保', sysCompany: 1234, sysPersonal: 480, ledgerCompany: 1234, ledgerPersonal: 480, matchStatus: RECORD_TYPES.MATCHED, verified: true },
+            { id: 'h2', name: '李四', idCard: '430106199102022345', customer: '某科技有限公司', insuranceType: '医疗保险', billingMonth: '2026-04', paidMonth: '2026-05', insuranceStatus: '已参保', sysCompany: 600, sysPersonal: 200, ledgerCompany: null, ledgerPersonal: null, matchStatus: RECORD_TYPES.SYSTEM_MORE, verified: false },
+            { id: 'h3', name: '王五', idCard: '430107199203033456', customer: '另一家公司', insuranceType: '失业保险', billingMonth: '2026-04', paidMonth: '2026-04', insuranceStatus: '已停保', sysCompany: null, sysPersonal: null, ledgerCompany: 75, ledgerPersonal: 75, matchStatus: RECORD_TYPES.LEDGER_MORE, verified: false },
+            { id: 'h4', name: '赵六', idCard: '430108199304044567', customer: '第三家公司', insuranceType: '养老保险', billingMonth: '2026-03', paidMonth: '2026-04', insuranceStatus: '已参保', sysCompany: 925, sysPersonal: 360, ledgerCompany: 900, ledgerPersonal: 360, matchStatus: RECORD_TYPES.SYSTEM_MORE, verified: false },
+        ];
+
+        // 补缴差异数据
+        const BUJIAO_DIFFS = [
+            { id: 'b1', name: '钱七', idCard: '430109199405055678', customer: '某科技有限公司', insuranceType: '养老保险', billingMonth: '2026-01', paidMonth: '2026-04', sysCompany: 2468, sysPersonal: 1234, ledgerCompany: 2468, ledgerPersonal: 1234, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.PENDING },
+            { id: 'b2', name: '孙八', idCard: '430110199506066789', customer: '另一家公司', insuranceType: '医疗保险', billingMonth: '2026-02', paidMonth: '2026-04', sysCompany: 400, sysPersonal: 200, ledgerCompany: null, ledgerPersonal: null, matchStatus: RECORD_TYPES.SYSTEM_MORE, verifyStatus: VERIFY_STATUS.PENDING },
+            { id: 'b3', name: '周九', idCard: '430111199607077890', customer: '第三家公司', insuranceType: '养老保险', billingMonth: '2026-01', paidMonth: '2026-04', sysCompany: null, sysPersonal: null, ledgerCompany: 823, ledgerPersonal: 411, matchStatus: RECORD_TYPES.LEDGER_MORE, verifyStatus: VERIFY_STATUS.PENDING },
+            { id: 'b4', name: '吴十', idCard: '430112199708088901', customer: '某科技有限公司', insuranceType: '失业保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 100, sysPersonal: 50, ledgerCompany: 100, ledgerPersonal: 50, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED },
+        ];
+
+        // 调基补差匹配规则：成员+险种+补差月份（汇总后）+金额 完全一致 → 允许手动确认
+        // 同月多笔调基：按 身份证+险种+补差月份 分组，金额求和后再比对
+        // 确认时系统自动将台账的 paidMonth（实缴月份）写入记录
+        // 调基补差差异数据（包含同月份多笔示例）
+        // sysMultiple/ledgerMultiple：同月多笔合并笔数
+        const TIAOJI_DIFFS = [
+            { id: 't1', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: 156, sysPersonal: 78, ledgerCompany: 156, ledgerPersonal: 78, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 1, ledgerMultiple: 1 },
+            { id: 't2', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '医疗保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: null, sysPersonal: null, ledgerCompany: 37, ledgerPersonal: 19, matchStatus: RECORD_TYPES.LEDGER_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 0, ledgerMultiple: 1 },
+            { id: 't3', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 446, sysPersonal: 222, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.SYSTEM_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 2, ledgerMultiple: 1, note: '系统有2笔调基记录（01-15调基¥223，01-28调基¥223），台账合并为1笔¥446' },
+            { id: 't4', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-02', paidMonth: '2026-03', sysCompany: 223, sysPersonal: 111, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 1, ledgerMultiple: 1 },
+        ];
+
+        // 当前差异类型筛选
+        let currentDiffFilter = 'all';
+        let currentDetailRecord = null;
+
+        // ========== 差异类型筛选 ==========
+        function toggleDiffFilter(filterType) {
+            currentDiffFilter = filterType;
+
+            // 更新UI
+            document.querySelectorAll('.diff-filter__item').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.filter === filterType);
+            });
+
+            // 重新渲染当前表格
+            renderCurrentTable();
+            updateDiffCounts();
+        }
+
+        function updateDiffCounts() {
+            const allDiffs = [...getCurrentTabDiffs()];
+            const systemCount = allDiffs.filter(d => d.matchStatus === RECORD_TYPES.SYSTEM_MORE).length;
+            const ledgerCount = allDiffs.filter(d => d.matchStatus === RECORD_TYPES.LEDGER_MORE).length;
+
+            document.getElementById('diffCountAll').textContent = allDiffs.length;
+            document.getElementById('diffCountSystem').textContent = systemCount;
+            document.getElementById('diffCountLedger').textContent = ledgerCount;
+
+            updateDashboardAmounts();
+        }
+
+        function updateDashboardAmounts() {
+            // 汇缴金额计算
+            const huijiaoAmounts = calculateBillAmounts(HUIJIAO_DIFFS);
+            document.getElementById('huijiaoSysAmount').textContent = formatCurrency(huijiaoAmounts.sysTotal);
+            document.getElementById('huijiaoLedgerAmount').textContent = formatCurrency(huijiaoAmounts.ledgerTotal);
+            document.getElementById('huijiaoDiffCount').textContent = huijiaoAmounts.diffCount;
+            document.getElementById('huijiaoChecked').textContent = huijiaoAmounts.checkedCount.toLocaleString();
+            document.getElementById('huijiaoTotal').textContent = huijiaoAmounts.totalCount.toLocaleString();
+
+            // 补缴金额计算
+            const bujiaoAmounts = calculateBillAmounts(BUJIAO_DIFFS);
+            document.getElementById('bujiaoSysAmount').textContent = formatCurrency(bujiaoAmounts.sysTotal);
+            document.getElementById('bujiaoLedgerAmount').textContent = formatCurrency(bujiaoAmounts.ledgerTotal);
+            document.getElementById('bujiaoDiffCount').textContent = bujiaoAmounts.diffCount;
+            document.getElementById('bujiaoChecked').textContent = bujiaoAmounts.checkedCount.toLocaleString();
+            document.getElementById('bujiaoTotal').textContent = bujiaoAmounts.totalCount.toLocaleString();
+
+            // 调基补差金额计算
+            const tiaojiAmounts = calculateBillAmounts(TIAOJI_DIFFS);
+            document.getElementById('tiaojiSysAmount').textContent = formatCurrency(tiaojiAmounts.sysTotal);
+            document.getElementById('tiaojiLedgerAmount').textContent = formatCurrency(tiaojiAmounts.ledgerTotal);
+            document.getElementById('tiaojiDiffCount').textContent = tiaojiAmounts.diffCount;
+            document.getElementById('tiaojiChecked').textContent = tiaojiAmounts.checkedCount.toLocaleString();
+            document.getElementById('tiaojiTotal').textContent = tiaojiAmounts.totalCount.toLocaleString();
+
+            // 汇总金额计算
+            const totalSys = huijiaoAmounts.sysTotal + bujiaoAmounts.sysTotal + tiaojiAmounts.sysTotal;
+            const totalLedger = huijiaoAmounts.ledgerTotal + bujiaoAmounts.ledgerTotal + tiaojiAmounts.ledgerTotal;
+            const totalDiff = huijiaoAmounts.diffCount + bujiaoAmounts.diffCount + tiaojiAmounts.diffCount;
+            const totalChecked = huijiaoAmounts.checkedCount + bujiaoAmounts.checkedCount + tiaojiAmounts.checkedCount;
+            const totalCount = huijiaoAmounts.totalCount + bujiaoAmounts.totalCount + tiaojiAmounts.totalCount;
+
+            document.getElementById('summarySysAmount').textContent = formatCurrency(totalSys);
+            document.getElementById('summaryLedgerAmount').textContent = formatCurrency(totalLedger);
+            document.getElementById('summaryTotalDiff').textContent = totalDiff;
+            document.getElementById('summaryChecked').textContent = totalChecked.toLocaleString();
+            document.getElementById('summaryTotal').textContent = totalCount.toLocaleString();
+        }
+
+        function calculateBillAmounts(diffs) {
+            let sysTotal = 0;
+            let ledgerTotal = 0;
+            let diffCount = 0;
+            let systemMoreCount = 0;
+            let ledgerMoreCount = 0;
+            let totalCount = diffs.length;
+            let checkedCount = 0;
+
+            diffs.forEach(d => {
+                // 系统金额累加（只累加有效的金额）
+                if (d.sysCompany != null && d.sysPersonal != null) {
+                    sysTotal += d.sysCompany + d.sysPersonal;
+                }
+                // 台账金额累加（只累加有效的金额）
+                if (d.ledgerCompany != null && d.ledgerPersonal != null) {
+                    ledgerTotal += d.ledgerCompany + d.ledgerPersonal;
+                }
+                // 差异计数（系统多或台账多）
+                if (d.matchStatus === RECORD_TYPES.SYSTEM_MORE) {
+                    diffCount++;
+                    systemMoreCount++;
+                } else if (d.matchStatus === RECORD_TYPES.LEDGER_MORE) {
+                    diffCount++;
+                    ledgerMoreCount++;
+                }
+                // 已确认计数
+                if (d.hasOwnProperty('verified')) {
+                    // 汇缴
+                    if (d.verified) checkedCount++;
+                } else if (d.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                    // 补缴/调基
+                    checkedCount++;
+                }
+            });
+
+            return { sysTotal, ledgerTotal, diffCount, systemMoreCount, ledgerMoreCount, totalCount, checkedCount };
+        }
+
+        function formatCurrency(value) {
+            if (value === 0) return '¥0';
+            return '¥' + value.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function getCurrentTabDiffs() {
+            const activeTab = document.querySelector('.tab-item.is-active')?.dataset.tab || 'huijiao';
+            switch (activeTab) {
+                case 'huijiao': return HUIJIAO_DIFFS;
+                case 'bujiao': return BUJIAO_DIFFS;
+                case 'tiaoji': return TIAOJI_DIFFS;
+                default: return HUIJIAO_DIFFS;
+            }
+        }
+
+        function getFilteredDiffs(diffs) {
+            if (currentDiffFilter === 'all') return diffs;
+            return diffs.filter(d => {
+                if (currentDiffFilter === 'system') return d.matchStatus === RECORD_TYPES.SYSTEM_MORE;
+                if (currentDiffFilter === 'ledger') return d.matchStatus === RECORD_TYPES.LEDGER_MORE;
+                return true;
+            });
+        }
+
+        function renderCurrentTable() {
+            const activeTab = document.querySelector('.tab-item.is-active')?.dataset.tab || 'huijiao';
+            switch (activeTab) {
+                case 'huijiao': renderHuijiaoTable(); break;
+                case 'bujiao': renderBujiaoTable(); break;
+                case 'tiaoji': renderTiaojiTable(); break;
+            }
+        }
+
+        // ========== 渲染函数 ==========
+
+        function formatMoney(v) {
+            if (v === null || v === undefined) return '—';
+            return '¥' + Number(v).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function maskIdCard(v) {
+            if (!v) return '—';
+            return v.replace(/(\d{3})\d{11}(\d{4})/, '$1***********$2');
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                matched: { cls: 'status-badge--matched', text: '已匹配' },
+                system_more: { cls: 'status-badge--system-more', text: '系统多' },
+                ledger_more: { cls: 'status-badge--ledger-more', text: '台账多' }
+            };
+            const t = map[status] || map.matched;
+            return `<span class="status-badge ${t.cls}">${t.text}</span>`;
+        }
+
+        function getRowClass(status) {
+            const map = {
+                matched: 'row-matched',
+                system_more: 'row-system',
+                ledger_more: 'row-ledger'
+            };
+            return map[status] || '';
+        }
+
+        function getVerifyBadge(record) {
+            // 汇缴使用 checked
+            if (record.hasOwnProperty('verified')) {
+                if (record.verified) {
+                    return `<span class="verify-badge verify-badge--verified">✓ 已核对</span>`;
+                }
+                return `<span class="verify-badge verify-badge--pending">待核对</span>`;
+            }
+            // 补缴/调基补差使用 verifyStatus
+            const status = record.verifyStatus || VERIFY_STATUS.PENDING;
+            if (status === VERIFY_STATUS.VERIFIED) {
+                return `<span class="verify-badge verify-badge--verified">✓ 已核对</span>`;
+            }
+            return `<span class="verify-badge verify-badge--pending">待核对</span>`;
+        }
+
+        function getMatchStatusBadge(record) {
+            // 金额一致时显示"已匹配"
+            const isMatched = record.matchStatus === RECORD_TYPES.MATCHED;
+            if (!isMatched) {
+                return '';
+            }
+            // 汇缴：金额一致即为已匹配
+            if (record.hasOwnProperty('verified')) {
+                return '<span class="match-tag">已匹配</span>';
+            }
+            // 补缴/调基补差：金额一致且已确认实缴月份
+            if (record.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                return '<span class="match-tag">已匹配</span>';
+            }
+            return '';
+        }
+
+        // 汇缴表格渲染
+        // 汇缴匹配规则：成员+险种+金额+实缴月份 完全一致 → 自动核对完成
+        // verified 字段保留用于标识是否需要人工介入（如金额不一致时的处理）
+        function renderHuijiaoTable() {
+            const tbody = document.getElementById('huijiaoTableBody');
+            const filteredDiffs = getFilteredDiffs(HUIJIAO_DIFFS);
+            tbody.innerHTML = filteredDiffs.map(diff => {
+                const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
+                const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
+                const diff_val = (sysTotal !== null && ledgerTotal !== null) ? sysTotal - ledgerTotal : (sysTotal !== null ? sysTotal : (ledgerTotal !== null ? -ledgerTotal : null));
+                const diffCompany = (diff.sysCompany !== null && diff.ledgerCompany !== null) ? diff.sysCompany - diff.ledgerCompany : (diff.sysCompany !== null ? diff.sysCompany : (diff.ledgerCompany !== null ? -diff.ledgerCompany : null));
+                const diffPersonal = (diff.sysPersonal !== null && diff.ledgerPersonal !== null) ? diff.sysPersonal - diff.ledgerPersonal : (diff.sysPersonal !== null ? diff.sysPersonal : (diff.ledgerPersonal !== null ? -diff.ledgerPersonal : null));
+                const diffStr = diff_val !== null ? (diff_val > 0 ? '+' + formatMoney(diff_val) : (diff_val < 0 ? formatMoney(diff_val) : '—')) : '—';
+                const diffCls = diff_val !== null && diff_val !== 0 ? 'money-cell__diff' : '';
+                const hasDiff = diff_val !== null && diff_val !== 0;
+                const diffDetail = hasDiff ? `<span class="money-cell__split">${diffCompany !== null ? '单位:' + (diffCompany > 0 ? '+' : '') + formatMoney(diffCompany) : ''} ${diffPersonal !== null ? '个人:' + (diffPersonal > 0 ? '+' : '') + formatMoney(diffPersonal) : ''}</span>` : '';
+
+                return `<tr class="${getRowClass(diff.matchStatus)}">
+                    <td><input type="checkbox" class="row-checkbox" data-id="${diff.id}" onchange="updateBatchButtons('huijiao')"></td>
+                    <td><strong>${diff.name}</strong>${getMatchStatusBadge(diff)}</td>
+                    <td>${maskIdCard(diff.idCard)}</td>
+                    <td>${diff.customer}</td>
+                    <td>${diff.insuranceType}</td>
+                    <td><span class="month-badge month-badge--highlight">${diff.paidMonth}</span></td>
+                    <td><span class="month-badge">${diff.billingMonth}</span></td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total">${diff.sysCompany !== null ? formatMoney(sysTotal) : '—'}</span>
+                            <span class="money-cell__split">${diff.sysCompany !== null ? '单位:' + formatMoney(diff.sysCompany) : ''} ${diff.sysPersonal !== null ? '个人:' + formatMoney(diff.sysPersonal) : ''}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total">${diff.ledgerCompany !== null ? formatMoney(ledgerTotal) : '—'}</span>
+                            <span class="money-cell__split">${diff.ledgerCompany !== null ? '单位:' + formatMoney(diff.ledgerCompany) : ''} ${diff.ledgerPersonal !== null ? '个人:' + formatMoney(diff.ledgerPersonal) : ''}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total ${diffCls}">${diffStr}</span>
+                            ${diffDetail}
+                        </div>
+                    </td>
+                    <td>${getVerifyBadge(diff)}</td>
+                    <td><button class="btn-action" onclick="showDetail('${diff.id}', 'huijiao')">详情</button></td>
+                </tr>`;
+            }).join('');
+            updateDiffCounts();
+        }
+
+        // 补缴表格渲染
+        // 补缴匹配规则：成员+险种+补缴月份+金额 完全一致 → 允许手动确认核对
+        // 确认时系统自动将台账的 paidMonth（实缴月份）写入记录
+        function renderBujiaoTable() {
+            const tbody = document.getElementById('bujiaoTableBody');
+            const filteredDiffs = getFilteredDiffs(BUJIAO_DIFFS);
+            tbody.innerHTML = filteredDiffs.map(diff => {
+                const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
+                const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
+                const diff_val = (sysTotal !== null && ledgerTotal !== null) ? sysTotal - ledgerTotal : (sysTotal !== null ? sysTotal : (ledgerTotal !== null ? -ledgerTotal : null));
+                const diffCompany = (diff.sysCompany !== null && diff.ledgerCompany !== null) ? diff.sysCompany - diff.ledgerCompany : (diff.sysCompany !== null ? diff.sysCompany : (diff.ledgerCompany !== null ? -diff.ledgerCompany : null));
+                const diffPersonal = (diff.sysPersonal !== null && diff.ledgerPersonal !== null) ? diff.sysPersonal - diff.ledgerPersonal : (diff.sysPersonal !== null ? diff.sysPersonal : (diff.ledgerPersonal !== null ? -diff.ledgerPersonal : null));
+                const diffStr = diff_val !== null ? (diff_val > 0 ? '+' + formatMoney(diff_val) : (diff_val < 0 ? formatMoney(diff_val) : '—')) : '—';
+                const diffCls = diff_val !== null && diff_val !== 0 ? 'money-cell__diff' : '';
+                const hasDiff = diff_val !== null && diff_val !== 0;
+                const diffDetail = hasDiff ? `<span class="money-cell__split">${diffCompany !== null ? '单位:' + (diffCompany > 0 ? '+' : '') + formatMoney(diffCompany) : ''} ${diffPersonal !== null ? '个人:' + (diffPersonal > 0 ? '+' : '') + formatMoney(diffPersonal) : ''}</span>` : '';
+
+                // 系统实缴月份：已确认显示月份，未确认显示—
+                const sysPaidMonthDisplay = diff.verifyStatus === VERIFY_STATUS.VERIFIED ? `<span class="month-badge" style="background:var(--qy-success-100);color:var(--qy-success-700);">${diff.paidMonth}</span>` : `<span style="color:var(--qy-text-muted);">—</span>`;
+
+                // 操作按钮：根据核对状态显示不同按钮
+                let actionBtn = `<button class="btn-action" onclick="showDetail('${diff.id}', 'bujiao')">详情</button>`;
+                if (diff.verifyStatus === VERIFY_STATUS.PENDING && diff.matchStatus === RECORD_TYPES.MATCHED) {
+                    actionBtn = `<button class="btn-action" onclick="confirmVerify('${diff.id}', 'bujiao')" style="color:var(--bujiao-primary);">确认核对</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'bujiao')">详情</button>`;
+                } else if (diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                    actionBtn = `<button class="btn-action" onclick="cancelConfirm('${diff.id}', 'bujiao')" style="color:var(--qy-text-muted);">取消确认</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'bujiao')">详情</button>`;
+                }
+
+                return `<tr class="${getRowClass(diff.matchStatus)}">
+                    <td><input type="checkbox" class="row-checkbox" data-id="${diff.id}" onchange="updateBatchButtons('bujiao')"></td>
+                    <td><strong>${diff.name}</strong>${getMatchStatusBadge(diff)}</td>
+                    <td>${maskIdCard(diff.idCard)}</td>
+                    <td>${diff.customer}</td>
+                    <td>${diff.insuranceType}</td>
+                    <td><span class="month-badge">${diff.billingMonth}</span></td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total">${diff.sysCompany !== null ? formatMoney(sysTotal) : '—'}</span>
+                            <span class="money-cell__split">${diff.sysCompany !== null ? '单位:' + formatMoney(diff.sysCompany) : ''} ${diff.sysPersonal !== null ? '个人:' + formatMoney(diff.sysPersonal) : ''}</span>
+                        </div>
+                    </td>
+                    <td>${sysPaidMonthDisplay}</td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total">${diff.ledgerCompany !== null ? formatMoney(ledgerTotal) : '—'}</span>
+                            <span class="money-cell__split">${diff.ledgerCompany !== null ? '单位:' + formatMoney(diff.ledgerCompany) : ''} ${diff.ledgerPersonal !== null ? '个人:' + formatMoney(diff.ledgerPersonal) : ''}</span>
+                        </div>
+                    </td>
+                    <td><span class="month-badge month-badge--highlight">${diff.paidMonth || '—'}</span></td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total ${diffCls}">${diffStr}</span>
+                            ${diffDetail}
+                        </div>
+                    </td>
+                    <td>${getVerifyBadge(diff)}</td>
+                    <td>${actionBtn}</td>
+                </tr>`;
+            }).join('');
+            updateDiffCounts();
+        }
+
+        function confirmBujiao(id) {
+            const diff = BUJIAO_DIFFS.find(d => d.id === id);
+            if (diff) {
+                diff.sysConfirmed = true;
+                renderBujiaoTable();
+                showToast(`已确认实缴月份：${diff.paidMonth}`, 'success');
+            }
+        }
+
+        // 调基补差表格渲染
+        function renderTiaojiTable() {
+            const tbody = document.getElementById('tiaojiTableBody');
+            const filteredDiffs = getFilteredDiffs(TIAOJI_DIFFS);
+            tbody.innerHTML = filteredDiffs.map(diff => {
+                const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
+                const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
+                const diff_val = (sysTotal !== null && ledgerTotal !== null) ? sysTotal - ledgerTotal : (sysTotal !== null ? sysTotal : (ledgerTotal !== null ? -ledgerTotal : null));
+                const diffCompany = (diff.sysCompany !== null && diff.ledgerCompany !== null) ? diff.sysCompany - diff.ledgerCompany : (diff.sysCompany !== null ? diff.sysCompany : (diff.ledgerCompany !== null ? -diff.ledgerCompany : null));
+                const diffPersonal = (diff.sysPersonal !== null && diff.ledgerPersonal !== null) ? diff.sysPersonal - diff.ledgerPersonal : (diff.sysPersonal !== null ? diff.sysPersonal : (diff.ledgerPersonal !== null ? -diff.ledgerPersonal : null));
+                const diffStr = diff_val !== null ? (diff_val > 0 ? '+' + formatMoney(diff_val) : (diff_val < 0 ? formatMoney(diff_val) : '—')) : '—';
+                const diffCls = diff_val !== null && diff_val !== 0 ? 'money-cell__diff' : '';
+                const hasDiff = diff_val !== null && diff_val !== 0;
+                const diffDetail = hasDiff ? `<span class="money-cell__split">${diffCompany !== null ? '单位:' + (diffCompany > 0 ? '+' : '') + formatMoney(diffCompany) : ''} ${diffPersonal !== null ? '个人:' + (diffPersonal > 0 ? '+' : '') + formatMoney(diffPersonal) : ''}</span>` : '';
+
+                // 系统实缴月份：已确认显示月份，未确认显示—
+                const sysPaidMonthDisplay = diff.verifyStatus === VERIFY_STATUS.VERIFIED ? `<span class="month-badge" style="background:var(--qy-success-100);color:var(--qy-success-700);">${diff.paidMonth}</span>` : `<span style="color:var(--qy-text-muted);">—</span>`;
+
+                // 同月多笔合并笔数提示
+                const multipleInfo = (diff.sysMultiple > 1 || diff.ledgerMultiple > 1) ? `<span class="drawer-multiple__badge" title="系统${diff.sysMultiple}笔 / 台账${diff.ledgerMultiple}笔">含合并</span>` : '';
+
+                // 操作按钮：根据核对状态显示不同按钮
+                let actionBtn = `<button class="btn-action" onclick="showDetail('${diff.id}', 'tiaoji')">详情</button>`;
+                if (diff.verifyStatus === VERIFY_STATUS.PENDING && diff.matchStatus === RECORD_TYPES.MATCHED) {
+                    actionBtn = `<button class="btn-action" onclick="confirmVerify('${diff.id}', 'tiaoji')" style="color:var(--tiaoji-primary);">确认核对</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'tiaoji')">详情</button>`;
+                } else if (diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                    actionBtn = `<button class="btn-action" onclick="cancelConfirm('${diff.id}', 'tiaoji')" style="color:var(--qy-text-muted);">取消确认</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'tiaoji')">详情</button>`;
+                }
+
+                return `<tr class="${getRowClass(diff.matchStatus)}">
+                    <td><input type="checkbox" class="row-checkbox" data-id="${diff.id}" onchange="updateBatchButtons('tiaoji')"></td>
+                    <td>
+                        <strong>${diff.name}</strong>${getMatchStatusBadge(diff)}
+                        ${multipleInfo}
+                    </td>
+                    <td>${maskIdCard(diff.idCard)}</td>
+                    <td>${diff.customer}</td>
+                    <td>${diff.insuranceType}</td>
+                    <td><span class="month-badge">${diff.billingMonth}</span></td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total">${diff.sysCompany !== null ? formatMoney(sysTotal) : '—'}</span>
+                            <span class="money-cell__split">${diff.sysCompany !== null ? '单位:' + formatMoney(diff.sysCompany) : ''} ${diff.sysPersonal !== null ? '个人:' + formatMoney(diff.sysPersonal) : ''}</span>
+                            ${diff.sysMultiple > 1 ? `<span class="drawer-multiple__badge" style="margin-top:2px;">系统${diff.sysMultiple}笔</span>` : ''}
+                        </div>
+                    </td>
+                    <td>${sysPaidMonthDisplay}</td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total">${diff.ledgerCompany !== null ? formatMoney(ledgerTotal) : '—'}</span>
+                            <span class="money-cell__split">${diff.ledgerCompany !== null ? '单位:' + formatMoney(diff.ledgerCompany) : ''} ${diff.ledgerPersonal !== null ? '个人:' + formatMoney(diff.ledgerPersonal) : ''}</span>
+                            ${diff.ledgerMultiple > 1 ? `<span class="drawer-multiple__badge" style="margin-top:2px;">台账${diff.ledgerMultiple}笔</span>` : ''}
+                        </div>
+                    </td>
+                    <td><span class="month-badge month-badge--highlight">${diff.paidMonth || '—'}</span></td>
+                    <td>
+                        <div class="money-cell">
+                            <span class="money-cell__total ${diffCls}">${diffStr}</span>
+                            ${diffDetail}
+                        </div>
+                    </td>
+                    <td>${getVerifyBadge(diff)}</td>
+                    <td>${actionBtn}</td>
+                </tr>`;
+            }).join('');
+            updateDiffCounts();
+        }
+
+        function confirmTiaoji(id) {
+            const diff = TIAOJI_DIFFS.find(d => d.id === id);
+            if (diff) {
+                diff.sysConfirmed = true;
+                renderTiaojiTable();
+                showToast(`已确认实缴月份：${diff.paidMonth}`, 'success');
+            }
+        }
+
+        function confirmVerify(id, tab) {
+            const dataArray = tab === 'bujiao' ? BUJIAO_DIFFS : TIAOJI_DIFFS;
+            const diff = dataArray.find(d => d.id === id);
+            if (diff && diff.matchStatus === RECORD_TYPES.MATCHED) {
+                diff.verifyStatus = VERIFY_STATUS.VERIFIED;
+                if (tab === 'bujiao') {
+                    renderBujiaoTable();
+                } else {
+                    renderTiaojiTable();
+                }
+                // 如果详情Drawer是打开的，更新它
+                if (currentDetailRecord && currentDetailRecord.id === id) {
+                    document.getElementById('drawerConfirmBtn').textContent = '取消确认';
+                }
+                showToast(`已确认核对（${diff.paidMonth}实缴）`, 'success');
+            }
+        }
+
+        function cancelConfirm(id, tab) {
+            const dataArray = tab === 'bujiao' ? BUJIAO_DIFFS : TIAOJI_DIFFS;
+            const diff = dataArray.find(d => d.id === id);
+            if (diff) {
+                // 汇缴用 verified，补缴/调基用 verifyStatus
+                if (diff.hasOwnProperty('verified')) {
+                    diff.verified = false;
+                } else {
+                    diff.verifyStatus = VERIFY_STATUS.PENDING;
+                }
+                if (tab === 'bujiao') {
+                    renderBujiaoTable();
+                } else {
+                    renderTiaojiTable();
+                }
+                showToast('已取消确认', 'success');
+            }
+        }
+
+        function showDetail(id, tab) {
+            const dataArray = tab === 'huijiao' ? HUIJIAO_DIFFS : (tab === 'bujiao' ? BUJIAO_DIFFS : TIAOJI_DIFFS);
+            const diff = dataArray.find(d => d.id === id);
+            if (!diff) return;
+
+            currentDetailRecord = { ...diff, tab };
+
+            const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
+            const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
+
+            // 构建详情内容
+            let bodyContent = `
+                <div class="drawer-section drawer-section--system">
+                    <div class="drawer-section__title">系统记录</div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">姓名</span>
+                        <span class="drawer-row__value">${diff.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">身份证号</span>
+                        <span class="drawer-row__value">${diff.idCard}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">客户</span>
+                        <span class="drawer-row__value">${diff.customer || '—'}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value">${diff.insuranceType}</span>
+                    </div>
+                    ${diff.insuranceStatus ? `<div class="drawer-row">
+                        <span class="drawer-row__label">参保状态</span>
+                        <span class="drawer-row__value">${diff.insuranceStatus}</span>
+                    </div>` : ''}
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">${tab === 'tiaoji' ? '补差月份' : (tab === 'bujiao' ? '补缴月份' : '费用月份')}</span>
+                        <span class="drawer-row__value">${diff.billingMonth}</span>
+                    </div>
+                    ${tab === 'tiaoji' && diff.adjustmentId ? `<div class="drawer-row">
+                        <span class="drawer-row__label">调基事件ID</span>
+                        <span class="drawer-row__value">${diff.adjustmentId}</span>
+                    </div>` : ''}
+                    ${tab === 'tiaoji' && diff.adjustmentMonth ? `<div class="drawer-row">
+                        <span class="drawer-row__label">调基生效月份</span>
+                        <span class="drawer-row__value">${diff.adjustmentMonth}</span>
+                    </div>` : ''}
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">系统金额</span>
+                        <span class="drawer-row__value">${diff.sysCompany !== null ? `单位: ¥${diff.sysCompany.toLocaleString()} / 个人: ¥${diff.sysPersonal.toLocaleString()} / 合计: ¥${sysTotal.toLocaleString()}` : '—'}</span>
+                    </div>
+                    ${tab !== 'huijiao' ? `<div class="drawer-row">
+                        <span class="drawer-row__label">系统实缴月份</span>
+                        <span class="drawer-row__value ${diff.verifyStatus === VERIFY_STATUS.VERIFIED ? '' : 'drawer-row__value--muted'}">${diff.verifyStatus === VERIFY_STATUS.VERIFIED ? diff.paidMonth : '未确认'}</span>
+                    </div>` : ''}
+                    ${tab === 'tiaoji' && diff.sysMultiple > 0 ? `<div class="drawer-row">
+                        <span class="drawer-row__label">系统合并笔数</span>
+                        <span class="drawer-row__value"><span class="drawer-multiple__badge">${diff.sysMultiple} 笔</span></span>
+                    </div>` : ''}
+                </div>
+
+                <div class="drawer-section drawer-section--ledger">
+                    <div class="drawer-section__title">台账记录</div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">姓名</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.insuranceType}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">费用月份</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.billingMonth}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">台账金额</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.ledgerCompany !== null ? `单位: ¥${diff.ledgerCompany.toLocaleString()} / 个人: ¥${diff.ledgerPersonal.toLocaleString()} / 合计: ¥${ledgerTotal.toLocaleString()}` : '—'}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">台账实缴月份</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.paidMonth || '—'}</span>
+                    </div>
+                    ${tab === 'tiaoji' && diff.ledgerMultiple > 0 ? `<div class="drawer-row">
+                        <span class="drawer-row__label">台账合并笔数</span>
+                        <span class="drawer-row__value"><span class="drawer-multiple__badge">${diff.ledgerMultiple} 笔</span></span>
+                    </div>` : ''}
+                </div>
+
+                <div class="drawer-section">
+                    <div class="drawer-section__title">差异分析</div>
+                    <div class="drawer-analysis">
+                        <div class="drawer-analysis__content">
+                            ${diff.matchStatus === RECORD_TYPES.SYSTEM_MORE ?
+                                '<strong>系统多有记录，台账无此记录</strong>' :
+                                diff.matchStatus === RECORD_TYPES.LEDGER_MORE ?
+                                '<strong>台账多有记录，系统无此记录</strong>' :
+                                '<strong>金额一致</strong>'}
+                        </div>
+                        <div class="drawer-analysis__cause">
+                            可能原因：${diff.matchStatus === RECORD_TYPES.SYSTEM_MORE ?
+                                '申报失败未通知 / 不该减员被减了 / 漏申报' :
+                                diff.matchStatus === RECORD_TYPES.LEDGER_MORE ?
+                                '漏采集名单 / 误增员' :
+                                '—'}
+                        </div>
+                        ${diff.note ? `<div class="drawer-analysis__cause" style="margin-top:8px;color:var(--tiaoji-primary);">${diff.note}</div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('drawerTitle').textContent = `差异详情：${diff.name} - ${diff.insuranceType}`;
+            document.getElementById('drawerBody').innerHTML = bodyContent;
+
+            // 显示/隐藏确认按钮
+            const confirmBtn = document.getElementById('drawerConfirmBtn');
+            if (tab !== 'huijiao' && diff.matchStatus === RECORD_TYPES.MATCHED && diff.verifyStatus === VERIFY_STATUS.PENDING) {
+                confirmBtn.style.display = 'inline-flex';
+                confirmBtn.textContent = '确认核对';
+            } else if (tab !== 'huijiao' && diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                confirmBtn.style.display = 'inline-flex';
+                confirmBtn.textContent = '取消确认';
+            } else {
+                confirmBtn.style.display = 'none';
+            }
+
+            // 打开Drawer
+            document.getElementById('detailDrawer').classList.add('is-visible');
+        }
+
+        function closeDetailDrawer(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('detailDrawer').classList.remove('is-visible');
+            currentDetailRecord = null;
+        }
+
+        function confirmFromDrawer() {
+            if (!currentDetailRecord) return;
+            const { id, tab, verifyStatus } = currentDetailRecord;
+
+            if (verifyStatus === VERIFY_STATUS.VERIFIED) {
+                // 取消确认
+                cancelConfirm(id, tab);
+            } else {
+                // 确认核对
+                confirmVerify(id, tab);
+            }
+            closeDetailDrawer();
+        }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('is-visible'));
+            setTimeout(() => {
+                toast.classList.remove('is-visible');
+                setTimeout(() => toast.remove(), 200);
+            }, 3000);
+        }
+
+        // ========== 批量操作 ==========
+        function getSelectedIds(tab) {
+            const checkboxes = document.querySelectorAll(`#${tab}TableBody .row-checkbox:checked`);
+            return Array.from(checkboxes).map(cb => cb.dataset.id);
+        }
+
+        function toggleSelectAll(tab) {
+            const headerCheckbox = document.querySelector(`#${tab}View thead th:first-child input[type="checkbox"]`);
+            const rowCheckboxes = document.querySelectorAll(`#${tab}TableBody .row-checkbox`);
+            const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+            const newChecked = !allChecked;
+            rowCheckboxes.forEach(cb => cb.checked = newChecked);
+            if (headerCheckbox) headerCheckbox.checked = newChecked;
+            updateBatchButtons(tab);
+        }
+
+        function updateBatchButtons(tab) {
+            const selectedIds = getSelectedIds(tab);
+            const hasSelection = selectedIds.length > 0;
+            const batchConfirmBtn = document.getElementById(`${tab}BatchConfirm`);
+            const batchCancelBtn = document.getElementById(`${tab}BatchCancel`);
+
+            if (batchConfirmBtn) batchConfirmBtn.disabled = !hasSelection;
+            if (batchCancelBtn) batchCancelBtn.disabled = !hasSelection;
+
+            // Update select all button text
+            const selectAllBtn = document.getElementById(`${tab}SelectAll`);
+            if (selectAllBtn) {
+                const totalCount = document.querySelectorAll(`#${tab}TableBody .row-checkbox`).length;
+                selectAllBtn.textContent = selectedIds.length === totalCount ? '取消全选' : '全选';
+            }
+        }
+
+        function batchConfirm(tab) {
+            const selectedIds = getSelectedIds(tab);
+            if (selectedIds.length === 0) return;
+
+            const dataArray = tab === 'bujiao' ? BUJIAO_DIFFS : TIAOJI_DIFFS;
+            let confirmed = 0;
+
+            selectedIds.forEach(id => {
+                const diff = dataArray.find(d => d.id === id);
+                // 只有 PENDING 状态且金额一致的记录才能确认
+                if (diff &&
+                    diff.verifyStatus === VERIFY_STATUS.PENDING &&
+                    diff.matchStatus === RECORD_TYPES.MATCHED &&
+                    diff.paidMonth) {
+                    diff.verifyStatus = VERIFY_STATUS.VERIFIED;
+                    confirmed++;
+                }
+            });
+
+            if (confirmed > 0) {
+                if (tab === 'bujiao') {
+                    renderBujiaoTable();
+                } else {
+                    renderTiaojiTable();
+                }
+                showToast(`已确认 ${confirmed} 条记录核对`, 'success');
+            } else {
+                showToast('所选记录无法确认（需金额一致且未确认）', 'warning');
+            }
+        }
+
+        function batchCancelConfirm(tab) {
+            const selectedIds = getSelectedIds(tab);
+            if (selectedIds.length === 0) return;
+
+            const dataArray = tab === 'bujiao' ? BUJIAO_DIFFS : TIAOJI_DIFFS;
+            let cancelled = 0;
+
+            selectedIds.forEach(id => {
+                const diff = dataArray.find(d => d.id === id);
+                if (diff) {
+                    if (diff.hasOwnProperty('verified')) {
+                        if (diff.verified) {
+                            diff.verified = false;
+                            cancelled++;
+                        }
+                    } else if (diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                        diff.verifyStatus = VERIFY_STATUS.PENDING;
+                        cancelled++;
+                    }
+                }
+            });
+
+            if (cancelled > 0) {
+                if (tab === 'bujiao') {
+                    renderBujiaoTable();
+                } else {
+                    renderTiaojiTable();
+                }
+                showToast(`已取消确认 ${cancelled} 条记录`, 'success');
+            } else {
+                showToast('所选记录无需取消确认', 'warning');
+            }
+        }
+
+        // ========== Tab 切换 ==========
+
+        const views = ['huijiaoView', 'bujiaoView', 'tiaojiView'];
+        const tabs = document.querySelectorAll('.tab-item');
+        const dashCards = document.querySelectorAll('.dashboard-summary__card');
+
+        function switchToTab(tabName) {
+            // Update tabs
+            tabs.forEach(t => {
+                t.classList.toggle('is-active', t.dataset.tab === tabName);
+            });
+
+            // Update dashboard cards
+            dashCards.forEach(c => {
+                c.classList.toggle('is-active', c.dataset.tab === tabName);
+            });
+
+            // Show correct view
+            views.forEach(v => {
+                document.getElementById(v).style.display = 'none';
+            });
+            document.getElementById(tabName + 'View').style.display = 'block';
+
+            // Reset filter and update counts for new tab
+            currentDiffFilter = 'all';
+            document.querySelectorAll('.diff-filter__item').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.filter === 'all');
+            });
+            updateDiffCounts();
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchToTab(tab.dataset.tab);
+            });
+        });
+
+        // Dashboard cards also switch tabs (except summary card which has no data-tab)
+        dashCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (card.dataset.tab) {
+                    switchToTab(card.dataset.tab);
+                }
+            });
+        });
+
+        // ========== 初始化 ==========
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderHuijiaoTable();
+            renderBujiaoTable();
+            renderTiaojiTable();
+            updateDiffCounts();
+            // Show huijiao view by default
+            document.getElementById('huijiaoView').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
