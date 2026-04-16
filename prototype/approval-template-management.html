@@ -238,9 +238,9 @@
                         <div class="action-btns">
                             <button class="qy-btn qy-btn--small qy-btn--text" onclick="openViewDrawer('${t.type}')">详情</button>
                             <button class="qy-btn qy-btn--small qy-btn--text" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>
-                            ${t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" onclick="syncTemplate('${t.type}')">同步</button>`}
+                            ${t.disabled || t.sync_status === 'synced' ? '' : `<button class="qy-btn qy-btn--small qy-btn--primary" onclick="syncTemplate('${t.type}')">同步</button>`}
                             <button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-primary-500)" onclick="toggleTemplate('${t.type}')">${t.disabled ? '启用' : '停用'}</button>
-                            ${t.sync_status === 'synced' ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>`}
+                            ${t.sync_status === 'synced' || t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>`}
                         </div>
                     </td>
                 </tr>
