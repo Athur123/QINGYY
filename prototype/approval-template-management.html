@@ -107,6 +107,7 @@
 <body>
     <div class="page-header">
         <h1 class="page-title">审批模板管理</h1>
+        <button class="btn btn-primary" onclick="openAddTemplateModal()">新建模板</button>
     </div>
 
     <div style="padding: 24px;">
@@ -134,6 +135,37 @@
         </div>
         <div class="drawer-body" id="drawerContent">
             <!-- 动态填充 -->
+        </div>
+    </div>
+
+    <!-- 新建模板弹窗 -->
+    <div class="modal" id="addTemplateModal">
+        <div class="modal-content">
+            <div class="drawer-header">
+                <h3>新建模板</h3>
+                <button onclick="closeAddTemplateModal()">×</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="margin-bottom: 16px;">
+                    <label>模板名称</label>
+                    <input type="text" id="newTemplateName" class="qy-input" style="width:100%" placeholder="如：费用报销单">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>模板类型</label>
+                    <input type="text" id="newTemplateType" class="qy-input" style="width:100%" placeholder="如：expense_reimburse">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>平台</label>
+                    <select id="newTemplatePlatform" class="qy-input" style="width:100%">
+                        <option value="wecom">企业微信</option>
+                        <option value="dingtalk">钉钉</option>
+                    </select>
+                </div>
+                <div style="text-align:right;">
+                    <button class="btn btn-secondary" onclick="closeAddTemplateModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveNewTemplate()">保存</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -175,6 +207,48 @@
             { name: '考勤审批单', type: 'attendance', sync_status: 'failed', wecom_template_id: null, auth: null }
         ];
 
+        // 新建模板
+        function openAddTemplateModal() {
+            document.getElementById('newTemplateName').value = '';
+            document.getElementById('newTemplateType').value = '';
+            document.getElementById('newTemplatePlatform').value = 'wecom';
+            document.getElementById('addTemplateModal').classList.add('open');
+        }
+
+        function closeAddTemplateModal() {
+            document.getElementById('addTemplateModal').classList.remove('open');
+        }
+
+        function saveNewTemplate() {
+            const name = document.getElementById('newTemplateName').value.trim();
+            const type = document.getElementById('newTemplateType').value.trim();
+            const platform = document.getElementById('newTemplatePlatform').value;
+
+            if (!name || !type) {
+                alert('请填写模板名称和类型');
+                return;
+            }
+
+            // 检查类型是否已存在
+            if (mockTemplates.some(t => t.type === type)) {
+                alert('模板类型已存在');
+                return;
+            }
+
+            const newTemplate = {
+                name,
+                type,
+                platform,
+                sync_status: 'unsynced',
+                wecom_template_id: null,
+                auth: null
+            };
+
+            mockTemplates.push(newTemplate);
+            renderTemplates(mockTemplates);
+            closeAddTemplateModal();
+        }
+
         // 加载模板列表
         async function loadTemplates() {
             try {
@@ -209,9 +283,20 @@
                         <button class="btn btn-secondary" onclick="openDrawer('${t.type}')">详情</button>
                         <button class="btn btn-secondary" onclick="openAuthModal('${t.type}')">鉴权</button>
                         <button class="btn btn-primary" onclick="syncTemplate('${t.type}')">同步</button>
+                        <button class="btn btn-secondary" style="color:#ef4444" onclick="deleteTemplate('${t.type}')">删除</button>
                     </td>
                 </tr>
             `).join('');
+        }
+
+        // 删除模板
+        function deleteTemplate(templateType) {
+            if (!confirm('确定要删除该模板吗？')) return;
+            const idx = mockTemplates.findIndex(t => t.type === templateType);
+            if (idx !== -1) {
+                mockTemplates.splice(idx, 1);
+                renderTemplates(mockTemplates);
+            }
         }
 
         function getStatusText(status) {
