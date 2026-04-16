@@ -249,8 +249,9 @@
                     <td>
                         <div class="action-btns">
                             <button class="qy-btn qy-btn--small qy-btn--text" onclick="openViewDrawer('${t.type}')">详情</button>
-                            ${t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>`}
+                            ${t.sync_status === 'synced' || t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>`}
                             ${t.disabled || t.sync_status === 'synced' ? '' : `<button class="qy-btn qy-btn--small qy-btn--primary" onclick="syncTemplate('${t.type}')">同步</button>`}
+                            ${t.sync_status === 'synced' && !t.disabled ? `<button class="qy-btn qy-btn--small qy-btn--primary" onclick="updateTemplateForm('${t.type}')">更新表单</button>` : ''}
                             <button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-primary-500)" onclick="toggleTemplate('${t.type}')">${t.disabled ? '启用' : '停用'}</button>
                             ${t.sync_status === 'synced' || t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>`}
                         </div>
@@ -555,6 +556,20 @@
                     template.wecom_template_id = 'TM' + Date.now();
                     renderTemplates(mockTemplates);
                     alert('同步成功');
+                }, 1500);
+            }
+        }
+
+        function updateTemplateForm(templateType) {
+            if (!confirm('确定要更新此模板的表单配置吗？')) return;
+            const template = mockTemplates.find(t => t.type === templateType);
+            if (template) {
+                template.sync_status = 'syncing';
+                renderTemplates(mockTemplates);
+                setTimeout(() => {
+                    template.sync_status = 'synced';
+                    renderTemplates(mockTemplates);
+                    alert('表单更新成功');
                 }, 1500);
             }
         }
