@@ -107,7 +107,6 @@
 <body>
     <div class="page-header">
         <h1 class="page-title">审批模板管理</h1>
-        <button class="btn btn-secondary" onclick="openAuthModal()">鉴权设置</button>
     </div>
 
     <div style="padding: 24px;">
@@ -116,6 +115,7 @@
                 <tr>
                     <th>模板名称</th>
                     <th>模板类型</th>
+                    <th>模板ID</th>
                     <th>同步状态</th>
                     <th>操作</th>
                 </tr>
@@ -141,7 +141,7 @@
     <div class="modal" id="authModal">
         <div class="modal-content">
             <div class="drawer-header">
-                <h3>企业微信鉴权配置</h3>
+                <h3 id="authModalTitle">企业微信鉴权配置</h3>
                 <button onclick="closeAuthModal()">×</button>
             </div>
             <div style="padding: 20px;">
@@ -170,9 +170,9 @@
 
         // 模拟数据
         const mockTemplates = [
-            { name: '财务应收单', type: 'finance_receivable', sync_status: 'synced', wecom_template_id: '1234567890' },
-            { name: '财务应付单', type: 'finance_payable', sync_status: 'unsynced', wecom_template_id: null },
-            { name: '考勤审批单', type: 'attendance', sync_status: 'failed', wecom_template_id: null }
+            { name: '财务应收单', type: 'finance_receivable', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } },
+            { name: '财务应付单', type: 'finance_payable', sync_status: 'unsynced', wecom_template_id: null, auth: null },
+            { name: '考勤审批单', type: 'attendance', sync_status: 'failed', wecom_template_id: null, auth: null }
         ];
 
         // 加载模板列表
@@ -198,6 +198,7 @@
                 <tr>
                     <td>${t.name}</td>
                     <td>${t.type}</td>
+                    <td>${t.wecom_template_id || '-'}</td>
                     <td>
                         <span class="sync-status ${t.sync_status}">
                             <span class="dot"></span>
@@ -206,6 +207,7 @@
                     </td>
                     <td>
                         <button class="btn btn-secondary" onclick="openDrawer('${t.type}')">详情</button>
+                        <button class="btn btn-secondary" onclick="openAuthModal('${t.type}')">鉴权</button>
                         <button class="btn btn-primary" onclick="syncTemplate('${t.type}')">同步</button>
                     </td>
                 </tr>
@@ -308,19 +310,30 @@
         }
 
         // 鉴权配置
-        function openAuthModal() {
+        let currentTemplateType = null;
+
+        function openAuthModal(templateType) {
+            currentTemplateType = templateType;
+            const template = mockTemplates.find(t => t.type === templateType);
+            document.getElementById('authModalTitle').textContent = template ? `${template.name} - 鉴权配置` : '鉴权配置';
             document.getElementById('authModal').classList.add('open');
+
             // 加载现有配置
             fetch(`${API_BASE}/auth/wecom`)
                 .then(r => r.json())
                 .then(d => {
                     if (d.data) {
-                        document.getElementById('corpid').value = d.data.corpid;
-                        document.getElementById('agentid').value = d.data.agentid;
+                        document.getElementById('corpid').value = d.data.corpid || '';
+                        document.getElementById('agentid').value = d.data.agentid || '';
                     }
                 })
                 .catch(() => {
-                    console.log('Using mock auth data');
+                    // 使用模拟数据
+                    if (template && template.auth) {
+                        document.getElementById('corpid').value = template.auth.corpid || '';
+                        document.getElementById('secret').value = template.auth.secret || '';
+                        document.getElementById('agentid').value = template.auth.agentid || '';
+                    }
                 });
         }
 
@@ -330,7 +343,7 @@
 
         async function saveAuth() {
             const data = {
-                platform: 'wecom',
+                platform: currentTemplateType || 'wecom',
                 corpid: document.getElementById('corpid').value,
                 secret: document.getElementById('secret').value,
                 agentid: document.getElementById('agentid').value
@@ -345,9 +358,19 @@
                 const result = await res.json();
                 alert(result.message);
                 if (result.code === 0) {
+                    // 更新本地模拟数据
+                    const template = mockTemplates.find(t => t.type === currentTemplateType);
+                    if (template) {
+                        template.auth = { corpid: data.corpid, secret: data.secret, agentid: data.agentid };
+                    }
                     closeAuthModal();
                 }
             } catch (e) {
+                // 离线模式也保存到本地
+                const template = mockTemplates.find(t => t.type === currentTemplateType);
+                if (template) {
+                    template.auth = { corpid: data.corpid, secret: data.secret, agentid: data.agentid };
+                }
                 alert('保存成功 (离线模式)');
                 closeAuthModal();
             }
