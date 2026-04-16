@@ -120,7 +120,7 @@ class WeComAdapter(ApprovalPlatform):
 
     def verify_callback(self, request_data: Dict, signature: str) -> bool:
         """验证企业微信回调签名"""
-        callback_token = getattr(self.config, 'callback_token', '') or getattr(self.config, 'secret', '')
+        callback_token = self.config.callback_token
         timestamp = request_data.get("timestamp", "")
         nonce = request_data.get("nonce", "")
 

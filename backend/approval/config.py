@@ -7,6 +7,7 @@ class WeComConfig(BaseModel):
     corp_id: str
     agent_id: str
     secret: str
+    callback_token: str = ""  # 企业微信回调Token
 
 
 class DingTalkConfig(BaseModel):
