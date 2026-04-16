@@ -13,6 +13,7 @@ class WeComConfig(BaseModel):
 class DingTalkConfig(BaseModel):
     app_key: str
     app_secret: str
+    callback_secret: str = ""  # 钉钉回调签名密钥
 
 
 class PlatformConfig(BaseModel):
@@ -33,6 +34,7 @@ def load_config() -> PlatformConfig:
         dingtalk=DingTalkConfig(
             app_key=os.getenv("DINGTALK_APP_KEY", ""),
             app_secret=os.getenv("DINGTALK_APP_SECRET", ""),
+            callback_secret=os.getenv("DINGTALK_CALLBACK_SECRET", ""),
         ),
         callback_url=os.getenv("CALLBACK_URL", "https://qy-cloud.com/api/approval/callback"),
     )
