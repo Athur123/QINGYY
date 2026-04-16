@@ -176,6 +176,7 @@
                             <col style="width:140px">
                             <col style="width:90px">
                             <col style="width:280px">
+                            <col style="width:200px">
                         </colgroup>
                         <thead>
                             <tr>
@@ -184,6 +185,7 @@
                                 <th>审批通道</th>
                                 <th>模板ID</th>
                                 <th>同步状态</th>
+                                <th style="text-align:left;">备注</th>
                                 <th style="text-align:left;">操作</th>
                             </tr>
                         </thead>
@@ -212,10 +214,10 @@
         const API_BASE = 'http://localhost:8000/api/approval';
 
         const mockTemplates = [
-            { name: '付款申请', type: 'payment_request', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false },
-            { name: '收入确认', type: 'income_confirm', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null, disabled: false },
-            { name: '垫付申请', type: 'advance_apply', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null, disabled: true },
-            { name: '开票申请', type: 'invoice_apply', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false }
+            { name: '付款申请', type: 'payment_request', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false, remark: '用于常规付款流程审批' },
+            { name: '收入确认', type: 'income_confirm', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null, disabled: false, remark: '' },
+            { name: '垫付申请', type: 'advance_apply', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null, disabled: true, remark: '员工垫付款项' },
+            { name: '开票申请', type: 'invoice_apply', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false, remark: '' }
         ];
 
         let currentDrawerMode = 'view';
@@ -243,6 +245,7 @@
                     <td><span class="platform-tag">${getPlatformText(t.platform)}</span></td>
                     <td>${t.wecom_template_id || '<span style="color:#94a3b8;">未同步</span>'}</td>
                     <td><span class="status-tag status-tag--${t.sync_status}"><span class="dot"></span>${getStatusText(t.sync_status)}</span></td>
+                    <td style="color:#64748b;font-size:13px;">${t.remark || '-'}</td>
                     <td>
                         <div class="action-btns">
                             <button class="qy-btn qy-btn--small qy-btn--text" onclick="openViewDrawer('${t.type}')">详情</button>
@@ -295,6 +298,10 @@
                             <option value="dingtalk">钉钉</option>
                             <option value="qingyang">青阳云</option>
                         </select>
+                    </div>
+                    <div class="qy-form-item">
+                        <label class="qy-form-item__label">备注</label>
+                        <input type="text" id="drawerRemark" class="qy-input" style="width:100%" placeholder="请输入备注信息">
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
@@ -394,6 +401,13 @@
                         <input type="text" id="drawerAgentid" class="qy-input" style="width:100%" value="${template.auth?.agentid || ''}">
                     </div>
                 </div>
+                <div class="drawer-divider"></div>
+                <div class="drawer-section">
+                    <div class="qy-form-item">
+                        <label class="qy-form-item__label">备注</label>
+                        <input type="text" id="drawerRemark" class="qy-input" style="width:100%" value="${template.remark || ''}" placeholder="请输入备注信息">
+                    </div>
+                </div>
             `;
             document.getElementById('drawerFooter').innerHTML = `
                 <button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取消</button>
@@ -434,6 +448,10 @@
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">同步状态</label>
                         <div class="qy-form-item__value"><span class="status-tag status-tag--${template.sync_status}"><span class="dot"></span>${getStatusText(template.sync_status)}</span></div>
+                    </div>
+                    <div class="qy-form-item">
+                        <label class="qy-form-item__label">备注</label>
+                        <div class="qy-form-item__value">${template.remark || '-'}</div>
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
@@ -497,15 +515,16 @@
             const corpid = document.getElementById('drawerCorpid').value.trim();
             const secret = document.getElementById('drawerSecret').value.trim();
             const agentid = document.getElementById('drawerAgentid').value.trim();
+            const remark = document.getElementById('drawerRemark').value.trim();
 
             if (!name || !type) { alert('请填写模板名称和类型'); return; }
 
             if (currentDrawerMode === 'create') {
                 if (mockTemplates.some(t => t.type === type)) { alert('模板类型已存在'); return; }
-                mockTemplates.push({ name, type, platform, sync_status: 'unsynced', wecom_template_id: null, auth: { corpid, secret, agentid } });
+                mockTemplates.push({ name, type, platform, sync_status: 'unsynced', wecom_template_id: null, auth: { corpid, secret, agentid }, remark });
             } else {
                 const template = mockTemplates.find(t => t.type === currentEditType);
-                if (template) { template.name = name; template.platform = platform; template.auth = { corpid, secret, agentid }; }
+                if (template) { template.name = name; template.platform = platform; template.auth = { corpid, secret, agentid }; template.remark = remark; }
             }
             renderTemplates(mockTemplates);
             closeDrawer();
