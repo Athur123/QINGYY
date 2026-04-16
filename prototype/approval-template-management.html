@@ -107,7 +107,7 @@
 <body>
     <div class="page-header">
         <h1 class="page-title">审批模板管理</h1>
-        <button class="btn btn-primary" onclick="openAddTemplateModal()">新建模板</button>
+        <button class="btn btn-primary" onclick="openAddTemplateDrawer()">新建模板</button>
     </div>
 
     <div style="padding: 24px;">
@@ -128,88 +128,14 @@
         </table>
     </div>
 
-    <!-- 模板详情抽屉 -->
+    <!-- 模板详情/编辑抽屉 -->
     <div class="drawer" id="drawer">
         <div class="drawer-header">
-            <h3>模板详情</h3>
+            <h3 id="drawerTitle">模板详情</h3>
             <button onclick="closeDrawer()">×</button>
         </div>
         <div class="drawer-body" id="drawerContent">
             <!-- 动态填充 -->
-        </div>
-    </div>
-
-    <!-- 新建模板弹窗 -->
-    <div class="modal" id="addTemplateModal">
-        <div class="modal-content">
-            <div class="drawer-header">
-                <h3>新建模板</h3>
-                <button onclick="closeAddTemplateModal()">×</button>
-            </div>
-            <div style="padding: 20px;">
-                <div style="margin-bottom: 16px;">
-                    <label>模板名称</label>
-                    <input type="text" id="newTemplateName" class="qy-input" style="width:100%" placeholder="如：费用报销单">
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label>模板类型</label>
-                    <input type="text" id="newTemplateType" class="qy-input" style="width:100%" placeholder="如：expense_reimburse">
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label>审批通道</label>
-                    <select id="newTemplatePlatform" class="qy-input" style="width:100%">
-                        <option value="wecom">企微</option>
-                        <option value="dingtalk">钉钉</option>
-                        <option value="qingyang">青阳云</option>
-                    </select>
-                </div>
-                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
-                <h4 style="margin-bottom: 16px; font-size: 14px; color: #64748b;">鉴权信息</h4>
-                <div style="margin-bottom: 16px;">
-                    <label>企业ID (corpid)</label>
-                    <input type="text" id="newTemplateCorpid" class="qy-input" style="width:100%" placeholder="请输入企业ID">
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label>应用Secret</label>
-                    <input type="password" id="newTemplateSecret" class="qy-input" style="width:100%" placeholder="请输入应用Secret">
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label>应用AgentId</label>
-                    <input type="text" id="newTemplateAgentid" class="qy-input" style="width:100%" placeholder="请输入应用AgentId">
-                </div>
-                <div style="text-align:right;">
-                    <button class="btn btn-secondary" onclick="closeAddTemplateModal()">取消</button>
-                    <button class="btn btn-primary" onclick="saveNewTemplate()">保存</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 鉴权配置弹窗 -->
-    <div class="modal" id="authModal">
-        <div class="modal-content">
-            <div class="drawer-header">
-                <h3 id="authModalTitle">企业微信鉴权配置</h3>
-                <button onclick="closeAuthModal()">×</button>
-            </div>
-            <div style="padding: 20px;">
-                <div style="margin-bottom: 16px;">
-                    <label>企业ID (corpid)</label>
-                    <input type="text" id="corpid" class="qy-input" style="width:100%">
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label>应用Secret</label>
-                    <input type="password" id="secret" class="qy-input" style="width:100%">
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label>应用AgentId</label>
-                    <input type="text" id="agentid" class="qy-input" style="width:100%">
-                </div>
-                <div style="text-align:right;">
-                    <button class="btn btn-secondary" onclick="closeAuthModal()">取消</button>
-                    <button class="btn btn-primary" onclick="saveAuth()">保存</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -223,54 +149,132 @@
             { name: '考勤审批单', type: 'attendance', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null }
         ];
 
-        // 新建模板
-        function openAddTemplateModal() {
-            document.getElementById('newTemplateName').value = '';
-            document.getElementById('newTemplateType').value = '';
-            document.getElementById('newTemplatePlatform').value = 'wecom';
-            document.getElementById('addTemplateModal').classList.add('open');
+        let currentDrawerMode = 'view'; // 'view', 'create', 'edit'
+        let currentEditType = null;
+
+        // 打开新建模板抽屉
+        function openAddTemplateDrawer() {
+            currentDrawerMode = 'create';
+            currentEditType = null;
+            document.getElementById('drawerTitle').textContent = '新建模板';
+            document.getElementById('drawerContent').innerHTML = `
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">模板名称</label>
+                    <input type="text" id="drawerName" class="qy-input" style="width:100%" placeholder="如：费用报销单">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">模板类型</label>
+                    <input type="text" id="drawerType" class="qy-input" style="width:100%" placeholder="如：expense_reimburse">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">审批通道</label>
+                    <select id="drawerPlatform" class="qy-input" style="width:100%">
+                        <option value="wecom">企微</option>
+                        <option value="dingtalk">钉钉</option>
+                        <option value="qingyang">青阳云</option>
+                    </select>
+                </div>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+                <h4 style="margin-bottom: 16px; font-size: 14px; color: #64748b;">鉴权信息</h4>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">企业ID (corpid)</label>
+                    <input type="text" id="drawerCorpid" class="qy-input" style="width:100%" placeholder="请输入企业ID">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">应用Secret</label>
+                    <input type="password" id="drawerSecret" class="qy-input" style="width:100%" placeholder="请输入应用Secret">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">应用AgentId</label>
+                    <input type="text" id="drawerAgentid" class="qy-input" style="width:100%" placeholder="请输入应用AgentId">
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="saveTemplateFromDrawer()">保存</button>
+            `;
+            document.getElementById('drawer').classList.add('open');
         }
 
-        function closeAddTemplateModal() {
-            document.getElementById('addTemplateModal').classList.remove('open');
+        // 打开编辑模板抽屉
+        function openEditTemplateDrawer(templateType) {
+            const template = mockTemplates.find(t => t.type === templateType);
+            if (!template) return;
+
+            currentDrawerMode = 'edit';
+            currentEditType = templateType;
+            document.getElementById('drawerTitle').textContent = '编辑模板';
+            document.getElementById('drawerContent').innerHTML = `
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">模板名称</label>
+                    <input type="text" id="drawerName" class="qy-input" style="width:100%" value="${template.name}">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">模板类型</label>
+                    <input type="text" id="drawerType" class="qy-input" style="width:100%" value="${template.type}" readonly style="background:#f1f5f9">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">审批通道</label>
+                    <select id="drawerPlatform" class="qy-input" style="width:100%">
+                        <option value="wecom" ${template.platform === 'wecom' ? 'selected' : ''}>企微</option>
+                        <option value="dingtalk" ${template.platform === 'dingtalk' ? 'selected' : ''}>钉钉</option>
+                        <option value="qingyang" ${template.platform === 'qingyang' ? 'selected' : ''}>青阳云</option>
+                    </select>
+                </div>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+                <h4 style="margin-bottom: 16px; font-size: 14px; color: #64748b;">鉴权信息</h4>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">企业ID (corpid)</label>
+                    <input type="text" id="drawerCorpid" class="qy-input" style="width:100%" value="${template.auth?.corpid || ''}">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">应用Secret</label>
+                    <input type="password" id="drawerSecret" class="qy-input" style="width:100%" value="${template.auth?.secret || ''}">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">应用AgentId</label>
+                    <input type="text" id="drawerAgentid" class="qy-input" style="width:100%" value="${template.auth?.agentid || ''}">
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="saveTemplateFromDrawer()">保存</button>
+            `;
+            document.getElementById('drawer').classList.add('open');
         }
 
-        function saveNewTemplate() {
-            const name = document.getElementById('newTemplateName').value.trim();
-            const type = document.getElementById('newTemplateType').value.trim();
-            const platform = document.getElementById('newTemplatePlatform').value;
-            const corpid = document.getElementById('newTemplateCorpid').value.trim();
-            const secret = document.getElementById('newTemplateSecret').value.trim();
-            const agentid = document.getElementById('newTemplateAgentid').value.trim();
+        // 保存模板（新建或编辑）
+        function saveTemplateFromDrawer() {
+            const name = document.getElementById('drawerName').value.trim();
+            const type = document.getElementById('drawerType').value.trim();
+            const platform = document.getElementById('drawerPlatform').value;
+            const corpid = document.getElementById('drawerCorpid').value.trim();
+            const secret = document.getElementById('drawerSecret').value.trim();
+            const agentid = document.getElementById('drawerAgentid').value.trim();
 
             if (!name || !type) {
                 alert('请填写模板名称和类型');
                 return;
             }
 
-            if (!corpid || !agentid) {
-                alert('请填写完整的鉴权信息');
-                return;
+            if (currentDrawerMode === 'create') {
+                // 新建
+                if (mockTemplates.some(t => t.type === type)) {
+                    alert('模板类型已存在');
+                    return;
+                }
+                mockTemplates.push({
+                    name, type, platform,
+                    sync_status: 'unsynced',
+                    wecom_template_id: null,
+                    auth: { corpid, secret, agentid }
+                });
+            } else {
+                // 编辑
+                const template = mockTemplates.find(t => t.type === currentEditType);
+                if (template) {
+                    template.name = name;
+                    template.platform = platform;
+                    template.auth = { corpid, secret, agentid };
+                }
             }
 
-            // 检查类型是否已存在
-            if (mockTemplates.some(t => t.type === type)) {
-                alert('模板类型已存在');
-                return;
-            }
-
-            const newTemplate = {
-                name,
-                type,
-                platform,
-                sync_status: 'unsynced',
-                wecom_template_id: null,
-                auth: { corpid, secret, agentid }
-            };
-
-            mockTemplates.push(newTemplate);
             renderTemplates(mockTemplates);
-            closeAddTemplateModal();
+            closeDrawer();
         }
 
         // 加载模板列表
@@ -305,8 +309,8 @@
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-secondary" onclick="openDrawer('${t.type}')">详情</button>
-                        <button class="btn btn-secondary" onclick="openAuthModal('${t.type}')">鉴权</button>
+                        <button class="btn btn-secondary" onclick="openViewDrawer('${t.type}')">详情</button>
+                        <button class="btn btn-secondary" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>
                         <button class="btn btn-primary" onclick="syncTemplate('${t.type}')">同步</button>
                         <button class="btn btn-secondary" style="color:#ef4444" onclick="deleteTemplate('${t.type}')">删除</button>
                     </td>
@@ -334,8 +338,8 @@
             return map[status] || status;
         }
 
-        // 打开抽屉
-        async function openDrawer(templateType) {
+        // 打开查看详情抽屉
+        async function openViewDrawer(templateType) {
             let template = mockTemplates.find(t => t.type === templateType);
             if (!template) {
                 try {
@@ -349,28 +353,34 @@
 
             if (!template) return;
 
+            currentDrawerMode = 'view';
+            document.getElementById('drawerTitle').textContent = '模板详情';
             document.getElementById('drawerContent').innerHTML = `
                 <div style="margin-bottom:16px;">
-                    <label>模板名称:</label>
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">模板名称</label>
                     <div>${template.name}</div>
                 </div>
                 <div style="margin-bottom:16px;">
-                    <label>模板类型:</label>
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">模板类型</label>
                     <div>${template.type}</div>
                 </div>
                 <div style="margin-bottom:16px;">
-                    <label>企业微信模板ID:</label>
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">审批通道</label>
+                    <div>${getPlatformText(template.platform)}</div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">企业微信模板ID</label>
                     <div>${template.wecom_template_id || '-'}</div>
                 </div>
                 <div style="margin-bottom:16px;">
-                    <label>同步状态:</label>
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">同步状态</label>
                     <div>${getStatusText(template.sync_status)}</div>
                 </div>
                 <div style="margin-bottom:24px;">
-                    <label>表单配置 (只读):</label>
+                    <label style="display:block;margin-bottom:4px;font-size:14px;color:#64748b;">表单配置</label>
                     <pre style="background:#f8fafc;padding:12px;border-radius:6px;font-size:12px;">${JSON.stringify(getFormFields(template.type), null, 2)}</pre>
                 </div>
-                <button class="btn btn-primary" style="width:100%" onclick="syncTemplate('${template.type}')">重新同步</button>
+                <button class="btn btn-primary" style="width:100%" onclick="syncTemplate('${template.type}')">同步</button>
             `;
 
             document.getElementById('drawer').classList.add('open');
@@ -406,6 +416,8 @@
 
         function closeDrawer() {
             document.getElementById('drawer').classList.remove('open');
+            currentDrawerMode = 'view';
+            currentEditType = null;
         }
 
         // 同步模板
@@ -421,73 +433,6 @@
                 }
             } catch (e) {
                 alert('同步失败: ' + e.message);
-            }
-        }
-
-        // 鉴权配置
-        let currentTemplateType = null;
-
-        function openAuthModal(templateType) {
-            currentTemplateType = templateType;
-            const template = mockTemplates.find(t => t.type === templateType);
-            document.getElementById('authModalTitle').textContent = template ? `${template.name} - 鉴权配置` : '鉴权配置';
-            document.getElementById('authModal').classList.add('open');
-
-            // 加载现有配置
-            fetch(`${API_BASE}/auth/wecom`)
-                .then(r => r.json())
-                .then(d => {
-                    if (d.data) {
-                        document.getElementById('corpid').value = d.data.corpid || '';
-                        document.getElementById('agentid').value = d.data.agentid || '';
-                    }
-                })
-                .catch(() => {
-                    // 使用模拟数据
-                    if (template && template.auth) {
-                        document.getElementById('corpid').value = template.auth.corpid || '';
-                        document.getElementById('secret').value = template.auth.secret || '';
-                        document.getElementById('agentid').value = template.auth.agentid || '';
-                    }
-                });
-        }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.remove('open');
-        }
-
-        async function saveAuth() {
-            const data = {
-                platform: currentTemplateType || 'wecom',
-                corpid: document.getElementById('corpid').value,
-                secret: document.getElementById('secret').value,
-                agentid: document.getElementById('agentid').value
-            };
-
-            try {
-                const res = await fetch(`${API_BASE}/auth`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await res.json();
-                alert(result.message);
-                if (result.code === 0) {
-                    // 更新本地模拟数据
-                    const template = mockTemplates.find(t => t.type === currentTemplateType);
-                    if (template) {
-                        template.auth = { corpid: data.corpid, secret: data.secret, agentid: data.agentid };
-                    }
-                    closeAuthModal();
-                }
-            } catch (e) {
-                // 离线模式也保存到本地
-                const template = mockTemplates.find(t => t.type === currentTemplateType);
-                if (template) {
-                    template.auth = { corpid: data.corpid, secret: data.secret, agentid: data.agentid };
-                }
-                alert('保存成功 (离线模式)');
-                closeAuthModal();
             }
         }
 
