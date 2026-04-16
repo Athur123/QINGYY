@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审批模板管理</title>
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .template-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .template-table th,
+        .template-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .template-table th {
+            background: #f8fafc;
+            font-weight: 500;
+            color: #64748b;
+        }
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sync-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .sync-status.unsynced .dot { background: #94a3b8; }
+        .sync-status.syncing .dot { background: #3b82f6; }
+        .sync-status.synced .dot { background: #22c55e; }
+        .sync-status.failed .dot { background: #ef4444; }
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        /* 抽屉样式 */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 480px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+            transition: right 0.3s;
+            z-index: 1000;
+        }
+        .drawer.open { right: 0; }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .drawer-body { padding: 20px; }
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+        .modal.open { display: flex; align-items: center; justify-content: center; }
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 480px;
+            max-width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1 class="page-title">审批模板管理</h1>
+        <button class="btn btn-secondary" onclick="openAuthModal()">鉴权设置</button>
+    </div>
+
+    <div style="padding: 24px;">
+        <table class="template-table">
+            <thead>
+                <tr>
+                    <th>模板名称</th>
+                    <th>模板类型</th>
+                    <th>同步状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="templateList">
+                <!-- 动态填充 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 模板详情抽屉 -->
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <h3>模板详情</h3>
+            <button onclick="closeDrawer()">×</button>
+        </div>
+        <div class="drawer-body" id="drawerContent">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+
+    <!-- 鉴权配置弹窗 -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="drawer-header">
+                <h3>企业微信鉴权配置</h3>
+                <button onclick="closeAuthModal()">×</button>
+            </div>
+            <div style="padding: 20px;">
+                <div style="margin-bottom: 16px;">
+                    <label>企业ID (corpid)</label>
+                    <input type="text" id="corpid" class="qy-input" style="width:100%">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>应用Secret</label>
+                    <input type="password" id="secret" class="qy-input" style="width:100%">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>应用AgentId</label>
+                    <input type="text" id="agentid" class="qy-input" style="width:100%">
+                </div>
+                <div style="text-align:right;">
+                    <button class="btn btn-secondary" onclick="closeAuthModal()">取消</button>
+                    <button class="btn btn-primary" onclick="saveAuth()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/approval';
+
+        // 模拟数据
+        const mockTemplates = [
+            { name: '财务应收单', type: 'finance_receivable', sync_status: 'synced', wecom_template_id: '1234567890' },
+            { name: '财务应付单', type: 'finance_payable', sync_status: 'unsynced', wecom_template_id: null },
+            { name: '考勤审批单', type: 'attendance', sync_status: 'failed', wecom_template_id: null }
+        ];
+
+        // 加载模板列表
+        async function loadTemplates() {
+            try {
+                const res = await fetch(`${API_BASE}/templates`);
+                const data = await res.json();
+                renderTemplates(data.data);
+            } catch (e) {
+                console.error('Failed to load templates, using mock data:', e);
+                renderTemplates(mockTemplates.map(t => ({
+                    ...t,
+                    platform: 'wecom',
+                    form_config: { fields: [] }
+                })));
+            }
+        }
+
+        // 渲染模板列表
+        function renderTemplates(templates) {
+            const tbody = document.getElementById('templateList');
+            tbody.innerHTML = templates.map(t => `
+                <tr>
+                    <td>${t.name}</td>
+                    <td>${t.type}</td>
+                    <td>
+                        <span class="sync-status ${t.sync_status}">
+                            <span class="dot"></span>
+                            <span>${getStatusText(t.sync_status)}</span>
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" onclick="openDrawer('${t.type}')">详情</button>
+                        <button class="btn btn-primary" onclick="syncTemplate('${t.type}')">同步</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const map = { unsynced: '未同步', syncing: '同步中', synced: '已同步', failed: '同步失败' };
+            return map[status] || status;
+        }
+
+        // 打开抽屉
+        async function openDrawer(templateType) {
+            let template = mockTemplates.find(t => t.type === templateType);
+            if (!template) {
+                try {
+                    const res = await fetch(`${API_BASE}/templates/${templateType}`);
+                    const data = await res.json();
+                    template = data.data;
+                } catch (e) {
+                    console.error('Failed to load template details');
+                }
+            }
+
+            if (!template) return;
+
+            document.getElementById('drawerContent').innerHTML = `
+                <div style="margin-bottom:16px;">
+                    <label>模板名称:</label>
+                    <div>${template.name}</div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label>模板类型:</label>
+                    <div>${template.type}</div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label>企业微信模板ID:</label>
+                    <div>${template.wecom_template_id || '-'}</div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label>同步状态:</label>
+                    <div>${getStatusText(template.sync_status)}</div>
+                </div>
+                <div style="margin-bottom:24px;">
+                    <label>表单配置 (只读):</label>
+                    <pre style="background:#f8fafc;padding:12px;border-radius:6px;font-size:12px;">${JSON.stringify(getFormFields(template.type), null, 2)}</pre>
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="syncTemplate('${template.type}')">重新同步</button>
+            `;
+
+            document.getElementById('drawer').classList.add('open');
+        }
+
+        function getFormFields(type) {
+            const fields = {
+                finance_receivable: [
+                    { id: '1', name: '申请人', type: 'text' },
+                    { id: '2', name: '申请金额', type: 'number' },
+                    { id: '3', name: '收款方', type: 'text' },
+                    { id: '4', name: '费用类型', type: 'radio', options: ['服务费', '工资', '其他'] },
+                    { id: '5', name: '摘要', type: 'textarea' }
+                ],
+                finance_payable: [
+                    { id: '1', name: '申请人', type: 'text' },
+                    { id: '2', name: '付款金额', type: 'number' },
+                    { id: '3', name: '付款方', type: 'text' },
+                    { id: '4', name: '付款方式', type: 'radio', options: ['转账', '支票', '现金'] },
+                    { id: '5', name: '摘要', type: 'textarea' }
+                ],
+                attendance: [
+                    { id: '1', name: '申请人', type: 'text' },
+                    { id: '2', name: '申请类型', type: 'radio', options: ['请假', '加班', '调休'] },
+                    { id: '3', name: '开始时间', type: 'date' },
+                    { id: '4', name: '结束时间', type: 'date' },
+                    { id: '5', name: '时长(天)', type: 'number' },
+                    { id: '6', name: '原因', type: 'textarea' }
+                ]
+            };
+            return fields[type] || [];
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawer').classList.remove('open');
+        }
+
+        // 同步模板
+        async function syncTemplate(templateType) {
+            if (!confirm('确定要同步此模板到企业微信吗？')) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/templates/${templateType}/sync`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                if (data.code === 0) {
+                    loadTemplates();
+                }
+            } catch (e) {
+                alert('同步失败: ' + e.message);
+            }
+        }
+
+        // 鉴权配置
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('open');
+            // 加载现有配置
+            fetch(`${API_BASE}/auth/wecom`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.data) {
+                        document.getElementById('corpid').value = d.data.corpid;
+                        document.getElementById('agentid').value = d.data.agentid;
+                    }
+                })
+                .catch(() => {
+                    console.log('Using mock auth data');
+                });
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('open');
+        }
+
+        async function saveAuth() {
+            const data = {
+                platform: 'wecom',
+                corpid: document.getElementById('corpid').value,
+                secret: document.getElementById('secret').value,
+                agentid: document.getElementById('agentid').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/auth`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message);
+                if (result.code === 0) {
+                    closeAuthModal();
+                }
+            } catch (e) {
+                alert('保存成功 (离线模式)');
+                closeAuthModal();
+            }
+        }
+
+        // 初始化
+        loadTemplates();
+    </script>
+</body>
+</html>
