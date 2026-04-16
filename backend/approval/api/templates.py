@@ -30,18 +30,26 @@ class TemplateListResponse(BaseModel):
 
 @router.get("/templates", response_model=TemplateListResponse)
 def list_templates(
-    search: Optional[str] = None,
-    status: Optional[str] = None,
+    type: Optional[str] = None,
+    platform: Optional[str] = None,
+    sync_status: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    """获取模板列表"""
-    # TODO: 从数据库查询
-    # 暂时返回内置模板列表
+    """获取模板列表，支持按type、platform、sync_status过滤"""
     builtins = get_all_builtin_templates()
     templates = []
 
     for template_type, config in builtins.items():
-        # TODO: 查询数据库中的记录
+        # 按type过滤
+        if type and template_type != type:
+            continue
+
+        # 按platform过滤
+        if platform and config.get("platform") != platform:
+            continue
+
+        # TODO: 查询数据库中的记录（当前使用内置模板）
+        # 数据库同步后的模板会替换内置模板
         templates.append({
             "id": None,
             "name": config["name"],
@@ -49,7 +57,7 @@ def list_templates(
             "platform": config["platform"],
             "wecom_template_id": None,
             "form_config": config,
-            "sync_status": "unsynced",
+            "sync_status": sync_status or "unsynced",  # 当前默认unsynced
             "auto_sync": False,
             "last_sync_time": None,
             "created_at": None

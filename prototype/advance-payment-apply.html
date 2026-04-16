@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>申请垫付 - 青阳云HR SaaS</title>
+  <link rel="stylesheet" href="../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../styles/qingyang-base.css">
+  <link rel="stylesheet" href="../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../styles/qingyang-forms.css">
+  <style>
+    /* ========================================
+       申请垫付页面样式
+       ======================================== */
+
+    /* 页面容器 */
+    .page-container {
+      min-height: 100vh;
+      background: var(--qy-bg-secondary);
+    }
+
+    /* 顶部导航 */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--qy-space-3) var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+
+    .page-header__left {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+    }
+
+    .page-header__back {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-1);
+      color: var(--qy-text-secondary);
+      cursor: pointer;
+      transition: color 150ms ease;
+    }
+
+    .page-header__back:hover {
+      color: var(--qy-color-primary);
+    }
+
+    .page-header__title {
+      font-size: var(--qy-font-size-16);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+    }
+
+    .page-header__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+    }
+
+    /* 主内容区 */
+    .page-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--qy-space-4);
+    }
+
+    /* 审批模板选择卡片 */
+    .approval-template-card {
+      margin-bottom: var(--qy-space-4);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .approval-template-alert {
+      background: var(--qy-error-50);
+      color: var(--qy-error-600);
+      padding: var(--qy-space-3) var(--qy-space-4);
+      font-size: var(--qy-font-size-14);
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+      transition: background 150ms ease;
+    }
+
+    .approval-template-alert.is-highlight {
+      animation: highlight-pulse 1s ease;
+    }
+
+    @keyframes highlight-pulse {
+      0%, 100% { background: var(--qy-error-50); }
+      50% { background: var(--qy-error-100); }
+    }
+
+    .approval-template-alert svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .approval-template-body {
+      padding: var(--qy-space-4);
+      background: var(--qy-bg-primary);
+    }
+
+    .approval-template-select {
+      margin-bottom: var(--qy-space-2);
+    }
+
+    .approval-template-meta {
+      font-size: var(--qy-font-size-12);
+      color: var(--qy-text-muted);
+      display: none;
+    }
+
+    .approval-template-meta.is-visible {
+      display: block;
+    }
+
+    /* 基础信息卡片 */
+    .info-card {
+      margin-bottom: var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .info-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--qy-space-3) var(--qy-space-4);
+      background: var(--qy-bg-secondary);
+      border-bottom: 1px solid var(--qy-border-light);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .info-card__title {
+      font-size: var(--qy-font-size-14);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+    }
+
+    .info-card__toggle {
+      font-size: var(--qy-font-size-12);
+      color: var(--qy-text-muted);
+      transition: transform 200ms ease;
+    }
+
+    .info-card.is-collapsed .info-card__toggle {
+      transform: rotate(180deg);
+    }
+
+    .info-card__body {
+      padding: var(--qy-space-4);
+      transition: display 200ms ease;
+    }
+
+    .info-card.is-collapsed .info-card__body {
+      display: none;
+    }
+
+    /* 两列表单布局 */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--qy-space-6);
+      margin-bottom: var(--qy-space-4);
+    }
+
+    .form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-row .qy-form-group {
+      margin-bottom: 0;
+    }
+
+    /* 垫付明细卡片 */
+    .detail-card {
+      margin-bottom: var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .detail-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--qy-space-3) var(--qy-space-4);
+      background: var(--qy-bg-secondary);
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+
+    .detail-card__title {
+      font-size: var(--qy-font-size-14);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+    }
+
+    .detail-card__body {
+      padding: var(--qy-space-4);
+    }
+
+    /* 数据表格 */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--qy-font-size-13);
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: var(--qy-space-3) var(--qy-space-2);
+      text-align: left;
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+
+    .data-table th {
+      background: var(--qy-bg-secondary);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-secondary);
+      font-size: var(--qy-font-size-12);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      color: var(--qy-text-primary);
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--qy-bg-secondary);
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .currency {
+      font-family: var(--qy-font-mono);
+      text-align: right;
+    }
+
+    /* 金额输入 */
+    .amount-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-1);
+    }
+
+    .amount-input-wrapper .qy-spinbutton {
+      width: 80px;
+      text-align: right;
+      font-family: var(--qy-font-mono);
+    }
+
+    /* 操作列 */
+    .action-link {
+      color: var(--qy-color-error);
+      cursor: pointer;
+      transition: color 150ms ease;
+    }
+
+    .action-link:hover {
+      color: var(--qy-error-700);
+    }
+
+    /* 底部操作栏 */
+    .action-bar {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--qy-space-3);
+      padding: var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border-top: 1px solid var(--qy-border-light);
+      box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-bar .qy-btn {
+      min-width: 100px;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: var(--qy-space-8) var(--qy-space-4);
+      color: var(--qy-text-muted);
+    }
+
+    .empty-state__icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto var(--qy-space-3);
+      color: var(--qy-text-disabled);
+    }
+
+    .empty-state__text {
+      font-size: var(--qy-font-size-14);
+      margin-bottom: var(--qy-space-2);
+    }
+
+    /* 加载状态 */
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--qy-border-light);
+      border-top-color: var(--qy-color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .qy-btn.is-loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .qy-btn.is-loading .qy-btn__text {
+      visibility: hidden;
+    }
+
+    .qy-btn.is-loading::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      margin: -8px 0 0 -8px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <!-- 顶部导航 -->
+    <header class="page-header">
+      <div class="page-header__left">
+        <div class="page-header__back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          <span>返回</span>
+        </div>
+        <h1 class="page-header__title">申请垫付</h1>
+      </div>
+      <div class="page-header__actions">
+        <!-- 可添加更多操作按钮 -->
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="page-content">
+      <!-- 审批模板选择卡片 -->
+      <div class="approval-template-card" id="approvalTemplateCard">
+        <div class="approval-template-alert" id="templateAlert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>请选择审批模板（必填）</span>
+        </div>
+        <div class="approval-template-body">
+          <div class="qy-form-group approval-template-select">
+            <label class="qy-label">* 审批模板</label>
+            <select class="qy-select" id="approvalTemplateSelect" style="width: 100%;">
+              <option value="">请选择审批模板</option>
+            </select>
+          </div>
+          <div class="approval-template-meta" id="templateMeta">
+            已同步至企业微信 | 版本：<span id="templateVersion">-</span> | 更新时间：<span id="templateUpdateTime">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 基础信息卡片 -->
+      <div class="info-card" id="basicInfoCard">
+        <div class="info-card__header" id="toggleBasicInfo">
+          <span class="info-card__title">基础信息</span>
+          <span class="info-card__toggle">折叠▴</span>
+        </div>
+        <div class="info-card__body">
+          <div class="form-row">
+            <div class="qy-form-group">
+              <label class="qy-label">* 客户名称</label>
+              <div class="qy-combobox" style="width: 100%;">
+                <select class="qy-select" style="width: 100%;">
+                  <option value="1" selected>新福通2025</option>
+                </select>
+              </div>
+            </div>
+            <div class="qy-form-group">
+              <label class="qy-label">* 合同</label>
+              <div class="qy-combobox" style="width: 100%;">
+                <select class="qy-select" style="width: 100%;">
+                  <option value="1" selected>新福通BUFF2025/XFT20250001</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="qy-form-group">
+              <label class="qy-label">* 本次申请垫付总金额</label>
+              <input type="text" class="qy-input" id="totalAmount" value="110.00" readonly style="width: 100%;">
+            </div>
+            <div class="qy-form-group">
+              <label class="qy-label">* 垫付方式</label>
+              <div class="qy-combobox" style="width: 100%;">
+                <select class="qy-select" style="width: 100%;" disabled>
+                  <option value="by_detail" selected>按明细</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="qy-form-group" style="grid-column: 1 / -1;">
+              <label class="qy-label">申请备注</label>
+              <textarea class="qy-textarea" id="remark" placeholder="请输入" rows="3" style="width: 100%;"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 垫付明细卡片 -->
+      <div class="detail-card" id="detailCard">
+        <div class="detail-card__header">
+          <span class="detail-card__title">垫付明细</span>
+          <button class="qy-btn qy-btn--secondary qy-btn--small" id="addDocumentBtn">
+            <span class="qy-btn__icon">+</span>
+            <span class="qy-btn__text">选择单据</span>
+          </button>
+        </div>
+        <div class="detail-card__body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>单据类型</th>
+                <th>单据编号</th>
+                <th>客户名称</th>
+                <th>单据金额</th>
+                <th>累计收款</th>
+                <th>剩余可申请金额</th>
+                <th>本次申请垫付金额</th>
+                <th>开票状态</th>
+                <th>约定回款日期</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="detailTableBody">
+              <tr data-id="1">
+                <td>应收单</td>
+                <td>YS-20260205-102</td>
+                <td>新福通2025</td>
+                <td class="currency">¥16,087,771.80</td>
+                <td class="currency">¥0.00</td>
+                <td class="currency">¥16,087,871.80</td>
+                <td>
+                  <div class="amount-input-wrapper">
+                    <button class="qy-spinbutton__btn qy-spinbutton__btn--up" aria-label="增加">▲</button>
+                    <input type="text" class="qy-spinbutton" value="10.00" data-original="10.00">
+                    <button class="qy-spinbutton__btn qy-spinbutton__btn--down" aria-label="减少">▼</button>
+                  </div>
+                </td>
+                <td>未开票</td>
+                <td>-</td>
+                <td><span class="action-link delete-row">删除</span></td>
+              </tr>
+              <tr data-id="2">
+                <td>应收单</td>
+                <td>YS-20260207-116</td>
+                <td>新福通2025</td>
+                <td class="currency">¥1,024,959.80</td>
+                <td class="currency">¥0.00</td>
+                <td class="currency">¥1,024,969.80</td>
+                <td>
+                  <div class="amount-input-wrapper">
+                    <button class="qy-spinbutton__btn qy-spinbutton__btn--up" aria-label="增加">▲</button>
+                    <input type="text" class="qy-spinbutton" value="100.00" data-original="100.00">
+                    <button class="qy-spinbutton__btn qy-spinbutton__btn--down" aria-label="减少">▼</button>
+                  </div>
+                </td>
+                <td>未开票</td>
+                <td>-</td>
+                <td><span class="action-link delete-row">删除</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 空状态提示（备用） -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="empty-state__text">暂无垫付明细</p>
+        <p style="font-size: 12px; color: var(--qy-text-muted);">点击上方"选择单据"按钮添加</p>
+      </div>
+    </main>
+
+    <!-- 底部操作栏 -->
+    <div class="action-bar">
+      <button class="qy-btn qy-btn--text" id="cancelBtn">取 消</button>
+      <button class="qy-btn qy-btn--secondary" id="saveDraftBtn">保存为草稿</button>
+      <button class="qy-btn qy-btn--primary" id="submitBtn">保存并提交</button>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // 审批模板选择功能
+    // ========================================
+
+    // Mock数据：模拟从API获取的模板列表
+    const mockTemplates = [
+      {
+        id: 1,
+        name: '垫付申请模板v1',
+        type: 'advance_apply',
+        platform: 'wecom',
+        wecom_template_id: 'wecom_template_001',
+        sync_status: 'synced',
+        last_sync_time: '2026-04-10T10:00:00Z'
+      },
+      {
+        id: 2,
+        name: '垫付申请模板v2',
+        type: 'advance_apply',
+        platform: 'wecom',
+        wecom_template_id: 'wecom_template_002',
+        sync_status: 'synced',
+        last_sync_time: '2026-04-15T14:30:00Z'
+      }
+    ];
+
+    // 加载模板列表
+    function loadApprovalTemplates() {
+      const select = document.getElementById('approvalTemplateSelect');
+
+      // 模拟API调用延迟
+      setTimeout(() => {
+        if (mockTemplates.length === 0) {
+          select.innerHTML = '<option value="">暂无可用模板，请联系管理员配置</option>';
+          return;
+        }
+
+        // 保留默认选项
+        select.innerHTML = '<option value="">请选择审批模板</option>';
+
+        mockTemplates.forEach(template => {
+          const option = document.createElement('option');
+          option.value = template.id;
+          option.textContent = template.name;
+          option.dataset.version = template.name.match(/v\d+/)?.[0] || 'v1';
+          option.dataset.updateTime = formatDateTime(template.last_sync_time);
+          select.appendChild(option);
+        });
+      }, 300);
+    }
+
+    // 格式化日期时间
+    function formatDateTime(isoString) {
+      if (!isoString) return '-';
+      const date = new Date(isoString);
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    }
+
+    // 模板选择变更处理
+    document.getElementById('approvalTemplateSelect').addEventListener('change', function() {
+      const meta = document.getElementById('templateMeta');
+      const versionSpan = document.getElementById('templateVersion');
+      const updateTimeSpan = document.getElementById('templateUpdateTime');
+
+      if (this.value) {
+        const selected = this.options[this.selectedIndex];
+        versionSpan.textContent = selected.dataset.version || '-';
+        updateTimeSpan.textContent = selected.dataset.updateTime || '-';
+        meta.classList.add('is-visible');
+      } else {
+        meta.classList.remove('is-visible');
+      }
+    });
+
+    // ========================================
+    // 基础信息卡片折叠功能
+    // ========================================
+
+    document.getElementById('toggleBasicInfo').addEventListener('click', function() {
+      const card = document.getElementById('basicInfoCard');
+      const toggle = card.querySelector('.info-card__toggle');
+      const isCollapsed = card.classList.contains('is-collapsed');
+
+      if (isCollapsed) {
+        card.classList.remove('is-collapsed');
+        toggle.textContent = '折叠▴';
+      } else {
+        card.classList.add('is-collapsed');
+        toggle.textContent = '展开▾';
+      }
+    });
+
+    // ========================================
+    // 垫付明细表格功能
+    // ========================================
+
+    // 金额格式化
+    function formatCurrency(amount) {
+      return '¥' + Number(amount).toLocaleString('zh-CN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // 删除行
+    document.querySelectorAll('.delete-row').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const row = this.closest('tr');
+        row.remove();
+        updateTotalAmount();
+      });
+    });
+
+    // 更新总金额
+    function updateTotalAmount() {
+      const inputs = document.querySelectorAll('.qy-spinbutton');
+      let total = 0;
+      inputs.forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      document.getElementById('totalAmount').value = total.toFixed(2);
+    }
+
+    // 金额增减按钮
+    document.querySelectorAll('.qy-spinbutton__btn--up').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('.qy-spinbutton');
+        let value = parseFloat(input.value) || 0;
+        value = Math.min(value + 10, 999999999);
+        input.value = value.toFixed(2);
+        updateTotalAmount();
+      });
+    });
+
+    document.querySelectorAll('.qy-spinbutton__btn--down').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('.qy-spinbutton');
+        let value = parseFloat(input.value) || 0;
+        value = Math.max(value - 10, 0);
+        input.value = value.toFixed(2);
+        updateTotalAmount();
+      });
+    });
+
+    // ========================================
+    // 表单验证与提交
+    // ========================================
+
+    // 保存并提交
+    document.getElementById('submitBtn').addEventListener('click', async function() {
+      const templateId = document.getElementById('approvalTemplateSelect').value;
+
+      // 验证审批模板
+      if (!templateId) {
+        // 高亮提示条
+        const alert = document.getElementById('templateAlert');
+        alert.classList.add('is-highlight');
+        setTimeout(() => alert.classList.remove('is-highlight'), 1000);
+
+        // 聚焦下拉框
+        document.getElementById('approvalTemplateSelect').focus();
+        return;
+      }
+
+      // 显示loading状态
+      this.classList.add('is-loading');
+      this.disabled = true;
+
+      // 模拟提交
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        console.log('提交成功', {
+          approval_template_id: templateId,
+          total_amount: document.getElementById('totalAmount').value,
+          remark: document.getElementById('remark').value
+        });
+        alert('提交成功！');
+      } catch (error) {
+        alert('提交失败：' + error.message);
+      } finally {
+        this.classList.remove('is-loading');
+        this.disabled = false;
+      }
+    });
+
+    // 保存为草稿
+    document.getElementById('saveDraftBtn').addEventListener('click', async function() {
+      this.classList.add('is-loading');
+      this.disabled = true;
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log('保存草稿', {
+          approval_template_id: document.getElementById('approvalTemplateSelect').value || null,
+          total_amount: document.getElementById('totalAmount').value,
+          remark: document.getElementById('remark').value
+        });
+        alert('草稿保存成功！');
+      } catch (error) {
+        alert('保存失败：' + error.message);
+      } finally {
+        this.classList.remove('is-loading');
+        this.disabled = false;
+      }
+    });
+
+    // 取消
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+      if (confirm('确定要取消吗？未保存的内容将丢失。')) {
+        history.back();
+      }
+    });
+
+    // 选择单据按钮（预留）
+    document.getElementById('addDocumentBtn').addEventListener('click', function() {
+      alert('选择单据功能开发中...');
+    });
+
+    // ========================================
+    // 初始化
+    // ========================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadApprovalTemplates();
+    });
+  </script>
+</body>
+</html>
