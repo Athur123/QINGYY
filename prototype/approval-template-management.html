@@ -203,9 +203,10 @@
         const API_BASE = 'http://localhost:8000/api/approval';
 
         const mockTemplates = [
-            { name: '财务应收单', type: 'finance_receivable', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } },
-            { name: '财务应付单', type: 'finance_payable', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null },
-            { name: '考勤审批单', type: 'attendance', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null }
+            { name: '付款申请', type: 'payment_request', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } },
+            { name: '收入确认', type: 'income_confirm', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null },
+            { name: '垫付申请', type: 'advance_apply', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null },
+            { name: '开票申请', type: 'invoice_apply', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } }
         ];
 
         let currentDrawerMode = 'view';
@@ -226,7 +227,7 @@
             tbody.innerHTML = templates.map(t => `
                 <tr>
                     <td><strong>${t.name}</strong></td>
-                    <td><code style="font-size:12px;background:#f1f5f9;padding:2px 6px;border-radius:4px;">${t.type}</code></td>
+                    <td>${getTemplateTypeText(t.type)}</td>
                     <td><span class="platform-tag">${getPlatformText(t.platform)}</span></td>
                     <td>${t.wecom_template_id || '<span style="color:#94a3b8;">未同步</span>'}</td>
                     <td><span class="status-tag status-tag--${t.sync_status}"><span class="dot"></span>${getStatusText(t.sync_status)}</span></td>
@@ -250,6 +251,10 @@
             return { unsynced: '未同步', syncing: '同步中', synced: '已同步', failed: '同步失败' }[status] || status;
         }
 
+        function getTemplateTypeText(type) {
+            return { payment_request: '付款申请', income_confirm: '收入确认', advance_apply: '垫付申请', invoice_apply: '开票申请' }[type] || type;
+        }
+
         function openAddTemplateDrawer() {
             currentDrawerMode = 'create';
             currentEditType = null;
@@ -262,7 +267,13 @@
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">模板类型</label>
-                        <input type="text" id="drawerType" class="qy-input" style="width:100%" placeholder="如：expense_reimburse">
+                        <select id="drawerType" class="qy-input" style="width:100%">
+                            <option value="">请选择</option>
+                            <option value="payment_request">付款申请</option>
+                            <option value="income_confirm">收入确认</option>
+                            <option value="advance_apply">垫付申请</option>
+                            <option value="invoice_apply">开票申请</option>
+                        </select>
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">审批通道</label>
@@ -313,7 +324,12 @@
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">模板类型</label>
-                        <input type="text" id="drawerType" class="qy-input" style="width:100%;background:#f8fafc" value="${template.type}" readonly>
+                        <select id="drawerType" class="qy-input" style="width:100%">
+                            <option value="payment_request" ${template.type === 'payment_request' ? 'selected' : ''}>付款申请</option>
+                            <option value="income_confirm" ${template.type === 'income_confirm' ? 'selected' : ''}>收入确认</option>
+                            <option value="advance_apply" ${template.type === 'advance_apply' ? 'selected' : ''}>垫付申请</option>
+                            <option value="invoice_apply" ${template.type === 'invoice_apply' ? 'selected' : ''}>开票申请</option>
+                        </select>
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">审批通道</label>
@@ -363,7 +379,7 @@
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">模板类型</label>
-                        <div class="qy-form-item__value"><code style="font-size:12px;background:#f1f5f9;padding:2px 6px;border-radius:4px;">${template.type}</code></div>
+                        <div class="qy-form-item__value">${getTemplateTypeText(template.type)}</div>
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">审批通道</label>
@@ -393,27 +409,34 @@
 
         function getFormFields(type) {
             const fields = {
-                finance_receivable: [
-                    { id: '1', name: '申请人', type: '文本' },
-                    { id: '2', name: '申请金额', type: '数字' },
-                    { id: '3', name: '收款方', type: '文本' },
-                    { id: '4', name: '费用类型', type: '单选', options: ['服务费', '工资', '其他'] },
-                    { id: '5', name: '摘要', type: '多行文本' }
-                ],
-                finance_payable: [
+                payment_request: [
                     { id: '1', name: '申请人', type: '文本' },
                     { id: '2', name: '付款金额', type: '数字' },
                     { id: '3', name: '付款方', type: '文本' },
                     { id: '4', name: '付款方式', type: '单选', options: ['转账', '支票', '现金'] },
                     { id: '5', name: '摘要', type: '多行文本' }
                 ],
-                attendance: [
+                income_confirm: [
+                    { id: '1', name: '客户名称', type: '文本' },
+                    { id: '2', name: '确认金额', type: '数字' },
+                    { id: '3', name: '收入类型', type: '单选', options: ['服务收入', '产品收入', '其他'] },
+                    { id: '4', name: '确认日期', type: '日期' },
+                    { id: '5', name: '备注', type: '多行文本' }
+                ],
+                advance_apply: [
                     { id: '1', name: '申请人', type: '文本' },
-                    { id: '2', name: '申请类型', type: '单选', options: ['请假', '加班', '调休'] },
-                    { id: '3', name: '开始时间', type: '日期' },
-                    { id: '4', name: '结束时间', type: '日期' },
-                    { id: '5', name: '时长(天)', type: '数字' },
-                    { id: '6', name: '原因', type: '多行文本' }
+                    { id: '2', name: '垫付金额', type: '数字' },
+                    { id: '3', name: '垫付原因', type: '多行文本' },
+                    { id: '4', name: '预计归还日期', type: '日期' }
+                ],
+                invoice_apply: [
+                    { id: '1', name: '申请人', type: '文本' },
+                    { id: '2', name: '发票类型', type: '单选', options: ['增值税专用发票', '增值税普通发票'] },
+                    { id: '3', name: '开票金额', type: '数字' },
+                    { id: '4', name: '税号', type: '文本' },
+                    { id: '5', name: '开户银行', type: '文本' },
+                    { id: '6', name: '银行账号', type: '文本' },
+                    { id: '7', name: '备注', type: '多行文本' }
                 ]
             };
             return fields[type] || [];
