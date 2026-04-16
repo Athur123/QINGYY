@@ -333,19 +333,13 @@
             const type = document.getElementById('drawerType').value;
             const preview = document.getElementById('formPreview');
             if (!type) {
-                preview.innerHTML = '请选择模板类型';
+                preview.innerHTML = '{"fields": []}';
                 preview.style.color = '#94a3b8';
                 return;
             }
             const fields = getFormFields(type);
             preview.style.color = '#1e293b';
-            preview.innerHTML = fields.map(f => `
-                <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e2e8f0;">
-                    <span style="min-width:80px;font-weight:500;">${f.name}</span>
-                    <span style="color:#64748b;font-size:12px;">[${f.type}]</span>
-                    ${f.options ? `<span style="color:#94a3b8;font-size:12px;">${f.options.join(', ')}</span>` : ''}
-                </div>
-            `).join('');
+            preview.innerHTML = `<pre style="margin:0;font-size:12px;white-space:pre-wrap;word-break:break-all;">${JSON.stringify({fields}, null, 2)}</pre>`;
         }
 
         function openEditTemplateDrawer(templateType) {
@@ -445,15 +439,7 @@
                 <div class="drawer-divider"></div>
                 <div class="drawer-section">
                     <div class="drawer-section__title">表单配置</div>
-                    <div style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;">
-                        ${fields.map(f => `
-                            <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e2e8f0;">
-                                <span style="min-width:80px;font-weight:500;">${f.name}</span>
-                                <span style="color:#64748b;font-size:12px;">[${f.type}]</span>
-                                ${f.options ? `<span style="color:#94a3b8;font-size:12px;">${f.options.join(', ')}</span>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
+                    <pre style="background:#f8fafc;padding:12px;border-radius:8px;font-size:12px;margin:0;white-space:pre-wrap;word-break:break-all;">${JSON.stringify({fields}, null, 2)}</pre>
                 </div>
             `;
             document.getElementById('drawerFooter').innerHTML = `
