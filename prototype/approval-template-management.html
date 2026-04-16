@@ -140,7 +140,8 @@
             color: var(--qy-text-primary);
             padding: var(--qy-space-2) 0;
         }
-        .action-btns { display: flex; gap: var(--qy-space-2); }
+        .action-btns { display: flex; gap: var(--qy-space-2); flex-wrap: nowrap; }
+        .action-btns .qy-btn { white-space: nowrap; }
         .platform-tag {
             display: inline-flex;
             align-items: center;
@@ -167,7 +168,15 @@
         <div class="page-content">
             <div class="qy-card">
                 <div class="qy-table-wrapper">
-                    <table class="qy-table">
+                    <table class="qy-table" style="table-layout:fixed;">
+                        <colgroup>
+                            <col style="width:150px">
+                            <col style="width:100px">
+                            <col style="width:80px">
+                            <col style="width:140px">
+                            <col style="width:90px">
+                            <col style="width:280px">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>模板名称</th>
@@ -175,7 +184,7 @@
                                 <th>审批通道</th>
                                 <th>模板ID</th>
                                 <th>同步状态</th>
-                                <th>操作</th>
+                                <th style="text-align:left;">操作</th>
                             </tr>
                         </thead>
                         <tbody id="templateList"></tbody>
