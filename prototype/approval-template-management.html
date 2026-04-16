@@ -156,11 +156,26 @@
                     <input type="text" id="newTemplateType" class="qy-input" style="width:100%" placeholder="如：expense_reimburse">
                 </div>
                 <div style="margin-bottom: 16px;">
-                    <label>平台</label>
+                    <label>审批通道</label>
                     <select id="newTemplatePlatform" class="qy-input" style="width:100%">
-                        <option value="wecom">企业微信</option>
+                        <option value="wecom">企微</option>
                         <option value="dingtalk">钉钉</option>
+                        <option value="qingyang">青阳云</option>
                     </select>
+                </div>
+                <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0;">
+                <h4 style="margin-bottom: 16px; font-size: 14px; color: #64748b;">鉴权信息</h4>
+                <div style="margin-bottom: 16px;">
+                    <label>企业ID (corpid)</label>
+                    <input type="text" id="newTemplateCorpid" class="qy-input" style="width:100%" placeholder="请输入企业ID">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>应用Secret</label>
+                    <input type="password" id="newTemplateSecret" class="qy-input" style="width:100%" placeholder="请输入应用Secret">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>应用AgentId</label>
+                    <input type="text" id="newTemplateAgentid" class="qy-input" style="width:100%" placeholder="请输入应用AgentId">
                 </div>
                 <div style="text-align:right;">
                     <button class="btn btn-secondary" onclick="closeAddTemplateModal()">取消</button>
@@ -224,9 +239,17 @@
             const name = document.getElementById('newTemplateName').value.trim();
             const type = document.getElementById('newTemplateType').value.trim();
             const platform = document.getElementById('newTemplatePlatform').value;
+            const corpid = document.getElementById('newTemplateCorpid').value.trim();
+            const secret = document.getElementById('newTemplateSecret').value.trim();
+            const agentid = document.getElementById('newTemplateAgentid').value.trim();
 
             if (!name || !type) {
                 alert('请填写模板名称和类型');
+                return;
+            }
+
+            if (!corpid || !agentid) {
+                alert('请填写完整的鉴权信息');
                 return;
             }
 
@@ -242,7 +265,7 @@
                 platform,
                 sync_status: 'unsynced',
                 wecom_template_id: null,
-                auth: null
+                auth: { corpid, secret, agentid }
             };
 
             mockTemplates.push(newTemplate);
