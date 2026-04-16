@@ -203,10 +203,10 @@
         const API_BASE = 'http://localhost:8000/api/approval';
 
         const mockTemplates = [
-            { name: '付款申请', type: 'payment_request', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } },
-            { name: '收入确认', type: 'income_confirm', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null },
-            { name: '垫付申请', type: 'advance_apply', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null },
-            { name: '开票申请', type: 'invoice_apply', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } }
+            { name: '付款申请', type: 'payment_request', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false },
+            { name: '收入确认', type: 'income_confirm', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null, disabled: false },
+            { name: '垫付申请', type: 'advance_apply', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null, disabled: true },
+            { name: '开票申请', type: 'invoice_apply', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false }
         ];
 
         let currentDrawerMode = 'view';
@@ -225,8 +225,11 @@
         function renderTemplates(templates) {
             const tbody = document.getElementById('templateList');
             tbody.innerHTML = templates.map(t => `
-                <tr>
-                    <td><strong>${t.name}</strong></td>
+                <tr style="${t.disabled ? 'opacity:0.5;' : ''}">
+                    <td>
+                        <strong>${t.name}</strong>
+                        ${t.disabled ? '<span style="margin-left:8px;font-size:11px;padding:2px 6px;background:#fee2e2;color:#dc2626;border-radius:4px;">已停用</span>' : ''}
+                    </td>
                     <td>${getTemplateTypeText(t.type)}</td>
                     <td><span class="platform-tag">${getPlatformText(t.platform)}</span></td>
                     <td>${t.wecom_template_id || '<span style="color:#94a3b8;">未同步</span>'}</td>
@@ -235,8 +238,9 @@
                         <div class="action-btns">
                             <button class="qy-btn qy-btn--small qy-btn--text" onclick="openViewDrawer('${t.type}')">详情</button>
                             <button class="qy-btn qy-btn--small qy-btn--text" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>
-                            <button class="qy-btn qy-btn--small qy-btn--primary" onclick="syncTemplate('${t.type}')">同步</button>
-                            <button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>
+                            ${t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" onclick="syncTemplate('${t.type}')">同步</button>`}
+                            <button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-primary-500)" onclick="toggleTemplate('${t.type}')">${t.disabled ? '启用' : '停用'}</button>
+                            ${t.sync_status === 'synced' ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>`}
                         </div>
                     </td>
                 </tr>
@@ -516,6 +520,14 @@
             if (!confirm('确定要删除该模板吗？')) return;
             const idx = mockTemplates.findIndex(t => t.type === templateType);
             if (idx !== -1) { mockTemplates.splice(idx, 1); renderTemplates(mockTemplates); }
+        }
+
+        function toggleTemplate(templateType) {
+            const template = mockTemplates.find(t => t.type === templateType);
+            if (template) {
+                template.disabled = !template.disabled;
+                renderTemplates(mockTemplates);
+            }
         }
 
         function syncTemplate(templateType) {
