@@ -267,7 +267,7 @@
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">模板类型</label>
-                        <select id="drawerType" class="qy-input" style="width:100%">
+                        <select id="drawerType" class="qy-input" style="width:100%" onchange="updateFormPreview()">
                             <option value="">请选择</option>
                             <option value="payment_request">付款申请</option>
                             <option value="income_confirm">收入确认</option>
@@ -282,6 +282,13 @@
                             <option value="dingtalk">钉钉</option>
                             <option value="qingyang">青阳云</option>
                         </select>
+                    </div>
+                </div>
+                <div class="drawer-divider"></div>
+                <div class="drawer-section">
+                    <div class="drawer-section__title">表单配置预览</div>
+                    <div id="formPreview" style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;color:#64748b;">
+                        请选择模板类型
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
@@ -309,6 +316,25 @@
             document.getElementById('drawer').classList.add('is-open');
         }
 
+        function updateFormPreview() {
+            const type = document.getElementById('drawerType').value;
+            const preview = document.getElementById('formPreview');
+            if (!type) {
+                preview.innerHTML = '请选择模板类型';
+                preview.style.color = '#94a3b8';
+                return;
+            }
+            const fields = getFormFields(type);
+            preview.style.color = '#1e293b';
+            preview.innerHTML = fields.map(f => `
+                <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e2e8f0;">
+                    <span style="min-width:80px;font-weight:500;">${f.name}</span>
+                    <span style="color:#64748b;font-size:12px;">[${f.type}]</span>
+                    ${f.options ? `<span style="color:#94a3b8;font-size:12px;">${f.options.join(', ')}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
         function openEditTemplateDrawer(templateType) {
             const template = mockTemplates.find(t => t.type === templateType);
             if (!template) return;
@@ -324,7 +350,7 @@
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">模板类型</label>
-                        <select id="drawerType" class="qy-input" style="width:100%">
+                        <select id="drawerType" class="qy-input" style="width:100%" onchange="updateFormPreview()">
                             <option value="payment_request" ${template.type === 'payment_request' ? 'selected' : ''}>付款申请</option>
                             <option value="income_confirm" ${template.type === 'income_confirm' ? 'selected' : ''}>收入确认</option>
                             <option value="advance_apply" ${template.type === 'advance_apply' ? 'selected' : ''}>垫付申请</option>
@@ -339,6 +365,11 @@
                             <option value="qingyang" ${template.platform === 'qingyang' ? 'selected' : ''}>青阳云</option>
                         </select>
                     </div>
+                </div>
+                <div class="drawer-divider"></div>
+                <div class="drawer-section">
+                    <div class="drawer-section__title">表单配置预览</div>
+                    <div id="formPreview" style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;color:#1e293b;"></div>
                 </div>
                 <div class="drawer-divider"></div>
                 <div class="drawer-section">
@@ -362,6 +393,9 @@
                 <button class="qy-btn qy-btn--primary" onclick="saveTemplateFromDrawer()">保存</button>
             `;
             document.getElementById('drawerFooter').style.display = 'flex';
+
+            // 回显表单预览
+            setTimeout(() => updateFormPreview(), 0);
             document.getElementById('drawer').classList.add('is-open');
         }
 
@@ -371,6 +405,7 @@
 
             currentDrawerMode = 'view';
             document.getElementById('drawerTitle').textContent = '模板详情';
+            const fields = getFormFields(template.type);
             document.getElementById('drawerContent').innerHTML = `
                 <div class="drawer-section">
                     <div class="qy-form-item">
@@ -397,7 +432,15 @@
                 <div class="drawer-divider"></div>
                 <div class="drawer-section">
                     <div class="drawer-section__title">表单配置</div>
-                    <pre style="background:#f8fafc;padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;">${JSON.stringify(getFormFields(template.type), null, 2)}</pre>
+                    <div style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;">
+                        ${fields.map(f => `
+                            <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #e2e8f0;">
+                                <span style="min-width:80px;font-weight:500;">${f.name}</span>
+                                <span style="color:#64748b;font-size:12px;">[${f.type}]</span>
+                                ${f.options ? `<span style="color:#94a3b8;font-size:12px;">${f.options.join(', ')}</span>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `;
             document.getElementById('drawerFooter').innerHTML = `
