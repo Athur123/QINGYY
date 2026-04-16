@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, DateTime, JSON, Enum as SQLEnum
+from sqlalchemy import Column, BigInteger, String, DateTime, JSON
 from backend.approval.models.base import Base
 import enum
 from datetime import datetime
