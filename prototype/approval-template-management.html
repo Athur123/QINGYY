@@ -116,6 +116,7 @@
                 <tr>
                     <th>模板名称</th>
                     <th>模板类型</th>
+                    <th>审批通道</th>
                     <th>模板ID</th>
                     <th>同步状态</th>
                     <th>操作</th>
@@ -202,9 +203,9 @@
 
         // 模拟数据
         const mockTemplates = [
-            { name: '财务应收单', type: 'finance_receivable', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } },
-            { name: '财务应付单', type: 'finance_payable', sync_status: 'unsynced', wecom_template_id: null, auth: null },
-            { name: '考勤审批单', type: 'attendance', sync_status: 'failed', wecom_template_id: null, auth: null }
+            { name: '财务应收单', type: 'finance_receivable', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' } },
+            { name: '财务应付单', type: 'finance_payable', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null },
+            { name: '考勤审批单', type: 'attendance', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null }
         ];
 
         // 新建模板
@@ -272,6 +273,7 @@
                 <tr>
                     <td>${t.name}</td>
                     <td>${t.type}</td>
+                    <td>${getPlatformText(t.platform)}</td>
                     <td>${t.wecom_template_id || '-'}</td>
                     <td>
                         <span class="sync-status ${t.sync_status}">
@@ -287,6 +289,11 @@
                     </td>
                 </tr>
             `).join('');
+        }
+
+        function getPlatformText(platform) {
+            const map = { wecom: '企微', dingtalk: '钉钉', qingyang: '青阳云' };
+            return map[platform] || platform || '-';
         }
 
         // 删除模板
