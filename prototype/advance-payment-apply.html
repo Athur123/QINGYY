@@ -41,11 +41,19 @@
       gap: var(--qy-space-1);
       color: var(--qy-text-secondary);
       cursor: pointer;
-      transition: color 150ms ease;
+      transition: color var(--qy-transition-fast);
+      padding: var(--qy-space-2);
+      border-radius: var(--qy-radius-md);
     }
 
     .page-header__back:hover {
       color: var(--qy-color-primary);
+      background: var(--qy-bg-secondary);
+    }
+
+    .page-header__back:focus-visible {
+      outline: 2px solid var(--qy-color-primary);
+      outline-offset: 2px;
     }
 
     .page-header__title {
@@ -62,49 +70,50 @@
 
     /* 主内容区 */
     .page-content {
-      max-width: 960px;
-      margin: 0 auto;
       padding: var(--qy-space-4);
+      padding-bottom: calc(var(--qy-space-4) + 80px);
     }
 
     /* 审批模板选择卡片 */
     .approval-template-card {
       margin-bottom: var(--qy-space-4);
+      background: var(--qy-bg-primary);
       border: 1px solid var(--qy-border-light);
       border-radius: var(--qy-radius-lg);
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--qy-shadow-card);
     }
 
     .approval-template-alert {
-      background: var(--qy-error-50);
-      color: var(--qy-error-600);
       padding: var(--qy-space-3) var(--qy-space-4);
       font-size: var(--qy-font-size-14);
       display: flex;
       align-items: center;
       gap: var(--qy-space-2);
-      transition: background 150ms ease;
+      background: var(--qy-error-50);
+      color: var(--qy-error-600);
+      border-bottom: 1px solid var(--qy-error-100);
+      transition: background var(--qy-transition-fast);
     }
 
-    .approval-template-alert.is-highlight {
-      animation: highlight-pulse 1s ease;
+    .approval-template-alert.is-hidden {
+      display: none;
     }
 
-    @keyframes highlight-pulse {
-      0%, 100% { background: var(--qy-error-50); }
-      50% { background: var(--qy-error-100); }
+    .approval-template-alert.is-success {
+      background: var(--qy-success-50);
+      color: var(--qy-success-600);
+      border-bottom-color: var(--qy-success-100);
     }
 
     .approval-template-alert svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       flex-shrink: 0;
     }
 
     .approval-template-body {
       padding: var(--qy-space-4);
-      background: var(--qy-bg-primary);
     }
 
     .approval-template-select {
@@ -115,10 +124,166 @@
       font-size: var(--qy-font-size-12);
       color: var(--qy-text-muted);
       display: none;
+      animation: fadeIn var(--qy-duration-fast) var(--qy-ease-out);
     }
 
     .approval-template-meta.is-visible {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+    }
+
+    .approval-template-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--qy-space-1);
+    }
+
+    /* 单选按钮组样式 */
+    .qy-fieldset {
+      border: none;
+      padding: 0;
+      margin: 0 0 var(--qy-space-2) 0;
+    }
+
+    .qy-fieldset .qy-label {
       display: block;
+      margin-bottom: var(--qy-space-2);
+    }
+
+    .approval-template-options {
+      display: flex;
+      gap: var(--qy-space-3);
+      flex-wrap: wrap;
+    }
+
+    .approval-template-options .template-radio {
+      flex: 1 1 280px;
+      max-width: 400px;
+    }
+
+    .template-radio {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+      padding: var(--qy-space-2) var(--qy-space-3);
+      background: var(--qy-bg-secondary);
+      border: 2px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-md);
+      cursor: pointer;
+      transition: border-color var(--qy-transition-fast), background var(--qy-transition-fast), box-shadow var(--qy-transition-fast);
+    }
+
+    .template-radio:hover {
+      border-color: var(--qy-primary-300);
+      background: var(--qy-bg-primary);
+    }
+
+    .template-radio.is-selected {
+      border-color: var(--qy-primary-500);
+      background: var(--qy-primary-50);
+    }
+
+    .template-radio.is-selected .template-radio__check {
+      border-color: var(--qy-primary-500);
+      background: var(--qy-primary-500);
+    }
+
+    .template-radio.is-selected .template-radio__check::after {
+      transform: scale(1);
+    }
+
+    .template-radio__input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .template-radio__check {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--qy-border-medium);
+      border-radius: 50%;
+      background: var(--qy-bg-primary);
+      flex-shrink: 0;
+      transition: border-color var(--qy-transition-fast), background var(--qy-transition-fast);
+    }
+
+    .template-radio__check::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform var(--qy-transition-fast) var(--qy-ease-spring);
+    }
+
+    .template-radio:focus-within {
+      box-shadow: var(--qy-shadow-focus);
+    }
+
+    .template-radio__content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .template-radio__name {
+      font-size: var(--qy-font-size-14);
+      font-weight: var(--qy-font-weight-medium);
+      color: var(--qy-text-primary);
+    }
+
+    .template-radio__remark {
+      font-size: var(--qy-font-size-12);
+      color: var(--qy-text-muted);
+    }
+
+    .template-radio__header {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+      margin-bottom: var(--qy-space-1);
+    }
+
+    .template-radio__header .template-radio__name {
+      margin-bottom: 0;
+    }
+
+    /* 平台标签 */
+    .platform-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: var(--qy-radius-sm);
+      font-size: var(--qy-font-size-11);
+      font-weight: var(--qy-font-weight-medium);
+    }
+
+    .platform-tag--wecom {
+      background: var(--qy-primary-50);
+      color: var(--qy-primary-600);
+    }
+
+    .platform-tag--dingtalk {
+      background: var(--qy-success-50);
+      color: var(--qy-success-600);
+    }
+
+    .platform-tag--qingyang {
+      background: var(--qy-warning-50);
+      color: var(--qy-warning-600);
+    }
+
+    /* 单选按钮卡片 - 加载中 */
+    .template-radio--loading {
+      pointer-events: none;
+      opacity: 0.6;
     }
 
     /* 基础信息卡片 */
@@ -127,7 +292,7 @@
       background: var(--qy-bg-primary);
       border: 1px solid var(--qy-border-light);
       border-radius: var(--qy-radius-lg);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--qy-shadow-card);
       overflow: hidden;
     }
 
@@ -140,6 +305,16 @@
       border-bottom: 1px solid var(--qy-border-light);
       cursor: pointer;
       user-select: none;
+      transition: background var(--qy-transition-fast);
+    }
+
+    .info-card__header:hover {
+      background: var(--qy-bg-tertiary);
+    }
+
+    .info-card__header:focus-visible {
+      outline: 2px solid var(--qy-color-primary);
+      outline-offset: -2px;
     }
 
     .info-card__title {
@@ -149,29 +324,49 @@
     }
 
     .info-card__toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-1);
       font-size: var(--qy-font-size-12);
       color: var(--qy-text-muted);
-      transition: transform 200ms ease;
+      transition: transform var(--qy-transition-fast);
     }
 
-    .info-card.is-collapsed .info-card__toggle {
-      transform: rotate(180deg);
+    .info-card__toggle-icon {
+      width: 16px;
+      height: 16px;
+      transition: transform var(--qy-transition-fast);
+    }
+
+    .info-card.is-collapsed .info-card__toggle-icon {
+      transform: rotate(-90deg);
     }
 
     .info-card__body {
       padding: var(--qy-space-4);
-      transition: display 200ms ease;
+      animation: slideDown var(--qy-transition-fast) var(--qy-ease-out);
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .info-card.is-collapsed .info-card__body {
       display: none;
     }
 
-    /* 两列表单布局 */
+    /* 表单布局 */
     .form-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--qy-space-6);
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--qy-space-4);
       margin-bottom: var(--qy-space-4);
     }
 
@@ -179,7 +374,27 @@
       margin-bottom: 0;
     }
 
-    @media (max-width: 768px) {
+    .form-row--2col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-row--full {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 1200px) {
+      .form-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .form-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
       .form-row {
         grid-template-columns: 1fr;
       }
@@ -189,13 +404,50 @@
       margin-bottom: 0;
     }
 
+    /* 表单项错误状态 */
+    .qy-form-group.is-error .qy-label {
+      color: var(--qy-error-600);
+    }
+
+    .qy-form-group.is-error .qy-input,
+    .qy-form-group.is-error .qy-select__trigger,
+    .qy-form-group.is-error .qy-textarea {
+      border-color: var(--qy-error-500);
+    }
+
+    .qy-form-group.is-error .qy-input:focus,
+    .qy-form-group.is-error .qy-select__trigger:focus,
+    .qy-form-group.is-error .qy-textarea:focus {
+      box-shadow: var(--qy-shadow-focus-error);
+    }
+
+    .qy-form-group__error {
+      display: none;
+      margin-top: var(--qy-space-1);
+      font-size: var(--qy-font-size-12);
+      color: var(--qy-error-500);
+      animation: fadeIn var(--qy-duration-fast) var(--qy-ease-out);
+    }
+
+    .qy-form-group.is-error .qy-form-group__error {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-1);
+    }
+
+    .qy-form-group__error svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
     /* 垫付明细卡片 */
     .detail-card {
       margin-bottom: var(--qy-space-4);
       background: var(--qy-bg-primary);
       border: 1px solid var(--qy-border-light);
       border-radius: var(--qy-radius-lg);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--qy-shadow-card);
       overflow: hidden;
     }
 
@@ -215,21 +467,25 @@
     }
 
     .detail-card__body {
-      padding: var(--qy-space-4);
+      padding: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* 数据表格 */
     .data-table {
       width: 100%;
+      min-width: 900px;
       border-collapse: collapse;
       font-size: var(--qy-font-size-13);
     }
 
     .data-table th,
     .data-table td {
-      padding: var(--qy-space-3) var(--qy-space-2);
+      padding: var(--qy-space-3) var(--qy-space-3);
       text-align: left;
       border-bottom: 1px solid var(--qy-border-light);
+      white-space: nowrap;
     }
 
     .data-table th {
@@ -237,11 +493,17 @@
       font-weight: var(--qy-font-weight-semibold);
       color: var(--qy-text-secondary);
       font-size: var(--qy-font-size-12);
-      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     .data-table td {
       color: var(--qy-text-primary);
+    }
+
+    .data-table tbody tr {
+      transition: background var(--qy-transition-fast);
     }
 
     .data-table tbody tr:hover {
@@ -255,86 +517,327 @@
     .currency {
       font-family: var(--qy-font-mono);
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* 金额输入 */
+    /* 金额输入 - 优化触摸区域 */
     .amount-input-wrapper {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: var(--qy-space-1);
+      gap: 0;
+      background: var(--qy-bg-secondary);
+      border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-radius-md);
+      overflow: hidden;
+      transition: border-color var(--qy-transition-fast), box-shadow var(--qy-transition-fast);
+    }
+
+    .amount-input-wrapper:focus-within {
+      border-color: var(--qy-primary-500);
+      box-shadow: var(--qy-shadow-focus);
     }
 
     .amount-input-wrapper .qy-spinbutton {
-      width: 80px;
-      text-align: right;
+      width: 72px;
+      text-align: center;
       font-family: var(--qy-font-mono);
+      font-variant-numeric: tabular-nums;
+      border: none;
+      background: transparent;
+      padding: var(--qy-space-2);
+      height: 36px;
+    }
+
+    .amount-input-wrapper .qy-spinbutton:focus {
+      outline: none;
+    }
+
+    .amount-input-wrapper .qy-spinbutton__btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--qy-bg-primary);
+      border: none;
+      cursor: pointer;
+      transition: background var(--qy-transition-fast), color var(--qy-transition-fast);
+    }
+
+    .amount-input-wrapper .qy-spinbutton__btn:hover {
+      background: var(--qy-primary-50);
+      color: var(--qy-primary-500);
+    }
+
+    .amount-input-wrapper .qy-spinbutton__btn:active {
+      background: var(--qy-primary-100);
+    }
+
+    .amount-input-wrapper .qy-spinbutton__btn:focus-visible {
+      outline: 2px solid var(--qy-primary-500);
+      outline-offset: -2px;
+    }
+
+    .amount-input-wrapper .qy-spinbutton__btn svg {
+      width: 16px;
+      height: 16px;
     }
 
     /* 操作列 */
     .action-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--qy-space-1);
       color: var(--qy-color-error);
       cursor: pointer;
-      transition: color 150ms ease;
+      font-size: var(--qy-font-size-13);
+      padding: var(--qy-space-1) var(--qy-space-2);
+      border-radius: var(--qy-radius-sm);
+      transition: background var(--qy-transition-fast), color var(--qy-transition-fast);
     }
 
     .action-link:hover {
       color: var(--qy-error-700);
+      background: var(--qy-error-50);
+    }
+
+    .action-link:focus-visible {
+      outline: 2px solid var(--qy-error-500);
+      outline-offset: 2px;
+    }
+
+    .action-link svg {
+      width: 14px;
+      height: 14px;
     }
 
     /* 底部操作栏 */
     .action-bar {
-      position: sticky;
+      position: fixed;
       bottom: 0;
+      left: 0;
+      right: 0;
       display: flex;
       justify-content: flex-end;
       gap: var(--qy-space-3);
-      padding: var(--qy-space-4);
+      padding: var(--qy-space-4) var(--qy-space-6);
       background: var(--qy-bg-primary);
       border-top: 1px solid var(--qy-border-light);
-      box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+      z-index: var(--qy-z-sticky);
+      animation: slideUp var(--qy-duration-normal) var(--qy-ease-out);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
     }
 
     .action-bar .qy-btn {
       min-width: 100px;
     }
 
+    .action-bar .qy-btn:focus-visible {
+      outline: 2px solid var(--qy-color-primary);
+      outline-offset: 2px;
+    }
+
     /* 空状态 */
     .empty-state {
       text-align: center;
-      padding: var(--qy-space-8) var(--qy-space-4);
-      color: var(--qy-text-muted);
+      padding: var(--qy-space-12) var(--qy-space-4);
     }
 
     .empty-state__icon {
-      width: 48px;
-      height: 48px;
-      margin: 0 auto var(--qy-space-3);
+      width: 64px;
+      height: 64px;
+      margin: 0 auto var(--qy-space-4);
       color: var(--qy-text-disabled);
     }
 
     .empty-state__text {
       font-size: var(--qy-font-size-14);
+      color: var(--qy-text-secondary);
       margin-bottom: var(--qy-space-2);
     }
 
-    /* 加载状态 */
-    .loading-spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--qy-border-light);
-      border-top-color: var(--qy-color-primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .empty-state__hint {
+      font-size: var(--qy-font-size-13);
+      color: var(--qy-text-muted);
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .qy-btn.is-loading {
+    /* Toast 消息提示 */
+    .toast-container {
+      position: fixed;
+      top: var(--qy-space-4);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: var(--qy-z-toast);
+      display: flex;
+      flex-direction: column;
+      gap: var(--qy-space-2);
       pointer-events: none;
-      opacity: 0.7;
+      max-width: calc(100vw - var(--qy-space-8));
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+      padding: var(--qy-space-3) var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      box-shadow: var(--qy-shadow-lg);
+      font-size: var(--qy-font-size-14);
+      color: var(--qy-text-primary);
+      pointer-events: auto;
+      animation: toastIn var(--qy-duration-normal) var(--qy-ease-spring);
+    }
+
+    .toast.is-leaving {
+      animation: toastOut var(--qy-duration-fast) var(--qy-ease-in) forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes toastOut {
+      to {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+      }
+    }
+
+    .toast__icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toast--success .toast__icon {
+      color: var(--qy-success-500);
+    }
+
+    .toast--error .toast__icon {
+      color: var(--qy-error-500);
+    }
+
+    .toast--warning .toast__icon {
+      color: var(--qy-warning-500);
+    }
+
+    .toast__close {
+      margin-left: var(--qy-space-2);
+      padding: var(--qy-space-1);
+      color: var(--qy-text-muted);
+      cursor: pointer;
+      border-radius: var(--qy-radius-sm);
+      transition: background var(--qy-transition-fast), color var(--qy-transition-fast);
+    }
+
+    .toast__close:hover {
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-primary);
+    }
+
+    /* 确认对话框 */
+    .confirm-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: var(--qy-z-modal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--qy-space-4);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--qy-duration-normal), visibility var(--qy-duration-normal);
+    }
+
+    .confirm-dialog.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .confirm-dialog__backdrop {
+      position: absolute;
+      inset: 0;
+      background: var(--qy-bg-overlay);
+    }
+
+    .confirm-dialog__content {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-xl);
+      box-shadow: var(--qy-shadow-xl);
+      transform: scale(0.95);
+      transition: transform var(--qy-duration-normal) var(--qy-ease-spring);
+    }
+
+    .confirm-dialog.is-open .confirm-dialog__content {
+      transform: scale(1);
+    }
+
+    .confirm-dialog__header {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+      padding: var(--qy-space-4);
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+
+    .confirm-dialog__icon {
+      width: 24px;
+      height: 24px;
+      color: var(--qy-warning-500);
+    }
+
+    .confirm-dialog__title {
+      font-size: var(--qy-font-size-16);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+    }
+
+    .confirm-dialog__body {
+      padding: var(--qy-space-4);
+    }
+
+    .confirm-dialog__message {
+      font-size: var(--qy-font-size-14);
+      color: var(--qy-text-secondary);
+      line-height: var(--qy-line-height-relaxed);
+    }
+
+    .confirm-dialog__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--qy-space-3);
+      padding: var(--qy-space-3) var(--qy-space-4);
+      border-top: 1px solid var(--qy-border-light);
+      background: var(--qy-bg-secondary);
+      border-radius: 0 0 var(--qy-radius-xl) var(--qy-radius-xl);
+    }
+
+    /* 加载状态 */
+    .qy-btn.is-loading {
+      position: relative;
+      pointer-events: none;
+      color: transparent;
     }
 
     .qy-btn.is-loading .qy-btn__text {
@@ -354,94 +857,127 @@
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
+
+    .qy-btn.is-loading.qy-btn--primary::after,
+    .qy-btn.is-loading.qy-btn--secondary::after {
+      border-color: rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* 聚焦样式 */
+    *:focus-visible {
+      outline: 2px solid var(--qy-primary-500);
+      outline-offset: 2px;
+    }
+
+    /* 减少动效 */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="page-container">
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- 确认对话框 -->
+    <div class="confirm-dialog" id="confirmDialog" role="dialog" aria-modal="true" aria-labelledby="confirmDialogTitle">
+      <div class="confirm-dialog__backdrop" id="confirmDialogBackdrop"></div>
+      <div class="confirm-dialog__content">
+        <div class="confirm-dialog__header">
+          <svg class="confirm-dialog__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <h2 class="confirm-dialog__title" id="confirmDialogTitle">确认操作</h2>
+        </div>
+        <div class="confirm-dialog__body">
+          <p class="confirm-dialog__message" id="confirmDialogMessage">确定要执行此操作吗？</p>
+        </div>
+        <div class="confirm-dialog__footer">
+          <button class="qy-btn qy-btn--secondary" id="confirmDialogCancel">取 消</button>
+          <button class="qy-btn qy-btn--danger" id="confirmDialogConfirm">确 定</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 顶部导航 -->
     <header class="page-header">
       <div class="page-header__left">
-        <div class="page-header__back">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="page-header__back" aria-label="返回上一页">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
           <span>返回</span>
-        </div>
+        </button>
         <h1 class="page-header__title">申请垫付</h1>
       </div>
       <div class="page-header__actions">
-        <!-- 可添加更多操作按钮 -->
       </div>
     </header>
 
     <!-- 主内容区 -->
     <main class="page-content">
-      <!-- 审批模板选择卡片 -->
-      <div class="approval-template-card" id="approvalTemplateCard">
-        <div class="approval-template-alert" id="templateAlert">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span>请选择审批模板（必填）</span>
-        </div>
-        <div class="approval-template-body">
-          <div class="qy-form-group approval-template-select">
-            <label class="qy-label">* 审批模板</label>
-            <select class="qy-select" id="approvalTemplateSelect" style="width: 100%;">
-              <option value="">请选择审批模板</option>
-            </select>
-          </div>
-          <div class="approval-template-meta" id="templateMeta">
-            已同步至企业微信 | 版本：<span id="templateVersion">-</span> | 更新时间：<span id="templateUpdateTime">-</span>
-          </div>
-        </div>
-      </div>
-
       <!-- 基础信息卡片 -->
       <div class="info-card" id="basicInfoCard">
-        <div class="info-card__header" id="toggleBasicInfo">
+        <div class="info-card__header" id="toggleBasicInfo" role="button" tabindex="0" aria-expanded="true">
           <span class="info-card__title">基础信息</span>
-          <span class="info-card__toggle">折叠▴</span>
+          <span class="info-card__toggle">
+            <span class="info-card__toggle-text">折叠</span>
+            <svg class="info-card__toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 9l-7 7-7-7"/>
+            </svg>
+          </span>
         </div>
         <div class="info-card__body">
           <div class="form-row">
             <div class="qy-form-group">
-              <label class="qy-label">* 客户名称</label>
-              <div class="qy-combobox" style="width: 100%;">
-                <select class="qy-select" style="width: 100%;">
+              <label class="qy-label" for="customerSelect">* 客户名称</label>
+              <div class="qy-select">
+                <select class="qy-select__trigger" id="customerSelect">
                   <option value="1" selected>新福通2025</option>
                 </select>
               </div>
             </div>
             <div class="qy-form-group">
-              <label class="qy-label">* 合同</label>
-              <div class="qy-combobox" style="width: 100%;">
-                <select class="qy-select" style="width: 100%;">
+              <label class="qy-label" for="contractSelect">* 合同</label>
+              <div class="qy-select">
+                <select class="qy-select__trigger" id="contractSelect">
                   <option value="1" selected>新福通BUFF2025/XFT20250001</option>
                 </select>
               </div>
             </div>
-          </div>
-          <div class="form-row">
             <div class="qy-form-group">
-              <label class="qy-label">* 本次申请垫付总金额</label>
-              <input type="text" class="qy-input" id="totalAmount" value="110.00" readonly style="width: 100%;">
+              <label class="qy-label" for="totalAmount">* 本次申请垫付总金额</label>
+              <input type="text" class="qy-input" id="totalAmount" value="110.00" readonly aria-readonly="true">
             </div>
             <div class="qy-form-group">
-              <label class="qy-label">* 垫付方式</label>
-              <div class="qy-combobox" style="width: 100%;">
-                <select class="qy-select" style="width: 100%;" disabled>
+              <label class="qy-label" for="paymentMethod">* 垫付方式</label>
+              <div class="qy-select">
+                <select class="qy-select__trigger" id="paymentMethod" disabled>
                   <option value="by_detail" selected>按明细</option>
                 </select>
               </div>
             </div>
           </div>
           <div class="form-row">
-            <div class="qy-form-group" style="grid-column: 1 / -1;">
-              <label class="qy-label">申请备注</label>
-              <textarea class="qy-textarea" id="remark" placeholder="请输入" rows="3" style="width: 100%;"></textarea>
+            <div class="qy-form-group form-row--full">
+              <label class="qy-label" for="remark">申请备注</label>
+              <textarea class="qy-textarea" id="remark" placeholder="请输入备注信息" rows="2"></textarea>
             </div>
           </div>
         </div>
@@ -451,25 +987,28 @@
       <div class="detail-card" id="detailCard">
         <div class="detail-card__header">
           <span class="detail-card__title">垫付明细</span>
-          <button class="qy-btn qy-btn--secondary qy-btn--small" id="addDocumentBtn">
-            <span class="qy-btn__icon">+</span>
+          <button class="qy-btn qy-btn--secondary qy-btn--small" id="addDocumentBtn" type="button">
+            <svg class="qy-btn__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
             <span class="qy-btn__text">选择单据</span>
           </button>
         </div>
         <div class="detail-card__body">
-          <table class="data-table">
+          <table class="data-table" role="table" aria-label="垫付明细列表">
             <thead>
               <tr>
-                <th>单据类型</th>
-                <th>单据编号</th>
-                <th>客户名称</th>
-                <th>单据金额</th>
-                <th>累计收款</th>
-                <th>剩余可申请金额</th>
-                <th>本次申请垫付金额</th>
-                <th>开票状态</th>
-                <th>约定回款日期</th>
-                <th>操作</th>
+                <th scope="col">单据类型</th>
+                <th scope="col">单据编号</th>
+                <th scope="col">客户名称</th>
+                <th scope="col" class="currency">单据金额</th>
+                <th scope="col" class="currency">累计收款</th>
+                <th scope="col" class="currency">剩余可申请金额</th>
+                <th scope="col">本次申请垫付金额</th>
+                <th scope="col">开票状态</th>
+                <th scope="col">约定回款日期</th>
+                <th scope="col">操作</th>
               </tr>
             </thead>
             <tbody id="detailTableBody">
@@ -482,14 +1021,31 @@
                 <td class="currency">¥16,087,871.80</td>
                 <td>
                   <div class="amount-input-wrapper">
-                    <button class="qy-spinbutton__btn qy-spinbutton__btn--up" aria-label="增加">▲</button>
-                    <input type="text" class="qy-spinbutton" value="10.00" data-original="10.00">
-                    <button class="qy-spinbutton__btn qy-spinbutton__btn--down" aria-label="减少">▼</button>
+                    <button type="button" class="qy-spinbutton__btn qy-spinbutton__btn--down" aria-label="减少金额" tabindex="0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                    <input type="text" class="qy-spinbutton" value="10.00" data-original="10.00" aria-label="本次申请垫付金额" inputmode="decimal">
+                    <button type="button" class="qy-spinbutton__btn qy-spinbutton__btn--up" aria-label="增加金额" tabindex="0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
                   </div>
                 </td>
                 <td>未开票</td>
                 <td>-</td>
-                <td><span class="action-link delete-row">删除</span></td>
+                <td>
+                  <button type="button" class="action-link delete-row" aria-label="删除此行">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    删除
+                  </button>
+                </td>
               </tr>
               <tr data-id="2">
                 <td>应收单</td>
@@ -500,14 +1056,31 @@
                 <td class="currency">¥1,024,969.80</td>
                 <td>
                   <div class="amount-input-wrapper">
-                    <button class="qy-spinbutton__btn qy-spinbutton__btn--up" aria-label="增加">▲</button>
-                    <input type="text" class="qy-spinbutton" value="100.00" data-original="100.00">
-                    <button class="qy-spinbutton__btn qy-spinbutton__btn--down" aria-label="减少">▼</button>
+                    <button type="button" class="qy-spinbutton__btn qy-spinbutton__btn--down" aria-label="减少金额" tabindex="0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                    <input type="text" class="qy-spinbutton" value="100.00" data-original="100.00" aria-label="本次申请垫付金额" inputmode="decimal">
+                    <button type="button" class="qy-spinbutton__btn qy-spinbutton__btn--up" aria-label="增加金额" tabindex="0">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
                   </div>
                 </td>
                 <td>未开票</td>
                 <td>-</td>
-                <td><span class="action-link delete-row">删除</span></td>
+                <td>
+                  <button type="button" class="action-link delete-row" aria-label="删除此行">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    删除
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -520,24 +1093,145 @@
           <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
         <p class="empty-state__text">暂无垫付明细</p>
-        <p style="font-size: 12px; color: var(--qy-text-muted);">点击上方"选择单据"按钮添加</p>
+        <p class="empty-state__hint">点击上方"选择单据"按钮添加</p>
+      </div>
+
+      <!-- 审批模板选择卡片 -->
+      <div class="approval-template-card" id="approvalTemplateCard">
+        <div class="approval-template-alert" id="templateAlert" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>请选择审批模板（必填）</span>
+        </div>
+        <div class="approval-template-body">
+          <fieldset class="qy-fieldset" id="templateFormGroup">
+            <legend class="qy-label">* 审批模板</legend>
+            <div class="approval-template-options" id="templateOptions" role="radiogroup" aria-describedby="templateError">
+              <!-- 动态生成单选项 -->
+            </div>
+            <div class="qy-form-group__error" id="templateError" role="alert">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>请选择审批模板</span>
+            </div>
+          </fieldset>
+          <div class="approval-template-meta" id="templateMeta">
+            <span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+              </svg>
+              已同步至企业微信
+            </span>
+            <span>版本：<strong id="templateVersion">-</strong></span>
+            <span>更新时间：<strong id="templateUpdateTime">-</strong></span>
+          </div>
+        </div>
       </div>
     </main>
 
     <!-- 底部操作栏 -->
     <div class="action-bar">
-      <button class="qy-btn qy-btn--text" id="cancelBtn">取 消</button>
-      <button class="qy-btn qy-btn--secondary" id="saveDraftBtn">保存为草稿</button>
-      <button class="qy-btn qy-btn--primary" id="submitBtn">保存并提交</button>
+      <button class="qy-btn qy-btn--text" id="cancelBtn" type="button">取 消</button>
+      <button class="qy-btn qy-btn--secondary" id="saveDraftBtn" type="button">保存草稿</button>
+      <button class="qy-btn qy-btn--primary" id="submitBtn" type="button">保存并提交</button>
     </div>
   </div>
 
   <script>
     // ========================================
+    // Toast 消息提示系统
+    // ========================================
+
+    const toastContainer = document.getElementById('toastContainer');
+
+    function showToast(message, type = 'success', duration = 4000) {
+      const toast = document.createElement('div');
+      toast.className = `toast toast--${type}`;
+      toast.innerHTML = `
+        <svg class="toast__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          ${type === 'success'
+            ? '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'
+            : type === 'error'
+            ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'
+            : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
+        </svg>
+        <span>${message}</span>
+        <button class="toast__close" aria-label="关闭提示">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      `;
+
+      toastContainer.appendChild(toast);
+
+      const closeBtn = toast.querySelector('.toast__close');
+      closeBtn.addEventListener('click', () => dismissToast(toast));
+
+      if (duration > 0) {
+        setTimeout(() => dismissToast(toast), duration);
+      }
+
+      return toast;
+    }
+
+    function dismissToast(toast) {
+      toast.classList.add('is-leaving');
+      toast.addEventListener('animationend', () => toast.remove());
+    }
+
+    // ========================================
+    // 确认对话框系统
+    // ========================================
+
+    const confirmDialog = document.getElementById('confirmDialog');
+    const confirmDialogBackdrop = document.getElementById('confirmDialogBackdrop');
+    const confirmDialogCancel = document.getElementById('confirmDialogCancel');
+    const confirmDialogConfirm = document.getElementById('confirmDialogConfirm');
+    const confirmDialogMessage = document.getElementById('confirmDialogMessage');
+
+    let confirmDialogResolve = null;
+
+    function showConfirmDialog(message) {
+      confirmDialogMessage.textContent = message;
+      confirmDialog.classList.add('is-open');
+      confirmDialogCancel.focus();
+
+      return new Promise((resolve) => {
+        confirmDialogResolve = resolve;
+      });
+    }
+
+    function closeConfirmDialog(result) {
+      confirmDialog.classList.remove('is-open');
+      if (confirmDialogResolve) {
+        confirmDialogResolve(result);
+        confirmDialogResolve = null;
+      }
+    }
+
+    confirmDialogBackdrop.addEventListener('click', () => closeConfirmDialog(false));
+    confirmDialogCancel.addEventListener('click', () => closeConfirmDialog(false));
+    confirmDialogConfirm.addEventListener('click', () => closeConfirmDialog(true));
+
+    // ESC 键关闭对话框
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && confirmDialog.classList.contains('is-open')) {
+        closeConfirmDialog(false);
+      }
+    });
+
+    // ========================================
     // 审批模板选择功能
     // ========================================
 
-    // Mock数据：模拟从API获取的模板列表
     const mockTemplates = [
       {
         id: 1,
@@ -546,86 +1240,134 @@
         platform: 'wecom',
         wecom_template_id: 'wecom_template_001',
         sync_status: 'synced',
-        last_sync_time: '2026-04-10T10:00:00Z'
+        last_sync_time: '2026-04-10T10:00:00Z',
+        remark: '适用于常规垫付申请流程'
       },
       {
         id: 2,
         name: '垫付申请模板v2',
         type: 'advance_apply',
-        platform: 'wecom',
+        platform: 'dingtalk',
         wecom_template_id: 'wecom_template_002',
         sync_status: 'synced',
-        last_sync_time: '2026-04-15T14:30:00Z'
+        last_sync_time: '2026-04-15T14:30:00Z',
+        remark: '新增批量审批功能'
       }
     ];
 
-    // 加载模板列表
     function loadApprovalTemplates() {
-      const select = document.getElementById('approvalTemplateSelect');
+      const container = document.getElementById('templateOptions');
 
-      // 模拟API调用延迟
+      // 显示加载状态
+      container.innerHTML = `
+        <div class="template-radio template-radio--loading">
+          <div class="template-radio__check"></div>
+          <div class="template-radio__content">
+            <div class="template-radio__name">加载中...</div>
+          </div>
+        </div>
+      `;
+
       setTimeout(() => {
         if (mockTemplates.length === 0) {
-          select.innerHTML = '<option value="">暂无可用模板，请联系管理员配置</option>';
+          container.innerHTML = `
+            <div class="qy-empty">
+              <p class="qy-empty__description">暂无可用模板，请联系管理员配置</p>
+            </div>
+          `;
           return;
         }
 
-        // 保留默认选项
-        select.innerHTML = '<option value="">请选择审批模板</option>';
+        container.innerHTML = mockTemplates.map((template, index) => `
+          <label class="template-radio" data-id="${template.id}" data-version="${template.name.match(/v\d+/)?.[0] || 'v1'}" data-update-time="${formatDateTime(template.last_sync_time)}">
+            <input type="radio" name="approvalTemplate" class="template-radio__input" value="${template.id}">
+            <div class="template-radio__check"></div>
+            <div class="template-radio__content">
+              <div class="template-radio__header">
+                <span class="template-radio__name">${template.name}</span>
+                <span class="template-radio__platform platform-tag platform-tag--${template.platform}">${getPlatformText(template.platform)}</span>
+              </div>
+              <div class="template-radio__remark">${template.remark || ''}</div>
+            </div>
+          </label>
+        `).join('');
 
-        mockTemplates.forEach(template => {
-          const option = document.createElement('option');
-          option.value = template.id;
-          option.textContent = template.name;
-          option.dataset.version = template.name.match(/v\d+/)?.[0] || 'v1';
-          option.dataset.updateTime = formatDateTime(template.last_sync_time);
-          select.appendChild(option);
+        // 绑定点击事件
+        container.querySelectorAll('.template-radio').forEach(radio => {
+          radio.addEventListener('click', function() {
+            // 移除其他选中状态
+            container.querySelectorAll('.template-radio').forEach(r => r.classList.remove('is-selected'));
+            // 添加选中状态
+            this.classList.add('is-selected');
+            // 选中 radio
+            this.querySelector('input').checked = true;
+            // 更新元信息
+            updateTemplateMeta(this);
+          });
         });
       }, 300);
     }
 
-    // 格式化日期时间
+    function updateTemplateMeta(selectedRadio) {
+      const meta = document.getElementById('templateMeta');
+      const versionSpan = document.getElementById('templateVersion');
+      const updateTimeSpan = document.getElementById('templateUpdateTime');
+      const alertEl = document.getElementById('templateAlert');
+      const formGroup = document.getElementById('templateFormGroup');
+
+      versionSpan.textContent = selectedRadio.dataset.version || '-';
+      updateTimeSpan.textContent = selectedRadio.dataset.updateTime || '-';
+      meta.classList.add('is-visible');
+      alertEl.classList.remove('is-hidden');
+      alertEl.classList.add('is-success');
+      alertEl.querySelector('span').textContent = '已选择：' + selectedRadio.querySelector('.template-radio__name').textContent;
+      formGroup.classList.remove('is-error');
+    }
+
+    function getPlatformText(platform) {
+      return { wecom: '企微', dingtalk: '钉钉', qingyang: '青阳云' }[platform] || platform || '-';
+    }
+
     function formatDateTime(isoString) {
       if (!isoString) return '-';
       const date = new Date(isoString);
       return date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     }
 
-    // 模板选择变更处理
-    document.getElementById('approvalTemplateSelect').addEventListener('change', function() {
-      const meta = document.getElementById('templateMeta');
-      const versionSpan = document.getElementById('templateVersion');
-      const updateTimeSpan = document.getElementById('templateUpdateTime');
-
-      if (this.value) {
-        const selected = this.options[this.selectedIndex];
-        versionSpan.textContent = selected.dataset.version || '-';
-        updateTimeSpan.textContent = selected.dataset.updateTime || '-';
-        meta.classList.add('is-visible');
-      } else {
-        meta.classList.remove('is-visible');
-      }
-    });
+    // 单选按钮变更已通过 click 事件处理
 
     // ========================================
     // 基础信息卡片折叠功能
     // ========================================
 
-    document.getElementById('toggleBasicInfo').addEventListener('click', function() {
-      const card = document.getElementById('basicInfoCard');
-      const toggle = card.querySelector('.info-card__toggle');
-      const isCollapsed = card.classList.contains('is-collapsed');
+    const toggleBasicInfo = document.getElementById('toggleBasicInfo');
+    const basicInfoCard = document.getElementById('basicInfoCard');
 
-      if (isCollapsed) {
-        card.classList.remove('is-collapsed');
-        toggle.textContent = '折叠▴';
-      } else {
-        card.classList.add('is-collapsed');
-        toggle.textContent = '展开▾';
+    function updateCardToggleState() {
+      const isCollapsed = basicInfoCard.classList.contains('is-collapsed');
+      const toggleText = toggleBasicInfo.querySelector('.info-card__toggle-text');
+      const toggleIcon = toggleBasicInfo.querySelector('.info-card__toggle-icon');
+
+      toggleText.textContent = isCollapsed ? '展开' : '折叠';
+      toggleBasicInfo.setAttribute('aria-expanded', !isCollapsed);
+    }
+
+    toggleBasicInfo.addEventListener('click', () => {
+      basicInfoCard.classList.toggle('is-collapsed');
+      updateCardToggleState();
+    });
+
+    toggleBasicInfo.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        basicInfoCard.classList.toggle('is-collapsed');
+        updateCardToggleState();
       }
     });
 
@@ -633,7 +1375,6 @@
     // 垫付明细表格功能
     // ========================================
 
-    // 金额格式化
     function formatCurrency(amount) {
       return '¥' + Number(amount).toLocaleString('zh-CN', {
         minimumFractionDigits: 2,
@@ -641,16 +1382,27 @@
       });
     }
 
-    // 删除行
+    async function handleDeleteRow(btn) {
+      const row = btn.closest('tr');
+      const docType = row.querySelector('td:nth-child(1)').textContent;
+      const docId = row.querySelector('td:nth-child(2)').textContent;
+
+      const confirmed = await showConfirmDialog(`确定要删除单据 ${docId} 吗？删除后无法恢复。`);
+
+      if (confirmed) {
+        row.style.animation = 'fadeOut 200ms ease forwards';
+        row.addEventListener('animationend', () => {
+          row.remove();
+          updateTotalAmount();
+          showToast('已删除单据', 'success');
+        });
+      }
+    }
+
     document.querySelectorAll('.delete-row').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const row = this.closest('tr');
-        row.remove();
-        updateTotalAmount();
-      });
+      btn.addEventListener('click', () => handleDeleteRow(btn));
     });
 
-    // 更新总金额
     function updateTotalAmount() {
       const inputs = document.querySelectorAll('.qy-spinbutton');
       let total = 0;
@@ -660,10 +1412,10 @@
       document.getElementById('totalAmount').value = total.toFixed(2);
     }
 
-    // 金额增减按钮
     document.querySelectorAll('.qy-spinbutton__btn--up').forEach(btn => {
       btn.addEventListener('click', function() {
-        const input = this.parentElement.querySelector('.qy-spinbutton');
+        const wrapper = this.closest('.amount-input-wrapper');
+        const input = wrapper.querySelector('.qy-spinbutton');
         let value = parseFloat(input.value) || 0;
         value = Math.min(value + 10, 999999999);
         input.value = value.toFixed(2);
@@ -673,9 +1425,32 @@
 
     document.querySelectorAll('.qy-spinbutton__btn--down').forEach(btn => {
       btn.addEventListener('click', function() {
-        const input = this.parentElement.querySelector('.qy-spinbutton');
+        const wrapper = this.closest('.amount-input-wrapper');
+        const input = wrapper.querySelector('.qy-spinbutton');
         let value = parseFloat(input.value) || 0;
         value = Math.max(value - 10, 0);
+        input.value = value.toFixed(2);
+        updateTotalAmount();
+      });
+    });
+
+    // 数字输入支持键盘
+    document.querySelectorAll('.qy-spinbutton').forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const wrapper = input.closest('.amount-input-wrapper');
+          wrapper.querySelector('.qy-spinbutton__btn--up').click();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const wrapper = input.closest('.amount-input-wrapper');
+          wrapper.querySelector('.qy-spinbutton__btn--down').click();
+        }
+      });
+
+      input.addEventListener('change', () => {
+        let value = parseFloat(input.value) || 0;
+        value = Math.max(0, Math.min(value, 999999999));
         input.value = value.toFixed(2);
         updateTotalAmount();
       });
@@ -685,27 +1460,35 @@
     // 表单验证与提交
     // ========================================
 
-    // 保存并提交
+    async function validateForm() {
+      const selectedRadio = document.querySelector('.template-radio.is-selected');
+      const formGroup = document.getElementById('templateFormGroup');
+      const alertEl = document.getElementById('templateAlert');
+
+      if (!selectedRadio) {
+        formGroup.classList.add('is-error');
+        alertEl.classList.remove('is-hidden');
+        alertEl.classList.remove('is-success');
+        alertEl.querySelector('span').textContent = '请选择审批模板（必填）';
+        document.getElementById('templateOptions').focus();
+        return false;
+      }
+
+      formGroup.classList.remove('is-error');
+      return true;
+    }
+
     document.getElementById('submitBtn').addEventListener('click', async function() {
-      const templateId = document.getElementById('approvalTemplateSelect').value;
-
-      // 验证审批模板
-      if (!templateId) {
-        // 高亮提示条
-        const alert = document.getElementById('templateAlert');
-        alert.classList.add('is-highlight');
-        setTimeout(() => alert.classList.remove('is-highlight'), 1000);
-
-        // 聚焦下拉框
-        document.getElementById('approvalTemplateSelect').focus();
+      if (!await validateForm()) {
         return;
       }
 
-      // 显示loading状态
+      const selectedRadio = document.querySelector('.template-radio.is-selected');
+      const templateId = selectedRadio ? selectedRadio.dataset.id : null;
+
       this.classList.add('is-loading');
       this.disabled = true;
 
-      // 模拟提交
       try {
         await new Promise(resolve => setTimeout(resolve, 1500));
         console.log('提交成功', {
@@ -713,46 +1496,47 @@
           total_amount: document.getElementById('totalAmount').value,
           remark: document.getElementById('remark').value
         });
-        alert('提交成功！');
+        showToast('提交成功！', 'success');
       } catch (error) {
-        alert('提交失败：' + error.message);
+        showToast('提交失败：' + error.message, 'error');
       } finally {
         this.classList.remove('is-loading');
         this.disabled = false;
       }
     });
 
-    // 保存为草稿
     document.getElementById('saveDraftBtn').addEventListener('click', async function() {
       this.classList.add('is-loading');
       this.disabled = true;
 
+      const selectedRadio = document.querySelector('.template-radio.is-selected');
+      const templateId = selectedRadio ? selectedRadio.dataset.id : null;
+
       try {
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log('保存草稿', {
-          approval_template_id: document.getElementById('approvalTemplateSelect').value || null,
+          approval_template_id: templateId,
           total_amount: document.getElementById('totalAmount').value,
           remark: document.getElementById('remark').value
         });
-        alert('草稿保存成功！');
+        showToast('草稿保存成功！', 'success');
       } catch (error) {
-        alert('保存失败：' + error.message);
+        showToast('保存失败：' + error.message, 'error');
       } finally {
         this.classList.remove('is-loading');
         this.disabled = false;
       }
     });
 
-    // 取消
-    document.getElementById('cancelBtn').addEventListener('click', function() {
-      if (confirm('确定要取消吗？未保存的内容将丢失。')) {
+    document.getElementById('cancelBtn').addEventListener('click', async function() {
+      const confirmed = await showConfirmDialog('确定要取消吗？未保存的内容将丢失。');
+      if (confirmed) {
         history.back();
       }
     });
 
-    // 选择单据按钮（预留）
     document.getElementById('addDocumentBtn').addEventListener('click', function() {
-      alert('选择单据功能开发中...');
+      showToast('选择单据功能开发中...', 'warning');
     });
 
     // ========================================
@@ -762,6 +1546,18 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadApprovalTemplates();
     });
+
+    // 添加 fadeOut 动画
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>
