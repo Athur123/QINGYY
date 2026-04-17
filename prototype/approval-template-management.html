@@ -118,10 +118,32 @@
         }
         .drawer-section { margin-bottom: var(--qy-space-5); }
         .drawer-section__title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-size: var(--qy-font-size-13);
             font-weight: var(--qy-font-weight-semibold);
             color: var(--qy-text-primary);
             margin-bottom: var(--qy-space-3);
+            cursor: pointer;
+            user-select: none;
+        }
+        .drawer-section__title:hover {
+            color: var(--qy-primary-600);
+        }
+        .drawer-section__title .toggle-icon {
+            transition: transform 0.2s ease;
+        }
+        .drawer-section.is-collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+        .drawer-section__content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.2s ease;
+        }
+        .drawer-section.is-collapsed .drawer-section__content {
+            max-height: 0;
+            opacity: 0;
         }
         .drawer-divider {
             height: 1px;
@@ -140,8 +162,8 @@
             color: var(--qy-text-primary);
             padding: var(--qy-space-2) 0;
         }
-        .action-btns { display: flex; gap: var(--qy-space-2); flex-wrap: nowrap; }
-        .action-btns .qy-btn { white-space: nowrap; }
+        .action-btns { display: flex; gap: var(--qy-space-1); flex-wrap: nowrap; }
+        .action-btns .qy-btn { white-space: nowrap; font-size: 12px; padding: 4px 8px; height: auto; }
         .platform-tag {
             display: inline-flex;
             align-items: center;
@@ -150,6 +172,10 @@
             font-size: var(--qy-font-size-12);
             background: var(--qy-primary-50);
             color: var(--qy-primary-600);
+        }
+        .platform-tag--active {
+            background: var(--qy-primary-500);
+            color: #fff;
         }
     </style>
 </head>
@@ -168,20 +194,12 @@
         <div class="page-content">
             <div class="qy-card">
                 <div class="qy-table-wrapper">
-                    <table class="qy-table" style="table-layout:fixed;">
-                        <colgroup>
-                            <col style="width:150px">
-                            <col style="width:100px">
-                            <col style="width:80px">
-                            <col style="width:140px">
-                            <col style="width:90px">
-                            <col style="width:280px">
-                            <col style="width:200px">
-                        </colgroup>
+                    <table class="qy-table">
                         <thead>
                             <tr>
                                 <th>模板名称</th>
-                                <th>模板类型</th>
+                                <th>模板分类</th>
+                                <th>关联表单</th>
                                 <th>审批通道</th>
                                 <th>模板ID</th>
                                 <th>同步状态</th>
@@ -214,10 +232,11 @@
         const API_BASE = 'http://localhost:8000/api/approval';
 
         const mockTemplates = [
-            { name: '付款申请', type: 'payment_request', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false, remark: '用于常规付款流程审批' },
-            { name: '收入确认', type: 'income_confirm', platform: 'dingtalk', sync_status: 'unsynced', wecom_template_id: null, auth: null, disabled: false, remark: '' },
-            { name: '垫付申请', type: 'advance_apply', platform: 'qingyang', sync_status: 'failed', wecom_template_id: null, auth: null, disabled: true, remark: '员工垫付款项' },
-            { name: '开票申请', type: 'invoice_apply', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false, remark: '' }
+            { name: '付款申请', type: 'payment_request', category: 'finance', platform: 'wecom', sync_status: 'synced', wecom_template_id: '1234567890', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: false, remark: '用于常规付款流程审批', sync_error: null },
+            { name: '收入确认', type: 'income_confirm', category: 'finance', platform: 'dingtalk', sync_status: 'synced', wecom_template_id: 'DT987654321', auth: { corpid: 'ding123', secret: 'testsecret', agentid: '2000001' }, disabled: false, remark: '收入确认流程', sync_error: null },
+            { name: '垫付申请', type: 'advance_apply', category: 'finance', platform: 'qingyang', sync_status: 'synced', wecom_template_id: 'QY20260417001', auth: null, disabled: false, remark: '员工垫付款项', sync_error: null },
+            { name: '垫付申请2', type: 'advance_apply', category: 'finance', platform: 'wecom', sync_status: 'failed', wecom_template_id: null, auth: null, disabled: false, remark: '差旅费用报销', sync_error: '企业微信接口调用失败：invalid agentid' },
+            { name: '开票申请', type: 'invoice_apply', category: 'finance', platform: 'wecom', sync_status: 'synced', wecom_template_id: 'TM987654321', auth: { corpid: 'ww123456', secret: 'testsecret', agentid: '1000001' }, disabled: true, remark: '开票申请流程', sync_error: null }
         ];
 
         let currentDrawerMode = 'view';
@@ -241,19 +260,18 @@
                         <strong>${t.name}</strong>
                         ${t.disabled ? '<span style="margin-left:8px;font-size:11px;padding:2px 6px;background:#fee2e2;color:#dc2626;border-radius:4px;">已停用</span>' : ''}
                     </td>
+                    <td>${getCategoryText(t.category)}</td>
                     <td>${getTemplateTypeText(t.type)}</td>
                     <td><span class="platform-tag">${getPlatformText(t.platform)}</span></td>
                     <td>${t.wecom_template_id || '<span style="color:#94a3b8;">未同步</span>'}</td>
-                    <td><span class="status-tag status-tag--${t.sync_status}"><span class="dot"></span>${getStatusText(t.sync_status)}</span></td>
+                    <td><span class="status-tag status-tag--${t.sync_status}" title="${t.sync_error || ''}"><span class="dot"></span>${getStatusText(t.sync_status)}</span>${t.sync_status === 'failed' && t.sync_error ? `<div style="font-size:11px;color:#dc2626;margin-top:2px;">${t.sync_error}</div>` : ''}</td>
                     <td style="color:#64748b;font-size:13px;">${t.remark || '-'}</td>
                     <td>
                         <div class="action-btns">
-                            <button class="qy-btn qy-btn--small qy-btn--text" onclick="openViewDrawer('${t.type}')">详情</button>
-                            ${t.sync_status === 'synced' || t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>`}
-                            ${t.disabled || t.sync_status === 'synced' ? '' : `<button class="qy-btn qy-btn--small qy-btn--primary" onclick="syncTemplate('${t.type}')">同步</button>`}
-                            ${t.sync_status === 'synced' && !t.disabled ? `<button class="qy-btn qy-btn--small qy-btn--primary" onclick="updateTemplateForm('${t.type}')">更新</button>` : ''}
-                            <button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-primary-500)" onclick="toggleTemplate('${t.type}')">${t.disabled ? '启用' : '停用'}</button>
-                            ${t.sync_status === 'synced' || t.disabled ? '' : `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>`}
+                            ${t.sync_status === 'synced' ? `<button class="qy-btn qy-btn--small qy-btn--text" onclick="openViewDrawer('${t.type}')">详情</button>` : ''}
+                            ${t.platform === 'qingyang' ? '' : (t.sync_status === 'failed' || (t.sync_status === 'synced' && t.disabled)) ? `<button class="qy-btn qy-btn--small qy-btn--text" onclick="openEditTemplateDrawer('${t.type}')">编辑</button>` : ''}
+                            ${t.platform === 'qingyang' ? '' : (t.sync_status === 'synced' ? `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-primary-500)" onclick="toggleTemplate('${t.type}')">${t.disabled ? '启用' : '停用'}</button>` : '')}
+                            ${t.platform === 'qingyang' ? '' : (t.sync_status === 'failed' || (t.sync_status === 'synced' && t.disabled) ? `<button class="qy-btn qy-btn--small qy-btn--text" style="color:var(--qy-danger-500)" onclick="deleteTemplate('${t.type}')">删除</button>` : '')}
                         </div>
                     </td>
                 </tr>
@@ -272,6 +290,10 @@
             return { payment_request: '付款申请', income_confirm: '收入确认', advance_apply: '垫付申请', invoice_apply: '开票申请' }[type] || type;
         }
 
+        function getCategoryText(category) {
+            return { finance: '财务审批' }[category] || category || '-';
+        }
+
         function openAddTemplateDrawer() {
             currentDrawerMode = 'create';
             currentEditType = null;
@@ -283,7 +305,13 @@
                         <input type="text" id="drawerName" class="qy-input" style="width:100%" placeholder="如：费用报销单">
                     </div>
                     <div class="qy-form-item">
-                        <label class="qy-form-item__label">模板类型</label>
+                        <label class="qy-form-item__label">模板分类</label>
+                        <select id="drawerCategory" class="qy-input" style="width:100%">
+                            <option value="finance" selected>财务审批</option>
+                        </select>
+                    </div>
+                    <div class="qy-form-item">
+                        <label class="qy-form-item__label">关联表单</label>
                         <select id="drawerType" class="qy-input" style="width:100%" onchange="updateFormPreview()">
                             <option value="">请选择</option>
                             <option value="payment_request">付款申请</option>
@@ -306,10 +334,17 @@
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
-                <div class="drawer-section">
-                    <div class="drawer-section__title">表单配置预览</div>
-                    <div id="formPreview" style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;color:#64748b;">
-                        请选择模板类型
+                <div class="drawer-section" id="formPreviewSection">
+                    <div class="drawer-section__title" onclick="toggleSection('formPreviewSection')">
+                        <span>表单配置预览</span>
+                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="drawer-section__content">
+                        <div id="formPreview" style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;color:#64748b;">
+                            请选择关联表单
+                        </div>
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
@@ -331,7 +366,7 @@
             `;
             document.getElementById('drawerFooter').innerHTML = `
                 <button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取消</button>
-                <button class="qy-btn qy-btn--primary" onclick="saveTemplateFromDrawer()">保存</button>
+                <button class="qy-btn qy-btn--primary" onclick="saveTemplateFromDrawer()">提交</button>
             `;
             document.getElementById('drawerFooter').style.display = 'flex';
             document.getElementById('drawer').classList.add('is-open');
@@ -356,16 +391,47 @@
 
             currentDrawerMode = 'edit';
             currentEditType = templateType;
+
+            // 判断编辑模式
+            // 模式1: 已同步且已停用 - 仅允许编辑名称、备注
+            // 模式2: 同步失败 - 若模板ID存在则不允许编辑分类/关联表单/审批通道，否则允许全部
+            const isSyncedAndDisabled = template.sync_status === 'synced' && template.disabled;
+            const isSyncFailed = template.sync_status === 'failed';
+            const hasTemplateId = !!template.wecom_template_id;
+
+            let editMode = 'full'; // 'full' | 'partial' | 'name-remark-only'
+
+            if (isSyncedAndDisabled) {
+                editMode = 'name-remark-only';
+            } else if (isSyncFailed) {
+                editMode = hasTemplateId ? 'partial' : 'full';
+            }
+
             document.getElementById('drawerTitle').textContent = '编辑模板';
+
+            let editHint = '';
+            if (editMode === 'name-remark-only') {
+                editHint = '<div style="background:#fef3c7;padding:10px 12px;border-radius:6px;font-size:12px;color:#92400e;margin-bottom:16px;">已同步模板仅允许编辑模板名称和备注</div>';
+            } else if (editMode === 'partial') {
+                editHint = '<div style="background:#fef3c7;padding:10px 12px;border-radius:6px;font-size:12px;color:#92400e;margin-bottom:16px;">该模板已在企业微信/钉钉中存在，模板分类、关联表单、审批通道不允许修改</div>';
+            }
+
             document.getElementById('drawerContent').innerHTML = `
+                ${editHint}
                 <div class="drawer-section">
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">模板名称</label>
                         <input type="text" id="drawerName" class="qy-input" style="width:100%" value="${template.name}">
                     </div>
                     <div class="qy-form-item">
-                        <label class="qy-form-item__label">模板类型</label>
-                        <select id="drawerType" class="qy-input" style="width:100%" onchange="updateFormPreview()">
+                        <label class="qy-form-item__label">模板分类</label>
+                        <select id="drawerCategory" class="qy-input" style="width:100%" ${editMode === 'name-remark-only' || editMode === 'partial' ? 'disabled style="background:#f1f5f9;cursor:not-allowed;"' : ''}>
+                            <option value="finance" selected>财务审批</option>
+                        </select>
+                    </div>
+                    <div class="qy-form-item">
+                        <label class="qy-form-item__label">关联表单</label>
+                        <select id="drawerType" class="qy-input" style="width:100%" onchange="updateFormPreview()" ${editMode === 'name-remark-only' || editMode === 'partial' ? 'disabled style="background:#f1f5f9;cursor:not-allowed;"' : ''}>
                             <option value="payment_request" ${template.type === 'payment_request' ? 'selected' : ''}>付款申请</option>
                             <option value="income_confirm" ${template.type === 'income_confirm' ? 'selected' : ''}>收入确认</option>
                             <option value="advance_apply" ${template.type === 'advance_apply' ? 'selected' : ''}>垫付申请</option>
@@ -374,7 +440,7 @@
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">审批通道</label>
-                        <select id="drawerPlatform" class="qy-input" style="width:100%">
+                        <select id="drawerPlatform" class="qy-input" style="width:100%" ${editMode === 'name-remark-only' || editMode === 'partial' ? 'disabled style="background:#f1f5f9;cursor:not-allowed;"' : ''}>
                             <option value="wecom" ${template.platform === 'wecom' ? 'selected' : ''}>企微</option>
                             <option value="dingtalk" ${template.platform === 'dingtalk' ? 'selected' : ''}>钉钉</option>
                             <option value="qingyang" ${template.platform === 'qingyang' ? 'selected' : ''}>青阳云</option>
@@ -382,24 +448,31 @@
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
-                <div class="drawer-section">
-                    <div class="drawer-section__title">表单配置预览</div>
-                    <div id="formPreview" style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;color:#1e293b;"></div>
+                <div class="drawer-section" id="formPreviewSectionEdit">
+                    <div class="drawer-section__title" onclick="toggleSection('formPreviewSectionEdit')">
+                        <span>表单配置预览</span>
+                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <div class="drawer-section__content">
+                        <div id="formPreview" style="background:#f8fafc;padding:12px;border-radius:8px;font-size:13px;color:#1e293b;"></div>
+                    </div>
                 </div>
                 <div class="drawer-divider"></div>
                 <div class="drawer-section">
                     <div class="drawer-section__title">鉴权信息</div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">企业ID (corpid)</label>
-                        <input type="text" id="drawerCorpid" class="qy-input" style="width:100%" value="${template.auth?.corpid || ''}">
+                        <input type="text" id="drawerCorpid" class="qy-input" style="width:100%" value="${template.auth?.corpid || ''}" ${editMode === 'name-remark-only' || editMode === 'partial' ? 'readonly' : ''}>
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">应用Secret</label>
-                        <input type="password" id="drawerSecret" class="qy-input" style="width:100%" value="${template.auth?.secret || ''}">
+                        <input type="password" id="drawerSecret" class="qy-input" style="width:100%" value="${template.auth?.secret || ''}" ${editMode === 'name-remark-only' || editMode === 'partial' ? 'readonly' : ''}>
                     </div>
                     <div class="qy-form-item">
                         <label class="qy-form-item__label">应用AgentId</label>
-                        <input type="text" id="drawerAgentid" class="qy-input" style="width:100%" value="${template.auth?.agentid || ''}">
+                        <input type="text" id="drawerAgentid" class="qy-input" style="width:100%" value="${template.auth?.agentid || ''}" ${editMode === 'name-remark-only' || editMode === 'partial' ? 'readonly' : ''}>
                     </div>
                 </div>
                 <div class="drawer-divider"></div>
@@ -410,14 +483,25 @@
                     </div>
                 </div>
             `;
-            document.getElementById('drawerFooter').innerHTML = `
-                <button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取消</button>
-                <button class="qy-btn qy-btn--primary" onclick="saveTemplateFromDrawer()">保存</button>
-            `;
+
+            // 根据编辑模式显示不同按钮
+            let footerButtons = '';
+            if (editMode === 'name-remark-only') {
+                // 已同步已停用：仅提交（更新接口）
+                footerButtons = `<button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取消</button>
+                                 <button class="qy-btn qy-btn--primary" onclick="saveTemplateFromDrawer()">提交</button>`;
+            } else {
+                // 同步失败模板：仅提交（更新或新增接口）
+                footerButtons = `<button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取消</button>
+                                 <button class="qy-btn qy-btn--primary" onclick="saveTemplateFromDrawer()">提交</button>`;
+            }
+            document.getElementById('drawerFooter').innerHTML = footerButtons;
             document.getElementById('drawerFooter').style.display = 'flex';
 
             // 回显表单预览
-            setTimeout(() => updateFormPreview(), 0);
+            if (editMode !== 'name-remark-only') {
+                setTimeout(() => updateFormPreview(), 0);
+            }
             document.getElementById('drawer').classList.add('is-open');
         }
 
@@ -435,7 +519,7 @@
                         <div class="qy-form-item__value">${template.name}</div>
                     </div>
                     <div class="qy-form-item">
-                        <label class="qy-form-item__label">模板类型</label>
+                        <label class="qy-form-item__label">关联表单</label>
                         <div class="qy-form-item__value">${getTemplateTypeText(template.type)}</div>
                     </div>
                     <div class="qy-form-item">
@@ -503,38 +587,154 @@
             return fields[type] || [];
         }
 
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.toggle('is-collapsed');
+            }
+        }
+
         function closeDrawer() {
             document.getElementById('drawer').classList.remove('is-open');
             currentDrawerMode = 'view';
             currentEditType = null;
         }
 
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.qy-toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'qy-toast';
+            toast.style.cssText = `
+                position: fixed;
+                top: 24px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 9999;
+                animation: toastIn 0.3s ease;
+                background: ${type === 'error' ? '#fef2f2' : type === 'success' ? '#f0fdf4' : '#f8fafc'};
+                color: ${type === 'error' ? '#dc2626' : type === 'success' ? '#16a34a' : '#1e293b'};
+                border: 1px solid ${type === 'error' ? '#fecaca' : type === 'success' ? '#bbf7d0' : '#e2e8f0'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
         function saveTemplateFromDrawer() {
             const name = document.getElementById('drawerName').value.trim();
-            const type = document.getElementById('drawerType').value.trim();
-            const platform = document.getElementById('drawerPlatform').value;
-            const corpid = document.getElementById('drawerCorpid').value.trim();
-            const secret = document.getElementById('drawerSecret').value.trim();
-            const agentid = document.getElementById('drawerAgentid').value.trim();
-            const remark = document.getElementById('drawerRemark').value.trim();
+            const type = document.getElementById('drawerType')?.value?.trim() || null;
+            const category = document.getElementById('drawerCategory')?.value || 'finance';
+            const platform = document.getElementById('drawerPlatform')?.value;
+            const corpid = document.getElementById('drawerCorpid')?.value?.trim() || '';
+            const secret = document.getElementById('drawerSecret')?.value?.trim() || '';
+            const agentid = document.getElementById('drawerAgentid')?.value?.trim() || '';
+            const remark = document.getElementById('drawerRemark')?.value?.trim() || '';
 
-            if (!name || !type) { alert('请填写模板名称和类型'); return; }
+            if (!name) { showToast('请填写模板名称', 'error'); return; }
 
             if (currentDrawerMode === 'create') {
-                if (mockTemplates.some(t => t.type === type)) { alert('模板类型已存在'); return; }
-                mockTemplates.push({ name, type, platform, sync_status: 'unsynced', wecom_template_id: null, auth: { corpid, secret, agentid }, remark });
+                if (type && mockTemplates.some(t => t.type === type)) { showToast('关联表单已存在', 'error'); return; }
+                const newType = 'template_' + Date.now();
+                mockTemplates.push({ name, type: type || newType, category, platform, sync_status: 'unsynced', wecom_template_id: null, auth: type ? { corpid, secret, agentid } : null, remark, isDraft: false, sync_error: null });
+                showToast('提交成功，正在同步...', 'success');
             } else {
                 const template = mockTemplates.find(t => t.type === currentEditType);
-                if (template) { template.name = name; template.platform = platform; template.auth = { corpid, secret, agentid }; template.remark = remark; }
+                if (template) {
+                    template.name = name;
+                    if (document.getElementById('drawerCategory') && !document.getElementById('drawerCategory').disabled) {
+                        template.category = category;
+                    }
+                    if (document.getElementById('drawerPlatform') && !document.getElementById('drawerPlatform').disabled) {
+                        template.platform = platform;
+                    }
+                    if (document.getElementById('drawerType') && !document.getElementById('drawerType').disabled) {
+                        template.type = type;
+                    }
+                    if (template.auth) {
+                        template.auth = { corpid, secret, agentid };
+                    }
+                    template.remark = remark;
+                    // 提交后模拟同步
+                    template.sync_status = 'syncing';
+                    renderTemplates(mockTemplates);
+                    showToast('提交成功，正在同步...', 'success');
+                    // 模拟同步完成
+                    setTimeout(() => {
+                        const t = mockTemplates.find(m => m.type === currentEditType);
+                        if (t) {
+                            t.sync_status = 'synced';
+                            if (!t.wecom_template_id) {
+                                t.wecom_template_id = 'TM' + Date.now().toString().slice(-10);
+                            }
+                            t.sync_error = null;
+                            renderTemplates(mockTemplates);
+                            showToast('同步成功', 'success');
+                        }
+                    }, 1500);
+                    closeDrawer();
+                    return;
+                }
             }
             renderTemplates(mockTemplates);
             closeDrawer();
         }
 
+        function saveTemplateAsDraft() {
+            const name = document.getElementById('drawerName').value.trim();
+            const type = document.getElementById('drawerType')?.value?.trim() || null;
+            const category = document.getElementById('drawerCategory')?.value || 'finance';
+            const platform = document.getElementById('drawerPlatform')?.value;
+            const corpid = document.getElementById('drawerCorpid')?.value?.trim() || '';
+            const secret = document.getElementById('drawerSecret')?.value?.trim() || '';
+            const agentid = document.getElementById('drawerAgentid')?.value?.trim() || '';
+            const remark = document.getElementById('drawerRemark')?.value.trim();
+
+            if (!name) { showToast('请填写模板名称', 'error'); return; }
+
+            if (currentDrawerMode === 'create') {
+                const draftType = 'draft_' + Date.now();
+                mockTemplates.push({ name, type: type || draftType, category, platform, sync_status: 'unsynced', wecom_template_id: null, auth: type ? { corpid, secret, agentid } : null, remark, isDraft: true, sync_error: null });
+            } else {
+                const template = mockTemplates.find(t => t.type === currentEditType);
+                if (template) { template.name = name; template.category = category; template.platform = platform; template.remark = remark; template.isDraft = true; }
+            }
+            renderTemplates(mockTemplates);
+            closeDrawer();
+            showToast('草稿保存成功', 'success');
+        }
+
         function deleteTemplate(templateType) {
-            if (!confirm('确定要删除该模板吗？')) return;
+            const template = mockTemplates.find(t => t.type === templateType);
+            if (!template) return;
+
+            // 青阳云模板不允许删除
+            if (template.platform === 'qingyang') {
+                showToast('青阳云模板不支持删除', 'error');
+                return;
+            }
+
+            // 检查是否被使用（模拟：已同步且有流程使用的模板不允许删除）
+            const isInUse = template.sync_status === 'synced' && template.wecom_template_id && Math.random() > 0.5;
+            if (isInUse) {
+                showToast('该模板已被使用，不允许删除', 'error');
+                return;
+            }
+
+            // 企微/钉钉已同步模板需提示手动删除
+            const isSyncedWithId = template.sync_status === 'synced' && template.wecom_template_id;
+            if (isSyncedWithId) {
+                if (!confirm(`该模板已在${getPlatformText(template.platform)}中同步，需手动在${getPlatformText(template.platform)}中删除。\n\n确定要删除本地记录吗？`)) return;
+            } else {
+                if (!confirm('确定要删除该模板吗？')) return;
+            }
+
             const idx = mockTemplates.findIndex(t => t.type === templateType);
-            if (idx !== -1) { mockTemplates.splice(idx, 1); renderTemplates(mockTemplates); }
+            if (idx !== -1) { mockTemplates.splice(idx, 1); renderTemplates(mockTemplates); showToast('删除成功', 'success'); }
         }
 
         function toggleTemplate(templateType) {
@@ -542,6 +742,7 @@
             if (template) {
                 template.disabled = !template.disabled;
                 renderTemplates(mockTemplates);
+                showToast(template.disabled ? '已停用' : '已启用', 'success');
             }
         }
 
@@ -554,8 +755,9 @@
                 setTimeout(() => {
                     template.sync_status = 'synced';
                     template.wecom_template_id = 'TM' + Date.now();
+                    template.sync_error = null;
                     renderTemplates(mockTemplates);
-                    alert('同步成功');
+                    showToast('同步成功', 'success');
                 }, 1500);
             }
         }
