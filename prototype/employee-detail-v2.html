@@ -2752,11 +2752,20 @@
           let fieldsHtml = '';
 
           if (detail.fields) {
-            // 新增或删除记录 - 显示所有字段
-            fieldsHtml = Object.entries(detail.fields).map(([key, value]) => `
-              <div class="timeline-item__change-detail">
-                <span class="timeline-item__change-detail-label">${key}:</span>
-                <span class="${action === '删除' ? 'timeline-item__change-detail-old' : 'timeline-item__change-detail-new'}">${value}</span>
+            // 新增或删除记录 - 显示所有字段，每行2个
+            const entries = Object.entries(detail.fields);
+            const pairs = [];
+            for (let i = 0; i < entries.length; i += 2) {
+              pairs.push(entries.slice(i, i + 2));
+            }
+            fieldsHtml = pairs.map(pair => `
+              <div class="timeline-item__change-row">
+                ${pair.map(([key, value]) => `
+                  <div class="timeline-item__change-detail">
+                    <span class="timeline-item__change-detail-label">${key}:</span>
+                    <span class="${action === '删除' ? 'timeline-item__change-detail-old' : 'timeline-item__change-detail-new'}">${value}</span>
+                  </div>
+                `).join('')}
               </div>
             `).join('');
           } else if (detail.changes) {
@@ -2797,11 +2806,20 @@
       let fieldsHtml = '';
 
       if (log.fields) {
-        // 新增或删除记录 - 显示所有字段
-        fieldsHtml = Object.entries(log.fields).map(([key, value]) => `
-          <div class="timeline-item__change-detail">
-            <span class="timeline-item__change-detail-label">${key}:</span>
-            <span class="${action === '删除' ? 'timeline-item__change-detail-old' : 'timeline-item__change-detail-new'}">${value}</span>
+        // 新增或删除记录 - 显示所有字段，每行2个
+        const entries = Object.entries(log.fields);
+        const pairs = [];
+        for (let i = 0; i < entries.length; i += 2) {
+          pairs.push(entries.slice(i, i + 2));
+        }
+        fieldsHtml = pairs.map(pair => `
+          <div class="timeline-item__change-row">
+            ${pair.map(([key, value]) => `
+              <div class="timeline-item__change-detail">
+                <span class="timeline-item__change-detail-label">${key}:</span>
+                <span class="${action === '删除' ? 'timeline-item__change-detail-old' : 'timeline-item__change-detail-new'}">${value}</span>
+              </div>
+            `).join('')}
           </div>
         `).join('');
       } else if (log.changes) {
