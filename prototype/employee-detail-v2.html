@@ -1993,6 +1993,9 @@
                     <option value="编辑教育">编辑教育</option>
                     <option value="新增工作经历">新增工作经历</option>
                     <option value="删除证书">删除证书</option>
+                    <option value="批量删除工作经历">批量删除工作经历</option>
+                    <option value="批量编辑银行卡">批量编辑银行卡</option>
+                    <option value="批量新增工作经历">批量新增工作经历</option>
                     <option value="参保报送">参保报送</option>
                     <option value="个税报送">个税报送</option>
                   </select>
@@ -2181,6 +2184,30 @@
         // 多条新增记录
         records: [
           { label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
+        ]
+      },
+      {
+        eventType: "批量删除工作经历",
+        eventTypeClass: "danger",
+        eventTime: "2026-03-12 15:00",
+        operator: "王五",
+        dotClass: "timeline-item__dot--danger",
+        // 一次性删除多条工作经历
+        records: [
+          { label: "深圳YY网络公司", fields: { "公司名称": "深圳YY网络公司", "职位": "初级前端开发工程师", "开始日期": "2014-07-01", "结束日期": "2016-08-31" } },
+          { label: "广州ZZ科技", fields: { "公司名称": "广州ZZ科技", "职位": "Web前端开发", "开始日期": "2012-03-01", "结束日期": "2014-06-30" } }
+        ]
+      },
+      {
+        eventType: "批量编辑银行卡",
+        eventTypeClass: "gray",
+        eventTime: "2026-03-11 11:00",
+        operator: "张三",
+        dotClass: "",
+        // 一次性编辑多条银行卡
+        changes: [
+          { field: "中国工商银行-开户城市", oldValue: "深圳市", newValue: "广州市" },
+          { field: "招商银行-银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }
         ]
       },
       {
