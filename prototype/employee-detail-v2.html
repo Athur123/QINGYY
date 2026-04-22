@@ -2334,248 +2334,294 @@
       });
     }
 
-    // Dynamic Logs Data
+    // Dynamic Logs Data (Unified Structure)
+    // Structure: { eventType, eventTypeClass, eventTime, operator, dotClass, action, tabName, record, changes, fields }
+    // - action: "新增" | "编辑" | "删除"
+    // - tabName: Tab名称，基础信息变更时空字符串
+    // - changes: [{ field, oldValue, newValue }] - 变更字段
+    // - fields: { key: value } - 新增/删除的完整字段
     const dynamicLogs = [
+      // 基础信息变更
       {
         eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-04-22 14:30",
         operator: "张三",
         dotClass: "",
-        // 修改基础信息
-        recordChanges: [
-          { action: "编辑", record: "基础信息", changes: [
-            { field: "手机号码", oldValue: "185****2367", newValue: "186****1234" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "",
+        record: "基础信息",
+        changes: [{ field: "手机号码", oldValue: "185****2367", newValue: "186****1234" }]
       },
+      // 合同信息
       {
         eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-04-20 16:20",
         operator: "王五",
         dotClass: "",
-        // 编辑合同明细 - 用卡片展示
-        recordChanges: [
-          { action: "编辑", tabName: "合同信息", record: "劳动合同 (2025-02-17 ~ 2028-02-16)", changes: [
-            { field: "合同期限", oldValue: "3年", newValue: "5年" },
-            { field: "结束日期", oldValue: "2028-02-16", newValue: "2030-02-16" }
-          ] }
+        action: "编辑",
+        tabName: "合同信息",
+        record: "劳动合同 (2025-02-17 ~ 2028-02-16)",
+        changes: [
+          { field: "合同期限", oldValue: "3年", newValue: "5年" },
+          { field: "结束日期", oldValue: "2028-02-16", newValue: "2030-02-16" }
         ]
       },
+      // 银行卡 - 新增
       {
         eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-04-18 11:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        // 新增银行卡
-        newRecords: [
-          { action: "新增", tabName: "银行卡", label: "招商银行 (副卡)", fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" } }
-        ]
+        action: "新增",
+        tabName: "银行卡",
+        record: "招商银行 (副卡)",
+        fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" }
       },
+      // 教育信息 - 编辑
       {
         eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-04-15 09:30",
         operator: "李四",
         dotClass: "",
-        // 编辑教育明细 - 用卡片展示
-        recordChanges: [
-          { action: "编辑", tabName: "教育信息", record: "深圳大学 (2016-09 ~ 2020-06)", changes: [
-            { field: "学历", oldValue: "本科", newValue: "硕士" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "教育信息",
+        record: "深圳大学 (2016-09 ~ 2020-06)",
+        changes: [{ field: "学历", oldValue: "本科", newValue: "硕士" }]
       },
+      // 工作经历 - 新增
       {
         eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-03-20 14:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        // 新增工作经历
-        newRecords: [
-          { action: "新增", tabName: "工作经历", label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
-        ]
+        action: "新增",
+        tabName: "工作经历",
+        record: "深圳XX科技有限公司",
+        fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" }
       },
+      // 工作经历 - 批量删除
       {
         eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-03-12 15:00",
         operator: "王五",
         dotClass: "timeline-item__dot--danger",
-        // 删除的工作经历 - 用卡片展示
-        deletedRecords: [
-          { action: "删除", tabName: "工作经历", record: "深圳YY网络公司", fields: { "职位": "初级前端开发工程师", "开始日期": "2014-07-01", "结束日期": "2016-08-31" } },
-          { action: "删除", tabName: "工作经历", record: "广州ZZ科技", fields: { "职位": "Web前端开发", "开始日期": "2012-03-01", "结束日期": "2014-06-30" } }
-        ]
+        action: "删除",
+        tabName: "工作经历",
+        record: "深圳YY网络公司",
+        fields: { "职位": "初级前端开发工程师", "开始日期": "2014-07-01", "结束日期": "2016-08-31" }
       },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "danger",
+        eventTime: "2026-03-12 14:50",
+        operator: "王五",
+        dotClass: "timeline-item__dot--danger",
+        action: "删除",
+        tabName: "工作经历",
+        record: "广州ZZ科技",
+        fields: { "职位": "Web前端开发", "开始日期": "2012-03-01", "结束日期": "2014-06-30" }
+      },
+      // 银行卡 - 批量编辑
       {
         eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-03-11 11:00",
         operator: "张三",
         dotClass: "",
-        // 编辑多条银行卡 - recordChanges按卡片分组显示
-        recordChanges: [
-          { action: "编辑", tabName: "银行卡", record: "中国工商银行", changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }] },
-          { action: "编辑", tabName: "银行卡", record: "招商银行", changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }] }
-        ]
+        action: "编辑",
+        tabName: "银行卡",
+        record: "中国工商银行",
+        changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }]
       },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "gray",
+        eventTime: "2026-03-11 10:50",
+        operator: "张三",
+        dotClass: "",
+        action: "编辑",
+        tabName: "银行卡",
+        record: "招商银行",
+        changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }]
+      },
+      // 银行卡 - 删除
       {
         eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-03-10 16:30",
         operator: "王五",
         dotClass: "timeline-item__dot--danger",
-        // 删除的银行卡按卡片分组显示
-        deletedRecords: [
-          { action: "删除", tabName: "银行卡", record: "中国建设银行龙卡", fields: { "开户银行": "中国建设银行深圳分行", "银行账号": "6222***********3456" } }
-        ]
+        action: "删除",
+        tabName: "银行卡",
+        record: "中国建设银行龙卡",
+        fields: { "开户银行": "中国建设银行深圳分行", "银行账号": "6222***********3456" }
       },
+      // 证书资质 - 删除
       {
         eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-03-10 10:30",
         operator: "王五",
         dotClass: "timeline-item__dot--danger",
-        // 删除证书明细 - 用卡片展示
-        deletedRecords: [
-          { action: "删除", tabName: "证书资质", record: "PMP项目管理师", fields: { "证书编号": "PMP-2020-1234", "发证机构": "PMI", "有效期": "2023-12-31" } }
-        ]
+        action: "删除",
+        tabName: "证书资质",
+        record: "PMP项目管理师",
+        fields: { "证书编号": "PMP-2020-1234", "发证机构": "PMI", "有效期": "2023-12-31" }
       },
+      // 工作经历 - 批量新增
       {
         eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-02-15 09:00",
         operator: "李四",
         dotClass: "timeline-item__dot--primary",
-        // 一次性新增多条工作经历
-        newRecords: [
-          { action: "新增", tabName: "工作经历", label: "阿里巴巴集团", fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" } },
-          { action: "新增", tabName: "工作经历", label: "腾讯科技", fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" } }
-        ]
+        action: "新增",
+        tabName: "工作经历",
+        record: "阿里巴巴集团",
+        fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" }
       },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "primary",
+        eventTime: "2026-02-15 08:50",
+        operator: "李四",
+        dotClass: "timeline-item__dot--primary",
+        action: "新增",
+        tabName: "工作经历",
+        record: "腾讯科技",
+        fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" }
+      },
+      // 转正
       {
         eventType: "转正",
         eventTypeClass: "success",
         eventTime: "2026-01-01 10:00",
         operator: "系统",
         dotClass: "timeline-item__dot--success",
-        recordChanges: [
-          { action: "编辑", record: "工作信息", changes: [
-            { field: "试用期状态", oldValue: "试用", newValue: "正式" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "",
+        record: "工作信息",
+        changes: [{ field: "试用期状态", oldValue: "试用", newValue: "正式" }]
       },
+      // 调岗
       {
         eventType: "调岗",
         eventTypeClass: "primary",
         eventTime: "2025-12-15 09:30",
         operator: "李四",
         dotClass: "timeline-item__dot--primary",
-        recordChanges: [
-          { action: "编辑", record: "工作信息", changes: [
-            { field: "岗位", oldValue: "Java开发工程师", newValue: "高级Java开发工程师" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "",
+        record: "工作信息",
+        changes: [{ field: "岗位", oldValue: "Java开发工程师", newValue: "高级Java开发工程师" }]
       },
+      // 参保报送
       {
         eventType: "参保报送",
         eventTypeClass: "primary",
         eventTime: "2025-12-01 00:00",
         operator: "系统",
         dotClass: "timeline-item__dot--primary",
-        recordChanges: [
-          { action: "编辑", record: "参保信息", changes: [
-            { field: "参保城市", oldValue: "-", newValue: "深圳市" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "",
+        record: "参保信息",
+        changes: [{ field: "参保城市", oldValue: "-", newValue: "深圳市" }]
       },
+      // 入职
       {
         eventType: "入职",
         eventTypeClass: "success",
         eventTime: "2025-02-17 09:00",
         operator: "系统",
         dotClass: "timeline-item__dot--success",
-        recordChanges: [
-          { action: "编辑", record: "工作信息", changes: [
-            { field: "员工状态", oldValue: "-", newValue: "在职" },
-            { field: "入职日期", oldValue: "-", newValue: "2025-02-17" }
-          ] }
+        action: "编辑",
+        tabName: "",
+        record: "工作信息",
+        changes: [
+          { field: "员工状态", oldValue: "-", newValue: "在职" },
+          { field: "入职日期", oldValue: "-", newValue: "2025-02-17" }
         ]
       },
+      // 个税报送
       {
         eventType: "个税报送",
         eventTypeClass: "primary",
         eventTime: "2025-11-01 00:00",
         operator: "系统",
         dotClass: "timeline-item__dot--primary",
-        recordChanges: [
-          { action: "编辑", record: "税务信息", changes: [
-            { field: "报税基数", oldValue: "-", newValue: "22,000元" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "",
+        record: "税务信息",
+        changes: [{ field: "报税基数", oldValue: "-", newValue: "22,000元" }]
       },
+      // 个税档案 - 新增
       {
         eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-04-10 14:30",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        // 新增个税档案
-        newRecords: [
-          { action: "新增", tabName: "个税档案", label: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
-        ]
+        action: "新增",
+        tabName: "个税档案",
+        record: "深圳市前海人才有限公司",
+        fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" }
       },
+      // 个税档案 - 编辑
       {
         eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-03-15 10:00",
         operator: "李四",
         dotClass: "",
-        // 编辑个税档案
-        recordChanges: [
-          { action: "编辑", tabName: "个税档案", record: "深圳市前海人力资源有限公司", changes: [
-            { field: "申报状态", oldValue: "待申报", newValue: "已申报" },
-            { field: "主管税务机关名称", oldValue: "国家税务总局深圳市税务局", newValue: "国家税务总局深圳市南山区税务局" }
-          ] }
+        action: "编辑",
+        tabName: "个税档案",
+        record: "深圳市前海人力资源有限公司",
+        changes: [
+          { field: "申报状态", oldValue: "待申报", newValue: "已申报" },
+          { field: "主管税务机关名称", oldValue: "国家税务总局深圳市税务局", newValue: "国家税务总局深圳市南山区税务局" }
         ]
       },
+      // 个税档案 - 新增(完整)
       {
         eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-02-20 09:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        // 新增个税档案（多条）
-        newRecords: [
-          { action: "新增", tabName: "个税档案", label: "深圳市前海人力资源有限公司", fields: { "扣缴义务人": "深圳市前海人力资源有限公司", "人员状态": "正常", "申报状态": "待申报", "主管税务机关": "国家税务总局深圳市税务局", "是否默认": "是", "是否允许算税": "是", "任职受雇从业类型": "雇员" } }
-        ]
+        action: "新增",
+        tabName: "个税档案",
+        record: "深圳市前海人力资源有限公司",
+        fields: { "扣缴义务人": "深圳市前海人力资源有限公司", "人员状态": "正常", "申报状态": "待申报", "主管税务机关": "国家税务总局深圳市税务局", "是否默认": "是", "是否允许算税": "是", "任职受雇从业类型": "雇员" }
       },
+      // 个税档案 - 编辑人员状态
       {
         eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-01-15 11:30",
         operator: "王五",
         dotClass: "",
-        // 编辑个税档案 - 修改人员状态
-        recordChanges: [
-          { action: "编辑", tabName: "个税档案", record: "深圳市前海人力资源有限公司", changes: [
-            { field: "人员状态", oldValue: "待入职", newValue: "正常" }
-          ] }
-        ]
+        action: "编辑",
+        tabName: "个税档案",
+        record: "深圳市前海人力资源有限公司",
+        changes: [{ field: "人员状态", oldValue: "待入职", newValue: "正常" }]
       },
+      // 个税档案 - 删除
       {
         eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-01-10 16:00",
         operator: "系统",
         dotClass: "timeline-item__dot--danger",
-        // 删除个税档案
-        deletedRecords: [
-          { action: "删除", tabName: "个税档案", record: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
-        ]
+        action: "删除",
+        tabName: "个税档案",
+        record: "深圳市前海人才有限公司",
+        fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" }
       }
     ];
 
@@ -2594,12 +2640,17 @@
         filteredLogs = filteredLogs.filter(log => log.eventType === typeFilter.value);
       }
 
-      // 按字段筛选
+      // 按字段筛选 - 统一数据结构
       if (fieldFilter && fieldFilter.value) {
         filteredLogs = filteredLogs.filter(log => {
-          if (log.changes) return log.changes.some(change => change.field === fieldFilter.value);
-          if (log.recordChanges) return log.recordChanges.some(rc => rc.changes.some(c => c.field === fieldFilter.value));
-          if (log.newRecords) return log.newRecords.some(r => Object.keys(r.fields).includes(fieldFilter.value));
+          // 检查changes中的字段
+          if (log.changes) {
+            return log.changes.some(change => change.field === fieldFilter.value);
+          }
+          // 检查fields中的字段
+          if (log.fields) {
+            return Object.keys(log.fields).some(key => key === fieldFilter.value);
+          }
           return false;
         });
       }
@@ -2626,82 +2677,67 @@
             <span class="timeline-item__expand" id="expandIcon${index}">收起</span>
           </div>
           <div class="timeline-item__detail timeline-item__detail--open" id="logDetail${index}">
-            ${log.newRecords ? log.newRecords.map((record, ri) => `
-              <div class="timeline-item__change-card timeline-item__change-card--added">
-                <div class="timeline-item__change-card-header">
-                  <span class="timeline-item__action-tag timeline-item__action-tag--add">${record.action}</span>
-                  ${record.tabName ? record.tabName + '(' + record.label + ')' : record.label}
-                </div>
-                ${Object.entries(record.fields).map(([key, value]) => `
-                  <div class="timeline-item__change-detail">
-                    <span class="timeline-item__change-detail-label">${key}:</span>
-                    <span class="timeline-item__change-detail-new">${value}</span>
-                  </div>
-                `).join('')}
-              </div>
-            `).join('') : log.recordChanges ? log.recordChanges.map(rc => `
-              <div class="timeline-item__change-card">
-                <div class="timeline-item__change-card-header">
-                  <span class="timeline-item__action-tag timeline-item__action-tag--edit">${rc.action}</span>
-                  ${rc.tabName ? rc.tabName + '(' + rc.record + ')' : rc.record}
-                </div>
-                ${rc.changes.map(change => `
-                  <div class="timeline-item__change-detail">
-                    <span class="timeline-item__change-detail-label">${change.field}:</span>
-                    <span class="timeline-item__change-detail-old">${change.oldValue}</span>
-                    <span class="timeline-item__change-detail-arrow">→</span>
-                    <span class="timeline-item__change-detail-new">${change.newValue}</span>
-                  </div>
-                `).join('')}
-              </div>
-            `).join('') : log.deletedRecords ? log.deletedRecords.map(dr => `
-              <div class="timeline-item__change-card timeline-item__change-card--deleted">
-                <div class="timeline-item__change-card-header">
-                  <span class="timeline-item__action-tag timeline-item__action-tag--delete">${dr.action}</span>
-                  ${dr.tabName ? dr.tabName + '(' + dr.record + ')' : dr.record}
-                </div>
-                ${Object.entries(dr.fields).map(([key, value]) => `
-                  <div class="timeline-item__change-detail">
-                    <span class="timeline-item__change-detail-label">${key}:</span>
-                    <span class="timeline-item__change-detail-old">${value}</span>
-                  </div>
-                `).join('')}
-              </div>
-            `).join('') : log.changes ? `
-              <div class="timeline-item__change-card">
-                <div class="timeline-item__change-card-header">
-                  <span class="timeline-item__action-tag timeline-item__action-tag--edit">编辑</span>
-                </div>
-                ${log.changes.map(change => `
-                  <div class="timeline-item__change-detail">
-                    <span class="timeline-item__change-detail-label">${change.field}:</span>
-                    <span class="timeline-item__change-detail-old">${change.oldValue}</span>
-                    <span class="timeline-item__change-detail-arrow">→</span>
-                    <span class="timeline-item__change-detail-new">${change.newValue}</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : ''}
+            ${renderLogCard(log)}
           </div>
         </div>
       `).join('');
     }
 
-    // 初始化字段筛选下拉框
+    // Unified card renderer
+    function renderLogCard(log) {
+      const action = log.action || '编辑';
+      const actionClass = action === '新增' ? 'add' : action === '删除' ? 'delete' : 'edit';
+      const cardClass = action === '新增' ? 'timeline-item__change-card--added' : action === '删除' ? 'timeline-item__change-card--deleted' : '';
+      const recordName = log.tabName ? log.tabName + '(' + log.record + ')' : log.record;
+
+      let fieldsHtml = '';
+
+      if (log.fields) {
+        // 新增或删除记录 - 显示所有字段
+        fieldsHtml = Object.entries(log.fields).map(([key, value]) => `
+          <div class="timeline-item__change-detail">
+            <span class="timeline-item__change-detail-label">${key}:</span>
+            <span class="${action === '删除' ? 'timeline-item__change-detail-old' : 'timeline-item__change-detail-new'}">${value}</span>
+          </div>
+        `).join('');
+      } else if (log.changes) {
+        // 编辑记录 - 显示变更
+        fieldsHtml = log.changes.map(change => `
+          <div class="timeline-item__change-detail">
+            <span class="timeline-item__change-detail-label">${change.field}:</span>
+            <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+            <span class="timeline-item__change-detail-arrow">→</span>
+            <span class="timeline-item__change-detail-new">${change.newValue}</span>
+          </div>
+        `).join('');
+      }
+
+      return `
+        <div class="timeline-item__change-card ${cardClass}">
+          <div class="timeline-item__change-card-header">
+            <span class="timeline-item__action-tag timeline-item__action-tag--${actionClass}">${action}</span>
+            ${recordName}
+          </div>
+          ${fieldsHtml}
+        </div>
+      `;
+    }
+
+    // 初始化字段筛选下拉框 - 统一数据结构
     function initFieldFilter() {
       const fieldFilter = document.getElementById('fieldFilter');
       if (!fieldFilter) return;
 
-      // 提取所有唯一字段（包括changes、newRecords和recordChanges中的字段）
+      // 提取所有唯一字段（从changes和fields）
       const fields = [...new Set(
         dynamicLogs.flatMap(log => {
           const changeFields = log.changes ? log.changes.map(change => change.field) : [];
-          const newRecordFields = log.newRecords ? log.newRecords.flatMap(r => Object.keys(r.fields)) : [];
-          const recordChangeFields = log.recordChanges ? log.recordChanges.flatMap(rc => rc.changes.map(c => c.field)) : [];
-          return [...changeFields, ...newRecordFields, ...recordChangeFields];
+          const fieldKeys = log.fields ? Object.keys(log.fields) : [];
+          return [...changeFields, ...fieldKeys];
         })
       )].sort();
 
+      fieldFilter.innerHTML = '<option value="">全部字段</option>';
       fields.forEach(field => {
         const option = document.createElement('option');
         option.value = field;
