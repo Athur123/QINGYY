@@ -2203,6 +2203,7 @@
                     <option value="个税报送">个税报送</option>
                     <option value="添加报送人员">添加报送人员</option>
                     <option value="修改默认申报主体">修改默认申报主体</option>
+                    <option value="人员报送">人员报送</option>
                   </select>
                   <select class="filter-select" id="timeFilter">
                     <option value="">全部时间</option>
@@ -2367,6 +2368,18 @@
           "是否允许算税": "是",
           "任职受雇从业类型": "雇员"
         }
+      },
+      // 个税档案 - 人员报送
+      {
+        eventType: "人员报送",
+        eventTypeClass: "primary",
+        eventTime: "2026-04-22 17:00",
+        operator: "李四",
+        dotClass: "timeline-item__dot--primary",
+        action: "编辑",
+        tabName: "个税档案",
+        record: "测试企业",
+        changes: [{ field: "是否允许算税", oldValue: "未报送", newValue: "申报中" }]
       },
       // 个税档案 - 修改默认申报主体
       {
