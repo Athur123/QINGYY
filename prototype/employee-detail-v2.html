@@ -2204,6 +2204,7 @@
                     <option value="添加报送人员">添加报送人员</option>
                     <option value="修改默认申报主体">修改默认申报主体</option>
                     <option value="人员报送">人员报送</option>
+                    <option value="同步报送信息">同步报送信息</option>
                   </select>
                   <select class="filter-select" id="timeFilter">
                     <option value="">全部时间</option>
@@ -2349,6 +2350,18 @@
     // - changes: [{ field, oldValue, newValue }] - 变更字段
     // - fields: { key: value } - 新增/删除的完整字段
     const dynamicLogs = [
+      // 个税档案 - 同步报送信息
+      {
+        eventType: "同步报送信息",
+        eventTypeClass: "primary",
+        eventTime: "2026-04-22 18:30",
+        operator: "系统",
+        dotClass: "timeline-item__dot--primary",
+        action: "编辑",
+        tabName: "个税档案",
+        record: "测试企业",
+        changes: [{ field: "申报状态", oldValue: "申报中", newValue: "报送成功" }]
+      },
       // 个税档案 - 人员报送
       {
         eventType: "人员报送",
