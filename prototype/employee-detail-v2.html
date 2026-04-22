@@ -883,6 +883,81 @@
       border-left: 2px solid var(--primary);
     }
 
+    /* 变更记录的卡片样式 */
+    .timeline-item__change-card {
+      background: var(--background);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+
+    .timeline-item__change-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-item__change-card--deleted {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+
+    .timeline-item__change-card-header {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timeline-item__change-card--deleted .timeline-item__change-card-header {
+      color: var(--danger-text);
+      border-bottom-color: #fecaca;
+    }
+
+    .timeline-item__change-card-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .timeline-item__change-card--deleted .timeline-item__change-card-icon {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
+    .timeline-item__change-detail {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 2px 0;
+    }
+
+    .timeline-item__change-detail-label {
+      color: var(--text-secondary);
+      min-width: 70px;
+    }
+
+    .timeline-item__change-detail-old {
+      color: var(--danger);
+      text-decoration: line-through;
+    }
+
+    .timeline-item__change-detail-arrow {
+      color: var(--text-muted);
+    }
+
+    .timeline-item__change-detail-new {
+      color: var(--success);
+    }
+
     /* Modal */
     .modal-overlay {
       display: none;
@@ -2204,10 +2279,21 @@
         eventTime: "2026-03-11 11:00",
         operator: "张三",
         dotClass: "",
-        // 一次性编辑多条银行卡 - changes中包含record字段标识属于哪条记录
-        changes: [
-          { record: "中国工商银行", field: "开户城市", oldValue: "深圳市", newValue: "广州市" },
-          { record: "招商银行", field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }
+        // 编辑多条银行卡 - recordChanges按卡片分组显示
+        recordChanges: [
+          { record: "中国工商银行", changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }] },
+          { record: "招商银行", changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }] }
+        ]
+      },
+      {
+        eventType: "批量删除银行卡",
+        eventTypeClass: "danger",
+        eventTime: "2026-03-10 16:30",
+        operator: "王五",
+        dotClass: "timeline-item__dot--danger",
+        // 删除的银行卡按卡片分组显示
+        deletedRecords: [
+          { record: "中国建设银行龙卡", detail: "开户银行: 中国建设银行深圳分行 | 银行账号: 6222***********3456" }
         ]
       },
       {
@@ -2303,9 +2389,12 @@
 
       // 按字段筛选
       if (fieldFilter && fieldFilter.value) {
-        filteredLogs = filteredLogs.filter(log =>
-          log.changes.some(change => change.field === fieldFilter.value)
-        );
+        filteredLogs = filteredLogs.filter(log => {
+          if (log.changes) return log.changes.some(change => change.field === fieldFilter.value);
+          if (log.recordChanges) return log.recordChanges.some(rc => rc.changes.some(c => c.field === fieldFilter.value));
+          if (log.records) return log.records.some(r => Object.keys(r.fields).includes(fieldFilter.value));
+          return false;
+        });
       }
 
       // 按时间筛选
@@ -2340,9 +2429,31 @@
                   </div>
                 `).join('')}
               </div>
+            `).join('') : log.recordChanges ? log.recordChanges.map(rc => `
+              <div class="timeline-item__change-card">
+                <div class="timeline-item__change-card-header">✏️ ${rc.record}</div>
+                ${rc.changes.map(change => `
+                  <div class="timeline-item__change-detail">
+                    <span class="timeline-item__change-detail-label">${change.field}:</span>
+                    <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+                    <span class="timeline-item__change-detail-arrow">→</span>
+                    <span class="timeline-item__change-detail-new">${change.newValue}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('') : log.deletedRecords ? log.deletedRecords.map(dr => `
+              <div class="timeline-item__change-card timeline-item__change-card--deleted">
+                <div class="timeline-item__change-card-header">
+                  <span class="timeline-item__change-card-icon">×</span>
+                  ${dr.record}
+                </div>
+                <div class="timeline-item__change-detail" style="color: var(--text-secondary); font-size: 12px;">
+                  ${dr.detail}
+                </div>
+              </div>
             `).join('') : log.changes.map(change => `
               <div class="timeline-item__detail-row">
-                <span class="timeline-item__detail-label">${change.record ? change.record + ' > ' : ''}${change.field}:</span>
+                <span class="timeline-item__detail-label">${change.field}:</span>
                 <span class="timeline-item__detail-old">${change.oldValue}</span>
                 <span class="timeline-item__detail-arrow">→</span>
                 <span class="timeline-item__detail-new">${change.newValue}</span>
@@ -2358,12 +2469,13 @@
       const fieldFilter = document.getElementById('fieldFilter');
       if (!fieldFilter) return;
 
-      // 提取所有唯一字段（包括changes和records中的字段）
+      // 提取所有唯一字段（包括changes、records和recordChanges中的字段）
       const fields = [...new Set(
         dynamicLogs.flatMap(log => {
           const changeFields = log.changes ? log.changes.map(change => change.field) : [];
           const recordFields = log.records ? log.records.flatMap(r => Object.keys(r.fields)) : [];
-          return [...changeFields, ...recordFields];
+          const recordChangeFields = log.recordChanges ? log.recordChanges.flatMap(rc => rc.changes.map(c => c.field)) : [];
+          return [...changeFields, ...recordFields, ...recordChangeFields];
         })
       )].sort();
 
