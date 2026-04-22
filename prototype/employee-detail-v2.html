@@ -900,6 +900,11 @@
       border: 1px solid #fecaca;
     }
 
+    .timeline-item__change-card--added {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+
     .timeline-item__change-card-header {
       font-size: 12px;
       font-weight: 500;
@@ -2444,7 +2449,7 @@
           </div>
           <div class="timeline-item__detail timeline-item__detail--open" id="logDetail${index}">
             ${log.newRecords ? log.newRecords.map((record, ri) => `
-              <div class="timeline-item__change-card">
+              <div class="timeline-item__change-card timeline-item__change-card--added">
                 <div class="timeline-item__change-card-header">
                   <span class="timeline-item__action-tag timeline-item__action-tag--add">${record.action}</span>
                   ${record.label}
