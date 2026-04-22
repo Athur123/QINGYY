@@ -693,77 +693,87 @@
 
     /* Timeline */
     .timeline {
-      padding: 16px;
+      padding: 12px 16px;
     }
 
     .timeline-item {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding-bottom: 16px;
+      flex-direction: column;
+      padding-left: 20px;
       position: relative;
     }
 
-    .timeline-item:last-child {
-      padding-bottom: 0;
-    }
-
-    .timeline-item:not(:last-child)::before {
+    .timeline-item::before {
       content: '';
       position: absolute;
-      left: 9px;
-      top: 20px;
+      left: 4px;
+      top: 16px;
       bottom: 0;
       width: 1px;
       background: var(--border);
     }
 
+    .timeline-item:last-child::before {
+      display: none;
+    }
+
     .timeline-item__dot {
+      position: absolute;
+      left: 0;
+      top: 4px;
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background: var(--primary);
-      flex-shrink: 0;
-      margin-top: 3px;
+      border: 2px solid var(--surface);
+      box-shadow: 0 0 0 1px var(--border);
     }
 
-    .timeline-item__content {
-      flex: 1;
-      min-width: 0;
-    }
+    .timeline-item__dot--success { background: var(--success); }
+    .timeline-item__dot--danger { background: var(--danger); }
+    .timeline-item__dot--primary { background: var(--primary); }
+    .timeline-item__dot--warning { background: #f59e0b; }
+    .timeline-item__dot--gray { background: var(--text-muted); }
 
-    .timeline-item__title {
-      font-size: 13px;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-
-    .timeline-item__meta {
+    .timeline-item__header {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      padding: 4px 0;
+      cursor: pointer;
+      min-height: 28px;
+    }
+
+    .timeline-item__time {
       font-size: 12px;
       color: var(--text-muted);
+      min-width: 120px;
     }
 
     .timeline-item__type {
       display: inline-flex;
       align-items: center;
       height: 20px;
-      padding: 0 6px;
+      padding: 0 8px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: 500;
-    }
-
-    .timeline-item__type--info {
-      background: var(--primary-light);
-      color: var(--primary);
+      flex-shrink: 0;
     }
 
     .timeline-item__type--success {
       background: #d1fae5;
       color: #065f46;
+    }
+
+    .timeline-item__type--primary {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .timeline-item__type--danger {
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .timeline-item__type--warning {
@@ -776,29 +786,33 @@
       color: var(--text-secondary);
     }
 
-    .timeline-item__header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      padding: 4px 0;
-    }
-
-    .timeline-item__time {
-      font-size: 12px;
-      color: var(--text-muted);
-      flex-shrink: 0;
-    }
-
     .timeline-item__expand {
       font-size: 12px;
       color: var(--primary);
       margin-left: auto;
+      padding-right: 4px;
+    }
+
+    .timeline-item__expand::before {
+      content: '';
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--primary);
+      margin-right: 4px;
+      vertical-align: middle;
+      transition: transform 0.2s;
     }
 
     .timeline-item__detail {
       display: none;
-      padding: 8px 0 8px 22px;
+      margin: 6px 0 12px 0;
+      padding: 10px 12px;
+      background: var(--background);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
     }
 
     .timeline-item__detail--open {
@@ -807,36 +821,32 @@
 
     .timeline-item__detail-row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 8px;
       font-size: 12px;
-      padding: 4px 0;
+      padding: 3px 0;
     }
 
     .timeline-item__detail-label {
       color: var(--text-secondary);
-      min-width: 60px;
+      min-width: 56px;
+      flex-shrink: 0;
     }
 
     .timeline-item__detail-old {
-      color: var(--text-muted);
+      color: #ef4444;
       text-decoration: line-through;
+      opacity: 0.7;
     }
 
     .timeline-item__detail-arrow {
       color: var(--text-muted);
+      flex-shrink: 0;
     }
 
     .timeline-item__detail-new {
-      color: var(--success);
-    }
-
-    .timeline-item__dot--success {
-      background: var(--success);
-    }
-
-    .timeline-item__dot--primary {
-      background: var(--primary);
+      color: #059669;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -1832,46 +1842,7 @@
                 </select>
               </div>
               <div class="timeline" id="dynamicTimeline">
-                <div class="timeline-item">
-                  <div class="timeline-item__dot" style="background: var(--success)"></div>
-                  <div class="timeline-item__content">
-                    <div class="timeline-item__title">转正申请已通过</div>
-                    <div class="timeline-item__meta">
-                      <span class="timeline-item__type timeline-item__type--success">转正</span>
-                      <span>2026-01-01 10:30</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item">
-                  <div class="timeline-item__dot" style="background: var(--primary)"></div>
-                  <div class="timeline-item__content">
-                    <div class="timeline-item__title">岗位晋升为高级Java开发工程师</div>
-                    <div class="timeline-item__meta">
-                      <span class="timeline-item__type timeline-item__type--info">晋升</span>
-                      <span>2026-01-01 09:00</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item">
-                  <div class="timeline-item__dot" style="background: var(--success)"></div>
-                  <div class="timeline-item__content">
-                    <div class="timeline-item__title">入职成功，正式加入公司</div>
-                    <div class="timeline-item__meta">
-                      <span class="timeline-item__type timeline-item__type--success">入职</span>
-                      <span>2025-02-17 14:00</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="timeline-item">
-                  <div class="timeline-item__dot" style="background: var(--text-muted)"></div>
-                  <div class="timeline-item__content">
-                    <div class="timeline-item__title">项目归属：深圳纬易发信息技术有限公司</div>
-                    <div class="timeline-item__meta">
-                      <span class="timeline-item__type timeline-item__type--warning">项目归属</span>
-                      <span>2025-02-17 10:00</span>
-                    </div>
-                  </div>
-                </div>
+                <!-- JS渲染的动态记录将插入到这里 -->
               </div>
             </div>
           </div>
