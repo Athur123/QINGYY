@@ -853,6 +853,117 @@
       color: #059669;
       font-weight: 500;
     }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      width: 500px;
+      max-width: 90%;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal__close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      font-size: 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal__close:hover {
+      background: var(--background);
+      color: var(--text-primary);
+    }
+
+    .modal__body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group select {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--surface);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -1058,15 +1169,15 @@
             <div class="section-card">
               <div class="section-card__header">
                 <span class="section-card__title">劳动合同</span>
-                <button class="btn btn--primary" style="height: 28px; font-size: 12px;">+ 添加</button>
+                <button class="btn btn--primary" style="height: 28px; font-size: 12px;" onclick="openModal('contract', -1)">+ 添加</button>
               </div>
               <div class="record-cards">
                 <div class="record-card">
                   <div class="record-card__header">
                     <span class="record-card__title">劳动合同 (2025.02.17 - 2028.02.16)</span>
                     <div class="record-card__actions">
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">编辑</button>
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">删除</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('contract', 0)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('contract', 0, '劳动合同')">删除</button>
                     </div>
                   </div>
                   <div class="record-card__body">
@@ -1114,8 +1225,8 @@
                   <div class="record-card__header">
                     <span class="record-card__title">实习协议 (2024.12.01 - 2025.02.16)</span>
                     <div class="record-card__actions">
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">编辑</button>
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">删除</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('contract', 1)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('contract', 1, '实习协议')">删除</button>
                     </div>
                   </div>
                   <div class="record-card__body">
@@ -1168,15 +1279,15 @@
             <div class="section-card">
               <div class="section-card__header">
                 <span class="section-card__title">银行卡信息</span>
-                <button class="btn btn--primary" style="height: 28px; font-size: 12px;">+ 添加</button>
+                <button class="btn btn--primary" style="height: 28px; font-size: 12px;" onclick="openModal('bank', -1)">+ 添加</button>
               </div>
               <div class="record-cards">
                 <div class="record-card">
                   <div class="record-card__header">
                     <span class="record-card__title">中国工商银行 (主卡)</span>
                     <div class="record-card__actions">
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">编辑</button>
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">删除</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('bank', 0)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('bank', 0, '银行卡')">删除</button>
                     </div>
                   </div>
                   <div class="record-card__body">
@@ -1216,8 +1327,8 @@
                   <div class="record-card__header">
                     <span class="record-card__title">招商银行 (副卡)</span>
                     <div class="record-card__actions">
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">编辑</button>
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">删除</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('bank', 1)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('bank', 1, '银行卡')">删除</button>
                     </div>
                   </div>
                   <div class="record-card__body">
@@ -1262,15 +1373,15 @@
             <div class="section-card">
               <div class="section-card__header">
                 <span class="section-card__title">教育经历</span>
-                <button class="btn btn--primary" style="height: 28px; font-size: 12px;">+ 添加</button>
+                <button class="btn btn--primary" style="height: 28px; font-size: 12px;" onclick="openModal('education', -1)">+ 添加</button>
               </div>
               <div class="record-cards">
                 <div class="record-card">
                   <div class="record-card__header">
                     <span class="record-card__title">华南理工大学 (2010.09 - 2014.07)</span>
                     <div class="record-card__actions">
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">编辑</button>
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">删除</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('education', 0)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('education', 0, '教育经历')">删除</button>
                     </div>
                   </div>
                   <div class="record-card__body">
@@ -1364,15 +1475,15 @@
             <div class="section-card">
               <div class="section-card__header">
                 <span class="section-card__title">工作经历</span>
-                <button class="btn btn--primary" style="height: 28px; font-size: 12px;">+ 添加</button>
+                <button class="btn btn--primary" style="height: 28px; font-size: 12px;" onclick="openModal('work', -1)">+ 添加</button>
               </div>
               <div class="record-cards">
                 <div class="record-card">
                   <div class="record-card__header">
                     <span class="record-card__title">深圳XX科技有限公司 (2014.08 - 2025.01)</span>
                     <div class="record-card__actions">
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">编辑</button>
-                      <button class="btn btn--text" style="height: 28px; font-size: 12px;">删除</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('work', 0)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('work', 0, '工作经历')">删除</button>
                     </div>
                   </div>
                   <div class="record-card__body">
@@ -1932,6 +2043,23 @@
     </main>
   </div>
 
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title" id="modalTitle">编辑记录</span>
+        <button class="modal__close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal__body" id="modalBody">
+        <!-- Form fields will be injected here -->
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" onclick="closeModal()">取消</button>
+        <button class="btn btn--primary" onclick="saveRecord()">保存</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tabs = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -2132,6 +2260,362 @@
     document.getElementById('typeFilter')?.addEventListener('change', renderDynamicLogs);
     document.getElementById('fieldFilter')?.addEventListener('change', renderDynamicLogs);
     document.getElementById('timeFilter')?.addEventListener('change', renderDynamicLogs);
+
+    // Modal相关
+    let currentEditType = ''; // 'contract', 'bank', 'education', etc.
+    let currentEditIndex = -1;
+    let currentFormData = {};
+
+    // 示例数据（实际应从后端获取）
+    const contractData = [
+      { contractBody: '深圳市前海人力资源有限公司', contractType: '劳动合同', startDate: '2025-02-17', endDate: '2028-02-16', signDate: '2025-02-15', duration: '3年' },
+      { contractBody: '深圳市前海人力资源有限公司', contractType: '实习协议', startDate: '2024-12-01', endDate: '2025-02-16', signDate: '2024-11-28', duration: '3个月' }
+    ];
+
+    const bankData = [
+      { bankName: '中国工商银行深圳分行', bankAccount: '6222***********1234', accountName: '曾强勇', bankCity: '深圳市' },
+      { bankName: '招商银行深圳福田支行', bankAccount: '6222***********5678', accountName: '曾强勇', bankCity: '深圳市' }
+    ];
+
+    function openModal(type, index = -1) {
+      currentEditType = type;
+      currentEditIndex = index;
+      const modal = document.getElementById('editModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+
+      const isEdit = index >= 0;
+      modalTitle.textContent = isEdit ? '编辑记录' : '新增记录';
+
+      // 获取现有数据
+      let existingData = null;
+      if (isEdit) {
+        switch(type) {
+          case 'contract':
+            existingData = contractData[index];
+            break;
+          case 'bank':
+            existingData = bankData[index];
+            break;
+        }
+      }
+      currentFormData = existingData || {};
+
+      // 根据类型渲染表单
+      modalBody.innerHTML = getFormFields(type, existingData);
+
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('editModal');
+      modal.classList.remove('active');
+      currentEditType = '';
+      currentEditIndex = -1;
+      currentFormData = {};
+    }
+
+    function getFormFields(type, existingData) {
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 16).replace('T', ' ');
+
+      switch(type) {
+        case 'contract':
+          return `
+            <div class="form-row">
+              <div class="form-group">
+                <label>合同主体</label>
+                <input type="text" id="field_contract主体" value="${existingData?.contractBody || '深圳市前海人力资源有限公司'}">
+              </div>
+              <div class="form-group">
+                <label>合同类型</label>
+                <select id="field_contract类型">
+                  <option value="劳动合同" ${existingData?.contractType === '劳动合同' ? 'selected' : ''}>劳动合同</option>
+                  <option value="实习协议" ${existingData?.contractType === '实习协议' ? 'selected' : ''}>实习协议</option>
+                  <option value="劳务协议" ${existingData?.contractType === '劳务协议' ? 'selected' : ''}>劳务协议</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>开始日期</label>
+                <input type="date" id="field_开始日期" value="${existingData?.startDate || ''}">
+              </div>
+              <div class="form-group">
+                <label>结束日期</label>
+                <input type="date" id="field_结束日期" value="${existingData?.endDate || ''}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>签署日期</label>
+                <input type="date" id="field_签署日期" value="${existingData?.signDate || ''}">
+              </div>
+              <div class="form-group">
+                <label>合同期限</label>
+                <select id="field_合同期限">
+                  <option value="1个月" ${existingData?.duration === '1个月' ? 'selected' : ''}>1个月</option>
+                  <option value="3个月" ${existingData?.duration === '3个月' ? 'selected' : ''}>3个月</option>
+                  <option value="6个月" ${existingData?.duration === '6个月' ? 'selected' : ''}>6个月</option>
+                  <option value="1年" ${existingData?.duration === '1年' ? 'selected' : ''}>1年</option>
+                  <option value="2年" ${existingData?.duration === '2年' ? 'selected' : ''}>2年</option>
+                  <option value="3年" ${existingData?.duration === '3年' ? 'selected' : ''}>3年</option>
+                  <option value="5年" ${existingData?.duration === '5年' ? 'selected' : ''}>5年</option>
+                </select>
+              </div>
+            </div>
+          `;
+        case 'bank':
+          return `
+            <div class="form-row">
+              <div class="form-group">
+                <label>开户银行</label>
+                <input type="text" id="field_开户银行" value="${existingData?.bankName || ''}">
+              </div>
+              <div class="form-group">
+                <label>银行账号</label>
+                <input type="text" id="field_银行账号" value="${existingData?.bankAccount || ''}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>账户名称</label>
+                <input type="text" id="field_账户名称" value="${existingData?.accountName || ''}">
+              </div>
+              <div class="form-group">
+                <label>开户城市</label>
+                <input type="text" id="field_开户城市" value="${existingData?.bankCity || ''}">
+              </div>
+            </div>
+          `;
+        case 'education':
+          return `
+            <div class="form-row">
+              <div class="form-group">
+                <label>学校名称</label>
+                <input type="text" id="field_学校名称" value="${existingData?.school || ''}">
+              </div>
+              <div class="form-group">
+                <label>学历</label>
+                <select id="field_学历">
+                  <option value="初中" ${existingData?.education === '初中' ? 'selected' : ''}>初中</option>
+                  <option value="高中" ${existingData?.education === '高中' ? 'selected' : ''}>高中</option>
+                  <option value="中专" ${existingData?.education === '中专' ? 'selected' : ''}>中专</option>
+                  <option value="大专" ${existingData?.education === '大专' ? 'selected' : ''}>大专</option>
+                  <option value="本科" ${existingData?.education === '本科' ? 'selected' : ''}>本科</option>
+                  <option value="硕士" ${existingData?.education === '硕士' ? 'selected' : ''}>硕士</option>
+                  <option value="博士" ${existingData?.education === '博士' ? 'selected' : ''}>博士</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>入学日期</label>
+                <input type="date" id="field_入学日期" value="${existingData?.startDate || ''}">
+              </div>
+              <div class="form-group">
+                <label>毕业日期</label>
+                <input type="date" id="field_毕业日期" value="${existingData?.endDate || ''}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>专业</label>
+              <input type="text" id="field_专业" value="${existingData?.major || ''}">
+            </div>
+          `;
+        case 'work':
+          return `
+            <div class="form-row">
+              <div class="form-group">
+                <label>公司名称</label>
+                <input type="text" id="field_公司名称" value="${existingData?.company || ''}">
+              </div>
+              <div class="form-group">
+                <label>职位</label>
+                <input type="text" id="field_职位" value="${existingData?.position || ''}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>开始日期</label>
+                <input type="date" id="field_开始日期" value="${existingData?.startDate || ''}">
+              </div>
+              <div class="form-group">
+                <label>结束日期</label>
+                <input type="date" id="field_结束日期" value="${existingData?.endDate || ''}">
+              </div>
+            </div>
+          `;
+        default:
+          return '<p>暂不支持编辑此类型</p>';
+      }
+    }
+
+    function saveRecord() {
+      const now = new Date();
+      const dateTimeStr = now.toISOString().slice(0, 16).replace('T', ' ');
+      const operator = '张三'; // 当前用户
+
+      let changes = [];
+
+      switch(currentEditType) {
+        case 'contract':
+          changes = generateChanges('合同', {
+            '合同主体': currentFormData?.contractBody,
+            '合同类型': currentFormData?.contractType,
+            '开始日期': currentFormData?.startDate,
+            '结束日期': currentFormData?.endDate,
+            '签署日期': currentFormData?.signDate,
+            '合同期限': currentFormData?.duration
+          }, {
+            '合同主体': document.getElementById('field_合同主体')?.value,
+            '合同类型': document.getElementById('field_合同类型')?.value,
+            '开始日期': document.getElementById('field_开始日期')?.value,
+            '结束日期': document.getElementById('field_结束日期')?.value,
+            '签署日期': document.getElementById('field_签署日期')?.value,
+            '合同期限': document.getElementById('field_合同期限')?.value
+          });
+          break;
+        case 'bank':
+          changes = generateChanges('银行卡', {
+            '开户银行': currentFormData?.bankName,
+            '银行账号': currentFormData?.bankAccount,
+            '账户名称': currentFormData?.accountName,
+            '开户城市': currentFormData?.bankCity
+          }, {
+            '开户银行': document.getElementById('field_开户银行')?.value,
+            '银行账号': document.getElementById('field_银行账号')?.value,
+            '账户名称': document.getElementById('field_账户名称')?.value,
+            '开户城市': document.getElementById('field_开户城市')?.value
+          });
+          break;
+        case 'education':
+          changes = generateChanges('教育', {
+            '学校名称': currentFormData?.school,
+            '学历': currentFormData?.education,
+            '专业': currentFormData?.major,
+            '入学日期': currentFormData?.startDate,
+            '毕业日期': currentFormData?.endDate
+          }, {
+            '学校名称': document.getElementById('field_学校名称')?.value,
+            '学历': document.getElementById('field_学历')?.value,
+            '专业': document.getElementById('field_专业')?.value,
+            '入学日期': document.getElementById('field_入学日期')?.value,
+            '毕业日期': document.getElementById('field_毕业日期')?.value
+          });
+          break;
+        case 'work':
+          changes = generateChanges('工作', {
+            '公司名称': currentFormData?.company,
+            '职位': currentFormData?.position,
+            '开始日期': currentFormData?.startDate,
+            '结束日期': currentFormData?.endDate
+          }, {
+            '公司名称': document.getElementById('field_公司名称')?.value,
+            '职位': document.getElementById('field_职位')?.value,
+            '开始日期': document.getElementById('field_开始日期')?.value,
+            '结束日期': document.getElementById('field_结束日期')?.value
+          });
+          break;
+      }
+
+      if (changes.length > 0) {
+        const newLog = {
+          eventType: currentEditIndex >= 0 ? '信息变更' : '新增记录',
+          eventTypeClass: currentEditIndex >= 0 ? 'gray' : 'primary',
+          eventTime: dateTimeStr,
+          operator: operator,
+          dotClass: '',
+          changes: changes
+        };
+
+        dynamicLogs.unshift(newLog);
+        renderDynamicLogs();
+        initFieldFilter();
+      }
+
+      closeModal();
+    }
+
+    // 辅助函数：生成变更记录
+    function generateChanges(category, oldData, newData) {
+      const changes = [];
+      for (const key in newData) {
+        if (newData[key] !== oldData[key]) {
+          changes.push({
+            field: key,
+            oldValue: oldData[key] || '-',
+            newValue: newData[key] || '-'
+          });
+        }
+      }
+      return changes;
+    }
+
+    // 删除记录
+    function deleteRecord(type, index, label) {
+      if (!confirm('确定要删除这条记录吗？')) return;
+
+      const now = new Date();
+      const dateTimeStr = now.toISOString().slice(0, 16).replace('T', ' ');
+
+      const newLog = {
+        eventType: '删除记录',
+        eventTypeClass: 'danger',
+        eventTime: dateTimeStr,
+        operator: '张三',
+        dotClass: 'timeline-item__dot--danger',
+        changes: [{ field: label, oldValue: '已删除', newValue: '-' }]
+      };
+
+      dynamicLogs.unshift(newLog);
+      renderDynamicLogs();
+      initFieldFilter();
+    }
+
+    // 为所有编辑按钮添加点击事件
+    document.querySelectorAll('[data-edit]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const type = e.target.dataset.edit;
+        const index = parseInt(e.target.dataset.index);
+        openModal(type, index);
+      });
+    });
+
+    // 为所有删除按钮添加点击事件
+    document.querySelectorAll('[data-delete]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        if (confirm('确定要删除这条记录吗？')) {
+          const type = e.target.dataset.delete;
+          const index = parseInt(e.target.dataset.index);
+          const now = new Date();
+          const dateTimeStr = now.toISOString().slice(0, 16).replace('T', ' ');
+
+          // 添加删除日志
+          const newLog = {
+            eventType: '删除记录',
+            eventTypeClass: 'danger',
+            eventTime: dateTimeStr,
+            operator: '张三',
+            dotClass: 'timeline-item__dot--danger',
+            changes: [{ field: categoryLabels[type] || type, oldValue: '已删除', newValue: '-' }]
+          };
+
+          dynamicLogs.unshift(newLog);
+          renderDynamicLogs();
+          initFieldFilter();
+        }
+      });
+    });
+
+    const categoryLabels = {
+      'contract': '劳动合同',
+      'bank': '银行卡',
+      'education': '教育经历',
+      'work': '工作经历',
+      'certificate': '证书资质',
+      'training': '培训记录'
+    };
   </script>
 </body>
 </html>
