@@ -860,6 +860,29 @@
       font-weight: 500;
     }
 
+    .timeline-item__record {
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .timeline-item__record:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .timeline-item__record:first-child {
+      padding-top: 0;
+    }
+
+    .timeline-item__record-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      padding-left: 8px;
+      border-left: 2px solid var(--primary);
+    }
+
     /* Modal */
     .modal-overlay {
       display: none;
@@ -2134,9 +2157,9 @@
         eventTime: "2026-04-18 11:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        changes: [
-          { field: "开户银行", oldValue: "-", newValue: "招商银行深圳福田支行" },
-          { field: "银行账号", oldValue: "-", newValue: "6222***********5678" }
+        // 多条新增记录
+        records: [
+          { label: "招商银行 (副卡)", fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" } }
         ]
       },
       {
@@ -2155,9 +2178,9 @@
         eventTime: "2026-03-20 14:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        changes: [
-          { field: "公司名称", oldValue: "-", newValue: "深圳XX科技有限公司" },
-          { field: "职位", oldValue: "-", newValue: "高级Java开发工程师" }
+        // 多条新增记录
+        records: [
+          { label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
         ]
       },
       {
@@ -2168,6 +2191,18 @@
         dotClass: "timeline-item__dot--danger",
         changes: [
           { field: "证书名称", oldValue: "PMP项目管理师", newValue: "-" }
+        ]
+      },
+      {
+        eventType: "批量新增工作经历",
+        eventTypeClass: "primary",
+        eventTime: "2026-02-15 09:00",
+        operator: "李四",
+        dotClass: "timeline-item__dot--primary",
+        // 一次性新增多条工作经历
+        records: [
+          { label: "阿里巴巴集团", fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" } },
+          { label: "腾讯科技", fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" } }
         ]
       },
       {
@@ -2268,7 +2303,17 @@
             <span class="timeline-item__expand" id="expandIcon${index}">收起</span>
           </div>
           <div class="timeline-item__detail timeline-item__detail--open" id="logDetail${index}">
-            ${log.changes.map(change => `
+            ${log.records ? log.records.map((record, ri) => `
+              <div class="timeline-item__record">
+                <div class="timeline-item__record-label">${record.label}</div>
+                ${Object.entries(record.fields).map(([key, value]) => `
+                  <div class="timeline-item__detail-row">
+                    <span class="timeline-item__detail-label">${key}:</span>
+                    <span class="timeline-item__detail-new">${value}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('') : log.changes.map(change => `
               <div class="timeline-item__detail-row">
                 <span class="timeline-item__detail-label">${change.field}:</span>
                 <span class="timeline-item__detail-old">${change.oldValue}</span>
@@ -2286,9 +2331,13 @@
       const fieldFilter = document.getElementById('fieldFilter');
       if (!fieldFilter) return;
 
-      // 提取所有唯一字段
+      // 提取所有唯一字段（包括changes和records中的字段）
       const fields = [...new Set(
-        dynamicLogs.flatMap(log => log.changes.map(change => change.field))
+        dynamicLogs.flatMap(log => {
+          const changeFields = log.changes ? log.changes.map(change => change.field) : [];
+          const recordFields = log.records ? log.records.flatMap(r => Object.keys(r.fields)) : [];
+          return [...changeFields, ...recordFields];
+        })
       )].sort();
 
       fields.forEach(field => {
