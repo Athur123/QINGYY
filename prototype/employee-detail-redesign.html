@@ -1077,6 +1077,107 @@
             border: none;
         }
 
+        .snapshot-trigger {
+            margin-left: auto;
+            border: none;
+            background: transparent;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .snapshot-trigger:hover {
+            text-decoration: underline;
+        }
+
+        .snapshot-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            z-index: 2000;
+        }
+
+        .snapshot-overlay.open {
+            display: block;
+        }
+
+        .snapshot-drawer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 720px;
+            max-width: 92vw;
+            background: var(--bg-card);
+            box-shadow: -16px 0 48px rgba(0, 0, 0, 0.18);
+            transform: translateX(100%);
+            transition: transform 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .snapshot-overlay.open .snapshot-drawer {
+            transform: translateX(0);
+        }
+
+        .snapshot-drawer-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .snapshot-drawer-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .snapshot-close {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .snapshot-close:hover {
+            background: var(--bg-page);
+            color: var(--text-primary);
+        }
+
+        .snapshot-drawer-body {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+            background: var(--bg-page);
+        }
+
+        .snapshot-section {
+            margin-top: 16px;
+        }
+
+        .snapshot-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 10px;
+        }
+
+        .snapshot-open {
+            overflow: hidden;
+        }
+
 
 
 
@@ -2549,6 +2650,7 @@
                                     <div class="sub-record-header">
                                         <span class="tag tag-green">新增</span>
                                         <span>员工档案</span>
+                                        <button type="button" class="snapshot-trigger" onclick="openOnboardSnapshot()">查看快照</button>
                                     </div>
                                     <div class="sub-record-body">
                                     </div>
@@ -2564,6 +2666,21 @@
         </section><!-- /.tabs-container -->
         </div><!-- /.content-layout -->
     </main>
+
+    <div class="snapshot-overlay" id="snapshotOverlay">
+        <aside class="snapshot-drawer" id="snapshotDrawer" role="dialog" aria-modal="true" aria-label="入职快照">
+            <div class="snapshot-drawer-header">
+                <div class="snapshot-drawer-title" id="snapshotDrawerTitle">入职快照</div>
+                <button type="button" class="snapshot-close" aria-label="关闭快照" onclick="closeSnapshot()">
+                    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="snapshot-drawer-body" id="snapshotDrawerBody"></div>
+        </aside>
+    </div>
 
     <script>
 
@@ -2889,6 +3006,84 @@
             e.preventDefault();
             alert('保存成功！');
             closeModal();
+        });
+
+        const snapshotOverlay = document.getElementById('snapshotOverlay');
+        const snapshotDrawer = document.getElementById('snapshotDrawer');
+        const snapshotDrawerTitle = document.getElementById('snapshotDrawerTitle');
+        const snapshotDrawerBody = document.getElementById('snapshotDrawerBody');
+
+        function stripIds(root) {
+            root.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+        }
+
+        function cloneForSnapshot(el) {
+            const clone = el.cloneNode(true);
+            stripIds(clone);
+            clone.querySelectorAll('button, a').forEach(x => x.remove());
+            return clone;
+        }
+
+        function openSnapshot(title) {
+            if (!snapshotOverlay || !snapshotDrawerBody) return;
+            snapshotDrawerBody.innerHTML = '';
+            if (snapshotDrawerTitle) snapshotDrawerTitle.textContent = title;
+
+            const hero = document.querySelector('.employee-hero-panel');
+            if (hero) {
+                const heroClone = cloneForSnapshot(hero);
+                heroClone.querySelector('.panel-header-right')?.remove();
+                heroClone.querySelector('.divider-vertical')?.remove();
+                heroClone.querySelector('.back-link')?.remove();
+                snapshotDrawerBody.appendChild(heroClone);
+            }
+
+            const panels = document.querySelectorAll('.tab-content > .tab-panel');
+            panels.forEach((panel, index) => {
+                if (panel.id === 'tab-timeline') return;
+                if (panel.querySelector('.timeline-section')) return;
+
+                const section = document.createElement('section');
+                section.className = 'snapshot-section';
+
+                const titleEl = document.createElement('div');
+                titleEl.className = 'snapshot-section-title';
+                titleEl.textContent = tabItems[index]?.textContent?.trim() || `Tab ${index + 1}`;
+                section.appendChild(titleEl);
+
+                const panelClone = cloneForSnapshot(panel);
+                panelClone.classList.remove('tab-panel', 'active');
+
+                while (panelClone.firstChild) {
+                    section.appendChild(panelClone.firstChild);
+                }
+
+                snapshotDrawerBody.appendChild(section);
+            });
+
+            snapshotOverlay.classList.add('open');
+            document.body.classList.add('snapshot-open');
+        }
+
+        function closeSnapshot(e) {
+            if (!snapshotOverlay) return;
+            if (e && e.target !== snapshotOverlay) return;
+            snapshotOverlay.classList.remove('open');
+            document.body.classList.remove('snapshot-open');
+            if (snapshotDrawerBody) snapshotDrawerBody.innerHTML = '';
+        }
+
+        function openOnboardSnapshot() {
+            openSnapshot('入职快照');
+        }
+
+        snapshotOverlay?.addEventListener('click', closeSnapshot);
+        snapshotDrawer?.addEventListener('click', e => e.stopPropagation());
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && snapshotOverlay?.classList.contains('open')) {
+                closeSnapshot();
+            }
         });
     </script>
 
