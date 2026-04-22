@@ -2231,13 +2231,16 @@
     // Dynamic Logs Data
     const dynamicLogs = [
       {
-        eventType: "信息变更",
+        eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-04-22 14:30",
         operator: "张三",
         dotClass: "",
-        changes: [
-          { field: "手机号码", oldValue: "185****2367", newValue: "186****1234" }
+        // 修改基础信息
+        recordChanges: [
+          { action: "编辑", record: "基础信息", changes: [
+            { field: "手机号码", oldValue: "185****2367", newValue: "186****1234" }
+          ] }
         ]
       },
       {
@@ -2353,8 +2356,10 @@
         eventTime: "2026-01-01 10:00",
         operator: "系统",
         dotClass: "timeline-item__dot--success",
-        changes: [
-          { field: "试用期状态", oldValue: "试用", newValue: "正式" }
+        recordChanges: [
+          { action: "编辑", record: "工作信息", changes: [
+            { field: "试用期状态", oldValue: "试用", newValue: "正式" }
+          ] }
         ]
       },
       {
@@ -2363,9 +2368,10 @@
         eventTime: "2025-12-15 09:30",
         operator: "李四",
         dotClass: "timeline-item__dot--primary",
-        changes: [
-          { field: "岗位", oldValue: "Java开发工程师", newValue: "高级Java开发工程师" },
-          { field: "部门", oldValue: "技术部", newValue: "技术部" }
+        recordChanges: [
+          { action: "编辑", record: "工作信息", changes: [
+            { field: "岗位", oldValue: "Java开发工程师", newValue: "高级Java开发工程师" }
+          ] }
         ]
       },
       {
@@ -2374,8 +2380,10 @@
         eventTime: "2025-12-01 00:00",
         operator: "系统",
         dotClass: "timeline-item__dot--primary",
-        changes: [
-          { field: "参保城市", oldValue: "-", newValue: "深圳市" }
+        recordChanges: [
+          { action: "编辑", record: "参保信息", changes: [
+            { field: "参保城市", oldValue: "-", newValue: "深圳市" }
+          ] }
         ]
       },
       {
@@ -2384,9 +2392,11 @@
         eventTime: "2025-02-17 09:00",
         operator: "系统",
         dotClass: "timeline-item__dot--success",
-        changes: [
-          { field: "员工状态", oldValue: "-", newValue: "在职" },
-          { field: "入职日期", oldValue: "-", newValue: "2025-02-17" }
+        recordChanges: [
+          { action: "编辑", record: "工作信息", changes: [
+            { field: "员工状态", oldValue: "-", newValue: "在职" },
+            { field: "入职日期", oldValue: "-", newValue: "2025-02-17" }
+          ] }
         ]
       },
       {
@@ -2395,8 +2405,10 @@
         eventTime: "2025-11-01 00:00",
         operator: "系统",
         dotClass: "timeline-item__dot--primary",
-        changes: [
-          { field: "报税基数", oldValue: "-", newValue: "22,000元" }
+        recordChanges: [
+          { action: "编辑", record: "税务信息", changes: [
+            { field: "报税基数", oldValue: "-", newValue: "22,000元" }
+          ] }
         ]
       }
     ];
