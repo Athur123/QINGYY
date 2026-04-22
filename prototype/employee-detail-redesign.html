@@ -87,10 +87,8 @@
 
         /* 左右布局容器 */
         .content-layout {
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 24px;
-            align-items: start;
+            display: block;
+            width: 100%;
         }
 
         /* 左侧详情区 */
@@ -824,9 +822,8 @@
         /* 动态记录 */
         .timeline-section {
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
             overflow: hidden;
+            height: auto;
         }
 
         .timeline-header {
@@ -853,17 +850,7 @@
             border-radius: 10px;
         }
 
-        .timeline-toggle {
-            font-size: 13px;
-            color: var(--primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: none;
-            border: none;
-            font-weight: 500;
-        }
+
 
         .timeline-list {
             padding: 16px 20px;
@@ -908,21 +895,9 @@
             color: var(--text-muted);
         }
 
-        .timeline-hidden {
-            display: none;
-        }
 
-        .timeline-section.expanded .timeline-hidden {
-            display: block;
-        }
 
-        .timeline-section.expanded .timeline-more {
-            display: none;
-        }
 
-        .timeline-section:not(.expanded) .timeline-less {
-            display: none;
-        }
 
         /* 空状态 */
         .empty-value {
@@ -931,16 +906,7 @@
         }
 
         /* 响应式 */
-        @media (max-width: 1024px) {
-            .content-layout {
-                grid-template-columns: 1fr;
-            }
 
-            .summary-section {
-                position: static;
-                order: -1;
-            }
-        }
 
         @media (max-width: 768px) {
             .main-content {
@@ -1034,10 +1000,8 @@
         </section>
 
         <div class="content-layout">
-            <!-- 左侧详情区 -->
-            <div class="detail-section">
-                <!-- Tab导航 -->
-                <section class="tabs-container">
+            <!-- Tab导航 -->
+            <section class="tabs-container">
                     <div class="tabs-header">
                         <div class="tabs-nav">
                             <button class="tab-item active" data-tab="0">基础信息</button>
@@ -1051,6 +1015,7 @@
                             <button class="tab-item" data-tab="8">个人材料</button>
                             <button class="tab-item" data-tab="9">薪税档案</button>
                             <button class="tab-item" data-tab="10">参保档案</button>
+                            <button class="tab-item" data-tab="11">动态记录</button>
                         </div>
                         <button class="tab-more hidden" id="tabMore">
                             更多
@@ -2055,16 +2020,10 @@
                         </div>
                     </div>
                 </div>
+            </div><!-- /.tab-panel (参保档案) -->
 
-            </div>
-        </section>
-            </div><!-- /.detail-section -->
-
-            <!-- 右侧摘要区 -->
-            <div class="summary-section">
-
-
-                <!-- 动态记录 -->
+            <!-- 新增的 动态记录 Tab 面板 -->
+            <div class="tab-panel" id="tab-timeline">
                 <section class="timeline-section" id="timelineSection">
             <div class="timeline-header">
                 <div class="timeline-title">
@@ -2075,13 +2034,7 @@
                     动态记录
                     <span class="timeline-count">20条</span>
                 </div>
-                <button class="timeline-toggle" onclick="toggleTimeline()">
-                    <span class="timeline-more">查看全部</span>
-                    <span class="timeline-less">收起</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                </button>
+
             </div>
             <div class="timeline-list">
                 <div class="timeline-item">
@@ -2105,91 +2058,91 @@
                         <div class="timeline-date">2026-01-08</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
                         <div class="timeline-date">2026-01-08</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">转正</div>
                         <div class="timeline-date">2025-12-29</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
                         <div class="timeline-date">2025-12-29</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">转正</div>
                         <div class="timeline-date">2025-12-09</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
                         <div class="timeline-date">2025-12-09</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">转正</div>
                         <div class="timeline-date">2025-12-08</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
                         <div class="timeline-date">2025-12-08</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">转正</div>
                         <div class="timeline-date">2025-09-09</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
                         <div class="timeline-date">2025-09-09</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">转正</div>
                         <div class="timeline-date">2025-03-04</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
                         <div class="timeline-date">2025-03-04</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">转正</div>
                         <div class="timeline-date">2025-02-25</div>
                     </div>
                 </div>
-                <div class="timeline-item timeline-hidden">
+                <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
                         <div class="timeline-event">入职</div>
@@ -2198,15 +2151,14 @@
                 </div>
             </div>
         </section>
-            </div><!-- /.summary-section -->
+        </div><!-- /.tab-panel -->
+        </div><!-- /.tab-content -->
+        </section><!-- /.tabs-container -->
         </div><!-- /.content-layout -->
     </main>
 
     <script>
-        function toggleTimeline() {
-            const section = document.getElementById('timelineSection');
-            section.classList.toggle('expanded');
-        }
+
 
         // Tab切换
         const tabItems = document.querySelectorAll('.tab-item');
