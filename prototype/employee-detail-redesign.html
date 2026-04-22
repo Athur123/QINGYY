@@ -2238,13 +2238,12 @@
                 </div>
             </div>
             <div class="timeline-list">
-                <!-- 1. 修改档案 (暂不报送) -->
+                <!-- 1. 修改档案 -->
                 <div class="timeline-item">
                     <div class="timeline-dot blue"></div>
                     <div class="timeline-content">
                         <div class="timeline-header-row">
                             <span class="timeline-event">修改人员档案</span>
-                            <span class="tag tag-gray" style="margin-left: 4px;">未报送</span>
                             <span class="timeline-meta">操作人: 张HR (管理员)</span>
                             <span class="timeline-date">2026-04-22 14:30:00</span>
                         </div>
@@ -2269,34 +2268,6 @@
                                         </svg>
                                     </span>
                                     <span class="change-val new">中共党员</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 1.1 修改档案 (报送成功) -->
-                <div class="timeline-item">
-                    <div class="timeline-dot blue"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header-row">
-                            <span class="timeline-event">修改人员档案</span>
-                            <span class="tag tag-green" style="margin-left: 4px;">报送成功</span>
-                            <span class="timeline-meta">操作人: 王主管</span>
-                            <span class="timeline-date">2026-04-10 10:15:00</span>
-                        </div>
-                        <div class="timeline-body">
-                            <p class="timeline-note" style="margin-bottom: 8px;">修改了员工核心基础信息，并同步触发了人员信息报送。税务局接口返回：处理成功。</p>
-                            <ul class="change-list">
-                                <li class="change-item">
-                                    <span class="change-field">学历</span>
-                                    <span class="change-val old">本科</span>
-                                    <span class="change-arrow">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                                        </svg>
-                                    </span>
-                                    <span class="change-val new">硕士</span>
                                 </li>
                             </ul>
                         </div>
@@ -2344,10 +2315,6 @@
                                     <span class="change-field">人员状态:</span>
                                     <span class="change-val" style="background: transparent; padding: 0;">正常</span>
                                 </li>
-                                <li class="change-item">
-                                    <span class="change-field">报送状态:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0; font-weight: 600; color: var(--success);">报送成功</span>
-                                </li>
                             </ul>
                         </div>
                     </div>
@@ -2364,7 +2331,39 @@
                             <span class="timeline-date">2026-03-20 11:30:00</span>
                         </div>
                         <div class="timeline-body">
-                            <p class="timeline-note">通过模板文件 <code>2026年3月专项附加扣除导入模板.xlsx</code> 更新了员工的个税附加扣除信息。导入状态：<strong style="color: var(--success);">导入成功</strong>。</p>
+                            <p class="timeline-note" style="margin-bottom: 12px;">通过模板文件 <code>2026年3月专项附加扣除导入模板.xlsx</code> 更新了员工的个税附加扣除信息。</p>
+                            <ul class="change-list" style="background: var(--bg-page); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                                <li class="change-item">
+                                    <span class="change-field" style="min-width: 160px;">专项附加扣除-子女教育</span>
+                                    <span class="change-val old">否</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">是</span>
+                                </li>
+                                <li class="change-item">
+                                    <span class="change-field" style="min-width: 160px;">专项附加扣除-住房贷款利息</span>
+                                    <span class="change-val old">否</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">是</span>
+                                </li>
+                                <li class="change-item">
+                                    <span class="change-field" style="min-width: 160px;">专项附加扣除-赡养老人</span>
+                                    <span class="change-val old" style="text-decoration: none; color: var(--text-primary);">是</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new" style="background: transparent; color: var(--text-primary);">是</span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -2375,7 +2374,6 @@
                     <div class="timeline-content">
                         <div class="timeline-header-row">
                             <span class="timeline-event">修改报送信息</span>
-                            <span class="tag tag-gray" style="margin-left: 4px;">待报送</span>
                             <span class="timeline-meta">操作人: 财务-李明</span>
                             <span class="timeline-date">2026-03-18 15:45:00</span>
                         </div>
