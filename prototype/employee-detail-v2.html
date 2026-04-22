@@ -1959,6 +1959,11 @@
                     <option value="离职">离职</option>
                     <option value="重新入职">重新入职</option>
                     <option value="信息变更">信息变更</option>
+                    <option value="编辑合同">编辑合同</option>
+                    <option value="新增银行卡">新增银行卡</option>
+                    <option value="编辑教育">编辑教育</option>
+                    <option value="新增工作经历">新增工作经历</option>
+                    <option value="删除证书">删除证书</option>
                     <option value="参保报送">参保报送</option>
                     <option value="个税报送">个税报送</option>
                   </select>
@@ -2104,6 +2109,59 @@
         dotClass: "",
         changes: [
           { field: "手机号码", oldValue: "185****2367", newValue: "186****1234" }
+        ]
+      },
+      {
+        eventType: "编辑合同",
+        eventTypeClass: "gray",
+        eventTime: "2026-04-20 16:20",
+        operator: "王五",
+        dotClass: "",
+        changes: [
+          { field: "合同期限", oldValue: "3年", newValue: "5年" },
+          { field: "结束日期", oldValue: "2028-02-16", newValue: "2030-02-16" }
+        ]
+      },
+      {
+        eventType: "新增银行卡",
+        eventTypeClass: "primary",
+        eventTime: "2026-04-18 11:00",
+        operator: "张三",
+        dotClass: "timeline-item__dot--primary",
+        changes: [
+          { field: "开户银行", oldValue: "-", newValue: "招商银行深圳福田支行" },
+          { field: "银行账号", oldValue: "-", newValue: "6222***********5678" }
+        ]
+      },
+      {
+        eventType: "编辑教育",
+        eventTypeClass: "gray",
+        eventTime: "2026-04-15 09:30",
+        operator: "李四",
+        dotClass: "",
+        changes: [
+          { field: "学历", oldValue: "本科", newValue: "硕士" }
+        ]
+      },
+      {
+        eventType: "新增工作经历",
+        eventTypeClass: "primary",
+        eventTime: "2026-03-20 14:00",
+        operator: "张三",
+        dotClass: "timeline-item__dot--primary",
+        changes: [
+          { field: "公司名称", oldValue: "-", newValue: "深圳XX科技有限公司" },
+          { field: "职位", oldValue: "-", newValue: "高级Java开发工程师" }
+        ]
+      },
+      {
+        eventType: "删除证书",
+        eventTypeClass: "danger",
+        eventTime: "2026-03-10 10:30",
+        operator: "王五",
+        dotClass: "timeline-item__dot--danger",
+        changes: [
+          { field: "证书名称", oldValue: "PMP项目管理师", newValue: "-" }
         ]
       },
       {
