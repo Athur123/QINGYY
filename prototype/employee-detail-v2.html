@@ -2593,19 +2593,16 @@
         dotClass: "timeline-item__dot--primary",
         action: "新增",
         tabName: "工作经历",
-        record: "阿里巴巴集团",
-        fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" }
-      },
-      {
-        eventType: "修改员工档案",
-        eventTypeClass: "primary",
-        eventTime: "2026-02-15 08:50",
-        operator: "李四",
-        dotClass: "timeline-item__dot--primary",
-        action: "新增",
-        tabName: "工作经历",
-        record: "腾讯科技",
-        fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" }
+        details: [
+          {
+            record: "腾讯科技",
+            fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" }
+          },
+          {
+            record: "阿里巴巴集团",
+            fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" }
+          }
+        ]
       },
       // 转正
       {
@@ -2786,14 +2783,27 @@
       if (log.details) {
         return log.details.map(detail => {
           const recordName = log.tabName ? log.tabName + '(' + detail.record + ')' : detail.record;
-          const fieldsHtml = detail.changes.map(change => `
-            <div class="timeline-item__change-detail">
-              <span class="timeline-item__change-detail-label">${change.field}:</span>
-              <span class="timeline-item__change-detail-old">${change.oldValue}</span>
-              <span class="timeline-item__change-detail-arrow">→</span>
-              <span class="timeline-item__change-detail-new">${change.newValue}</span>
-            </div>
-          `).join('');
+          let fieldsHtml = '';
+
+          if (detail.fields) {
+            // 新增或删除记录 - 显示所有字段
+            fieldsHtml = Object.entries(detail.fields).map(([key, value]) => `
+              <div class="timeline-item__change-detail">
+                <span class="timeline-item__change-detail-label">${key}:</span>
+                <span class="${action === '删除' ? 'timeline-item__change-detail-old' : 'timeline-item__change-detail-new'}">${value}</span>
+              </div>
+            `).join('');
+          } else if (detail.changes) {
+            // 编辑记录 - 显示变更
+            fieldsHtml = detail.changes.map(change => `
+              <div class="timeline-item__change-detail">
+                <span class="timeline-item__change-detail-label">${change.field}:</span>
+                <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+                <span class="timeline-item__change-detail-arrow">→</span>
+                <span class="timeline-item__change-detail-new">${change.newValue}</span>
+              </div>
+            `).join('');
+          }
           return `
             <div class="timeline-item__change-card">
               <div class="timeline-item__change-card-header">
