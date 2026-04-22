@@ -2204,10 +2204,10 @@
         eventTime: "2026-03-11 11:00",
         operator: "张三",
         dotClass: "",
-        // 一次性编辑多条银行卡
+        // 一次性编辑多条银行卡 - changes中包含record字段标识属于哪条记录
         changes: [
-          { field: "中国工商银行-开户城市", oldValue: "深圳市", newValue: "广州市" },
-          { field: "招商银行-银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }
+          { record: "中国工商银行", field: "开户城市", oldValue: "深圳市", newValue: "广州市" },
+          { record: "招商银行", field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }
         ]
       },
       {
@@ -2342,7 +2342,7 @@
               </div>
             `).join('') : log.changes.map(change => `
               <div class="timeline-item__detail-row">
-                <span class="timeline-item__detail-label">${change.field}:</span>
+                <span class="timeline-item__detail-label">${change.record ? change.record + ' > ' : ''}${change.field}:</span>
                 <span class="timeline-item__detail-old">${change.oldValue}</span>
                 <span class="timeline-item__detail-arrow">→</span>
                 <span class="timeline-item__detail-new">${change.newValue}</span>
