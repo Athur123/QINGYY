@@ -770,6 +770,74 @@
       background: #fef3c7;
       color: #92400e;
     }
+
+    .timeline-item__type--gray {
+      background: var(--background);
+      color: var(--text-secondary);
+    }
+
+    .timeline-item__header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .timeline-item__time {
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .timeline-item__expand {
+      font-size: 12px;
+      color: var(--primary);
+      margin-left: auto;
+    }
+
+    .timeline-item__detail {
+      display: none;
+      padding: 8px 0 8px 22px;
+    }
+
+    .timeline-item__detail--open {
+      display: block;
+    }
+
+    .timeline-item__detail-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 4px 0;
+    }
+
+    .timeline-item__detail-label {
+      color: var(--text-secondary);
+      min-width: 60px;
+    }
+
+    .timeline-item__detail-old {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .timeline-item__detail-arrow {
+      color: var(--text-muted);
+    }
+
+    .timeline-item__detail-new {
+      color: var(--success);
+    }
+
+    .timeline-item__dot--success {
+      background: var(--success);
+    }
+
+    .timeline-item__dot--primary {
+      background: var(--primary);
+    }
   </style>
 </head>
 <body>
@@ -1904,6 +1972,120 @@
         }
       });
     }
+
+    // Dynamic Logs Data
+    const dynamicLogs = [
+      {
+        eventType: "信息变更",
+        eventTypeClass: "gray",
+        eventTime: "2026-04-22 14:30",
+        operator: "张三",
+        dotClass: "",
+        changes: [
+          { field: "手机号码", oldValue: "185****2367", newValue: "186****1234" }
+        ]
+      },
+      {
+        eventType: "转正",
+        eventTypeClass: "success",
+        eventTime: "2026-01-01 10:00",
+        operator: "系统",
+        dotClass: "timeline-item__dot--success",
+        changes: [
+          { field: "试用期状态", oldValue: "试用", newValue: "正式" }
+        ]
+      },
+      {
+        eventType: "调岗",
+        eventTypeClass: "primary",
+        eventTime: "2025-12-15 09:30",
+        operator: "李四",
+        dotClass: "timeline-item__dot--primary",
+        changes: [
+          { field: "岗位", oldValue: "Java开发工程师", newValue: "高级Java开发工程师" },
+          { field: "部门", oldValue: "技术部", newValue: "技术部" }
+        ]
+      },
+      {
+        eventType: "参保报送",
+        eventTypeClass: "primary",
+        eventTime: "2025-12-01 00:00",
+        operator: "系统",
+        dotClass: "timeline-item__dot--primary",
+        changes: [
+          { field: "参保城市", oldValue: "-", newValue: "深圳市" }
+        ]
+      },
+      {
+        eventType: "入职",
+        eventTypeClass: "success",
+        eventTime: "2025-02-17 09:00",
+        operator: "系统",
+        dotClass: "timeline-item__dot--success",
+        changes: [
+          { field: "员工状态", oldValue: "-", newValue: "在职" },
+          { field: "入职日期", oldValue: "-", newValue: "2025-02-17" }
+        ]
+      },
+      {
+        eventType: "个税报送",
+        eventTypeClass: "primary",
+        eventTime: "2025-11-01 00:00",
+        operator: "系统",
+        dotClass: "timeline-item__dot--primary",
+        changes: [
+          { field: "报税基数", oldValue: "-", newValue: "22,000元" }
+        ]
+      }
+    ];
+
+    // Render Dynamic Logs
+    function renderDynamicLogs() {
+      const timeline = document.getElementById('dynamicTimeline');
+      if (!timeline) return;
+
+      timeline.innerHTML = dynamicLogs.map((log, index) => `
+        <div class="timeline-item">
+          <div class="timeline-item__dot ${log.dotClass}"></div>
+          <div class="timeline-item__header" onclick="toggleLogDetail(${index})">
+            <span class="timeline-item__time">${log.eventTime}</span>
+            <span class="timeline-item__type timeline-item__type--${log.eventTypeClass}">${log.eventType}</span>
+            <span class="timeline-item__expand" id="expandIcon${index}">展开</span>
+          </div>
+          <div class="timeline-item__detail" id="logDetail${index}">
+            <div class="timeline-item__detail-row">
+              <span class="timeline-item__detail-label">操作人:</span>
+              <span>${log.operator}</span>
+            </div>
+            ${log.changes.map(change => `
+              <div class="timeline-item__detail-row">
+                <span class="timeline-item__detail-label">${change.field}:</span>
+                <span class="timeline-item__detail-old">${change.oldValue}</span>
+                <span class="timeline-item__detail-arrow">→</span>
+                <span class="timeline-item__detail-new">${change.newValue}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleLogDetail(index) {
+      const detail = document.getElementById('logDetail' + index);
+      const icon = document.getElementById('expandIcon' + index);
+      const isOpen = detail.classList.contains('timeline-item__detail--open');
+
+      if (isOpen) {
+        detail.classList.remove('timeline-item__detail--open');
+        icon.textContent = '展开';
+      } else {
+        detail.classList.add('timeline-item__detail--open');
+        icon.textContent = '收起';
+      }
+    }
+
+    // 初始化动态记录
+    renderDynamicLogs();
   </script>
 </body>
 </html>
