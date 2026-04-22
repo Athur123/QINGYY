@@ -674,6 +674,16 @@
       font-weight: 600;
     }
 
+    /* Default Badge */
+    .default-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
     /* Buttons in header */
     .header .btn--secondary {
       height: 32px;
@@ -1169,6 +1179,7 @@
             <button class="tab" data-tab="position">岗位调动</button>
             <button class="tab" data-tab="resignation">离职记录</button>
             <button class="tab" data-tab="coverage">参保档案</button>
+            <button class="tab" data-tab="tax">个税档案</button>
             <button class="tab" data-tab="dynamic">动态记录</button>
           </div>
 
@@ -2077,6 +2088,101 @@
             </div>
           </div>
 
+          <!-- Tax Archive Content -->
+          <div id="tax-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">个税档案</span>
+                <button class="btn btn--primary" style="height: 28px; font-size: 12px;" onclick="openModal('tax', -1)">+ 添加</button>
+              </div>
+              <div class="record-cards">
+                <div class="record-card">
+                  <div class="record-card__header">
+                    <span class="record-card__title">深圳市前海人力资源有限公司 (默认)</span>
+                    <div class="record-card__actions">
+                      <span class="default-badge">默认</span>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('tax', 0)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('tax', 0, '个税档案')">删除</button>
+                    </div>
+                  </div>
+                  <div class="record-card__body">
+                    <div class="detail-grid">
+                      <div class="detail-item">
+                        <div class="detail-item__label">扣缴义务人</div>
+                        <div class="detail-item__value">深圳市前海人力资源有限公司</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">人员状态</div>
+                        <div class="detail-item__value">正常</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">申报状态</div>
+                        <div class="detail-item__value">待申报</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">主管税务机关名称</div>
+                        <div class="detail-item__value">国家税务总局深圳市税务局</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">是否默认</div>
+                        <div class="detail-item__value"><span class="status-badge status-badge--active">是</span></div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">是否允许算税</div>
+                        <div class="detail-item__value"><span class="status-badge status-badge--active">是</span></div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">任职受雇从业类型</div>
+                        <div class="detail-item__value">雇员</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="record-card">
+                  <div class="record-card__header">
+                    <span class="record-card__title">深圳市前海人才有限公司</span>
+                    <div class="record-card__actions">
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="openModal('tax', 1)">编辑</button>
+                      <button class="btn btn--text" style="height: 28px; font-size: 12px;" onclick="deleteRecord('tax', 1, '个税档案')">删除</button>
+                    </div>
+                  </div>
+                  <div class="record-card__body">
+                    <div class="detail-grid">
+                      <div class="detail-item">
+                        <div class="detail-item__label">扣缴义务人</div>
+                        <div class="detail-item__value">深圳市前海人才有限公司</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">人员状态</div>
+                        <div class="detail-item__value">正常</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">申报状态</div>
+                        <div class="detail-item__value">已申报</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">主管税务机关名称</div>
+                        <div class="detail-item__value">国家税务总局深圳市南山区税务局</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">是否默认</div>
+                        <div class="detail-item__value"><span class="status-badge status-badge--inactive">否</span></div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">是否允许算税</div>
+                        <div class="detail-item__value"><span class="status-badge status-badge--active">是</span></div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-item__label">任职受雇从业类型</div>
+                        <div class="detail-item__value">雇员</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Dynamic Content -->
           <div id="dynamic-content" class="tab-content">
             <div class="section-card">
@@ -2410,6 +2516,66 @@
             { field: "报税基数", oldValue: "-", newValue: "22,000元" }
           ] }
         ]
+      },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "primary",
+        eventTime: "2026-04-10 14:30",
+        operator: "张三",
+        dotClass: "timeline-item__dot--primary",
+        // 新增个税档案
+        newRecords: [
+          { action: "新增", label: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
+        ]
+      },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "gray",
+        eventTime: "2026-03-15 10:00",
+        operator: "李四",
+        dotClass: "",
+        // 编辑个税档案
+        recordChanges: [
+          { action: "编辑", record: "深圳市前海人力资源有限公司", changes: [
+            { field: "申报状态", oldValue: "待申报", newValue: "已申报" },
+            { field: "主管税务机关名称", oldValue: "国家税务总局深圳市税务局", newValue: "国家税务总局深圳市南山区税务局" }
+          ] }
+        ]
+      },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "primary",
+        eventTime: "2026-02-20 09:00",
+        operator: "张三",
+        dotClass: "timeline-item__dot--primary",
+        // 新增个税档案（多条）
+        newRecords: [
+          { action: "新增", label: "深圳市前海人力资源有限公司", fields: { "扣缴义务人": "深圳市前海人力资源有限公司", "人员状态": "正常", "申报状态": "待申报", "主管税务机关": "国家税务总局深圳市税务局", "是否默认": "是", "是否允许算税": "是", "任职受雇从业类型": "雇员" } }
+        ]
+      },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "gray",
+        eventTime: "2026-01-15 11:30",
+        operator: "王五",
+        dotClass: "",
+        // 编辑个税档案 - 修改人员状态
+        recordChanges: [
+          { action: "编辑", record: "深圳市前海人力资源有限公司", changes: [
+            { field: "人员状态", oldValue: "待入职", newValue: "正常" }
+          ] }
+        ]
+      },
+      {
+        eventType: "修改员工档案",
+        eventTypeClass: "danger",
+        eventTime: "2026-01-10 16:00",
+        operator: "系统",
+        dotClass: "timeline-item__dot--danger",
+        // 删除个税档案
+        deletedRecords: [
+          { action: "删除", record: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
+        ]
       }
     ];
 
@@ -2583,6 +2749,11 @@
       { bankName: '招商银行深圳福田支行', bankAccount: '6222***********5678', accountName: '曾强勇', bankCity: '深圳市' }
     ];
 
+    const taxData = [
+      { withholdingObligor: '深圳市前海人力资源有限公司', personStatus: '正常', declareStatus: '待申报', taxAuthority: '国家税务总局深圳市税务局', isDefault: true, allowTaxCalc: true, employmentType: '雇员' },
+      { withholdingObligor: '深圳市前海人才有限公司', personStatus: '正常', declareStatus: '已申报', taxAuthority: '国家税务总局深圳市南山区税务局', isDefault: false, allowTaxCalc: true, employmentType: '雇员' }
+    ];
+
     function openModal(type, index = -1) {
       currentEditType = type;
       currentEditIndex = index;
@@ -2602,6 +2773,9 @@
             break;
           case 'bank':
             existingData = bankData[index];
+            break;
+          case 'tax':
+            existingData = taxData[index];
             break;
         }
       }
@@ -2752,6 +2926,65 @@
               </div>
             </div>
           `;
+        case 'tax':
+          return `
+            <div class="form-row">
+              <div class="form-group">
+                <label>扣缴义务人</label>
+                <input type="text" id="field_扣缴义务人" value="${existingData?.withholdingObligor || ''}">
+              </div>
+              <div class="form-group">
+                <label>人员状态</label>
+                <select id="field_人员状态">
+                  <option value="正常" ${existingData?.personStatus === '正常' ? 'selected' : ''}>正常</option>
+                  <option value="待入职" ${existingData?.personStatus === '待入职' ? 'selected' : ''}>待入职</option>
+                  <option value="离职" ${existingData?.personStatus === '离职' ? 'selected' : ''}>离职</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>申报状态</label>
+                <select id="field_申报状态">
+                  <option value="待申报" ${existingData?.declareStatus === '待申报' ? 'selected' : ''}>待申报</option>
+                  <option value="已申报" ${existingData?.declareStatus === '已申报' ? 'selected' : ''}>已申报</option>
+                  <option value="申报失败" ${existingData?.declareStatus === '申报失败' ? 'selected' : ''}>申报失败</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>主管税务机关名称</label>
+                <input type="text" id="field_主管税务机关名称" value="${existingData?.taxAuthority || ''}">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>是否默认</label>
+                <select id="field_是否默认">
+                  <option value="true" ${existingData?.isDefault === true ? 'selected' : ''}>是</option>
+                  <option value="false" ${existingData?.isDefault === false ? 'selected' : ''}>否</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>是否允许算税</label>
+                <select id="field_是否允许算税">
+                  <option value="true" ${existingData?.allowTaxCalc === true ? 'selected' : ''}>是</option>
+                  <option value="false" ${existingData?.allowTaxCalc === false ? 'selected' : ''}>否</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>任职受雇从业类型</label>
+                <select id="field_任职受雇从业类型">
+                  <option value="雇员" ${existingData?.employmentType === '雇员' ? 'selected' : ''}>雇员</option>
+                  <option value="保险营销员" ${existingData?.employmentType === '保险营销员' ? 'selected' : ''}>保险营销员</option>
+                  <option value="证券经纪人" ${existingData?.employmentType === '证券经纪人' ? 'selected' : ''}>证券经纪人</option>
+                  <option value="独立董事" ${existingData?.employmentType === '独立董事' ? 'selected' : ''}>独立董事</option>
+                  <option value="其他" ${existingData?.employmentType === '其他' ? 'selected' : ''}>其他</option>
+                </select>
+              </div>
+            </div>
+          `;
         default:
           return '<p>暂不支持编辑此类型</p>';
       }
@@ -2821,6 +3054,25 @@
             '职位': document.getElementById('field_职位')?.value,
             '开始日期': document.getElementById('field_开始日期')?.value,
             '结束日期': document.getElementById('field_结束日期')?.value
+          });
+          break;
+        case 'tax':
+          changes = generateChanges('个税', {
+            '扣缴义务人': currentFormData?.withholdingObligor,
+            '人员状态': currentFormData?.personStatus,
+            '申报状态': currentFormData?.declareStatus,
+            '主管税务机关名称': currentFormData?.taxAuthority,
+            '是否默认': currentFormData?.isDefault ? '是' : '否',
+            '是否允许算税': currentFormData?.allowTaxCalc ? '是' : '否',
+            '任职受雇从业类型': currentFormData?.employmentType
+          }, {
+            '扣缴义务人': document.getElementById('field_扣缴义务人')?.value,
+            '人员状态': document.getElementById('field_人员状态')?.value,
+            '申报状态': document.getElementById('field_申报状态')?.value,
+            '主管税务机关名称': document.getElementById('field_主管税务机关名称')?.value,
+            '是否默认': document.getElementById('field_是否默认')?.value === 'true' ? '是' : '否',
+            '是否允许算税': document.getElementById('field_是否允许算税')?.value === 'true' ? '是' : '否',
+            '任职受雇从业类型': document.getElementById('field_任职受雇从业类型')?.value
           });
           break;
       }
