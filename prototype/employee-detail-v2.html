@@ -691,6 +691,11 @@
       cursor: pointer;
     }
 
+    .filter-group {
+      display: flex;
+      gap: 8px;
+    }
+
     /* Timeline */
     .timeline {
       padding: 12px 16px;
@@ -1833,13 +1838,27 @@
             <div class="section-card">
               <div class="section-card__header">
                 <span class="section-card__title">动态记录</span>
-                <select class="filter-select">
-                  <option>全部时间</option>
-                  <option>近一周</option>
-                  <option>近一月</option>
-                  <option>近三月</option>
-                  <option>近一年</option>
-                </select>
+                <div class="filter-group">
+                  <select class="filter-select" id="typeFilter">
+                    <option value="">全部类型</option>
+                    <option value="入职">入职</option>
+                    <option value="转正">转正</option>
+                    <option value="调岗">调岗</option>
+                    <option value="调薪">调薪</option>
+                    <option value="离职">离职</option>
+                    <option value="重新入职">重新入职</option>
+                    <option value="信息变更">信息变更</option>
+                    <option value="参保报送">参保报送</option>
+                    <option value="个税报送">个税报送</option>
+                  </select>
+                  <select class="filter-select" id="timeFilter">
+                    <option value="">全部时间</option>
+                    <option value="7">近一周</option>
+                    <option value="30">近一月</option>
+                    <option value="90">近三月</option>
+                    <option value="365">近一年</option>
+                  </select>
+                </div>
               </div>
               <div class="timeline" id="dynamicTimeline">
                 <!-- JS渲染的动态记录将插入到这里 -->
@@ -2013,9 +2032,30 @@
     // Render Dynamic Logs
     function renderDynamicLogs() {
       const timeline = document.getElementById('dynamicTimeline');
+      const typeFilter = document.getElementById('typeFilter');
+      const timeFilter = document.getElementById('timeFilter');
       if (!timeline) return;
 
-      timeline.innerHTML = dynamicLogs.map((log, index) => `
+      let filteredLogs = dynamicLogs;
+
+      // 按类型筛选
+      if (typeFilter && typeFilter.value) {
+        filteredLogs = filteredLogs.filter(log => log.eventType === typeFilter.value);
+      }
+
+      // 按时间筛选
+      if (timeFilter && timeFilter.value) {
+        const days = parseInt(timeFilter.value);
+        const now = new Date();
+        const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+        cutoff.setHours(0, 0, 0, 0);
+        filteredLogs = filteredLogs.filter(log => {
+          const logDate = new Date(log.eventTime);
+          return logDate >= cutoff;
+        });
+      }
+
+      timeline.innerHTML = filteredLogs.map((log, index) => `
         <div class="timeline-item">
           <div class="timeline-item__dot ${log.dotClass}"></div>
           <div class="timeline-item__header" onclick="toggleLogDetail(${index})">
@@ -2057,6 +2097,10 @@
 
     // 初始化动态记录
     renderDynamicLogs();
+
+    // 筛选器事件绑定
+    document.getElementById('typeFilter')?.addEventListener('change', renderDynamicLogs);
+    document.getElementById('timeFilter')?.addEventListener('change', renderDynamicLogs);
   </script>
 </body>
 </html>
