@@ -2087,14 +2087,7 @@
                     <option value="离职">离职</option>
                     <option value="重新入职">重新入职</option>
                     <option value="信息变更">信息变更</option>
-                    <option value="编辑合同">编辑合同</option>
-                    <option value="新增银行卡">新增银行卡</option>
-                    <option value="编辑教育">编辑教育</option>
-                    <option value="新增工作经历">新增工作经历</option>
-                    <option value="删除证书">删除证书</option>
-                    <option value="批量删除工作经历">批量删除工作经历</option>
-                    <option value="批量编辑银行卡">批量编辑银行卡</option>
-                    <option value="批量新增工作经历">批量新增工作经历</option>
+                    <option value="修改员工档案">修改员工档案</option>
                     <option value="参保报送">参保报送</option>
                     <option value="个税报送">个税报送</option>
                   </select>
@@ -2299,8 +2292,8 @@
         dotClass: "timeline-item__dot--danger",
         // 删除的工作经历 - 用卡片展示
         deletedRecords: [
-          { action: "删除", record: "深圳YY网络公司", detail: "职位: 初级前端开发工程师 | 2014-07-01 ~ 2016-08-31" },
-          { action: "删除", record: "广州ZZ科技", detail: "职位: Web前端开发 | 2012-03-01 ~ 2014-06-30" }
+          { action: "删除", record: "深圳YY网络公司", fields: { "职位": "初级前端开发工程师", "开始日期": "2014-07-01", "结束日期": "2016-08-31" } },
+          { action: "删除", record: "广州ZZ科技", fields: { "职位": "Web前端开发", "开始日期": "2012-03-01", "结束日期": "2014-06-30" } }
         ]
       },
       {
@@ -2323,7 +2316,7 @@
         dotClass: "timeline-item__dot--danger",
         // 删除的银行卡按卡片分组显示
         deletedRecords: [
-          { action: "删除", record: "中国建设银行龙卡", detail: "开户银行: 中国建设银行深圳分行 | 银行账号: 6222***********3456" }
+          { action: "删除", record: "中国建设银行龙卡", fields: { "开户银行": "中国建设银行深圳分行", "银行账号": "6222***********3456" } }
         ]
       },
       {
@@ -2334,7 +2327,7 @@
         dotClass: "timeline-item__dot--danger",
         // 删除证书明细 - 用卡片展示
         deletedRecords: [
-          { action: "删除", record: "PMP项目管理师", detail: "证书编号: PMP-2020-1234 | 发证机构: PMI | 有效期: 2023-12-31" }
+          { action: "删除", record: "PMP项目管理师", fields: { "证书编号": "PMP-2020-1234", "发证机构": "PMI", "有效期": "2023-12-31" } }
         ]
       },
       {
@@ -2484,9 +2477,12 @@
                   <span class="timeline-item__action-tag timeline-item__action-tag--delete">${dr.action}</span>
                   ${dr.record}
                 </div>
-                <div class="timeline-item__change-detail" style="color: var(--text-secondary); font-size: 12px;">
-                  ${dr.detail}
-                </div>
+                ${Object.entries(dr.fields).map(([key, value]) => `
+                  <div class="timeline-item__change-detail">
+                    <span class="timeline-item__change-detail-label">${key}:</span>
+                    <span class="timeline-item__change-detail-old">${value}</span>
+                  </div>
+                `).join('')}
               </div>
             `).join('') : log.changes.map(change => `
               <div class="timeline-item__detail-row">
