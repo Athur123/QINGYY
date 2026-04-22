@@ -80,9 +80,38 @@
 
         /* 主内容区 */
         .main-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 16px 24px;
+        }
+
+        /* 左右布局容器 */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* 左侧详情区 */
+        .detail-section {
+            min-width: 0;
+        }
+
+        /* 右侧摘要区 */
+        .summary-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 100%;
+        }
+
+        .summary-section > * {
+            flex-shrink: 0;
+        }
+
+        .summary-section .quick-actions-summary {
+            flex-grow: 1;
         }
 
 
@@ -228,11 +257,17 @@
             margin-bottom: 24px;
         }
 
+        .tabs-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-right: 16px;
+        }
+
         .tabs-nav {
             display: flex;
-            border-bottom: 1px solid var(--border);
-            padding: 0 16px;
-            overflow-x: auto;
+            flex: 1;
+            overflow: hidden;
         }
 
         .tab-item {
@@ -244,6 +279,7 @@
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .tab-item:hover {
@@ -255,8 +291,72 @@
             border-bottom-color: var(--primary);
         }
 
+        .tab-more {
+            padding: 16px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .tab-more:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-more.hidden {
+            display: none;
+        }
+
+        .tab-more-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 160px;
+            z-index: 100;
+            display: none;
+        }
+
+        .tab-more-dropdown.show {
+            display: block;
+        }
+
+        .tab-more-item {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .tab-more-item:hover {
+            background: var(--border-light);
+        }
+
+        .tab-more-item.active {
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
         .tab-content {
             padding: 24px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
         }
 
         /* 信息卡片网格 */
@@ -271,6 +371,281 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             overflow: hidden;
+        }
+
+        /* 列表卡片样式 */
+        .list-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .list-card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--border-light);
+        }
+
+        .list-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .list-card-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--text-secondary);
+        }
+
+        .list-card-add {
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .list-table {
+            width: 100%;
+        }
+
+        .list-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--bg-page);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .list-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        .list-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .list-table tr:hover td {
+            background: var(--border-light);
+        }
+
+        .list-table .tag {
+            margin-right: 8px;
+        }
+
+        .list-table .actions {
+            display: flex;
+            gap: 12px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .list-table .actions span:hover {
+            text-decoration: underline;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            width: 560px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--danger);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* 卡片操作按钮 */
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .card-action-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .card-action-btn.primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .card-action-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .card-action-btn.secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .card-action-btn.secondary:hover {
+            background: var(--border-light);
+        }
+
+        .card-action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 添加按钮 */
+        .section-add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .section-add-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
         }
 
         .info-card-header {
@@ -375,13 +750,63 @@
         .tag-orange { background: #FFF7ED; color: #C2410C; }
         .tag-gray { background: #F1F5F9; color: #475569; }
 
+        /* 右侧摘要区快速操作 */
+        .quick-actions-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .quick-actions-summary .quick-action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-actions-summary .quick-action-btn:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-actions-summary .quick-action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-actions-summary .quick-action-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .quick-actions-summary .quick-action-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .quick-actions-summary .quick-action-icon.blue { background: #EFF6FF; color: var(--primary); }
+        .quick-actions-summary .quick-action-icon.green { background: #ECFDF5; color: var(--success); }
+        .quick-actions-summary .quick-action-icon.orange { background: #FFF7ED; color: var(--warning); }
+        .quick-actions-summary .quick-action-icon.purple { background: #F5F3FF; color: #8B5CF6; }
+
         /* 动态记录 */
         .timeline-section {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             overflow: hidden;
-            margin-top: 24px;
         }
 
         .timeline-header {
@@ -486,6 +911,17 @@
         }
 
         /* 响应式 */
+        @media (max-width: 1024px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-section {
+                position: static;
+                order: -1;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 padding: 16px;
@@ -496,16 +932,16 @@
                 align-items: flex-start;
                 gap: 16px;
             }
-            
+
             .panel-header-right {
                 width: 100%;
             }
-            
+
             .panel-header-right .btn {
                 flex: 1;
                 justify-content: center;
             }
-            
+
             .panel-body {
                 flex-direction: column;
                 align-items: flex-start;
@@ -520,120 +956,37 @@
 <body>
     <!-- 主内容区 -->
     <main class="main-content">
-        <!-- 新的白底信息面板 -->
-        <section class="employee-hero-panel">
-            <div class="panel-header">
-                <div class="panel-header-left">
-                    <a class="back-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5M12 19l-7-7 7-7"/>
-                        </svg>
-                        返回花名册
-                    </a>
-                    <div class="divider-vertical"></div>
-                    <h2 class="employee-name-header">
-                        曾强勇
-                        <span class="status-badge active">在职</span>
-                        <span class="tag tag-orange">退休返聘</span>
-                        <span class="tag tag-green">正式</span>
-                    </h2>
-                </div>
-                <div class="panel-header-right">
-                    <button class="btn btn-secondary">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-                        </svg>
-                        导出档案
-                    </button>
-                    <button class="btn btn-primary">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        编辑信息
-                    </button>
-                </div>
-            </div>
-            <div class="panel-body">
-                <div class="avatar-medium">曾</div>
-                <div class="employee-meta-grid">
-                    <div class="meta-item">
-                        <span class="meta-label">手机号码:</span>
-                        <span class="meta-value">18575504349</span>
+        <div class="content-layout">
+            <!-- 左侧详情区 -->
+            <div class="detail-section">
+                <!-- Tab导航 -->
+                <section class="tabs-container">
+                    <div class="tabs-header">
+                        <div class="tabs-nav">
+                            <div class="tab-item active" data-tab="0">基础信息</div>
+                            <div class="tab-item" data-tab="1">合同信息</div>
+                            <div class="tab-item" data-tab="2">银行卡信息</div>
+                            <div class="tab-item" data-tab="3">教育经历</div>
+                            <div class="tab-item" data-tab="4">工作经历</div>
+                            <div class="tab-item" data-tab="5">家庭成员</div>
+                            <div class="tab-item" data-tab="6">紧急联系人</div>
+                            <div class="tab-item" data-tab="7">员工证书</div>
+                            <div class="tab-item" data-tab="8">个人材料</div>
+                            <div class="tab-item" data-tab="9">薪税档案</div>
+                            <div class="tab-item" data-tab="10">参保档案</div>
+                        </div>
+                        <div class="tab-more hidden" id="tabMore">
+                            更多
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                            <div class="tab-more-dropdown" id="tabMoreDropdown"></div>
+                        </div>
                     </div>
-                    <div class="meta-item">
-                        <span class="meta-label">入职日期:</span>
-                        <span class="meta-value">2025-02-25 <span class="meta-value-light">(司龄: 13个月)</span></span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">年龄/性别:</span>
-                        <span class="meta-value">30岁 / 男</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">国籍:</span>
-                        <span class="meta-value">中国</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tab导航 -->
-        <section class="tabs-container">
-            <div class="tabs-nav">
-                <div class="tab-item active">基础信息</div>
-                <div class="tab-item">合同信息</div>
-                <div class="tab-item">银行卡信息</div>
-                <div class="tab-item">教育经历</div>
-                <div class="tab-item">工作经历</div>
-                <div class="tab-item">家庭成员</div>
-                <div class="tab-item">紧急联系人</div>
-                <div class="tab-item">员工证书</div>
-                <div class="tab-item">个人材料</div>
-                <div class="tab-item">薪税档案</div>
-                <div class="tab-item">参保档案</div>
-            </div>
-            <div class="tab-content">
+                    <div class="tab-content">
                 <!-- 基础信息Tab -->
                 <div class="tab-panel active">
                     <div class="info-grid">
-                        <!-- 归属信息卡片 -->
-                        <div class="info-card">
-                            <div class="info-card-header">
-                                <div class="info-card-title">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                        <circle cx="12" cy="7" r="4"/>
-                                    </svg>
-                                    归属信息
-                                </div>
-                                <span class="info-card-badge">必填</span>
-                            </div>
-                            <div class="info-card-body">
-                                <div class="info-grid-inner">
-                                    <div class="info-item">
-                                        <span class="info-label required">所属客户</span>
-                                        <span class="info-value">无锡一技有限公司/2222</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label required">所属合同</span>
-                                        <span class="info-value">无锡一挤有限公司/WX20251114</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label required">所属项目</span>
-                                        <span class="info-value">无锡项目/WX20251114</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label required">结算主体</span>
-                                        <span class="info-value">无锡一技信息科技有限公司</span>
-                                    </div>
-                                    <div class="info-item full-width">
-                                        <span class="info-label">默认个税申报主体</span>
-                                        <span class="info-value">无锡优派人力资源服务有限公司0/10117320152646251228</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- 基本信息卡片 -->
                         <div class="info-card">
                             <div class="info-card-header">
@@ -835,11 +1188,837 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 合同信息Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                    劳动合同 - HT2025110001
+                                </div>
+                                <span class="tag tag-green">生效中</span>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">合同类型</span>
+                                        <span class="info-value">劳动合同</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">合同期限</span>
+                                        <span class="info-value">固定期限</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">开始日期</span>
+                                        <span class="info-value">2025-02-25</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">结束日期</span>
+                                        <span class="info-value">2028-02-24</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">签订次数</span>
+                                        <span class="info-value">第1次</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                    劳动合同 - HT2020080001
+                                </div>
+                                <span class="tag tag-gray">已到期</span>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">合同类型</span>
+                                        <span class="info-value">劳动合同</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">合同期限</span>
+                                        <span class="info-value">固定期限</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">开始日期</span>
+                                        <span class="info-value">2020-03-15</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">结束日期</span>
+                                        <span class="info-value">2025-03-14</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">签订次数</span>
+                                        <span class="info-value">首次签订</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="section-add-btn" id="addContract">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加合同
+                    </button>
+                </div>
+
+                <!-- 银行卡信息Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                    工资卡
+                                </div>
+                                <span class="tag tag-blue">默认</span>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">开户银行</span>
+                                        <span class="info-value">中国工商银行深圳分行</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">银行卡号</span>
+                                        <span class="info-value mono">621226400006****7890</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">开户姓名</span>
+                                        <span class="info-value">曾强勇</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">证件号码</span>
+                                        <span class="info-value mono">43102319950825181X</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                    储蓄卡
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">开户银行</span>
+                                        <span class="info-value">中国建设银行深圳支行</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">银行卡号</span>
+                                        <span class="info-value mono">622202400006****1234</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">开户姓名</span>
+                                        <span class="info-value">曾强勇</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">证件号码</span>
+                                        <span class="info-value mono">43102319950825181X</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="section-add-btn" id="addBankCard">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加银行卡
+                    </button>
+                </div>
+
+                <!-- 教育经历Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                                        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+                                    </svg>
+                                    硕士 - 武汉大学
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">学校</span>
+                                        <span class="info-value">武汉大学</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">学历</span>
+                                        <span class="info-value">硕士</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">学位</span>
+                                        <span class="info-value">工学硕士</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">专业</span>
+                                        <span class="info-value">软件工程</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">入学</span>
+                                        <span class="info-value">2017-09</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">毕业</span>
+                                        <span class="info-value">2020-06</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                                        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+                                    </svg>
+                                    本科 - 中南大学
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">学校</span>
+                                        <span class="info-value">中南大学</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">学历</span>
+                                        <span class="info-value">本科</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">学位</span>
+                                        <span class="info-value">工学学士</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">专业</span>
+                                        <span class="info-value">计算机科学与技术</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">入学</span>
+                                        <span class="info-value">2013-09</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">毕业</span>
+                                        <span class="info-value">2017-06</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="section-add-btn" id="addEducation">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加学历
+                    </button>
+                </div>
+
+                <!-- 工作经历Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                    深圳腾讯科技有限公司
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">公司</span>
+                                        <span class="info-value">深圳腾讯科技有限公司</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">职位</span>
+                                        <span class="info-value">高级工程师</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">入职</span>
+                                        <span class="info-value">2017-07</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">离职</span>
+                                        <span class="info-value">2024-12</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="info-label">离职原因</span>
+                                        <span class="info-value">个人发展</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                    阿里巴巴（中国）有限公司
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">公司</span>
+                                        <span class="info-value">阿里巴巴（中国）有限公司</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">职位</span>
+                                        <span class="info-value">工程师</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">入职</span>
+                                        <span class="info-value">2015-03</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">离职</span>
+                                        <span class="info-value">2017-06</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="info-label">离职原因</span>
+                                        <span class="info-value">个人发展</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                    华为技术有限公司
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">公司</span>
+                                        <span class="info-value">华为技术有限公司</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">职位</span>
+                                        <span class="info-value">初级工程师</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">入职</span>
+                                        <span class="info-value">2013-07</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">离职</span>
+                                        <span class="info-value">2015-02</span>
+                                    </div>
+                                    <div class="info-item full-width">
+                                        <span class="info-label">离职原因</span>
+                                        <span class="info-value">个人发展</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="section-add-btn" id="addWork">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加工作经历
+                    </button>
+                </div>
+
+                <!-- 家庭成员Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                    </svg>
+                                    配偶 - 李晓梅
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">姓名</span>
+                                        <span class="info-value">李晓梅</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">关系</span>
+                                        <span class="info-value">配偶</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">联系电话</span>
+                                        <span class="info-value">13800138001</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">工作单位</span>
+                                        <span class="info-value">深圳大学附属医院</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                    </svg>
+                                    父亲 - 曾建国
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">姓名</span>
+                                        <span class="info-value">曾建国</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">关系</span>
+                                        <span class="info-value">父亲</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">联系电话</span>
+                                        <span class="info-value">13900139001</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">工作单位</span>
+                                        <span class="info-value">退休</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                    </svg>
+                                    母亲 - 王秀英
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">姓名</span>
+                                        <span class="info-value">王秀英</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">关系</span>
+                                        <span class="info-value">母亲</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">联系电话</span>
+                                        <span class="info-value">13700137001</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">工作单位</span>
+                                        <span class="info-value">退休</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="section-add-btn" id="addFamily">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加家庭成员
+                    </button>
+                </div>
+
+                <!-- 紧急联系人Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/>
+                                    </svg>
+                                    主要紧急联系人
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">姓名</span>
+                                        <span class="info-value">李晓梅</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">关系</span>
+                                        <span class="info-value">配偶</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">联系电话</span>
+                                        <span class="info-value highlight">13800138001</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">备用电话</span>
+                                        <span class="info-value">13900139001</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/>
+                                    </svg>
+                                    次要紧急联系人
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">姓名</span>
+                                        <span class="info-value">曾建国</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">关系</span>
+                                        <span class="info-value">父亲</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">联系电话</span>
+                                        <span class="info-value">13900139001</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">备用电话</span>
+                                        <span class="info-value">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="section-add-btn" id="addEmergency">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加紧急联系人
+                    </button>
+                </div>
+
+                <!-- 员工证书Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="8" r="7"/>
+                                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                                    </svg>
+                                    专业证书
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">证书名称</span>
+                                        <span class="info-value">系统架构设计师</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">证书编号</span>
+                                        <span class="info-value mono">2024-SA-001234</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">颁发机构</span>
+                                        <span class="info-value">中华人民共和国人力资源和社会保障部</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">颁发日期</span>
+                                        <span class="info-value">2024-05-15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个人材料Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                    证件材料
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">身份证正反面</span>
+                                        <span class="info-value tag tag-green">已上传</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">学历证明</span>
+                                        <span class="info-value tag tag-green">已上传</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">离职证明</span>
+                                        <span class="info-value tag tag-green">已上传</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">体检证明</span>
+                                        <span class="info-value tag tag-gray">未上传</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 薪税档案Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"/>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                    </svg>
+                                    薪酬信息
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">工资账户</span>
+                                        <span class="info-value">工商银行 ****7890</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">基本工资</span>
+                                        <span class="info-value highlight">¥15,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">岗位工资</span>
+                                        <span class="info-value">¥8,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">月薪合计</span>
+                                        <span class="info-value highlight">¥23,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">公积金基数</span>
+                                        <span class="info-value">¥23,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">社保基数</span>
+                                        <span class="info-value">¥23,000.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                    </svg>
+                                    个税信息
+                                </div>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">个税申报主体</span>
+                                        <span class="info-value">无锡优派人力资源服务有限公司</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">专项附加扣除</span>
+                                        <span class="info-value">¥3,000.00/月</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">附加税率</span>
+                                        <span class="tag tag-blue">3%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 参保档案Tab -->
+                <div class="tab-panel">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                    </svg>
+                                    社保信息
+                                </div>
+                                <span class="info-card-badge">正常</span>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">参保城市</span>
+                                        <span class="info-value">深圳市</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">参保主体</span>
+                                        <span class="info-value">无锡优派人力资源服务有限公司深圳分公司</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">养老保险</span>
+                                        <span class="tag tag-green">已参保</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">医疗保险</span>
+                                        <span class="tag tag-green">已参保</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">失业保险</span>
+                                        <span class="tag tag-green">已参保</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">工伤保险</span>
+                                        <span class="tag tag-green">已参保</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">生育保险</span>
+                                        <span class="tag tag-green">已参保</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">参保日期</span>
+                                        <span class="info-value">2025-03-01</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <div class="info-card-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                        <polyline points="9 22 9 12 15 12 15 22"/>
+                                    </svg>
+                                    公积金信息
+                                </div>
+                                <span class="info-card-badge">正常</span>
+                            </div>
+                            <div class="info-card-body">
+                                <div class="info-grid-inner">
+                                    <div class="info-item">
+                                        <span class="info-label">公积金城市</span>
+                                        <span class="info-value">深圳市</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">缴纳主体</span>
+                                        <span class="info-value">无锡优派人力资源服务有限公司</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">公积金账号</span>
+                                        <span class="info-value mono">4401000000001</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">公积金基数</span>
+                                        <span class="info-value">¥23,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">公积金比例</span>
+                                        <span class="info-value">12%</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">缴纳状态</span>
+                                        <span class="tag tag-green">缴纳中</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
+            </div><!-- /.detail-section -->
 
-        <!-- 动态记录 -->
-        <section class="timeline-section" id="timelineSection">
+            <!-- 右侧摘要区 -->
+            <div class="summary-section">
+                <section class="employee-hero-panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <h2 class="employee-name-header">
+                                曾强勇
+                                <span class="status-badge active">在职</span>
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="avatar-medium">曾</div>
+                        <div class="employee-meta-grid">
+                            <div class="meta-item">
+                                <span class="meta-label">手机号码:</span>
+                                <span class="meta-value">18575504349</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">入职日期:</span>
+                                <span class="meta-value">2025-02-25 <span class="meta-value-light">(司龄: 13个月)</span></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">年龄/性别:</span>
+                                <span class="meta-value">30岁 / 男</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">国籍:</span>
+                                <span class="meta-value">中国</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 动态记录 -->
+                <section class="timeline-section" id="timelineSection">
             <div class="timeline-header">
                 <div class="timeline-title">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -972,6 +2151,8 @@
                 </div>
             </div>
         </section>
+            </div><!-- /.summary-section -->
+        </div><!-- /.content-layout -->
     </main>
 
     <script>
@@ -981,12 +2162,349 @@
         }
 
         // Tab切换
-        document.querySelectorAll('.tab-item').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
+        const tabItems = document.querySelectorAll('.tab-item');
+        const tabMore = document.getElementById('tabMore');
+        const tabMoreDropdown = document.getElementById('tabMoreDropdown');
+        const tabNavWrapper = document.querySelector('.tabs-nav');
+
+        function switchTab(index) {
+            tabItems.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            tabItems[index].classList.add('active');
+            document.querySelectorAll('.tab-panel')[index].classList.add('active');
+            tabMoreDropdown.classList.remove('show');
+        }
+
+        function updateTabVisibility() {
+            const navWidth = tabNavWrapper.clientWidth;
+            let totalWidth = 0;
+            const visibleIndices = [];
+            const hiddenIndices = [];
+
+            tabItems.forEach((item, index) => {
+                totalWidth += item.offsetWidth;
+                if (totalWidth < navWidth) {
+                    visibleIndices.push(index);
+                } else {
+                    hiddenIndices.push(index);
+                }
             });
+
+            // 更新dropdown内容
+            tabMoreDropdown.innerHTML = hiddenIndices.map(index => {
+                const label = tabItems[index].textContent;
+                const isActive = tabItems[index].classList.contains('active');
+                return `<div class="tab-more-item ${isActive ? 'active' : ''}" data-index="${index}">${label}</div>`;
+            }).join('');
+
+            // 添加dropdown点击事件
+            document.querySelectorAll('.tab-more-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    switchTab(parseInt(this.dataset.index));
+                });
+            });
+
+            // 显示/隐藏More按钮
+            if (hiddenIndices.length > 0) {
+                tabMore.classList.remove('hidden');
+            } else {
+                tabMore.classList.add('hidden');
+            }
+        }
+
+        tabItems.forEach((tab, index) => {
+            tab.addEventListener('click', () => switchTab(index));
+        });
+
+        // More按钮点击
+        tabMore.addEventListener('click', function(e) {
+            e.stopPropagation();
+            tabMoreDropdown.classList.toggle('show');
+        });
+
+        // 点击其他地方关闭dropdown
+        document.addEventListener('click', function() {
+            tabMoreDropdown.classList.remove('show');
+        });
+
+        // 初始化
+        updateTabVisibility();
+        window.addEventListener('resize', updateTabVisibility);
+
+        // 模态框操作
+        const modal = document.getElementById('formModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalForm = document.getElementById('modalForm');
+
+        function openModal(title, formHtml) {
+            if (!modal) return;
+            modalTitle.textContent = title;
+            modalForm.innerHTML = formHtml;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            if (!modal) return;
+            modal.classList.remove('active');
+        }
+
+        document.querySelectorAll('.modal-close, .modal-cancel').forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+        }
+
+        // 添加合同
+        document.getElementById('addContract')?.addEventListener('click', function() {
+            openModal('添加合同', `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">合同编号</label>
+                        <input type="text" class="form-input" placeholder="HT2026000001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">合同类型</label>
+                        <select class="form-input">
+                            <option>劳动合同</option>
+                            <option>实习协议</option>
+                            <option>劳务协议</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">开始日期</label>
+                        <input type="date" class="form-input" value="2026-01-01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">结束日期</label>
+                        <input type="date" class="form-input" value="2029-01-01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-input" rows="3" placeholder="请输入备注信息"></textarea>
+                </div>
+            `);
+        });
+
+        // 添加银行卡
+        document.getElementById('addBankCard')?.addEventListener('click', function() {
+            openModal('添加银行卡', `
+                <div class="form-group">
+                    <label class="form-label required">银行卡号</label>
+                    <input type="text" class="form-input" placeholder="6222024000061234567">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">开户银行</label>
+                        <input type="text" class="form-input" placeholder="中国工商银行">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">开户支行</label>
+                        <input type="text" class="form-input" placeholder="深圳分行">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">开户姓名</label>
+                        <input type="text" class="form-input" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">证件号码</label>
+                        <input type="text" class="form-input" placeholder="身份证号码">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">设为默认</label>
+                    <select class="form-input">
+                        <option>否</option>
+                        <option>是</option>
+                    </select>
+                </div>
+            `);
+        });
+
+        // 添加教育经历
+        document.getElementById('addEducation')?.addEventListener('click', function() {
+            openModal('添加教育经历', `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">学校名称</label>
+                        <input type="text" class="form-input" placeholder="请输入学校名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">学历</label>
+                        <select class="form-input">
+                            <option>博士</option>
+                            <option>硕士</option>
+                            <option>本科</option>
+                            <option>专科</option>
+                            <option>高中</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">学位</label>
+                        <input type="text" class="form-input" placeholder="如：工学学士">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">专业</label>
+                        <input type="text" class="form-input" placeholder="请输入专业">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">入学时间</label>
+                        <input type="month" class="form-input" value="2020-09">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">毕业时间</label>
+                        <input type="month" class="form-input" value="2024-06">
+                    </div>
+                </div>
+            `);
+        });
+
+        // 添加工作经历
+        document.getElementById('addWork')?.addEventListener('click', function() {
+            openModal('添加工作经历', `
+                <div class="form-group">
+                    <label class="form-label required">公司名称</label>
+                    <input type="text" class="form-input" placeholder="请输入公司名称">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">职位</label>
+                        <input type="text" class="form-input" placeholder="请输入职位">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">部门</label>
+                        <input type="text" class="form-input" placeholder="请输入部门">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">入职时间</label>
+                        <input type="month" class="form-input" value="2020-01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">离职时间</label>
+                        <input type="month" class="form-input" value="2024-12">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">离职原因</label>
+                    <input type="text" class="form-input" placeholder="请输入离职原因">
+                </div>
+            `);
+        });
+
+        // 添加家庭成员
+        document.getElementById('addFamily')?.addEventListener('click', function() {
+            openModal('添加家庭成员', `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">姓名</label>
+                        <input type="text" class="form-input" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">关系</label>
+                        <select class="form-input">
+                            <option>配偶</option>
+                            <option>父亲</option>
+                            <option>母亲</option>
+                            <option>子女</option>
+                            <option>兄弟姐妹</option>
+                            <option>其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">联系电话</label>
+                        <input type="tel" class="form-input" placeholder="13800138000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备用电话</label>
+                        <input type="tel" class="form-input" placeholder="13900139000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工作单位</label>
+                    <input type="text" class="form-input" placeholder="请输入工作单位">
+                </div>
+            `);
+        });
+
+        // 添加紧急联系人
+        document.getElementById('addEmergency')?.addEventListener('click', function() {
+            openModal('添加紧急联系人', `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">姓名</label>
+                        <input type="text" class="form-input" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">关系</label>
+                        <select class="form-input">
+                            <option>配偶</option>
+                            <option>父亲</option>
+                            <option>母亲</option>
+                            <option>子女</option>
+                            <option>兄弟姐妹</option>
+                            <option>同事</option>
+                            <option>朋友</option>
+                            <option>其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">联系电话</label>
+                        <input type="tel" class="form-input" placeholder="13800138000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备用电话</label>
+                        <input type="tel" class="form-input" placeholder="13900139000">
+                    </div>
+                </div>
+            `);
+        });
+
+        // 提交表单（模拟）
+        modalForm?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('保存成功！');
+            closeModal();
         });
     </script>
+
+    <!-- 模态框 -->
+    <div class="modal-overlay" id="formModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">添加</h3>
+                <div class="modal-close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="modalForm"></form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-cancel">取消</button>
+                <button type="submit" form="modalForm" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
