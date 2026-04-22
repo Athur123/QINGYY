@@ -936,13 +936,18 @@
       color: #991b1b;
     }
 
+    .timeline-item__change-row {
+      display: flex;
+      gap: 16px;
+    }
+
     .timeline-item__change-detail {
       display: inline-flex;
       align-items: center;
       gap: 4px;
       font-size: 12px;
       padding: 0;
-      width: 50%;
+      flex: 1;
     }
 
     .timeline-item__change-detail-label {
@@ -2755,13 +2760,21 @@
               </div>
             `).join('');
           } else if (detail.changes) {
-            // 编辑记录 - 显示变更
-            fieldsHtml = detail.changes.map(change => `
-              <div class="timeline-item__change-detail">
-                <span class="timeline-item__change-detail-label">${change.field}:</span>
-                <span class="timeline-item__change-detail-old">${change.oldValue}</span>
-                <span class="timeline-item__change-detail-arrow">→</span>
-                <span class="timeline-item__change-detail-new">${change.newValue}</span>
+            // 编辑记录 - 显示变更，每行2个字段
+            const pairs = [];
+            for (let i = 0; i < detail.changes.length; i += 2) {
+              pairs.push(detail.changes.slice(i, i + 2));
+            }
+            fieldsHtml = pairs.map(pair => `
+              <div class="timeline-item__change-row">
+                ${pair.map(change => `
+                  <div class="timeline-item__change-detail">
+                    <span class="timeline-item__change-detail-label">${change.field}:</span>
+                    <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+                    <span class="timeline-item__change-detail-arrow">→</span>
+                    <span class="timeline-item__change-detail-new">${change.newValue}</span>
+                  </div>
+                `).join('')}
               </div>
             `).join('');
           }
@@ -2792,13 +2805,21 @@
           </div>
         `).join('');
       } else if (log.changes) {
-        // 编辑记录 - 显示变更
-        fieldsHtml = log.changes.map(change => `
-          <div class="timeline-item__change-detail">
-            <span class="timeline-item__change-detail-label">${change.field}:</span>
-            <span class="timeline-item__change-detail-old">${change.oldValue}</span>
-            <span class="timeline-item__change-detail-arrow">→</span>
-            <span class="timeline-item__change-detail-new">${change.newValue}</span>
+        // 编辑记录 - 显示变更，每行2个字段
+        const pairs = [];
+        for (let i = 0; i < log.changes.length; i += 2) {
+          pairs.push(log.changes.slice(i, i + 2));
+        }
+        fieldsHtml = pairs.map(pair => `
+          <div class="timeline-item__change-row">
+            ${pair.map(change => `
+              <div class="timeline-item__change-detail">
+                <span class="timeline-item__change-detail-label">${change.field}:</span>
+                <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+                <span class="timeline-item__change-detail-arrow">→</span>
+                <span class="timeline-item__change-detail-new">${change.newValue}</span>
+              </div>
+            `).join('')}
           </div>
         `).join('');
       }
