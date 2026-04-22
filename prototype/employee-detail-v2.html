@@ -2202,9 +2202,6 @@
                     <option value="参保报送">参保报送</option>
                     <option value="个税报送">个税报送</option>
                   </select>
-                  <select class="filter-select" id="fieldFilter">
-                    <option value="">全部字段</option>
-                  </select>
                   <select class="filter-select" id="timeFilter">
                     <option value="">全部时间</option>
                     <option value="7">近一周</option>
@@ -2637,7 +2634,6 @@
     function renderDynamicLogs() {
       const timeline = document.getElementById('dynamicTimeline');
       const typeFilter = document.getElementById('typeFilter');
-      const fieldFilter = document.getElementById('fieldFilter');
       const timeFilter = document.getElementById('timeFilter');
       if (!timeline) return;
 
@@ -2646,21 +2642,6 @@
       // 按类型筛选
       if (typeFilter && typeFilter.value) {
         filteredLogs = filteredLogs.filter(log => log.eventType === typeFilter.value);
-      }
-
-      // 按字段筛选 - 统一数据结构
-      if (fieldFilter && fieldFilter.value) {
-        filteredLogs = filteredLogs.filter(log => {
-          // 检查changes中的字段
-          if (log.changes) {
-            return log.changes.some(change => change.field === fieldFilter.value);
-          }
-          // 检查fields中的字段
-          if (log.fields) {
-            return Object.keys(log.fields).some(key => key === fieldFilter.value);
-          }
-          return false;
-        });
       }
 
       // 按时间筛选
@@ -2729,29 +2710,6 @@
           ${fieldsHtml}
         </div>
       `;
-    }
-
-    // 初始化字段筛选下拉框 - 统一数据结构
-    function initFieldFilter() {
-      const fieldFilter = document.getElementById('fieldFilter');
-      if (!fieldFilter) return;
-
-      // 提取所有唯一字段（从changes和fields）
-      const fields = [...new Set(
-        dynamicLogs.flatMap(log => {
-          const changeFields = log.changes ? log.changes.map(change => change.field) : [];
-          const fieldKeys = log.fields ? Object.keys(log.fields) : [];
-          return [...changeFields, ...fieldKeys];
-        })
-      )].sort();
-
-      fieldFilter.innerHTML = '<option value="">全部字段</option>';
-      fields.forEach(field => {
-        const option = document.createElement('option');
-        option.value = field;
-        option.textContent = field;
-        fieldFilter.appendChild(option);
-      });
     }
 
     function toggleLogDetail(index) {
