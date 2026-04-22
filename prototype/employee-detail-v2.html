@@ -2357,7 +2357,7 @@
         dotClass: "",
         // 编辑合同明细 - 用卡片展示
         recordChanges: [
-          { action: "编辑", record: "劳动合同 (2025-02-17 ~ 2028-02-16)", changes: [
+          { action: "编辑", tabName: "合同信息", record: "劳动合同 (2025-02-17 ~ 2028-02-16)", changes: [
             { field: "合同期限", oldValue: "3年", newValue: "5年" },
             { field: "结束日期", oldValue: "2028-02-16", newValue: "2030-02-16" }
           ] }
@@ -2371,7 +2371,7 @@
         dotClass: "timeline-item__dot--primary",
         // 新增银行卡
         newRecords: [
-          { action: "新增", label: "招商银行 (副卡)", fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" } }
+          { action: "新增", tabName: "银行卡", label: "招商银行 (副卡)", fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" } }
         ]
       },
       {
@@ -2382,7 +2382,7 @@
         dotClass: "",
         // 编辑教育明细 - 用卡片展示
         recordChanges: [
-          { action: "编辑", record: "深圳大学 (2016-09 ~ 2020-06)", changes: [
+          { action: "编辑", tabName: "教育信息", record: "深圳大学 (2016-09 ~ 2020-06)", changes: [
             { field: "学历", oldValue: "本科", newValue: "硕士" }
           ] }
         ]
@@ -2395,7 +2395,7 @@
         dotClass: "timeline-item__dot--primary",
         // 新增工作经历
         newRecords: [
-          { action: "新增", label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
+          { action: "新增", tabName: "工作经历", label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
         ]
       },
       {
@@ -2406,8 +2406,8 @@
         dotClass: "timeline-item__dot--danger",
         // 删除的工作经历 - 用卡片展示
         deletedRecords: [
-          { action: "删除", record: "深圳YY网络公司", fields: { "职位": "初级前端开发工程师", "开始日期": "2014-07-01", "结束日期": "2016-08-31" } },
-          { action: "删除", record: "广州ZZ科技", fields: { "职位": "Web前端开发", "开始日期": "2012-03-01", "结束日期": "2014-06-30" } }
+          { action: "删除", tabName: "工作经历", record: "深圳YY网络公司", fields: { "职位": "初级前端开发工程师", "开始日期": "2014-07-01", "结束日期": "2016-08-31" } },
+          { action: "删除", tabName: "工作经历", record: "广州ZZ科技", fields: { "职位": "Web前端开发", "开始日期": "2012-03-01", "结束日期": "2014-06-30" } }
         ]
       },
       {
@@ -2418,8 +2418,8 @@
         dotClass: "",
         // 编辑多条银行卡 - recordChanges按卡片分组显示
         recordChanges: [
-          { action: "编辑", record: "中国工商银行", changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }] },
-          { action: "编辑", record: "招商银行", changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }] }
+          { action: "编辑", tabName: "银行卡", record: "中国工商银行", changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }] },
+          { action: "编辑", tabName: "银行卡", record: "招商银行", changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }] }
         ]
       },
       {
@@ -2430,7 +2430,7 @@
         dotClass: "timeline-item__dot--danger",
         // 删除的银行卡按卡片分组显示
         deletedRecords: [
-          { action: "删除", record: "中国建设银行龙卡", fields: { "开户银行": "中国建设银行深圳分行", "银行账号": "6222***********3456" } }
+          { action: "删除", tabName: "银行卡", record: "中国建设银行龙卡", fields: { "开户银行": "中国建设银行深圳分行", "银行账号": "6222***********3456" } }
         ]
       },
       {
@@ -2441,7 +2441,7 @@
         dotClass: "timeline-item__dot--danger",
         // 删除证书明细 - 用卡片展示
         deletedRecords: [
-          { action: "删除", record: "PMP项目管理师", fields: { "证书编号": "PMP-2020-1234", "发证机构": "PMI", "有效期": "2023-12-31" } }
+          { action: "删除", tabName: "证书资质", record: "PMP项目管理师", fields: { "证书编号": "PMP-2020-1234", "发证机构": "PMI", "有效期": "2023-12-31" } }
         ]
       },
       {
@@ -2452,8 +2452,8 @@
         dotClass: "timeline-item__dot--primary",
         // 一次性新增多条工作经历
         newRecords: [
-          { action: "新增", label: "阿里巴巴集团", fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" } },
-          { action: "新增", label: "腾讯科技", fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" } }
+          { action: "新增", tabName: "工作经历", label: "阿里巴巴集团", fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" } },
+          { action: "新增", tabName: "工作经历", label: "腾讯科技", fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" } }
         ]
       },
       {
@@ -2525,7 +2525,7 @@
         dotClass: "timeline-item__dot--primary",
         // 新增个税档案
         newRecords: [
-          { action: "新增", label: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
+          { action: "新增", tabName: "个税档案", label: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
         ]
       },
       {
@@ -2536,7 +2536,7 @@
         dotClass: "",
         // 编辑个税档案
         recordChanges: [
-          { action: "编辑", record: "深圳市前海人力资源有限公司", changes: [
+          { action: "编辑", tabName: "个税档案", record: "深圳市前海人力资源有限公司", changes: [
             { field: "申报状态", oldValue: "待申报", newValue: "已申报" },
             { field: "主管税务机关名称", oldValue: "国家税务总局深圳市税务局", newValue: "国家税务总局深圳市南山区税务局" }
           ] }
@@ -2550,7 +2550,7 @@
         dotClass: "timeline-item__dot--primary",
         // 新增个税档案（多条）
         newRecords: [
-          { action: "新增", label: "深圳市前海人力资源有限公司", fields: { "扣缴义务人": "深圳市前海人力资源有限公司", "人员状态": "正常", "申报状态": "待申报", "主管税务机关": "国家税务总局深圳市税务局", "是否默认": "是", "是否允许算税": "是", "任职受雇从业类型": "雇员" } }
+          { action: "新增", tabName: "个税档案", label: "深圳市前海人力资源有限公司", fields: { "扣缴义务人": "深圳市前海人力资源有限公司", "人员状态": "正常", "申报状态": "待申报", "主管税务机关": "国家税务总局深圳市税务局", "是否默认": "是", "是否允许算税": "是", "任职受雇从业类型": "雇员" } }
         ]
       },
       {
@@ -2561,7 +2561,7 @@
         dotClass: "",
         // 编辑个税档案 - 修改人员状态
         recordChanges: [
-          { action: "编辑", record: "深圳市前海人力资源有限公司", changes: [
+          { action: "编辑", tabName: "个税档案", record: "深圳市前海人力资源有限公司", changes: [
             { field: "人员状态", oldValue: "待入职", newValue: "正常" }
           ] }
         ]
@@ -2574,7 +2574,7 @@
         dotClass: "timeline-item__dot--danger",
         // 删除个税档案
         deletedRecords: [
-          { action: "删除", record: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
+          { action: "删除", tabName: "个税档案", record: "深圳市前海人才有限公司", fields: { "扣缴义务人": "深圳市前海人才有限公司", "人员状态": "正常", "申报状态": "已申报", "主管税务机关": "国家税务总局深圳市南山区税务局" } }
         ]
       }
     ];
@@ -2630,7 +2630,7 @@
               <div class="timeline-item__change-card timeline-item__change-card--added">
                 <div class="timeline-item__change-card-header">
                   <span class="timeline-item__action-tag timeline-item__action-tag--add">${record.action}</span>
-                  ${record.label}
+                  ${record.tabName ? record.tabName + '(' + record.label + ')' : record.label}
                 </div>
                 ${Object.entries(record.fields).map(([key, value]) => `
                   <div class="timeline-item__change-detail">
@@ -2643,7 +2643,7 @@
               <div class="timeline-item__change-card">
                 <div class="timeline-item__change-card-header">
                   <span class="timeline-item__action-tag timeline-item__action-tag--edit">${rc.action}</span>
-                  ${rc.record}
+                  ${rc.tabName ? rc.tabName + '(' + rc.record + ')' : rc.record}
                 </div>
                 ${rc.changes.map(change => `
                   <div class="timeline-item__change-detail">
@@ -2658,7 +2658,7 @@
               <div class="timeline-item__change-card timeline-item__change-card--deleted">
                 <div class="timeline-item__change-card-header">
                   <span class="timeline-item__action-tag timeline-item__action-tag--delete">${dr.action}</span>
-                  ${dr.record}
+                  ${dr.tabName ? dr.tabName + '(' + dr.record + ')' : dr.record}
                 </div>
                 ${Object.entries(dr.fields).map(([key, value]) => `
                   <div class="timeline-item__change-detail">
@@ -2667,7 +2667,7 @@
                   </div>
                 `).join('')}
               </div>
-            `).join('') : `
+            `).join('') : log.changes ? `
               <div class="timeline-item__change-card">
                 <div class="timeline-item__change-card-header">
                   <span class="timeline-item__action-tag timeline-item__action-tag--edit">编辑</span>
@@ -2681,7 +2681,7 @@
                   </div>
                 `).join('')}
               </div>
-            `}
+            ` : ''}
           </div>
         </div>
       `).join('');
