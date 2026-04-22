@@ -2215,7 +2215,7 @@
                         <option value="edit">修改人员档案</option>
                         <option value="transfer">部门调动</option>
                         <option value="regular">转正审批</option>
-                        <option value="tax">个税报送</option>
+                        <option value="declaration">人员报送</option>
                     </select>
 
                     <select class="filter-control" aria-label="筛选操作人">
@@ -2272,50 +2272,50 @@
                     </div>
                 </div>
 
-                <!-- 2. 个税报送 -->
+                <!-- 2. 人员报送 -->
                 <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
                         <div class="timeline-header-row">
-                            <span class="timeline-event">人员个税报送</span>
+                            <span class="timeline-event">人员报送</span>
                             <span class="timeline-meta">操作人: 系统自动触发</span>
                             <span class="timeline-meta">渠道: 薪税系统接口</span>
                             <span class="timeline-date">2026-03-15 02:00:00</span>
                         </div>
                         <div class="timeline-body">
-                            <p class="timeline-note" style="margin-bottom: 12px;">2026年3月个税申报数据已成功同步至税务局接口，申报状态：<strong style="color: var(--success);">申报成功</strong>。</p>
+                            <p class="timeline-note" style="margin-bottom: 12px;">员工基础信息已成功向税务局完成人员信息采集报送。</p>
                             <ul class="change-list" style="background: var(--bg-page); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
                                 <li class="change-item">
-                                    <span class="change-field">税款所属期:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0;">2026-03</span>
-                                </li>
-                                <li class="change-item">
-                                    <span class="change-field">申报主体:</span>
+                                    <span class="change-field">报送主体:</span>
                                     <span class="change-val" style="background: transparent; padding: 0;">无锡优派人力资源服务有限公司</span>
                                 </li>
                                 <li class="change-item">
-                                    <span class="change-field">本期收入额:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0; font-weight: 600; color: var(--text-primary);">¥23,000.00</span>
+                                    <span class="change-field">姓名:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0; font-weight: 500; color: var(--text-primary);">曾强勇</span>
                                 </li>
                                 <li class="change-item">
-                                    <span class="change-field">本期免税收入:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0;">¥0.00</span>
+                                    <span class="change-field">证件类型:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0;">居民身份证</span>
                                 </li>
                                 <li class="change-item">
-                                    <span class="change-field">专项扣除(社保):</span>
-                                    <span class="change-val" style="background: transparent; padding: 0;">¥2,500.00</span>
+                                    <span class="change-field">证件号码:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0; font-family: 'SF Mono', Monaco, monospace;">43102319950825181X</span>
                                 </li>
                                 <li class="change-item">
-                                    <span class="change-field">专项附加扣除:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0;">¥3,000.00</span>
+                                    <span class="change-field">任职受雇类型:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0;">雇员</span>
                                 </li>
                                 <li class="change-item">
-                                    <span class="change-field">应纳税所得额:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0; font-weight: 500;">¥17,500.00</span>
+                                    <span class="change-field">任职受雇日期:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0;">2025-02-25</span>
                                 </li>
                                 <li class="change-item">
-                                    <span class="change-field">应扣缴税额:</span>
-                                    <span class="change-val" style="background: transparent; padding: 0; font-weight: 600; color: var(--danger);">¥525.00</span>
+                                    <span class="change-field">人员状态:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0;">正常</span>
+                                </li>
+                                <li class="change-item">
+                                    <span class="change-field">报送状态:</span>
+                                    <span class="change-val" style="background: transparent; padding: 0; font-weight: 600; color: var(--success);">报送成功</span>
                                 </li>
                             </ul>
                         </div>
