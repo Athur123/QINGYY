@@ -2350,6 +2350,26 @@
     // - changes: [{ field, oldValue, newValue }] - 变更字段
     // - fields: { key: value } - 新增/删除的完整字段
     const dynamicLogs = [
+      // 个税档案 - 修改默认申报主体（批量）
+      {
+        eventType: "修改默认申报主体",
+        eventTypeClass: "primary",
+        eventTime: "2026-04-22 19:00",
+        operator: "张三",
+        dotClass: "timeline-item__dot--primary",
+        action: "编辑",
+        tabName: "个税档案",
+        details: [
+          {
+            record: "测试个税企业2",
+            changes: [{ field: "是否默认", oldValue: "否", newValue: "是" }]
+          },
+          {
+            record: "测试企业",
+            changes: [{ field: "是否默认", oldValue: "是", newValue: "否" }]
+          }
+        ]
+      },
       // 个税档案 - 同步报送信息
       {
         eventType: "同步报送信息",
@@ -2372,7 +2392,7 @@
         action: "编辑",
         tabName: "个税档案",
         record: "测试企业",
-        changes: [{ field: "是否允许算税", oldValue: "未报送", newValue: "申报中" }]
+        changes: [{ field: "申报状态", oldValue: "未报送", newValue: "申报中" }]
       },
       // 个税档案 - 添加报送人员
       {
@@ -2756,6 +2776,32 @@
     function renderLogCard(log) {
       const action = log.action || '编辑';
       const actionClass = action === '新增' ? 'add' : action === '删除' ? 'delete' : 'edit';
+
+      // 如果有 details 数组，渲染多个卡片
+      if (log.details) {
+        return log.details.map(detail => {
+          const recordName = log.tabName ? log.tabName + '(' + detail.record + ')' : detail.record;
+          const fieldsHtml = detail.changes.map(change => `
+            <div class="timeline-item__change-detail">
+              <span class="timeline-item__change-detail-label">${change.field}:</span>
+              <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+              <span class="timeline-item__change-detail-arrow">→</span>
+              <span class="timeline-item__change-detail-new">${change.newValue}</span>
+            </div>
+          `).join('');
+          return `
+            <div class="timeline-item__change-card">
+              <div class="timeline-item__change-card-header">
+                <span class="timeline-item__action-tag timeline-item__action-tag--${actionClass}">${action}</span>
+                ${recordName}
+              </div>
+              ${fieldsHtml}
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 单条记录渲染
       const cardClass = action === '新增' ? 'timeline-item__change-card--added' : action === '删除' ? 'timeline-item__change-card--deleted' : '';
       const recordName = log.tabName ? log.tabName + '(' + log.record + ')' : log.record;
 
