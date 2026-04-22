@@ -2216,6 +2216,8 @@
                         <option value="transfer">部门调动</option>
                         <option value="regular">转正审批</option>
                         <option value="declaration">人员报送</option>
+                        <option value="tax_edit">修改报送信息</option>
+                        <option value="tax_import">导入报送信息</option>
                     </select>
 
                     <select class="filter-control" aria-label="筛选操作人">
@@ -2345,6 +2347,59 @@
                                 <li class="change-item">
                                     <span class="change-field">报送状态:</span>
                                     <span class="change-val" style="background: transparent; padding: 0; font-weight: 600; color: var(--success);">报送成功</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.2 导入报送信息 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot blue"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">导入报送信息</span>
+                            <span class="timeline-meta">操作人: 财务-李明</span>
+                            <span class="timeline-meta">渠道: 批量导入</span>
+                            <span class="timeline-date">2026-03-20 11:30:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <p class="timeline-note">通过模板文件 <code>2026年3月专项附加扣除导入模板.xlsx</code> 更新了员工的个税附加扣除信息。导入状态：<strong style="color: var(--success);">导入成功</strong>。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1.3 修改报送信息 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot blue"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">修改报送信息</span>
+                            <span class="tag tag-gray" style="margin-left: 4px;">待报送</span>
+                            <span class="timeline-meta">操作人: 财务-李明</span>
+                            <span class="timeline-date">2026-03-18 15:45:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <ul class="change-list">
+                                <li class="change-item">
+                                    <span class="change-field" style="min-width: 120px;">残疾烈属孤老人员</span>
+                                    <span class="change-val old">否</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">是</span>
+                                </li>
+                                <li class="change-item">
+                                    <span class="change-field" style="min-width: 120px;">烈属证号</span>
+                                    <span class="change-val old" style="text-decoration: none;">-</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">LS123456789</span>
                                 </li>
                             </ul>
                         </div>
