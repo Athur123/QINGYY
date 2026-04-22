@@ -56,7 +56,7 @@
             font-weight: 500;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
         }
 
         .btn-primary {
@@ -88,7 +88,7 @@
         /* 左右布局容器 */
         .content-layout {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 320px;
             gap: 24px;
             align-items: start;
         }
@@ -276,8 +276,11 @@
             font-weight: 500;
             color: var(--text-secondary);
             cursor: pointer;
+            background: none;
+            border: none;
             border-bottom: 2px solid transparent;
-            transition: all 0.2s;
+            font-family: inherit;
+            transition: color 0.2s, border-color 0.2s;
             white-space: nowrap;
             flex-shrink: 0;
         }
@@ -297,12 +300,16 @@
             font-weight: 500;
             color: var(--text-secondary);
             cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
             display: flex;
             align-items: center;
             gap: 4px;
             white-space: nowrap;
             flex-shrink: 0;
             position: relative;
+            transition: color 0.2s, background-color 0.2s;
         }
 
         .tab-more:hover {
@@ -335,7 +342,13 @@
             font-size: 14px;
             color: var(--text-primary);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background-color 0.2s, color 0.2s;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            font-family: inherit;
         }
 
         .tab-more-item:hover {
@@ -510,7 +523,9 @@
             justify-content: center;
             cursor: pointer;
             color: var(--text-secondary);
-            transition: all 0.2s;
+            background: none;
+            border: none;
+            transition: background-color 0.2s, color 0.2s;
         }
 
         .modal-close:hover {
@@ -556,13 +571,18 @@
             border-radius: var(--radius-sm);
             font-size: 14px;
             color: var(--text-primary);
-            transition: all 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-input:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
         }
 
         .form-input::placeholder {
@@ -956,6 +976,63 @@
 <body>
     <!-- 主内容区 -->
     <main class="main-content">
+        <!-- 新的白底信息面板 -->
+        <section class="employee-hero-panel">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <a href="#" class="back-link">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        返回花名册
+                    </a>
+                    <div class="divider-vertical"></div>
+                    <h2 class="employee-name-header">
+                        曾强勇
+                        <span class="status-badge active">在职</span>
+                        <span class="tag tag-orange">退休返聘</span>
+                        <span class="tag tag-green">正式</span>
+                    </h2>
+                </div>
+                <div class="panel-header-right">
+                    <button class="btn btn-secondary">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        导出档案
+                    </button>
+                    <button class="btn btn-primary">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        编辑信息
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="avatar-medium">曾</div>
+                <div class="employee-meta-grid">
+                    <div class="meta-item">
+                        <span class="meta-label">手机号码:</span>
+                        <span class="meta-value">18575504349</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">入职日期:</span>
+                        <span class="meta-value">2025-02-25 <span class="meta-value-light">(司龄: 13个月)</span></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">年龄/性别:</span>
+                        <span class="meta-value">30岁 / 男</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">国籍:</span>
+                        <span class="meta-value">中国</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <div class="content-layout">
             <!-- 左侧详情区 -->
             <div class="detail-section">
@@ -963,25 +1040,25 @@
                 <section class="tabs-container">
                     <div class="tabs-header">
                         <div class="tabs-nav">
-                            <div class="tab-item active" data-tab="0">基础信息</div>
-                            <div class="tab-item" data-tab="1">合同信息</div>
-                            <div class="tab-item" data-tab="2">银行卡信息</div>
-                            <div class="tab-item" data-tab="3">教育经历</div>
-                            <div class="tab-item" data-tab="4">工作经历</div>
-                            <div class="tab-item" data-tab="5">家庭成员</div>
-                            <div class="tab-item" data-tab="6">紧急联系人</div>
-                            <div class="tab-item" data-tab="7">员工证书</div>
-                            <div class="tab-item" data-tab="8">个人材料</div>
-                            <div class="tab-item" data-tab="9">薪税档案</div>
-                            <div class="tab-item" data-tab="10">参保档案</div>
+                            <button class="tab-item active" data-tab="0">基础信息</button>
+                            <button class="tab-item" data-tab="1">合同信息</button>
+                            <button class="tab-item" data-tab="2">银行卡信息</button>
+                            <button class="tab-item" data-tab="3">教育经历</button>
+                            <button class="tab-item" data-tab="4">工作经历</button>
+                            <button class="tab-item" data-tab="5">家庭成员</button>
+                            <button class="tab-item" data-tab="6">紧急联系人</button>
+                            <button class="tab-item" data-tab="7">员工证书</button>
+                            <button class="tab-item" data-tab="8">个人材料</button>
+                            <button class="tab-item" data-tab="9">薪税档案</button>
+                            <button class="tab-item" data-tab="10">参保档案</button>
                         </div>
-                        <div class="tab-more hidden" id="tabMore">
+                        <button class="tab-more hidden" id="tabMore">
                             更多
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"/>
                             </svg>
                             <div class="tab-more-dropdown" id="tabMoreDropdown"></div>
-                        </div>
+                        </button>
                     </div>
                     <div class="tab-content">
                 <!-- 基础信息Tab -->
@@ -1985,37 +2062,7 @@
 
             <!-- 右侧摘要区 -->
             <div class="summary-section">
-                <section class="employee-hero-panel">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                            <h2 class="employee-name-header">
-                                曾强勇
-                                <span class="status-badge active">在职</span>
-                            </h2>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="avatar-medium">曾</div>
-                        <div class="employee-meta-grid">
-                            <div class="meta-item">
-                                <span class="meta-label">手机号码:</span>
-                                <span class="meta-value">18575504349</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">入职日期:</span>
-                                <span class="meta-value">2025-02-25 <span class="meta-value-light">(司龄: 13个月)</span></span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">年龄/性别:</span>
-                                <span class="meta-value">30岁 / 男</span>
-                            </div>
-                            <div class="meta-item">
-                                <span class="meta-label">国籍:</span>
-                                <span class="meta-value">中国</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+
 
                 <!-- 动态记录 -->
                 <section class="timeline-section" id="timelineSection">
@@ -2194,7 +2241,7 @@
             tabMoreDropdown.innerHTML = hiddenIndices.map(index => {
                 const label = tabItems[index].textContent;
                 const isActive = tabItems[index].classList.contains('active');
-                return `<div class="tab-more-item ${isActive ? 'active' : ''}" data-index="${index}">${label}</div>`;
+                return `<button type="button" class="tab-more-item ${isActive ? 'active' : ''}" data-index="${index}">${label}</button>`;
             }).join('');
 
             // 添加dropdown点击事件
@@ -2263,12 +2310,12 @@
             openModal('添加合同', `
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">合同编号</label>
-                        <input type="text" class="form-input" placeholder="HT2026000001">
+                        <label class="form-label required" for="contract-no">合同编号</label>
+                        <input type="text" id="contract-no" class="form-input" placeholder="HT2026000001">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">合同类型</label>
-                        <select class="form-input">
+                        <label class="form-label required" for="contract-type">合同类型</label>
+                        <select id="contract-type" class="form-input">
                             <option>劳动合同</option>
                             <option>实习协议</option>
                             <option>劳务协议</option>
@@ -2277,17 +2324,17 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">开始日期</label>
-                        <input type="date" class="form-input" value="2026-01-01">
+                        <label class="form-label required" for="contract-start">开始日期</label>
+                        <input type="date" id="contract-start" class="form-input" value="2026-01-01">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">结束日期</label>
-                        <input type="date" class="form-input" value="2029-01-01">
+                        <label class="form-label required" for="contract-end">结束日期</label>
+                        <input type="date" id="contract-end" class="form-input" value="2029-01-01">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">备注</label>
-                    <textarea class="form-input" rows="3" placeholder="请输入备注信息"></textarea>
+                    <label class="form-label" for="contract-note">备注</label>
+                    <textarea id="contract-note" class="form-input" rows="3" placeholder="请输入备注信息"></textarea>
                 </div>
             `);
         });
@@ -2296,32 +2343,32 @@
         document.getElementById('addBankCard')?.addEventListener('click', function() {
             openModal('添加银行卡', `
                 <div class="form-group">
-                    <label class="form-label required">银行卡号</label>
-                    <input type="text" class="form-input" placeholder="6222024000061234567">
+                    <label class="form-label required" for="bank-account">银行卡号</label>
+                    <input type="text" id="bank-account" class="form-input" placeholder="6222024000061234567">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">开户银行</label>
-                        <input type="text" class="form-input" placeholder="中国工商银行">
+                        <label class="form-label required" for="bank-name">开户银行</label>
+                        <input type="text" id="bank-name" class="form-input" placeholder="中国工商银行">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">开户支行</label>
-                        <input type="text" class="form-input" placeholder="深圳分行">
+                        <label class="form-label required" for="bank-branch">开户支行</label>
+                        <input type="text" id="bank-branch" class="form-input" placeholder="深圳分行">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">开户姓名</label>
-                        <input type="text" class="form-input" placeholder="请输入姓名">
+                        <label class="form-label required" for="bank-user">开户姓名</label>
+                        <input type="text" id="bank-user" class="form-input" placeholder="请输入姓名">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">证件号码</label>
-                        <input type="text" class="form-input" placeholder="身份证号码">
+                        <label class="form-label required" for="bank-id">证件号码</label>
+                        <input type="text" id="bank-id" class="form-input" placeholder="身份证号码">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">设为默认</label>
-                    <select class="form-input">
+                    <label class="form-label" for="is-default">设为默认</label>
+                    <select id="is-default" class="form-input">
                         <option>否</option>
                         <option>是</option>
                     </select>
@@ -2334,12 +2381,12 @@
             openModal('添加教育经历', `
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">学校名称</label>
-                        <input type="text" class="form-input" placeholder="请输入学校名称">
+                        <label class="form-label required" for="edu-school">学校名称</label>
+                        <input type="text" id="edu-school" class="form-input" placeholder="请输入学校名称">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">学历</label>
-                        <select class="form-input">
+                        <label class="form-label required" for="edu-degree">学历</label>
+                        <select id="edu-degree" class="form-input">
                             <option>博士</option>
                             <option>硕士</option>
                             <option>本科</option>
@@ -2350,22 +2397,22 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">学位</label>
-                        <input type="text" class="form-input" placeholder="如：工学学士">
+                        <label class="form-label" for="edu-certificate">学位</label>
+                        <input type="text" id="edu-certificate" class="form-input" placeholder="如：工学学士">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">专业</label>
-                        <input type="text" class="form-input" placeholder="请输入专业">
+                        <label class="form-label" for="edu-major">专业</label>
+                        <input type="text" id="edu-major" class="form-input" placeholder="请输入专业">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">入学时间</label>
-                        <input type="month" class="form-input" value="2020-09">
+                        <label class="form-label required" for="edu-start">入学时间</label>
+                        <input type="month" id="edu-start" class="form-input" value="2020-09">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">毕业时间</label>
-                        <input type="month" class="form-input" value="2024-06">
+                        <label class="form-label required" for="edu-end">毕业时间</label>
+                        <input type="month" id="edu-end" class="form-input" value="2024-06">
                     </div>
                 </div>
             `);
@@ -2375,32 +2422,32 @@
         document.getElementById('addWork')?.addEventListener('click', function() {
             openModal('添加工作经历', `
                 <div class="form-group">
-                    <label class="form-label required">公司名称</label>
-                    <input type="text" class="form-input" placeholder="请输入公司名称">
+                    <label class="form-label required" for="work-company">公司名称</label>
+                    <input type="text" id="work-company" class="form-input" placeholder="请输入公司名称">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">职位</label>
-                        <input type="text" class="form-input" placeholder="请输入职位">
+                        <label class="form-label required" for="work-position">职位</label>
+                        <input type="text" id="work-position" class="form-input" placeholder="请输入职位">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">部门</label>
-                        <input type="text" class="form-input" placeholder="请输入部门">
+                        <label class="form-label" for="work-dept">部门</label>
+                        <input type="text" id="work-dept" class="form-input" placeholder="请输入部门">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">入职时间</label>
-                        <input type="month" class="form-input" value="2020-01">
+                        <label class="form-label required" for="work-start">入职时间</label>
+                        <input type="month" id="work-start" class="form-input" value="2020-01">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">离职时间</label>
-                        <input type="month" class="form-input" value="2024-12">
+                        <label class="form-label required" for="work-end">离职时间</label>
+                        <input type="month" id="work-end" class="form-input" value="2024-12">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">离职原因</label>
-                    <input type="text" class="form-input" placeholder="请输入离职原因">
+                    <label class="form-label" for="work-reason">离职原因</label>
+                    <input type="text" id="work-reason" class="form-input" placeholder="请输入离职原因">
                 </div>
             `);
         });
@@ -2410,12 +2457,12 @@
             openModal('添加家庭成员', `
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">姓名</label>
-                        <input type="text" class="form-input" placeholder="请输入姓名">
+                        <label class="form-label required" for="family-name">姓名</label>
+                        <input type="text" id="family-name" class="form-input" placeholder="请输入姓名">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">关系</label>
-                        <select class="form-input">
+                        <label class="form-label required" for="family-relation">关系</label>
+                        <select id="family-relation" class="form-input">
                             <option>配偶</option>
                             <option>父亲</option>
                             <option>母亲</option>
@@ -2427,17 +2474,17 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">联系电话</label>
-                        <input type="tel" class="form-input" placeholder="13800138000">
+                        <label class="form-label required" for="family-tel">联系电话</label>
+                        <input type="tel" id="family-tel" class="form-input" placeholder="13800138000">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">备用电话</label>
-                        <input type="tel" class="form-input" placeholder="13900139000">
+                        <label class="form-label" for="family-alt-tel">备用电话</label>
+                        <input type="tel" id="family-alt-tel" class="form-input" placeholder="13900139000">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">工作单位</label>
-                    <input type="text" class="form-input" placeholder="请输入工作单位">
+                    <label class="form-label" for="family-company">工作单位</label>
+                    <input type="text" id="family-company" class="form-input" placeholder="请输入工作单位">
                 </div>
             `);
         });
@@ -2447,12 +2494,12 @@
             openModal('添加紧急联系人', `
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">姓名</label>
-                        <input type="text" class="form-input" placeholder="请输入姓名">
+                        <label class="form-label required" for="em-name">姓名</label>
+                        <input type="text" id="em-name" class="form-input" placeholder="请输入姓名">
                     </div>
                     <div class="form-group">
-                        <label class="form-label required">关系</label>
-                        <select class="form-input">
+                        <label class="form-label required" for="em-relation">关系</label>
+                        <select id="em-relation" class="form-input">
                             <option>配偶</option>
                             <option>父亲</option>
                             <option>母亲</option>
@@ -2466,12 +2513,12 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label required">联系电话</label>
-                        <input type="tel" class="form-input" placeholder="13800138000">
+                        <label class="form-label required" for="em-tel">联系电话</label>
+                        <input type="tel" id="em-tel" class="form-input" placeholder="13800138000">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">备用电话</label>
-                        <input type="tel" class="form-input" placeholder="13900139000">
+                        <label class="form-label" for="em-alt-tel">备用电话</label>
+                        <input type="tel" id="em-alt-tel" class="form-input" placeholder="13900139000">
                     </div>
                 </div>
             `);
@@ -2490,12 +2537,12 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title" id="modalTitle">添加</h3>
-                <div class="modal-close">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button type="button" class="modal-close" aria-label="关闭弹窗">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"/>
                         <line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
-                </div>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="modalForm"></form>
