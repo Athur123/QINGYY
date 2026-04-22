@@ -2489,14 +2489,21 @@
                   </div>
                 `).join('')}
               </div>
-            `).join('') : log.changes.map(change => `
-              <div class="timeline-item__detail-row">
-                <span class="timeline-item__detail-label">${change.field}:</span>
-                <span class="timeline-item__detail-old">${change.oldValue}</span>
-                <span class="timeline-item__detail-arrow">→</span>
-                <span class="timeline-item__detail-new">${change.newValue}</span>
+            `).join('') : `
+              <div class="timeline-item__change-card">
+                <div class="timeline-item__change-card-header">
+                  <span class="timeline-item__action-tag timeline-item__action-tag--edit">编辑</span>
+                </div>
+                ${log.changes.map(change => `
+                  <div class="timeline-item__change-detail">
+                    <span class="timeline-item__change-detail-label">${change.field}:</span>
+                    <span class="timeline-item__change-detail-old">${change.oldValue}</span>
+                    <span class="timeline-item__change-detail-arrow">→</span>
+                    <span class="timeline-item__change-detail-new">${change.newValue}</span>
+                  </div>
+                `).join('')}
               </div>
-            `).join('')}
+            `}
           </div>
         </div>
       `).join('');
