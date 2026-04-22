@@ -2201,6 +2201,7 @@
                     <option value="修改员工档案">修改员工档案</option>
                     <option value="参保报送">参保报送</option>
                     <option value="个税报送">个税报送</option>
+                    <option value="添加报送人员">添加报送人员</option>
                   </select>
                   <select class="filter-select" id="timeFilter">
                     <option value="">全部时间</option>
@@ -2346,6 +2347,26 @@
     // - changes: [{ field, oldValue, newValue }] - 变更字段
     // - fields: { key: value } - 新增/删除的完整字段
     const dynamicLogs = [
+      // 个税档案 - 添加报送人员
+      {
+        eventType: "添加报送人员",
+        eventTypeClass: "primary",
+        eventTime: "2026-04-22 16:00",
+        operator: "张三",
+        dotClass: "timeline-item__dot--primary",
+        action: "新增",
+        tabName: "个税档案",
+        record: "测试企业",
+        fields: {
+          "扣缴义务人": "测试企业有限公司",
+          "人员状态": "正常",
+          "申报状态": "待申报",
+          "主管税务机关名称": "国家税务总局深圳市税务局",
+          "是否默认": "是",
+          "是否允许算税": "是",
+          "任职受雇从业类型": "雇员"
+        }
+      },
       // 基础信息变更
       {
         eventType: "修改员工档案",
