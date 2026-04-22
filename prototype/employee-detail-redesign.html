@@ -859,8 +859,24 @@
         .timeline-item {
             display: flex;
             gap: 16px;
-            padding: 12px 0;
-            border-bottom: 1px dashed var(--border-light);
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 4.5px;
+            top: 36px;
+            bottom: -16px;
+            width: 1px;
+            background: var(--border-light);
+            z-index: 0;
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
         }
 
         .timeline-item:last-child {
@@ -872,27 +888,124 @@
             height: 10px;
             border-radius: 50%;
             background: var(--primary);
-            margin-top: 5px;
+            margin-top: 6px;
             flex-shrink: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .timeline-dot.orange { background: var(--warning); }
         .timeline-dot.green { background: var(--success); }
+        .timeline-dot.blue { background: var(--primary); }
+        .timeline-dot.red { background: var(--danger); }
 
         .timeline-content {
             flex: 1;
+            min-width: 0;
+        }
+
+        .timeline-header-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
         }
 
         .timeline-event {
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 4px;
+        }
+
+        .timeline-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timeline-meta::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .timeline-meta:first-of-type::before {
+            display: none;
         }
 
         .timeline-date {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .timeline-body {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin-top: 8px;
+        }
+
+        .change-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .change-item {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .change-field {
+            color: var(--text-secondary);
+            min-width: 80px;
+        }
+
+        .change-val {
+            font-family: 'SF Mono', Monaco, monospace;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .change-val.old {
+            text-decoration: line-through;
+            color: var(--text-muted);
+            background: transparent;
+            padding: 0;
+        }
+
+        .change-val.new {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .change-arrow {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+        }
+        
+        .timeline-note {
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin: 0;
         }
 
 
@@ -943,6 +1056,23 @@
             
             .info-item.full-width {
                 grid-column: span 1;
+            }
+
+            .timeline-header-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .timeline-date {
+                margin-left: 0;
+            }
+            .timeline-meta::before {
+                display: none;
+            }
+            .timeline-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
             }
         }
     </style>
@@ -2045,116 +2175,132 @@
 
             </div>
             <div class="timeline-list">
+                <!-- 1. 修改档案 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot blue"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">修改人员档案</span>
+                            <span class="timeline-meta">操作人: 张HR (管理员)</span>
+                            <span class="timeline-date">2026-04-22 14:30:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <ul class="change-list">
+                                <li class="change-item">
+                                    <span class="change-field">手机号码</span>
+                                    <span class="change-val old">13800138000</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">18575504349</span>
+                                </li>
+                                <li class="change-item">
+                                    <span class="change-field">政治面貌</span>
+                                    <span class="change-val old">群众</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">中共党员</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 个税报送 -->
                 <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2026-01-26</div>
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">人员个税报送</span>
+                            <span class="timeline-meta">操作人: 系统自动触发</span>
+                            <span class="timeline-meta">渠道: 薪税系统接口</span>
+                            <span class="timeline-date">2026-03-15 02:00:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <p class="timeline-note">2026年3月个税申报数据已成功同步至税务局接口，申报状态：<strong>申报成功</strong>。</p>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 3. 部门调动 -->
                 <div class="timeline-item">
                     <div class="timeline-dot orange"></div>
                     <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2026-01-26</div>
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">部门调动</span>
+                            <span class="timeline-meta">操作人: 李总监</span>
+                            <span class="timeline-date">2026-02-01 10:15:30</span>
+                        </div>
+                        <div class="timeline-body">
+                            <ul class="change-list">
+                                <li class="change-item">
+                                    <span class="change-field">所属部门</span>
+                                    <span class="change-val old">研发中心 / 前端部</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">创新业务部 / 架构组</span>
+                                </li>
+                                <li class="change-item">
+                                    <span class="change-field">汇报对象</span>
+                                    <span class="change-val old">王主管</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">李总监</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 4. 转正 -->
                 <div class="timeline-item">
                     <div class="timeline-dot green"></div>
                     <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2026-01-08</div>
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">转正审批通过</span>
+                            <span class="timeline-meta">操作人: 王主管</span>
+                            <span class="timeline-date">2025-08-25 16:00:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <ul class="change-list">
+                                <li class="change-item">
+                                    <span class="change-field">员工状态</span>
+                                    <span class="change-val old">试用期</span>
+                                    <span class="change-arrow">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                                        </svg>
+                                    </span>
+                                    <span class="change-val new">正式</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 5. 首次入职 -->
                 <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
+                    <div class="timeline-dot blue"></div>
                     <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2026-01-08</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot green"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2025-12-29</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2025-12-29</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot green"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2025-12-09</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2025-12-09</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot green"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2025-12-08</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2025-12-08</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot green"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2025-09-09</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2025-09-09</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot green"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2025-03-04</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2025-03-04</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot green"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">转正</div>
-                        <div class="timeline-date">2025-02-25</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot orange"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-event">入职</div>
-                        <div class="timeline-date">2025-02-25</div>
+                        <div class="timeline-header-row">
+                            <span class="timeline-event">员工入职</span>
+                            <span class="timeline-meta">操作人: 张HR</span>
+                            <span class="timeline-date">2025-02-25 09:00:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <p class="timeline-note">创建员工档案，完成首次入职登记。</p>
+                        </div>
                     </div>
                 </div>
             </div>
