@@ -678,6 +678,98 @@
     .header .btn--secondary {
       height: 32px;
     }
+
+    /* Filter Select */
+    .filter-select {
+      height: 28px;
+      padding: 0 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      cursor: pointer;
+    }
+
+    /* Timeline */
+    .timeline {
+      padding: 16px;
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 16px;
+      position: relative;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 9px;
+      top: 20px;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .timeline-item__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .timeline-item__content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .timeline-item__title {
+      font-size: 13px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .timeline-item__meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .timeline-item__type {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .timeline-item__type--info {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .timeline-item__type--success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .timeline-item__type--warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
   </style>
 </head>
 <body>
@@ -1651,6 +1743,64 @@
                         <div class="detail-item__label">住房公积金</div>
                         <div class="detail-item__value">22,000元</div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Content -->
+          <div id="dynamic-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">动态记录</span>
+                <select class="filter-select">
+                  <option>全部时间</option>
+                  <option>近一周</option>
+                  <option>近一月</option>
+                  <option>近三月</option>
+                  <option>近一年</option>
+                </select>
+              </div>
+              <div class="timeline" id="dynamicTimeline">
+                <div class="timeline-item">
+                  <div class="timeline-item__dot" style="background: var(--success)"></div>
+                  <div class="timeline-item__content">
+                    <div class="timeline-item__title">转正申请已通过</div>
+                    <div class="timeline-item__meta">
+                      <span class="timeline-item__type timeline-item__type--success">转正</span>
+                      <span>2026-01-01 10:30</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-item__dot" style="background: var(--primary)"></div>
+                  <div class="timeline-item__content">
+                    <div class="timeline-item__title">岗位晋升为高级Java开发工程师</div>
+                    <div class="timeline-item__meta">
+                      <span class="timeline-item__type timeline-item__type--info">晋升</span>
+                      <span>2026-01-01 09:00</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-item__dot" style="background: var(--success)"></div>
+                  <div class="timeline-item__content">
+                    <div class="timeline-item__title">入职成功，正式加入公司</div>
+                    <div class="timeline-item__meta">
+                      <span class="timeline-item__type timeline-item__type--success">入职</span>
+                      <span>2025-02-17 14:00</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-item__dot" style="background: var(--text-muted)"></div>
+                  <div class="timeline-item__content">
+                    <div class="timeline-item__title">项目归属：深圳纬易发信息技术有限公司</div>
+                    <div class="timeline-item__meta">
+                      <span class="timeline-item__type timeline-item__type--warning">项目归属</span>
+                      <span>2025-02-17 10:00</span>
                     </div>
                   </div>
                 </div>
