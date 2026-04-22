@@ -2727,7 +2727,6 @@
     }
 
     // 初始化动态记录
-    initFieldFilter();
     renderDynamicLogs();
 
     // ============================================================================
@@ -3099,7 +3098,6 @@
 
         dynamicLogs.unshift(newLog);
         renderDynamicLogs();
-        initFieldFilter();
       }
 
       closeModal();
@@ -3146,7 +3144,6 @@
 
       dynamicLogs.unshift(newLog);
       renderDynamicLogs();
-      initFieldFilter();
     }
 
     // 为所有编辑按钮添加点击事件
@@ -3179,7 +3176,6 @@
 
           dynamicLogs.unshift(newLog);
           renderDynamicLogs();
-          initFieldFilter();
         }
       });
     });
