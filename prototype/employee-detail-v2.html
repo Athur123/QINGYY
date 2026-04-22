@@ -1851,6 +1851,9 @@
                     <option value="参保报送">参保报送</option>
                     <option value="个税报送">个税报送</option>
                   </select>
+                  <select class="filter-select" id="fieldFilter">
+                    <option value="">全部字段</option>
+                  </select>
                   <select class="filter-select" id="timeFilter">
                     <option value="">全部时间</option>
                     <option value="7">近一周</option>
@@ -2033,6 +2036,7 @@
     function renderDynamicLogs() {
       const timeline = document.getElementById('dynamicTimeline');
       const typeFilter = document.getElementById('typeFilter');
+      const fieldFilter = document.getElementById('fieldFilter');
       const timeFilter = document.getElementById('timeFilter');
       if (!timeline) return;
 
@@ -2041,6 +2045,13 @@
       // 按类型筛选
       if (typeFilter && typeFilter.value) {
         filteredLogs = filteredLogs.filter(log => log.eventType === typeFilter.value);
+      }
+
+      // 按字段筛选
+      if (fieldFilter && fieldFilter.value) {
+        filteredLogs = filteredLogs.filter(log =>
+          log.changes.some(change => change.field === fieldFilter.value)
+        );
       }
 
       // 按时间筛选
@@ -2081,6 +2092,24 @@
       `).join('');
     }
 
+    // 初始化字段筛选下拉框
+    function initFieldFilter() {
+      const fieldFilter = document.getElementById('fieldFilter');
+      if (!fieldFilter) return;
+
+      // 提取所有唯一字段
+      const fields = [...new Set(
+        dynamicLogs.flatMap(log => log.changes.map(change => change.field))
+      )].sort();
+
+      fields.forEach(field => {
+        const option = document.createElement('option');
+        option.value = field;
+        option.textContent = field;
+        fieldFilter.appendChild(option);
+      });
+    }
+
     function toggleLogDetail(index) {
       const detail = document.getElementById('logDetail' + index);
       const icon = document.getElementById('expandIcon' + index);
@@ -2096,10 +2125,12 @@
     }
 
     // 初始化动态记录
+    initFieldFilter();
     renderDynamicLogs();
 
     // 筛选器事件绑定
     document.getElementById('typeFilter')?.addEventListener('change', renderDynamicLogs);
+    document.getElementById('fieldFilter')?.addEventListener('change', renderDynamicLogs);
     document.getElementById('timeFilter')?.addEventListener('change', renderDynamicLogs);
   </script>
 </body>
