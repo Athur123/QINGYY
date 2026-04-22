@@ -2021,9 +2021,9 @@
           <div class="timeline-item__header" onclick="toggleLogDetail(${index})">
             <span class="timeline-item__time">${log.eventTime}</span>
             <span class="timeline-item__type timeline-item__type--${log.eventTypeClass}">${log.eventType}</span>
-            <span class="timeline-item__expand" id="expandIcon${index}">展开</span>
+            <span class="timeline-item__expand" id="expandIcon${index}">收起</span>
           </div>
-          <div class="timeline-item__detail" id="logDetail${index}">
+          <div class="timeline-item__detail timeline-item__detail--open" id="logDetail${index}">
             <div class="timeline-item__detail-row">
               <span class="timeline-item__detail-label">操作人:</span>
               <span>${log.operator}</span>
