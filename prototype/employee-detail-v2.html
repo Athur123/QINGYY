@@ -2317,6 +2317,10 @@
       });
     });
 
+    // ============================================================================
+    // SECTION: Copy Function
+    // ============================================================================
+
     // Copy value to clipboard
     function copyValue(element) {
       const text = element.textContent.trim().replace(/[\s\n]+/g, ' ');
@@ -2333,6 +2337,10 @@
         }
       });
     }
+
+    // ============================================================================
+    // SECTION: Dynamic Logs Data & Renderer
+    // ============================================================================
 
     // Dynamic Logs Data (Unified Structure)
     // Structure: { eventType, eventTypeClass, eventTime, operator, dotClass, action, tabName, record, changes, fields }
@@ -2764,6 +2772,10 @@
     initFieldFilter();
     renderDynamicLogs();
 
+    // ============================================================================
+    // SECTION: Modal & Form Handlers
+    // ============================================================================
+
     // 筛选器事件绑定
     document.getElementById('typeFilter')?.addEventListener('change', renderDynamicLogs);
     document.getElementById('fieldFilter')?.addEventListener('change', renderDynamicLogs);
@@ -2773,6 +2785,10 @@
     let currentEditType = ''; // 'contract', 'bank', 'education', etc.
     let currentEditIndex = -1;
     let currentFormData = {};
+
+    // ============================================================================
+    // SECTION: Sample Data
+    // ============================================================================
 
     // 示例数据（实际应从后端获取）
     const contractData = [
@@ -3131,6 +3147,10 @@
       closeModal();
     }
 
+    // ============================================================================
+    // SECTION: Helper Functions
+    // ============================================================================
+
     // 辅助函数：生成变更记录
     function generateChanges(category, oldData, newData) {
       const changes = [];
@@ -3145,6 +3165,10 @@
       }
       return changes;
     }
+
+    // ============================================================================
+    // SECTION: Delete Record Handler
+    // ============================================================================
 
     // 删除记录
     function deleteRecord(type, index, label) {
