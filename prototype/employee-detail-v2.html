@@ -932,6 +932,30 @@
       color: var(--danger-text);
     }
 
+    /* 操作标签 */
+    .timeline-item__action-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .timeline-item__action-tag--add {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .timeline-item__action-tag--edit {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .timeline-item__action-tag--delete {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
     .timeline-item__change-detail {
       display: flex;
       align-items: center;
@@ -2219,110 +2243,110 @@
         ]
       },
       {
-        eventType: "编辑合同",
+        eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-04-20 16:20",
         operator: "王五",
         dotClass: "",
         // 编辑合同明细 - 用卡片展示
         recordChanges: [
-          { record: "劳动合同 (2025-02-17 ~ 2028-02-16)", changes: [
+          { action: "编辑", record: "劳动合同 (2025-02-17 ~ 2028-02-16)", changes: [
             { field: "合同期限", oldValue: "3年", newValue: "5年" },
             { field: "结束日期", oldValue: "2028-02-16", newValue: "2030-02-16" }
           ] }
         ]
       },
       {
-        eventType: "新增银行卡",
+        eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-04-18 11:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        // 多条新增记录
-        records: [
-          { label: "招商银行 (副卡)", fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" } }
+        // 新增银行卡
+        newRecords: [
+          { action: "新增", label: "招商银行 (副卡)", fields: { "开户银行": "招商银行深圳福田支行", "银行账号": "6222***********5678", "账户名称": "曾强勇" } }
         ]
       },
       {
-        eventType: "编辑教育",
+        eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-04-15 09:30",
         operator: "李四",
         dotClass: "",
         // 编辑教育明细 - 用卡片展示
         recordChanges: [
-          { record: "深圳大学 (2016-09 ~ 2020-06)", changes: [
+          { action: "编辑", record: "深圳大学 (2016-09 ~ 2020-06)", changes: [
             { field: "学历", oldValue: "本科", newValue: "硕士" }
           ] }
         ]
       },
       {
-        eventType: "新增工作经历",
+        eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-03-20 14:00",
         operator: "张三",
         dotClass: "timeline-item__dot--primary",
-        // 多条新增记录
-        records: [
-          { label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
+        // 新增工作经历
+        newRecords: [
+          { action: "新增", label: "深圳XX科技有限公司", fields: { "公司名称": "深圳XX科技有限公司", "职位": "高级Java开发工程师", "开始日期": "2025-03-01" } }
         ]
       },
       {
-        eventType: "批量删除工作经历",
+        eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-03-12 15:00",
         operator: "王五",
         dotClass: "timeline-item__dot--danger",
         // 删除的工作经历 - 用卡片展示
         deletedRecords: [
-          { record: "深圳YY网络公司", detail: "职位: 初级前端开发工程师 | 2014-07-01 ~ 2016-08-31" },
-          { record: "广州ZZ科技", detail: "职位: Web前端开发 | 2012-03-01 ~ 2014-06-30" }
+          { action: "删除", record: "深圳YY网络公司", detail: "职位: 初级前端开发工程师 | 2014-07-01 ~ 2016-08-31" },
+          { action: "删除", record: "广州ZZ科技", detail: "职位: Web前端开发 | 2012-03-01 ~ 2014-06-30" }
         ]
       },
       {
-        eventType: "批量编辑银行卡",
+        eventType: "修改员工档案",
         eventTypeClass: "gray",
         eventTime: "2026-03-11 11:00",
         operator: "张三",
         dotClass: "",
         // 编辑多条银行卡 - recordChanges按卡片分组显示
         recordChanges: [
-          { record: "中国工商银行", changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }] },
-          { record: "招商银行", changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }] }
+          { action: "编辑", record: "中国工商银行", changes: [{ field: "开户城市", oldValue: "深圳市", newValue: "广州市" }] },
+          { action: "编辑", record: "招商银行", changes: [{ field: "银行账号", oldValue: "6222***********5678", newValue: "6222***********9999" }] }
         ]
       },
       {
-        eventType: "批量删除银行卡",
+        eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-03-10 16:30",
         operator: "王五",
         dotClass: "timeline-item__dot--danger",
         // 删除的银行卡按卡片分组显示
         deletedRecords: [
-          { record: "中国建设银行龙卡", detail: "开户银行: 中国建设银行深圳分行 | 银行账号: 6222***********3456" }
+          { action: "删除", record: "中国建设银行龙卡", detail: "开户银行: 中国建设银行深圳分行 | 银行账号: 6222***********3456" }
         ]
       },
       {
-        eventType: "删除证书",
+        eventType: "修改员工档案",
         eventTypeClass: "danger",
         eventTime: "2026-03-10 10:30",
         operator: "王五",
         dotClass: "timeline-item__dot--danger",
         // 删除证书明细 - 用卡片展示
         deletedRecords: [
-          { record: "PMP项目管理师", detail: "证书编号: PMP-2020-1234 | 发证机构: PMI | 有效期: 2023-12-31" }
+          { action: "删除", record: "PMP项目管理师", detail: "证书编号: PMP-2020-1234 | 发证机构: PMI | 有效期: 2023-12-31" }
         ]
       },
       {
-        eventType: "批量新增工作经历",
+        eventType: "修改员工档案",
         eventTypeClass: "primary",
         eventTime: "2026-02-15 09:00",
         operator: "李四",
         dotClass: "timeline-item__dot--primary",
         // 一次性新增多条工作经历
-        records: [
-          { label: "阿里巴巴集团", fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" } },
-          { label: "腾讯科技", fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" } }
+        newRecords: [
+          { action: "新增", label: "阿里巴巴集团", fields: { "公司名称": "阿里巴巴集团", "职位": "高级前端开发工程师", "开始日期": "2019-07-01", "结束日期": "2024-12-31" } },
+          { action: "新增", label: "腾讯科技", fields: { "公司名称": "腾讯科技", "职位": "前端开发工程师", "开始日期": "2016-09-01", "结束日期": "2019-06-30" } }
         ]
       },
       {
@@ -2399,7 +2423,7 @@
         filteredLogs = filteredLogs.filter(log => {
           if (log.changes) return log.changes.some(change => change.field === fieldFilter.value);
           if (log.recordChanges) return log.recordChanges.some(rc => rc.changes.some(c => c.field === fieldFilter.value));
-          if (log.records) return log.records.some(r => Object.keys(r.fields).includes(fieldFilter.value));
+          if (log.newRecords) return log.newRecords.some(r => Object.keys(r.fields).includes(fieldFilter.value));
           return false;
         });
       }
@@ -2426,19 +2450,25 @@
             <span class="timeline-item__expand" id="expandIcon${index}">收起</span>
           </div>
           <div class="timeline-item__detail timeline-item__detail--open" id="logDetail${index}">
-            ${log.records ? log.records.map((record, ri) => `
-              <div class="timeline-item__record">
-                <div class="timeline-item__record-label">${record.label}</div>
+            ${log.newRecords ? log.newRecords.map((record, ri) => `
+              <div class="timeline-item__change-card">
+                <div class="timeline-item__change-card-header">
+                  <span class="timeline-item__action-tag timeline-item__action-tag--add">${record.action}</span>
+                  ${record.label}
+                </div>
                 ${Object.entries(record.fields).map(([key, value]) => `
-                  <div class="timeline-item__detail-row">
-                    <span class="timeline-item__detail-label">${key}:</span>
-                    <span class="timeline-item__detail-new">${value}</span>
+                  <div class="timeline-item__change-detail">
+                    <span class="timeline-item__change-detail-label">${key}:</span>
+                    <span class="timeline-item__change-detail-new">${value}</span>
                   </div>
                 `).join('')}
               </div>
             `).join('') : log.recordChanges ? log.recordChanges.map(rc => `
               <div class="timeline-item__change-card">
-                <div class="timeline-item__change-card-header">✏️ ${rc.record}</div>
+                <div class="timeline-item__change-card-header">
+                  <span class="timeline-item__action-tag timeline-item__action-tag--edit">${rc.action}</span>
+                  ${rc.record}
+                </div>
                 ${rc.changes.map(change => `
                   <div class="timeline-item__change-detail">
                     <span class="timeline-item__change-detail-label">${change.field}:</span>
@@ -2451,7 +2481,7 @@
             `).join('') : log.deletedRecords ? log.deletedRecords.map(dr => `
               <div class="timeline-item__change-card timeline-item__change-card--deleted">
                 <div class="timeline-item__change-card-header">
-                  <span class="timeline-item__change-card-icon">×</span>
+                  <span class="timeline-item__action-tag timeline-item__action-tag--delete">${dr.action}</span>
                   ${dr.record}
                 </div>
                 <div class="timeline-item__change-detail" style="color: var(--text-secondary); font-size: 12px;">
@@ -2476,13 +2506,13 @@
       const fieldFilter = document.getElementById('fieldFilter');
       if (!fieldFilter) return;
 
-      // 提取所有唯一字段（包括changes、records和recordChanges中的字段）
+      // 提取所有唯一字段（包括changes、newRecords和recordChanges中的字段）
       const fields = [...new Set(
         dynamicLogs.flatMap(log => {
           const changeFields = log.changes ? log.changes.map(change => change.field) : [];
-          const recordFields = log.records ? log.records.flatMap(r => Object.keys(r.fields)) : [];
+          const newRecordFields = log.newRecords ? log.newRecords.flatMap(r => Object.keys(r.fields)) : [];
           const recordChangeFields = log.recordChanges ? log.recordChanges.flatMap(rc => rc.changes.map(c => c.field)) : [];
-          return [...changeFields, ...recordFields, ...recordChangeFields];
+          return [...changeFields, ...newRecordFields, ...recordChangeFields];
         })
       )].sort();
 
