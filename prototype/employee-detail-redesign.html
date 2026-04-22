@@ -704,7 +704,7 @@
 
         .info-grid-inner {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px 32px;
         }
 
@@ -715,7 +715,7 @@
         }
 
         .info-item.full-width {
-            grid-column: span 2;
+            grid-column: span 3;
         }
 
         .info-label {
@@ -935,6 +935,14 @@
 
             .info-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .info-grid-inner {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-item.full-width {
+                grid-column: span 1;
             }
         }
     </style>
