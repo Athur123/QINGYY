@@ -7,6 +7,7 @@
 - 动态记录时间线组件
 - 明细记录（新增/编辑/删除）卡片展示
 - 统一的数据结构
+- 支持批量变更的多明细卡片
 
 ## 页面结构
 
@@ -36,6 +37,7 @@
 
 ### 数据结构（统一）
 
+**单条记录：**
 ```javascript
 {
   eventType: "修改员工档案",    // 显示的事件类型
@@ -43,13 +45,58 @@
   eventTime: "2026-04-22 14:30",
   operator: "张三",
   dotClass: "",                 // 圆点样式
-  action: "编辑",               // 新增/编辑/删除
+  action: "编辑",              // 新增/编辑/删除
   tabName: "银行卡",            // Tab名称，基础信息为空
-  record: "招商银行(副卡)",      // 记录名称
+  record: "招商银行(副卡)",     // 记录名称
   changes: [                    // 变更字段（编辑时）
     { field: "开户银行", oldValue: "-", newValue: "招商银行深圳福田支行" }
-  ],
-  fields: {...}                 // 完整字段（新增/删除时）
+  ]
+}
+```
+
+**批量记录（同一业务操作产生多笔变更）：**
+```javascript
+{
+  eventType: "修改默认申报主体",
+  eventTypeClass: "primary",
+  eventTime: "2026-04-22 19:00",
+  operator: "张三",
+  dotClass: "timeline-item__dot--primary",
+  action: "编辑",
+  tabName: "个税档案",
+  details: [
+    {
+      record: "测试个税企业2",
+      changes: [{ field: "是否默认", oldValue: "否", newValue: "是" }]
+    },
+    {
+      record: "测试企业",
+      changes: [{ field: "是否默认", oldValue: "是", newValue: "否" }]
+    }
+  ]
+}
+```
+
+**新增/删除记录：**
+```javascript
+{
+  eventType: "添加报送人员",
+  eventTypeClass: "primary",
+  eventTime: "2026-04-22 16:00",
+  operator: "张三",
+  dotClass: "timeline-item__dot--primary",
+  action: "新增",
+  tabName: "个税档案",
+  record: "测试企业",
+  fields: {
+    "扣缴义务人": "测试企业有限公司",
+    "人员状态": "正常",
+    "申报状态": "待申报",
+    "主管税务机关名称": "国家税务总局深圳市税务局",
+    "是否默认": "是",
+    "是否允许算税": "是",
+    "任职受雇从业类型": "雇员"
+  }
 }
 ```
 
@@ -68,28 +115,67 @@
 | 参保报送 | primary | 社保公积金报送 |
 | 个税报送 | primary | 税务申报 |
 | 个税档案 | primary/gray/danger | 个税档案操作 |
+| 添加报送人员 | primary | 添加个税报送人员 |
+| 修改默认申报主体 | primary | 修改默认申报主体 |
+| 同步报送信息 | primary | 同步报送状态 |
+| 人员报送 | primary | 人员报送操作 |
 
 ### 操作标签
 
 | action | 标签颜色 | CSS类 |
 |--------|---------|-------|
-| 新增 | 绿色 `#d1fae5` 背景 + `#065f46` 文字 | `timeline-item__action-tag--add` |
-| 编辑 | 蓝色 `#eff6ff` 背景 + `#2563EB` 文字 | `timeline-item__action-tag--edit` |
-| 删除 | 红色 `#fee2e2` 背景 + `#991b1b` 文字 | `timeline-item__action-tag--delete` |
+| 新增 | 浅绿 `#dcfce7` 背景 + 深绿 `#166534` 文字 | `timeline-item__action-tag--add` |
+| 编辑 | 浅蓝 `#dbeafe` 背景 + 深蓝 `#1e40af` 文字 | `timeline-item__action-tag--edit` |
+| 删除 | 浅红 `#fee2e2` 背景 + 深红 `#991b1b` 文字 | `timeline-item__action-tag--delete` |
 
-### 卡片样式
+### 卡片样式（Sub-record Card）
 
-**新增记录卡片** (`timeline-item__change-card--added`)
-- 背景：#f0fdf4（浅绿）
-- 边框：#bbf7d0（绿色）
+**结构：**
+```
+┌─────────────────────────────────────────┐
+│  [标签]  记录名称                        │  ← 卡片头部（浅灰背景 + 底边分隔）
+├─────────────────────────────────────────┤
+│  字段名: 值   字段名: 值                  │  ← 卡片内容（双列布局）
+│  字段名: 值   旧值 → 新值                  │
+└─────────────────────────────────────────┘
+```
 
-**编辑记录卡片**（默认）
-- 背景：#F8FAFC（灰色）
-- 边框：无
+**CSS样式：**
+```css
+.timeline-item__change-card {
+  background: var(--surface);    /* 白色背景 */
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
 
-**删除记录卡片** (`timeline-item__change-card--deleted`)
-- 背景：#fef2f2（浅红）
-- 边框：#fecaca（红色）
+.timeline-item__change-card-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--background); /* 浅灰背景 */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.timeline-item__change-card-body {
+  padding: 12px 16px;
+}
+
+.timeline-item__change-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeline-item__change-row {
+  display: flex;
+  gap: 16px;  /* 双列布局 */
+}
+```
 
 ### 卡片头部格式
 
@@ -98,22 +184,51 @@
 | 基础信息变更 | `{action} {record}` | 编辑 基础信息 |
 | 多记录Tab变更 | `{action} {tabName}({record})` | 新增 银行卡(招商银行副卡) |
 
+### 字段变更明细样式
+
+- **双列布局**：字段按每行2个显示
+- **旧值**：红色文字 + 删除线
+- **箭头**：灰色箭头符号
+- **新值**：绿色文字
+
+```css
+.timeline-item__change-detail-label {
+  color: var(--text-secondary);
+  min-width: 70px;
+}
+
+.timeline-item__change-detail-old {
+  color: var(--danger);
+  text-decoration: line-through;
+}
+
+.timeline-item__change-detail-arrow {
+  color: var(--text-muted);
+}
+
+.timeline-item__change-detail-new {
+  color: var(--success);
+}
+```
+
 ## 筛选功能
 
 ### 筛选器组件
 
 - **类型筛选** (`typeFilter`)：按 eventType 筛选
-- **字段筛选** (`fieldFilter`)：按变更字段名筛选（支持 changes 和 fields）
 - **时间筛选** (`timeFilter`)：近一周/近一月/近三月/近一年
 
-### 字段筛选逻辑
+### 时间筛选逻辑
 
 ```javascript
-if (log.changes) {
-  return log.changes.some(change => change.field === fieldFilter.value);
-}
-if (log.fields) {
-  return Object.keys(log.fields).some(key => key === fieldFilter.value);
+if (timeFilter && timeFilter.value) {
+  const days = parseInt(timeFilter.value);
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+  filteredLogs = filteredLogs.filter(log => {
+    const logDate = new Date(log.eventTime);
+    return logDate >= cutoff;
+  });
 }
 ```
 
@@ -176,8 +291,7 @@ prototype/employee-detail-v2.html  # 单文件原型（包含HTML/CSS/JS）
 | 函数名 | 说明 |
 |--------|------|
 | `renderDynamicLogs()` | 渲染动态记录时间线 |
-| `renderLogCard(log)` | 渲染单条记录卡片 |
-| `initFieldFilter()` | 初始化字段筛选下拉框 |
+| `renderLogCard(log)` | 渲染单条或多条记录卡片 |
 | `toggleLogDetail(index)` | 展开/收起详情 |
 | `openModal(type, index)` | 打开编辑Modal |
 | `saveRecord()` | 保存记录并生成变更日志 |
@@ -199,8 +313,8 @@ prototype/employee-detail-v2.html  # 单文件原型（包含HTML/CSS/JS）
   --text-secondary: #64748B;
   --text-muted: #94a3b8;
   --success: #10b981;
-  --success-bg: #d1fae5;
-  --success-text: #065f46;
+  --success-bg: #dcfce7;
+  --success-text: #166534;
   --danger: #ef4444;
   --danger-bg: #fee2e2;
   --danger-text: #991b1b;
@@ -228,7 +342,9 @@ prototype/employee-detail-v2.html  # 单文件原型（包含HTML/CSS/JS）
 - [ ] 动态记录时间线正确显示
 - [ ] 操作标签（新增/编辑/删除）颜色正确
 - [ ] 卡片格式：基础信息显示"编辑 基础信息"，多记录Tab显示"新增 银行卡(招商银行)"
-- [ ] 筛选器按类型/字段/时间筛选正常
+- [ ] 筛选器按类型/时间筛选正常
 - [ ] 编辑Modal可正常打开和保存
 - [ ] 删除记录功能正常
 - [ ] 个税档案Tab显示正确
+- [ ] 批量变更（多明细卡片）正确显示
+- [ ] 字段双列布局正确显示
