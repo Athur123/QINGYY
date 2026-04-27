@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社保参保规则配置 - 字段采集配置 - 青阳云HRO</title>
+  <link rel="stylesheet" href="../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../styles/qingyang-forms.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #10B981;
+      --success-light: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-light: #FFFBEB;
+      --error: #EF4444;
+      --error-light: #FEF2F2;
+      --gray-50: #F8FAFC;
+      --gray-100: #F1F5F9;
+      --gray-200: #E2E8F0;
+      --gray-300: #CBD5E1;
+      --gray-400: #94A3B8;
+      --gray-500: #64748B;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1E293B;
+      --gray-900: #0F172A;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      color: var(--gray-800);
+      background: var(--gray-100);
+      line-height: 1.5;
+    }
+    .app-container { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px; background: #fff; border-right: 1px solid var(--gray-200);
+      flex-shrink: 0; position: fixed; height: 100vh; z-index: 100;
+    }
+    .sidebar-logo { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); }
+    .sidebar-logo h1 { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .sidebar-nav { list-style: none; padding: 12px 0; }
+    .sidebar-nav-item {
+      padding: 10px 24px; cursor: pointer; display: flex; align-items: center;
+      gap: 10px; color: var(--gray-500); font-size: 13px; transition: all 150ms;
+    }
+    .sidebar-nav-item:hover { background: var(--gray-50); color: var(--gray-800); }
+    .sidebar-nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+    .sidebar-nav-sub { list-style: none; }
+    .sidebar-nav-sub li {
+      padding: 7px 24px 7px 48px; cursor: pointer; font-size: 12px; color: var(--gray-400);
+      transition: all 150ms;
+    }
+    .sidebar-nav-sub li:hover { color: var(--gray-700); }
+    .sidebar-nav-sub li.active { color: var(--primary); font-weight: 500; }
+
+    /* Main */
+    .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
+    .topbar {
+      height: 56px; background: #fff; border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+    }
+    .topbar-breadcrumb { font-size: 13px; color: var(--gray-500); }
+    .topbar-user { font-size: 13px; color: var(--gray-600); }
+    .content-area { flex: 1; padding: 32px; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">📋 薪资档案</li>
+        <li class="sidebar-nav-item active">
+          🛡️ 保险福利
+          <ul class="sidebar-nav-sub">
+            <li>保险台账</li>
+            <li class="active">参保规则</li>
+            <li>二级户</li>
+            <li>员工参保档案</li>
+            <li>保险福利核算</li>
+            <li>保险分组</li>
+            <li>险种配置</li>
+          </ul>
+        </li>
+        <li class="sidebar-nav-item">📝 异动申报</li>
+        <li class="sidebar-nav-item">📊 报表</li>
+      </ul>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-breadcrumb">保险福利 / 参保规则 / 配置</div>
+        <div class="topbar-user">管理员</div>
+      </div>
+      <div class="content-area">
+        <!-- Page Header -->
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 28px;">
+          <button style="padding: 8px 16px; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md); cursor: pointer; font-size: 13px; color: var(--gray-600); display: flex; align-items: center; gap: 6px;">
+            &larr; 返回
+          </button>
+          <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-900);">配置社保参保规则</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
