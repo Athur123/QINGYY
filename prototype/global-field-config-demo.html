@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全局字段配置 - 青阳云HRO</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #10B981;
+      --success-light: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-light: #FFFBEB;
+      --error: #EF4444;
+      --error-light: #FEF2F2;
+      --gray-50: #F8FAFC;
+      --gray-100: #F1F5F9;
+      --gray-200: #E2E8F0;
+      --gray-300: #CBD5E1;
+      --gray-400: #94A3B8;
+      --gray-500: #64748B;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1E293B;
+      --gray-900: #0F172A;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      color: var(--gray-800);
+      background: var(--gray-100);
+      line-height: 1.5;
+    }
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 220px; background: #fff; border-right: 1px solid var(--gray-200);
+      flex-shrink: 0; position: fixed; height: 100vh; z-index: 100;
+    }
+    .sidebar-logo { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); }
+    .sidebar-logo h1 { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .sidebar-nav { list-style: none; padding: 12px 0; }
+    .sidebar-nav-item {
+      padding: 10px 24px; cursor: pointer; display: flex; align-items: center;
+      gap: 10px; color: var(--gray-500); font-size: 13px; transition: all 150ms;
+    }
+    .sidebar-nav-item:hover { background: var(--gray-50); color: var(--gray-800); }
+    .sidebar-nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+    .sidebar-nav-sub { list-style: none; }
+    .sidebar-nav-sub li {
+      padding: 7px 24px 7px 48px; cursor: pointer; font-size: 12px; color: var(--gray-400);
+      transition: all 150ms;
+    }
+    .sidebar-nav-sub li:hover { color: var(--gray-700); }
+    .sidebar-nav-sub li.active { color: var(--primary); font-weight: 500; }
+    .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
+    .topbar {
+      height: 56px; background: #fff; border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+    }
+    .topbar-breadcrumb { font-size: 13px; color: var(--gray-500); }
+    .topbar-user { font-size: 13px; color: var(--gray-600); }
+    .content-area { flex: 1; padding: 32px; }
+
+    /* Page header */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 700; color: var(--gray-900); display: flex; align-items: center; gap: 12px; }
+    .btn-back {
+      padding: 8px 16px; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+      cursor: pointer; font-size: 13px; color: var(--gray-600); display: flex; align-items: center; gap: 6px;
+      transition: all 150ms;
+    }
+    .btn-back:hover { border-color: var(--gray-300); color: var(--gray-800); }
+
+    /* Card */
+    .card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .card-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--gray-800); }
+    .card-body { padding: 24px; }
+
+    /* Buttons */
+    .btn {
+      padding: 8px 18px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+      cursor: pointer; border: 1px solid transparent; transition: all 150ms;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: white; color: var(--gray-600); border-color: var(--gray-300); }
+    .btn-secondary:hover { background: var(--gray-50); color: var(--gray-800); }
+    .btn-text { background: none; border: none; color: var(--primary); padding: 4px 8px; }
+    .btn-text:hover { background: var(--primary-light); border-radius: 4px; }
+    .btn-danger-text { background: none; border: none; color: var(--error); padding: 4px 8px; }
+    .btn-danger-text:hover { background: var(--error-light); border-radius: 4px; }
+
+    /* Table */
+    .field-table { width: 100%; border-collapse: collapse; }
+    .field-table th { text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; font-size: 12px; border-bottom: 2px solid var(--gray-200); background: var(--gray-50); }
+    .field-table td { padding: 12px 16px; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+    .field-table tr:last-child td { border-bottom: none; }
+    .field-table tr:hover { background: var(--gray-50); }
+
+    /* Tags */
+    .tag {
+      display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 11px; font-weight: 500;
+    }
+    .tag-type-text { background: #dbeafe; color: #2563eb; }
+    .tag-type-number { background: #ede9fe; color: #7c3aed; }
+    .tag-type-date { background: #dcfce7; color: #16a34a; }
+    .tag-type-file { background: #fef3c7; color: #d97706; }
+    .tag-type-photo { background: #fce7f3; color: #db2777; }
+    .tag-type-select { background: #cffafe; color: #0891b2; }
+    .tag-source-auto { background: #dcfce7; color: #16a34a; }
+    .tag-source-manual { background: #fef3c7; color: #d97706; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal {
+      background: white; border-radius: var(--radius-lg); width: 560px; max-height: 85vh;
+      overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    .modal-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 16px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--gray-400); padding: 4px; }
+    .modal-close:hover { color: var(--gray-600); }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-200); display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* Form */
+    .form-group { margin-bottom: 18px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: 13px; color: var(--gray-600); font-weight: 500; margin-bottom: 6px; }
+    .form-label .req { color: var(--error); }
+    .form-input, .form-select-el {
+      width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md); font-size: 14px; font-family: inherit; color: var(--gray-800);
+      transition: all 150ms;
+    }
+    .form-input:focus, .form-select-el:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-input::placeholder { color: var(--gray-400); }
+    .form-select-el { background: white; appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+    }
+    .form-textarea {
+      width: 100%; min-height: 60px; padding: 10px 12px; border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md); font-size: 14px; font-family: inherit; color: var(--gray-800);
+      resize: vertical; transition: all 150ms;
+    }
+    .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-hint { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--gray-400); }
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 14px; margin-bottom: 16px; }
+
+    /* Confirm dialog */
+    .confirm-body { text-align: center; padding: 32px 24px; }
+    .confirm-icon { font-size: 40px; margin-bottom: 12px; }
+    .confirm-text { font-size: 15px; color: var(--gray-700); }
+    .confirm-sub { font-size: 13px; color: var(--gray-400); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">📋 薪资档案</li>
+        <li class="sidebar-nav-item active">
+          🛡️ 保险福利
+          <ul class="sidebar-nav-sub">
+            <li>保险台账</li>
+            <li>参保规则</li>
+            <li>二级户</li>
+            <li>员工参保档案</li>
+            <li class="active">全局字段配置</li>
+            <li>保险福利核算</li>
+            <li>保险分组</li>
+            <li>险种配置</li>
+          </ul>
+        </li>
+        <li class="sidebar-nav-item">📝 异动申报</li>
+        <li class="sidebar-nav-item">📊 报表</li>
+      </ul>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-breadcrumb">保险福利 / 全局字段配置</div>
+        <div class="topbar-user">管理员</div>
+      </div>
+      <div class="content-area">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-title">全局字段配置</div>
+          <button class="btn btn-primary" onclick="openAddModal()">+ 新增字段</button>
+        </div>
+
+        <!-- Field list card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">字段字典（共 <span id="field-count">0</span> 个）</div>
+            <div style="display: flex; gap: 8px;">
+              <select id="filter-source" onchange="renderTable()" style="height: 32px; padding: 0 32px 0 10px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 12px; color: var(--gray-600); background: white; appearance: none; cursor: pointer; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;">
+                <option value="">全部来源</option>
+                <option value="AUTO">员工档案</option>
+                <option value="MANUAL">手动填写</option>
+              </select>
+              <select id="filter-type" onchange="renderTable()" style="height: 32px; padding: 0 32px 0 10px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 12px; color: var(--gray-600); background: white; appearance: none; cursor: pointer; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right 8px center;">
+                <option value="">全部类型</option>
+                <option value="text">文本</option>
+                <option value="number">数值</option>
+                <option value="date">日期</option>
+                <option value="file">附件</option>
+                <option value="photo">照片</option>
+                <option value="select">下拉</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <table class="field-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">排序</th>
+                  <th style="width: 140px;">字段编码</th>
+                  <th style="width: 140px;">字段名称</th>
+                  <th style="width: 80px;">类型</th>
+                  <th style="width: 100px;">值来源</th>
+                  <th>自动获取路径</th>
+                  <th style="width: 120px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="field-modal" style="display: none;"></div>
+
+  <!-- Delete Confirm Modal -->
+  <div id="delete-modal" style="display: none;"></div>
+
+  <script>
+    // ========== Data ==========
+    let fields = [
+      { id: 1, code: 'contract_attachment', name: '合同附件', type: 'file', source: 'MANUAL', path: '', options: '', desc: '劳动合同扫描件附件' },
+      { id: 2, code: 'contract_start_date', name: '合同开始日期', type: 'date', source: 'AUTO', path: 'employee.contract.startDate', options: '', desc: '劳动合同生效日期' },
+      { id: 3, code: 'contract_end_date', name: '合同结束日期', type: 'date', source: 'AUTO', path: 'employee.contract.endDate', options: '', desc: '劳动合同到期日期' },
+      { id: 4, code: 'id_card_front', name: '身份证正面', type: 'photo', source: 'MANUAL', path: '', options: '', desc: '身份证正面照片' },
+      { id: 5, code: 'id_card_back', name: '身份证反面', type: 'photo', source: 'MANUAL', path: '', options: '', desc: '身份证国徽面照片' },
+      { id: 6, code: 'household_type', name: '户籍类型', type: 'select', source: 'AUTO', path: 'employee.household.type', options: '[{"label":"城镇户口","value":"urban"},{"label":"农村户口","value":"rural"}]', desc: '员工户籍性质分类' },
+      { id: 7, code: 'household_address', name: '户籍地址', type: 'text', source: 'AUTO', path: 'employee.household.address', options: '', desc: '员工户籍所在地详细地址' },
+      { id: 8, code: 'social_security_card', name: '社保卡号', type: 'text', source: 'AUTO', path: 'employee.socialSecurity.cardNo', options: '', desc: '社会保障卡卡号' },
+      { id: 9, code: 'bank_account', name: '银行账号', type: 'text', source: 'AUTO', path: 'employee.bankAccount.no', options: '', desc: '员工工资卡银行账号' },
+      { id: 10, code: 'marriage_status', name: '婚姻状况', type: 'select', source: 'AUTO', path: 'employee.basic.marriageStatus', options: '[{"label":"未婚","value":"single"},{"label":"已婚","value":"married"},{"label":"离异","value":"divorced"},{"label":"丧偶","value":"widowed"}]', desc: '员工婚姻状态' },
+      { id: 11, code: 'emergency_contact', name: '紧急联系人', type: 'text', source: 'AUTO', path: 'employee.emergency.name', options: '', desc: '紧急联系人姓名' },
+      { id: 12, code: 'emergency_phone', name: '紧急联系电话', type: 'text', source: 'AUTO', path: 'employee.emergency.phone', options: '', desc: '紧急联系人电话号码' },
+    ];
+    let nextId = 13;
+    let editingId = null;
+
+    const typeLabels = { text: '文本', number: '数值', date: '日期', file: '附件', photo: '照片', select: '下拉' };
+    const sourceLabels = { AUTO: '员工档案', MANUAL: '手动填写' };
+
+    // ========== Render ==========
+    function renderTable() {
+      const filterSource = document.getElementById('filter-source').value;
+      const filterType = document.getElementById('filter-type').value;
+      const filtered = fields.filter(f => {
+        if (filterSource && f.source !== filterSource) return false;
+        if (filterType && f.type !== filterType) return false;
+        return true;
+      });
+
+      document.getElementById('field-count').textContent = fields.length;
+      const tbody = document.getElementById('table-body');
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">暂无字段配置</div></div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((f, i) => {
+        const tagClass = 'tag-type-' + f.type;
+        const sourceClass = f.source === 'AUTO' ? 'tag-source-auto' : 'tag-source-manual';
+        return '<tr>' +
+          '<td style="text-align:center;color:var(--gray-400);font-size:12px;">' + (i + 1) + '</td>' +
+          '<td><code style="background:var(--gray-100);padding:2px 8px;border-radius:4px;font-size:12px;color:var(--gray-600);">' + f.code + '</code></td>' +
+          '<td style="font-weight:500;">' + f.name + '</td>' +
+          '<td><span class="tag ' + tagClass + '">' + typeLabels[f.type] + '</span></td>' +
+          '<td><span class="tag ' + sourceClass + '">' + sourceLabels[f.source] + '</span></td>' +
+          '<td style="font-size:12px;color:var(--gray-400);font-family:monospace;">' + (f.path || '-') + '</td>' +
+          '<td>' +
+            '<button class="btn-text" onclick="openEditModal(' + f.id + ')">编辑</button>' +
+            '<span style="color:var(--gray-300);margin:0 4px;">|</span>' +
+            '<button class="btn-danger-text" onclick="openDeleteModal(' + f.id + ')">删除</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    // ========== Add/Edit Modal ==========
+    function openAddModal() {
+      editingId = null;
+      showModal('新增字段', { code: '', name: '', type: 'text', source: 'MANUAL', path: '', options: '', desc: '' });
+    }
+
+    function openEditModal(id) {
+      editingId = id;
+      const f = fields.find(x => x.id === id);
+      if (!f) return;
+      showModal('编辑字段', { code: f.code, name: f.name, type: f.type, source: f.source, path: f.path || '', options: f.options || '', desc: f.desc || '' });
+    }
+
+    function showModal(title, data) {
+      const modal = document.getElementById('field-modal');
+      modal.innerHTML = '<div class="modal-overlay" onclick="closeModal(event)">' +
+        '<div class="modal" onclick="event.stopPropagation()">' +
+          '<div class="modal-header"><h3>' + title + '</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>' +
+          '<div class="modal-body">' +
+            '<div class="form-row-2">' +
+              '<div class="form-group">' +
+                '<label class="form-label"><span class="req">*</span> 字段编码</label>' +
+                '<input id="f-code" class="form-input" value="' + esc(data.code) + '" placeholder="如 contract_attachment"' + (editingId ? ' disabled style="background:var(--gray-50);color:var(--gray-400);"' : '') + '>' +
+                '<div class="form-hint">英文下划线命名，创建后不可修改</div>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label"><span class="req">*</span> 字段名称</label>' +
+                '<input id="f-name" class="form-input" value="' + esc(data.name) + '" placeholder="如 合同附件">' +
+              '</div>' +
+            '</div>' +
+            '<div class="form-row-2">' +
+              '<div class="form-group">' +
+                '<label class="form-label"><span class="req">*</span> 字段类型</label>' +
+                '<select id="f-type" class="form-select-el" onchange="onTypeChange()">' +
+                  '<option value="text"' + (data.type === 'text' ? ' selected' : '') + '>文本</option>' +
+                  '<option value="number"' + (data.type === 'number' ? ' selected' : '') + '>数值</option>' +
+                  '<option value="date"' + (data.type === 'date' ? ' selected' : '') + '>日期</option>' +
+                  '<option value="file"' + (data.type === 'file' ? ' selected' : '') + '>附件</option>' +
+                  '<option value="photo"' + (data.type === 'photo' ? ' selected' : '') + '>照片</option>' +
+                  '<option value="select"' + (data.type === 'select' ? ' selected' : '') + '>下拉选择</option>' +
+                '</select>' +
+              '</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label"><span class="req">*</span> 值来源</label>' +
+                '<select id="f-source" class="form-select-el" onchange="onSourceChange()">' +
+                  '<option value="MANUAL"' + (data.source === 'MANUAL' ? ' selected' : '') + '>手动填写</option>' +
+                  '<option value="AUTO"' + (data.source === 'AUTO' ? ' selected' : '') + '>员工档案自动获取</option>' +
+                '</select>' +
+              '</div>' +
+            '</div>' +
+            '<div class="form-group" id="grp-path" style="display:' + (data.source === 'AUTO' ? '' : 'none') + ';">' +
+              '<label class="form-label">自动获取路径</label>' +
+              '<input id="f-path" class="form-input" value="' + esc(data.path) + '" placeholder="如 employee.contract.startDate">' +
+              '<div class="form-hint">员工档案中的字段路径，用于自动填充</div>' +
+            '</div>' +
+            '<div class="form-group" id="grp-options" style="display:' + (data.type === 'select' ? '' : 'none') + ';">' +
+              '<label class="form-label">选项配置（JSON）</label>' +
+              '<textarea id="f-options" class="form-textarea" placeholder="[{&quot;label&quot;:&quot;城镇&quot;,&quot;value&quot;:&quot;urban&quot;}]' + '">' + esc(data.options) + '</textarea>' +
+              '<div class="form-hint">下拉选择项的 JSON 数组格式</div>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label class="form-label">字段说明</label>' +
+              '<textarea id="f-desc" class="form-textarea" placeholder="字段用途说明...">' + esc(data.desc) + '</textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="modal-footer">' +
+            '<button class="btn btn-secondary" onclick="closeModal()">取消</button>' +
+            '<button class="btn btn-primary" onclick="saveField()">保存</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function closeModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('field-modal').style.display = 'none';
+      document.getElementById('field-modal').innerHTML = '';
+    }
+
+    function onTypeChange() {
+      const type = document.getElementById('f-type').value;
+      document.getElementById('grp-options').style.display = type === 'select' ? '' : 'none';
+    }
+
+    function onSourceChange() {
+      const source = document.getElementById('f-source').value;
+      document.getElementById('grp-path').style.display = source === 'AUTO' ? '' : 'none';
+    }
+
+    function saveField() {
+      const code = document.getElementById('f-code').value.trim();
+      const name = document.getElementById('f-name').value.trim();
+      const type = document.getElementById('f-type').value;
+      const source = document.getElementById('f-source').value;
+      const path = document.getElementById('f-path').value.trim();
+      const options = document.getElementById('f-options').value.trim();
+      const desc = document.getElementById('f-desc').value.trim();
+
+      if (!code) { alert('请输入字段编码'); return; }
+      if (!name) { alert('请输入字段名称'); return; }
+      if (source === 'AUTO' && !path) { alert('自动获取字段需填写获取路径'); return; }
+      if (type === 'select' && !options) { alert('下拉字段需配置选项'); return; }
+
+      if (editingId) {
+        const f = fields.find(x => x.id === editingId);
+        if (f) { Object.assign(f, { code, name, type, source, path, options, desc }); }
+      } else {
+        if (fields.some(f => f.code === code)) { alert('字段编码已存在'); return; }
+        fields.push({ id: nextId++, code, name, type, source, path, options, desc });
+      }
+
+      closeModal();
+      renderTable();
+    }
+
+    // ========== Delete Modal ==========
+    function openDeleteModal(id) {
+      const f = fields.find(x => x.id === id);
+      if (!f) return;
+      const modal = document.getElementById('delete-modal');
+      modal.innerHTML = '<div class="modal-overlay" onclick="closeDeleteModal(event)">' +
+        '<div class="modal" style="width:400px;" onclick="event.stopPropagation()">' +
+          '<div class="modal-header"><h3>确认删除</h3><button class="modal-close" onclick="closeDeleteModal()">&times;</button></div>' +
+          '<div class="confirm-body">' +
+            '<div class="confirm-icon">⚠️</div>' +
+            '<div class="confirm-text">确定要删除字段「' + esc(f.name) + '」吗？</div>' +
+            '<div class="confirm-sub">已被参保规则引用的字段不允许删除</div>' +
+          '</div>' +
+          '<div class="modal-footer">' +
+            '<button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>' +
+            '<button class="btn" style="background:var(--error);color:white;" onclick="confirmDelete(' + id + ')">删除</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function closeDeleteModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('delete-modal').style.display = 'none';
+      document.getElementById('delete-modal').innerHTML = '';
+    }
+
+    function confirmDelete(id) {
+      fields = fields.filter(x => x.id !== id);
+      closeDeleteModal();
+      renderTable();
+    }
+
+    // ========== Utils ==========
+    function esc(s) {
+      if (!s) return '';
+      return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ========== Init ==========
+    renderTable();
+  </script>
+</body>
+</html>
