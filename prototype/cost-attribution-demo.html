@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>费用归属固化演示 - 青阳云HR SaaS</title>
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <style>
+        .page-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .page-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+        .page-title { font-size: 18px; font-weight: 600; }
+        .page-subtitle { font-size: 13px; color: var(--qy-text-secondary); margin-left: auto; }
+
+        /* Section cards */
+        .section-card {
+            background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg);
+            border: 1px solid var(--qy-border-light); margin-bottom: 24px; overflow: hidden;
+        }
+        .section-card__header {
+            padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light);
+            display: flex; align-items: center; gap: 10px;
+            background: var(--qy-bg-secondary);
+        }
+        .section-card__header-icon { font-size: 18px; }
+        .section-card__title { font-size: 15px; font-weight: 600; }
+        .section-card__body { padding: 20px; }
+
+        /* Transfer visualization */
+        .transfer-flow {
+            display: flex; align-items: stretch; gap: 0;
+            margin-bottom: 20px; position: relative;
+        }
+        .transfer-entity {
+            flex: 1; padding: 16px 20px; border-radius: var(--qy-radius-md);
+            border: 1px solid var(--qy-border-light); position: relative;
+        }
+        .transfer-entity.from { background: var(--qy-bg-secondary); }
+        .transfer-entity.to { background: var(--qy-primary-50); border-color: var(--qy-primary-200); }
+        .transfer-entity-label {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+            color: var(--qy-text-secondary); margin-bottom: 8px; font-weight: 500;
+        }
+        .transfer-entity-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .transfer-entity-detail { font-size: 13px; color: var(--qy-text-secondary); }
+        .transfer-arrow {
+            display: flex; align-items: center; justify-content: center;
+            width: 120px; flex-shrink: 0; position: relative;
+        }
+        .transfer-arrow-line {
+            width: 100%; height: 2px; background: var(--qy-primary-500); position: relative;
+        }
+        .transfer-arrow-line::before {
+            content: ''; position: absolute; right: -6px; top: -5px;
+            width: 0; height: 0; border-left: 10px solid var(--qy-primary-500);
+            border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        }
+        .transfer-arrow-label {
+            position: absolute; top: -28px; white-space: nowrap;
+            font-size: 12px; color: var(--qy-primary-500); font-weight: 500;
+            background: var(--qy-primary-50); padding: 2px 8px; border-radius: var(--qy-radius-sm);
+        }
+
+        /* Month comparison */
+        .month-compare {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        .month-card {
+            border-radius: var(--qy-radius-md); border: 1px solid var(--qy-border-light);
+            overflow: hidden;
+        }
+        .month-card__header {
+            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .month-card__header.frozen { background: var(--qy-success-50); border-bottom: 1px solid var(--qy-success-100); }
+        .month-card__header.current { background: var(--qy-primary-50); border-bottom: 1px solid var(--qy-primary-100); }
+        .month-card__month { font-size: 14px; font-weight: 600; }
+        .month-card__body { padding: 12px 16px; background: var(--qy-bg-primary); }
+        .month-card__row {
+            display: grid; grid-template-columns: 100px 1fr; gap: 4px;
+            font-size: 13px; margin-bottom: 6px;
+        }
+        .month-card__row:last-child { margin-bottom: 0; }
+        .month-card__label { color: var(--qy-text-secondary); }
+        .month-card__value { font-weight: 500; }
+
+        /* Frozen badge */
+        .frozen-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: var(--qy-radius-full);
+            font-size: 11px; font-weight: 500; background: var(--qy-success-50);
+            color: var(--qy-success-600); border: 1px solid var(--qy-success-100);
+        }
+        .frozen-badge .lock-icon { font-size: 12px; }
+
+        /* Dual-layer display */
+        .dual-layer {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+        .layer-card {
+            border-radius: var(--qy-radius-md); border: 1px solid var(--qy-border-light);
+            overflow: hidden;
+        }
+        .layer-card__header {
+            padding: 12px 16px; font-size: 14px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .layer-card__header.payment { background: var(--qy-primary-50); color: var(--qy-primary-700); }
+        .layer-card__header.attribution { background: var(--qy-warning-50); color: var(--qy-warning-700); }
+        .layer-card__body { padding: 16px; background: var(--qy-bg-primary); }
+        .layer-row {
+            display: grid; gap: 1px; background: var(--qy-border-light);
+            border-radius: var(--qy-radius-sm); overflow: hidden; margin-bottom: 12px;
+        }
+        .layer-row:last-child { margin-bottom: 0; }
+        .layer-row-header {
+            display: grid; gap: 1px; background: var(--qy-border-light);
+            border-radius: var(--qy-radius-sm) var(--qy-radius-sm) 0 0; overflow: hidden;
+        }
+        .layer-row-header > div {
+            background: var(--qy-bg-tertiary); padding: 8px 12px;
+            font-size: 11px; font-weight: 600; color: var(--qy-text-secondary);
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .layer-row > div {
+            background: var(--qy-bg-primary); padding: 10px 12px; font-size: 13px;
+        }
+        .layer-row .amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .layer-row .amount.positive { color: var(--qy-text-primary); }
+        .layer-row .amount.negative { color: var(--qy-error-500); }
+
+        /* Cost detail table */
+        .cost-table-wrapper {
+            background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg); overflow: hidden; margin-bottom: 20px;
+        }
+        .cost-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size: var(--qy-font-size-13);
+        }
+        .cost-table th, .cost-table td {
+            padding: var(--qy-space-3) var(--qy-space-4); text-align: left;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+        .cost-table th {
+            background: var(--qy-table-header-bg); font-weight: var(--qy-font-weight-semibold);
+            color: var(--qy-text-secondary); font-size: var(--qy-font-size-12);
+            text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+        }
+        .cost-table td { color: var(--qy-text-primary); transition: background var(--qy-transition-fast); }
+        .cost-table tbody tr:hover td { background: var(--qy-table-row-hover); }
+        .cost-table tbody tr:last-child td { border-bottom: none; }
+        .cost-table .amount-cell { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+        .cost-table th.amount-cell { text-align: right; }
+        .status-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 10px; border-radius: var(--qy-radius-full);
+            font-size: 12px; font-weight: 500;
+        }
+        .status-tag.collected { background: var(--qy-success-50); color: var(--qy-success-600); }
+        .status-tag.pending { background: var(--qy-warning-50); color: var(--qy-warning-600); }
+        .status-tag.unpaid { background: var(--qy-error-50); color: var(--qy-error-600); }
+
+        .attribution-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: var(--qy-radius-sm);
+            font-size: 11px; font-weight: 500;
+            background: var(--qy-bg-tertiary); color: var(--qy-text-secondary);
+        }
+        .attribution-badge.frozen {
+            background: var(--qy-success-50); color: var(--qy-success-600);
+            border: 1px solid var(--qy-success-100);
+        }
+
+        /* Rules section */
+        .rules-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+        }
+        .rule-card {
+            padding: 16px; border-radius: var(--qy-radius-md);
+            border: 1px solid var(--qy-border-light); background: var(--qy-bg-primary);
+            transition: box-shadow var(--qy-transition-normal);
+        }
+        .rule-card:hover { box-shadow: var(--qy-shadow-md); }
+        .rule-card__icon {
+            width: 32px; height: 32px; border-radius: var(--qy-radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; margin-bottom: 12px;
+        }
+        .rule-card__icon.normal { background: var(--qy-primary-50); }
+        .rule-card__icon.refund { background: var(--qy-warning-50); }
+        .rule-card__icon.supplement { background: var(--qy-error-50); }
+        .rule-card__icon.merged { background: var(--qy-success-50); }
+        .rule-card__title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .rule-card__desc { font-size: 13px; color: var(--qy-text-secondary); line-height: 1.6; }
+        .rule-card__example {
+            margin-top: 10px; padding: 8px 12px; background: var(--qy-bg-secondary);
+            border-radius: var(--qy-radius-sm); font-size: 12px; color: var(--qy-text-secondary);
+            border-left: 3px solid var(--qy-border-light);
+        }
+
+        /* Scenario selector */
+        .scenario-bar {
+            display: flex; gap: 8px; margin-bottom: 20px; padding: 16px 20px;
+            background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md);
+            border: 1px solid var(--qy-border-light); align-items: center;
+        }
+        .scenario-label { font-size: 13px; font-weight: 500; color: var(--qy-text-secondary); margin-right: 8px; }
+        .scenario-btn {
+            padding: 6px 16px; border-radius: var(--qy-radius-md); border: 1px solid var(--qy-border-light);
+            background: var(--qy-bg-primary); font-size: 13px; font-weight: 500;
+            color: var(--qy-text-secondary); cursor: pointer; transition: var(--qy-transition-colors);
+        }
+        .scenario-btn:hover { border-color: var(--qy-primary-300); color: var(--qy-primary-500); }
+        .scenario-btn.active {
+            background: var(--qy-primary-500); border-color: var(--qy-primary-500);
+            color: #fff;
+        }
+
+        /* Employee mini card */
+        .employee-mini {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 8px 12px; background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md);
+        }
+        .employee-mini-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--qy-primary-50); display: flex; align-items: center;
+            justify-content: center; font-size: 14px; color: var(--qy-primary-600);
+            font-weight: 600;
+        }
+        .employee-mini-name { font-size: 13px; font-weight: 600; }
+        .employee-mini-id { font-size: 11px; color: var(--qy-text-secondary); }
+
+        /* View toggle */
+        .view-toggle {
+            display: flex; gap: 0; border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md); overflow: hidden; margin-bottom: 20px;
+        }
+        .view-toggle-btn {
+            padding: 8px 16px; border: none; background: var(--qy-bg-primary);
+            font-size: 13px; font-weight: 500; color: var(--qy-text-secondary);
+            cursor: pointer; transition: var(--qy-transition-colors); border-right: 1px solid var(--qy-border-light);
+        }
+        .view-toggle-btn:last-child { border-right: none; }
+        .view-toggle-btn:hover { background: var(--qy-bg-secondary); }
+        .view-toggle-btn.active { background: var(--qy-primary-500); color: #fff; }
+
+        /* Hidden panels */
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* Highlight row */
+        .cost-table tbody tr.highlight td {
+            background: var(--qy-primary-50);
+        }
+
+        /* Tooltip-style info */
+        .info-callout {
+            display: flex; gap: 12px; padding: 12px 16px;
+            background: var(--qy-primary-50); border: 1px solid var(--qy-primary-100);
+            border-radius: var(--qy-radius-md); margin-bottom: 16px;
+        }
+        .info-callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+        .info-callout-text { font-size: 13px; color: var(--qy-primary-700); line-height: 1.5; }
+
+        /* Transfer highlight animation */
+        @keyframes pulse-border {
+            0%, 100% { border-color: var(--qy-primary-200); }
+            50% { border-color: var(--qy-primary-500); }
+        }
+        .transfer-entity.highlight { animation: pulse-border 2s ease-in-out infinite; }
+
+        /* Summary strip */
+        .summary-strip {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+            margin-bottom: 24px;
+        }
+        .summary-item {
+            text-align: center; padding: 16px; background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md);
+        }
+        .summary-item__value {
+            font-size: 24px; font-weight: 700; color: var(--qy-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+        .summary-item__label {
+            font-size: 12px; color: var(--qy-text-secondary); margin-top: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .transfer-flow { flex-direction: column; }
+            .transfer-arrow { width: auto; height: 60px; }
+            .transfer-arrow-line { width: 2px; height: 100%; margin: 0 auto; }
+            .transfer-arrow-line::before {
+                right: -5px; top: auto; bottom: -6px;
+                border-left: 6px solid transparent; border-top: 10px solid var(--qy-primary-500);
+                border-right: 6px solid transparent; border-bottom: none;
+            }
+            .transfer-arrow-label { top: auto; left: 12px; }
+            .month-compare, .dual-layer, .rules-grid { grid-template-columns: 1fr; }
+            .summary-strip { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Page header -->
+        <div class="page-header">
+            <button class="qy-btn qy-btn--text" onclick="history.back()">← 返回</button>
+            <h1 class="page-title">费用归属固化演示</h1>
+            <span class="page-subtitle">结算主体维度财务归属</span>
+        </div>
+
+        <!-- Summary strip -->
+        <div class="summary-strip">
+            <div class="summary-item">
+                <div class="summary-item__value" id="totalEmployees">3</div>
+                <div class="summary-item__label">涉及员工</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__value" id="totalEntities">2</div>
+                <div class="summary-item__label">结算主体</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__value" id="totalFrozen">6</div>
+                <div class="summary-item__label">已固化记录</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-item__value" id="totalAmount">¥49,800</div>
+                <div class="summary-item__label">费用总额</div>
+            </div>
+        </div>
+
+        <!-- Scenario selector -->
+        <div class="scenario-bar">
+            <span class="scenario-label">演示场景：</span>
+            <button class="scenario-btn active" onclick="switchScenario('scenario1', this)">场景一：员工调动</button>
+            <button class="scenario-btn" onclick="switchScenario('scenario2', this)">场景二：双主体对账</button>
+            <button class="scenario-btn" onclick="switchScenario('scenario3', this)">场景三：费用明细</button>
+        </div>
+
+        <!-- ============================= -->
+        <!-- SCENARIO 1: Transfer Impact   -->
+        <!-- ============================= -->
+        <div id="scenario1" class="view-panel active">
+            <!-- Transfer visualization -->
+            <div class="section-card">
+                <div class="section-card__header">
+                    <span class="section-card__header-icon">🔄</span>
+                    <span class="section-card__title">员工调动对费用归属的影响</span>
+                </div>
+                <div class="section-card__body">
+                    <div class="info-callout">
+                        <span class="info-callout-icon">💡</span>
+                        <span class="info-callout-text">
+                            <strong>核心规则：</strong>费用在产生时固化归属到当时的结算主体，不随后续调动而变更。
+                            即：三月费用归三月主体，四月费用归四月主体。
+                        </span>
+                    </div>
+
+                    <!-- Employee info -->
+                    <div style="margin-bottom: 20px;">
+                        <div class="employee-mini">
+                            <div class="employee-mini-avatar">张</div>
+                            <div>
+                                <div class="employee-mini-name">张三</div>
+                                <div class="employee-mini-id">15827115531 · 421023199802058319</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transfer flow -->
+                    <div class="transfer-flow">
+                        <div class="transfer-entity from highlight" id="entityFrom">
+                            <div class="transfer-entity-label">调动前（2026-03 及之前）</div>
+                            <div class="transfer-entity-name">无锡一技信息科技有限公司</div>
+                            <div class="transfer-entity-detail">结算主体 · 参保主体：无锡人才服务有限公司</div>
+                        </div>
+                        <div class="transfer-arrow">
+                            <div class="transfer-arrow-label">2026-04-01 调动生效</div>
+                            <div class="transfer-arrow-line"></div>
+                        </div>
+                        <div class="transfer-entity to highlight" id="entityTo">
+                            <div class="transfer-entity-label">调动后（2026-04 及之后）</div>
+                            <div class="transfer-entity-name">深圳青阳财税服务有限公司</div>
+                            <div class="transfer-entity-detail">结算主体 · 参保主体：深圳青阳人力资源服务有限公司</div>
+                        </div>
+                    </div>
+
+                    <!-- Month comparison -->
+                    <div class="month-compare">
+                        <div class="month-card">
+                            <div class="month-card__header frozen">
+                                <span class="month-card__month">2026年3月 费用</span>
+                                <span class="frozen-badge"><span class="lock-icon">🔒</span> 已固化</span>
+                            </div>
+                            <div class="month-card__body">
+                                <div class="month-card__row">
+                                    <span class="month-card__label">归属主体</span>
+                                    <span class="month-card__value">无锡一技信息科技有限公司</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">参保主体</span>
+                                    <span class="month-card__value">无锡人才服务有限公司</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">养老保险</span>
+                                    <span class="month-card__value">¥5,000</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">医疗保险</span>
+                                    <span class="month-card__value">¥2,000</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">合计</span>
+                                    <span class="month-card__value" style="font-weight: 700;">¥7,000</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="month-card">
+                            <div class="month-card__header current">
+                                <span class="month-card__month">2026年4月 费用</span>
+                                <span class="frozen-badge"><span class="lock-icon">🔒</span> 已固化</span>
+                            </div>
+                            <div class="month-card__body">
+                                <div class="month-card__row">
+                                    <span class="month-card__label">归属主体</span>
+                                    <span class="month-card__value">深圳青阳财税服务有限公司</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">参保主体</span>
+                                    <span class="month-card__value">无锡人才服务有限公司</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">养老保险</span>
+                                    <span class="month-card__value">¥5,200</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">医疗保险</span>
+                                    <span class="month-card__value">¥2,100</span>
+                                </div>
+                                <div class="month-card__row">
+                                    <span class="month-card__label">合计</span>
+                                    <span class="month-card__value" style="font-weight: 700;">¥7,300</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================= -->
+        <!-- SCENARIO 2: Dual-Layer Model  -->
+        <!-- ============================= -->
+        <div id="scenario2" class="view-panel">
+            <div class="section-card">
+                <div class="section-card__header">
+                    <span class="section-card__header-icon">📊</span>
+                    <span class="section-card__title">双层财务模型</span>
+                </div>
+                <div class="section-card__body">
+                    <div class="info-callout">
+                        <span class="info-callout-icon">💡</span>
+                        <span class="info-callout-text">
+                            <strong>双层模型：</strong>缴费层按参保主体维度管理社保缴费，对账层按结算主体维度管理应收/已收。
+                            一个参保主体的缴费可以拆分到多个结算主体进行对账。
+                        </span>
+                    </div>
+
+                    <div class="dual-layer">
+                        <!-- Payment layer -->
+                        <div class="layer-card">
+                            <div class="layer-card__header payment">
+                                <span>🏛️</span> 缴费层（参保主体维度）
+                            </div>
+                            <div class="layer-card__body">
+                                <div class="layer-row-header" style="grid-template-columns: 1fr 100px 100px 100px;">
+                                    <div>参保主体</div>
+                                    <div>月份</div>
+                                    <div>应缴</div>
+                                    <div>已缴</div>
+                                </div>
+                                <div class="layer-row" style="grid-template-columns: 1fr 100px 100px 100px;">
+                                    <div style="font-weight: 500;">无锡人才服务有限公司</div>
+                                    <div>2026-04</div>
+                                    <div class="amount positive">¥100,000</div>
+                                    <div class="amount positive" style="color: var(--qy-success-600);">¥100,000</div>
+                                </div>
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--qy-border-light);">
+                                    <span style="font-size: 12px; color: var(--qy-text-secondary);">参保员工：张三、曾强勇 等 15 人</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attribution layer -->
+                        <div class="layer-card">
+                            <div class="layer-card__header attribution">
+                                <span>📋</span> 对账层（结算主体维度）
+                            </div>
+                            <div class="layer-card__body">
+                                <!-- Entity X -->
+                                <div style="margin-bottom: 16px;">
+                                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--qy-text-primary);">
+                                        无锡一技信息科技有限公司
+                                    </div>
+                                    <div class="layer-row-header" style="grid-template-columns: 80px 100px 100px 1fr;">
+                                        <div>月份</div>
+                                        <div>应收</div>
+                                        <div>已收</div>
+                                        <div>状态</div>
+                                    </div>
+                                    <div class="layer-row" style="grid-template-columns: 80px 100px 100px 1fr;">
+                                        <div>2026-04</div>
+                                        <div class="amount positive">¥60,000</div>
+                                        <div class="amount positive" style="color: var(--qy-success-600);">¥60,000</div>
+                                        <div><span class="status-tag collected">已收</span></div>
+                                    </div>
+                                </div>
+
+                                <!-- Entity Y -->
+                                <div>
+                                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--qy-text-primary);">
+                                        深圳青阳财税服务有限公司
+                                    </div>
+                                    <div class="layer-row-header" style="grid-template-columns: 80px 100px 100px 1fr;">
+                                        <div>月份</div>
+                                        <div>应收</div>
+                                        <div>已收</div>
+                                        <div>状态</div>
+                                    </div>
+                                    <div class="layer-row" style="grid-template-columns: 80px 100px 100px 1fr;">
+                                        <div>2026-04</div>
+                                        <div class="amount positive">¥30,000</div>
+                                        <div class="amount positive" style="color: var(--qy-success-600);">¥20,000</div>
+                                        <div><span class="status-tag unpaid">欠费 ¥10,000</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================= -->
+        <!-- SCENARIO 3: Cost Detail Table -->
+        <!-- ============================= -->
+        <div id="scenario3" class="view-panel">
+            <div class="section-card">
+                <div class="section-card__header">
+                    <span class="section-card__header-icon">📝</span>
+                    <span class="section-card__title">费用明细表</span>
+                    <span style="margin-left: auto; font-size: 12px; color: var(--qy-text-secondary);">
+                        共 6 条记录
+                    </span>
+                </div>
+                <div class="section-card__body" style="padding: 0;">
+                    <!-- Filter bar -->
+                    <div style="padding: 12px 20px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--qy-border-light); background: var(--qy-bg-secondary);">
+                        <span style="font-size: 13px; font-weight: 500;">筛选：</span>
+                        <select class="qy-select" id="filterEmployee" onchange="filterTable()" style="min-width: 140px;">
+                            <option value="">全部员工</option>
+                            <option value="zhangsan" selected>张三</option>
+                            <option value="zengqiangyong">曾强勇</option>
+                        </select>
+                        <select class="qy-select" id="filterMonth" onchange="filterTable()" style="min-width: 140px;">
+                            <option value="">全部月份</option>
+                            <option value="2026-03" selected>2026-03</option>
+                            <option value="2026-04">2026-04</option>
+                        </select>
+                        <select class="qy-select" id="filterEntity" onchange="filterTable()" style="min-width: 200px;">
+                            <option value="">全部结算主体</option>
+                            <option value="wuxi" selected>无锡一技信息科技有限公司</option>
+                            <option value="shenzhen">深圳青阳财税服务有限公司</option>
+                        </select>
+                    </div>
+
+                    <!-- Table -->
+                    <table class="cost-table" id="costTable">
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>费用月份</th>
+                                <th>结算主体</th>
+                                <th>参保主体</th>
+                                <th>险种</th>
+                                <th class="amount-cell">金额</th>
+                                <th>状态</th>
+                                <th>归属标识</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================= -->
+        <!-- Rules Section (always visible)-->
+        <!-- ============================= -->
+        <div class="section-card">
+            <div class="section-card__header">
+                <span class="section-card__header-icon">📐</span>
+                <span class="section-card__title">费用归属固化规则</span>
+            </div>
+            <div class="section-card__body">
+                <div class="rules-grid">
+                    <!-- Rule 1: Normal costs -->
+                    <div class="rule-card">
+                        <div class="rule-card__icon normal">🔒</div>
+                        <div class="rule-card__title">正常费用</div>
+                        <div class="rule-card__desc">
+                            费用产生时固化归属到当时的结算主体，不随后续员工调动而变更。
+                        </div>
+                        <div class="rule-card__example">
+                            例：张三三月在无锡一技产生的费用，即使四月调至深圳青阳，三月费用仍归属无锡一技。
+                        </div>
+                    </div>
+
+                    <!-- Rule 2: Refunds -->
+                    <div class="rule-card">
+                        <div class="rule-card__icon refund">↩️</div>
+                        <div class="rule-card__title">退费</div>
+                        <div class="rule-card__desc">
+                            退费归属到原费用产生时的结算主体，即"谁产生的费用，退到谁那里"。
+                        </div>
+                        <div class="rule-card__example">
+                            例：张三三月在无锡一技参保后退费，退费金额归属无锡一技，不跟随调动。
+                        </div>
+                    </div>
+
+                    <!-- Rule 3: Supplements -->
+                    <div class="rule-card">
+                        <div class="rule-card__icon supplement">➕</div>
+                        <div class="rule-card__title">差额补缴</div>
+                        <div class="rule-card__desc">
+                            差额补缴归属到原费用产生时的结算主体，确保费用完整性归属于同一主体。
+                        </div>
+                        <div class="rule-card__example">
+                            例：三月缴费基数调整产生差额，差额归属三月的结算主体无锡一技。
+                        </div>
+                    </div>
+
+                    <!-- Rule 4: Merged payments -->
+                    <div class="rule-card">
+                        <div class="rule-card__icon merged">🤝</div>
+                        <div class="rule-card__title">合并付款</div>
+                        <div class="rule-card__desc">
+                            多个结算主体的费用合并为一次付款时，财务归属到发起付款申请的结算主体。
+                        </div>
+                        <div class="rule-card__example">
+                            例：无锡一技和深圳青阳的费用合并由无锡一技发起付款，财务归属无锡一技。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cost data
+        const costData = [
+            { name: '张三', nameKey: 'zhangsan', month: '2026-03', entity: '无锡一技信息科技有限公司', entityKey: 'wuxi', insuranceEntity: '无锡人才服务有限公司', type: '养老保险', amount: 5000, status: 'collected', statusText: '已收' },
+            { name: '张三', nameKey: 'zhangsan', month: '2026-03', entity: '无锡一技信息科技有限公司', entityKey: 'wuxi', insuranceEntity: '无锡人才服务有限公司', type: '医疗保险', amount: 2000, status: 'collected', statusText: '已收' },
+            { name: '张三', nameKey: 'zhangsan', month: '2026-04', entity: '深圳青阳财税服务有限公司', entityKey: 'shenzhen', insuranceEntity: '无锡人才服务有限公司', type: '养老保险', amount: 5200, status: 'pending', statusText: '应收' },
+            { name: '张三', nameKey: 'zhangsan', month: '2026-04', entity: '深圳青阳财税服务有限公司', entityKey: 'shenzhen', insuranceEntity: '无锡人才服务有限公司', type: '医疗保险', amount: 2100, status: 'pending', statusText: '应收' },
+            { name: '曾强勇', nameKey: 'zengqiangyong', month: '2026-04', entity: '无锡一技信息科技有限公司', entityKey: 'wuxi', insuranceEntity: '无锡一技信息科技有限公司', type: '养老保险', amount: 4800, status: 'pending', statusText: '应收' },
+            { name: '曾强勇', nameKey: 'zengqiangyong', month: '2026-04', entity: '无锡一技信息科技有限公司', entityKey: 'wuxi', insuranceEntity: '无锡一技信息科技有限公司', type: '医疗保险', amount: 1900, status: 'pending', statusText: '应收' },
+        ];
+
+        function formatAmount(n) {
+            return '¥' + n.toLocaleString('zh-CN');
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('costTableBody');
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--qy-text-muted);">无匹配的费用记录</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map((row, i) => {
+                const isTransfer = row.nameKey === 'zhangsan';
+                const highlightClass = isTransfer ? ' class="highlight"' : '';
+                return '<tr' + highlightClass + '>'
+                    + '<td>' + row.name + (isTransfer ? ' <span style="font-size: 11px; color: var(--qy-primary-500);">⬌ 已调动</span>' : '') + '</td>'
+                    + '<td>' + row.month + '</td>'
+                    + '<td>' + row.entity + '</td>'
+                    + '<td>' + row.insuranceEntity + '</td>'
+                    + '<td>' + row.type + '</td>'
+                    + '<td class="amount-cell">' + formatAmount(row.amount) + '</td>'
+                    + '<td><span class="status-tag ' + row.status + '">' + row.statusText + '</span></td>'
+                    + '<td><span class="attribution-badge frozen">🔒 已固化</span></td>'
+                    + '</tr>';
+            }).join('');
+        }
+
+        function filterTable() {
+            const emp = document.getElementById('filterEmployee').value;
+            const month = document.getElementById('filterMonth').value;
+            const entity = document.getElementById('filterEntity').value;
+            let filtered = costData;
+            if (emp) filtered = filtered.filter(r => r.nameKey === emp);
+            if (month) filtered = filtered.filter(r => r.month === month);
+            if (entity) filtered = filtered.filter(r => r.entityKey === entity);
+            renderTable(filtered);
+        }
+
+        function switchScenario(id, btn) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            // Render table when switching to scenario3
+            if (id === 'scenario3') filterTable();
+        }
+
+        // Initial render
+        filterTable();
+    </script>
+</body>
+</html>
