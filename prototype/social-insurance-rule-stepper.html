@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>配置社保参保规则 - 青阳云HRO</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #10B981;
+      --success-light: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-light: #FFFBEB;
+      --error: #EF4444;
+      --error-light: #FEF2F2;
+      --gray-50: #F8FAFC;
+      --gray-100: #F1F5F9;
+      --gray-200: #E2E8F0;
+      --gray-300: #CBD5E1;
+      --gray-400: #94A3B8;
+      --gray-500: #64748B;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1E293B;
+      --gray-900: #0F172A;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; color: var(--gray-800); background: var(--gray-100); line-height: 1.5; }
+    .page-container { display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background: #fff; border-right: 1px solid var(--gray-200); flex-shrink: 0; position: fixed; height: 100vh; z-index: 100; }
+    .sidebar-logo { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); }
+    .sidebar-logo h1 { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .sidebar-nav { list-style: none; padding: 12px 0; }
+    .sidebar-nav-item { padding: 10px 24px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: var(--gray-500); font-size: 13px; transition: all 150ms; }
+    .sidebar-nav-item:hover { background: var(--gray-50); color: var(--gray-800); }
+    .sidebar-nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+    .sidebar-nav-sub { padding-left: 48px; }
+    .sidebar-nav-sub .sidebar-nav-item { padding: 8px 24px; font-size: 12px; }
+
+    .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; min-width: 0; }
+    .topbar { height: 56px; background: #fff; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .topbar-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-500); }
+    .topbar-breadcrumb a { color: var(--gray-500); text-decoration: none; }
+    .topbar-breadcrumb a:hover { color: var(--primary); }
+    .topbar-breadcrumb span { color: var(--gray-800); font-weight: 500; }
+    .topbar-user { display: flex; align-items: center; gap: 10px; }
+    .topbar-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+
+    .content-area { flex: 1; padding: 24px 32px 80px; overflow-y: auto; }
+
+    .page-header { display: flex; align-items: center; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 700; color: var(--gray-900); display: flex; align-items: center; gap: 12px; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 13px; color: var(--gray-600); cursor: pointer; }
+    .back-btn:hover { border-color: var(--gray-300); color: var(--gray-800); }
+
+    /* Stepper */
+    .steps { display: flex; align-items: center; margin-bottom: 28px; background: white; padding: 20px 28px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); }
+    .step { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .step-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: var(--gray-100); color: var(--gray-400); border: 2px solid var(--gray-200); transition: all 200ms; flex-shrink: 0; }
+    .step.active .step-num { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.15); }
+    .step.completed .step-num { background: var(--success); color: white; border-color: var(--success); }
+    .step-label { font-size: 14px; color: var(--gray-400); font-weight: 500; white-space: nowrap; }
+    .step.active .step-label { color: var(--gray-800); }
+    .step.completed .step-label { color: var(--gray-600); }
+    .step-line { flex: 1; height: 2px; background: var(--gray-200); margin: 0 16px; min-width: 40px; border-radius: 1px; }
+    .step-line.completed { background: var(--success); }
+
+    /* Cards */
+    .card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); margin-bottom: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .card-header { padding: 16px 24px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--gray-800); }
+    .card-body { padding: 24px; }
+
+    /* Form */
+    .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 28px; margin-bottom: 20px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-row.two-col { grid-template-columns: repeat(2, 1fr); }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-field-label { font-size: 13px; color: var(--gray-600); font-weight: 500; }
+    .form-field-label .req { color: var(--error); }
+    .form-input { height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px; width: 100%; }
+    .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-input.disabled { background: var(--gray-50); color: var(--gray-500); cursor: not-allowed; }
+    .form-select { height: 40px; padding: 0 36px 0 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px; width: 100%; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; appearance: none; cursor: pointer; }
+    .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-textarea { padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px; width: 100%; min-height: 80px; resize: vertical; font-family: inherit; }
+    .form-textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-field-value { height: 40px; padding: 0 12px; background: var(--gray-50); border-radius: var(--radius-md); display: flex; align-items: center; font-size: 14px; border: 1px solid var(--gray-200); }
+
+    .radio-group { display: flex; gap: 20px; }
+    .radio-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .radio-item input { accent-color: var(--primary); }
+
+    /* Table */
+    .qy-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .qy-table th { background: var(--gray-50); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+    .qy-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); color: var(--gray-700); }
+    .qy-table tr:last-child td { border-bottom: none; }
+    .qy-table tr:hover td { background: var(--gray-50); }
+
+    .action-link { color: var(--primary); cursor: pointer; border: none; background: none; font-size: 13px; padding: 0 4px; }
+    .action-link:hover { text-decoration: underline; }
+    .action-link.danger { color: var(--error); }
+    .action-sep { color: var(--gray-300); margin: 0 2px; }
+
+    /* Tag */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+    .tag-green { background: var(--success-light); color: var(--success); }
+    .tag-blue { background: var(--primary-light); color: var(--primary); }
+    .tag-gray { background: var(--gray-100); color: var(--gray-500); }
+    .tag-orange { background: var(--warning-light); color: var(--warning); }
+
+    /* Buttons */
+    .btn { height: 40px; padding: 0 20px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 6px; transition: all 150ms; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: white; border-color: var(--gray-300); color: var(--gray-700); }
+    .btn-secondary:hover { background: var(--gray-50); }
+    .btn-text { background: none; border: none; color: var(--primary); padding: 0; height: auto; }
+    .btn-text:hover { color: var(--primary-hover); }
+    .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+    .btn-outline { background: white; border-color: var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary-light); }
+
+    /* Bottom bar */
+    .bottom-bar { position: fixed; bottom: 0; left: 220px; right: 0; background: white; border-top: 1px solid var(--gray-200); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -4px 12px rgba(0,0,0,0.04); z-index: 50; }
+    .bottom-bar .left { display: flex; gap: 12px; }
+    .bottom-bar .right { display: flex; gap: 12px; }
+
+    /* Operation tabs */
+    .op-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .op-tab { padding: 8px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--gray-200); background: white; color: var(--gray-500); transition: all 150ms; }
+    .op-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .op-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Field collection table */
+    .field-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .field-table th { background: var(--gray-50); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); }
+    .field-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); }
+    .field-table tr:last-child td { border-bottom: none; }
+
+    /* Checkbox in table */
+    .cb-toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--gray-300); position: relative; cursor: pointer; transition: background 200ms; border: none; padding: 0; }
+    .cb-toggle.on { background: var(--primary); }
+    .cb-toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 2px; left: 2px; transition: transform 200ms; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+    .cb-toggle.on::after { transform: translateX(16px); }
+
+    /* Sort input */
+    .sort-input { width: 52px; height: 30px; text-align: center; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 13px; }
+    .sort-input:focus { outline: none; border-color: var(--primary); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--gray-400); }
+    .empty-state p { font-size: 14px; margin-top: 8px; }
+
+    /* Rule config section */
+    .config-section { margin-bottom: 24px; }
+    .config-section-title { font-size: 14px; font-weight: 600; color: var(--gray-800); margin-bottom: 12px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 16px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .checkbox-item input { accent-color: var(--primary); }
+
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--gray-100); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 14px; color: var(--gray-700); }
+
+    /* Step panel */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Insurance summary */
+    .insurance-summary { display: flex; gap: 28px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-100); }
+    .insurance-summary .summary-item { display: flex; align-items: center; gap: 8px; }
+    .insurance-summary .summary-label { font-size: 13px; color: var(--gray-500); }
+    .insurance-summary .summary-select { height: 36px; padding: 0 32px 0 10px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 13px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; appearance: none; }
+  </style>
+</head>
+<body>
+
+<div class="page-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">薪资档案</li>
+      <li class="sidebar-nav-item active">
+        <span>保险福利</span>
+      </li>
+      <li class="sidebar-nav-sub">
+        <div class="sidebar-nav-item">保险台账</div>
+        <div class="sidebar-nav-item active" style="color:var(--primary)">参保规则</div>
+        <div class="sidebar-nav-item">二级户</div>
+        <div class="sidebar-nav-item">员工参保档案</div>
+        <div class="sidebar-nav-item">保险福利核算</div>
+        <div class="sidebar-nav-item">保险分组</div>
+        <div class="sidebar-nav-item">险种配置</div>
+      </li>
+      <li class="sidebar-nav-item">异动申报</li>
+      <li class="sidebar-nav-item">报表</li>
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-breadcrumb">
+        <a href="#">保险福利</a>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <a href="#">参保规则</a>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span>配置社保参保规则</span>
+      </div>
+      <div class="topbar-user">
+        <div class="topbar-user-avatar">管</div>
+        <span style="font-size:13px;color:var(--gray-700);">管理员</span>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">
+          <button class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回
+          </button>
+          配置社保参保规则
+        </h1>
+      </div>
+
+      <!-- Stepper -->
+      <div class="steps">
+        <div class="step active" data-step="1" onclick="goToStep(1)">
+          <div class="step-num">1</div>
+          <div class="step-label">基本信息</div>
+        </div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step" data-step="2" onclick="goToStep(2)">
+          <div class="step-num">2</div>
+          <div class="step-label">参保险种</div>
+        </div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step" data-step="3" onclick="goToStep(3)">
+          <div class="step-num">3</div>
+          <div class="step-label">字段采集配置</div>
+        </div>
+        <div class="step-line" id="line-3"></div>
+        <div class="step" data-step="4" onclick="goToStep(4)">
+          <div class="step-num">4</div>
+          <div class="step-label">规则配置</div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 1: Basic Info ==================== -->
+      <div class="step-panel active" id="panel-1">
+        <div class="card">
+          <div class="card-header"><div class="card-title">基本信息</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-field-label"><span class="req">*</span> 规则名称</label>
+                <input class="form-input" value="二级户专属社保规则" placeholder="请输入">
+              </div>
+              <div class="form-field">
+                <label class="form-field-label"><span class="req">*</span> 所属组织</label>
+                <div class="form-field-value">2046892568145866753</div>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label"><span class="req">*</span> 生效月份</label>
+                <input class="form-input" value="2026-05" type="month">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-field-label"><span class="req">*</span> 规则编码</label>
+                <input class="form-input disabled" value="EJH20260427" disabled>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label"><span class="req">*</span> 参保地区</label>
+                <div class="form-field-value">云南省 / 昭通市 / 巧家县</div>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">状态</label>
+                <div class="radio-group">
+                  <label class="radio-item"><input type="radio" name="status" checked> 启用</label>
+                  <label class="radio-item"><input type="radio" name="status"> 停用</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row two-col">
+              <div class="form-field">
+                <label class="form-field-label"><span class="req">*</span> 负责人</label>
+                <div class="form-field-value">于佳</div>
+              </div>
+              <div class="form-field">
+                <label class="form-field-label">备注</label>
+                <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 2: Insurance Types ==================== -->
+      <div class="step-panel" id="panel-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">参保险种</div>
+            <button class="btn btn-sm btn-outline">+ 添加险种</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="qy-table">
+              <thead>
+                <tr>
+                  <th>险种名称</th>
+                  <th>险种编码</th>
+                  <th colspan="5" style="text-align:center;color:var(--primary)">单位</th>
+                  <th colspan="5" style="text-align:center;color:var(--success)">个人</th>
+                  <th colspan="2" style="text-align:center;color:var(--warning)">报增报减</th>
+                  <th>存缴类型</th>
+                  <th>操作</th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th>基数上限</th>
+                  <th>基数下限</th>
+                  <th>默认基数</th>
+                  <th>比例(%)</th>
+                  <th>固定额</th>
+                  <th>基数上限</th>
+                  <th>基数下限</th>
+                  <th>默认基数</th>
+                  <th>比例(%)</th>
+                  <th>固定额</th>
+                  <th>增员规则</th>
+                  <th>报增截止</th>
+                  <th>减员规则</th>
+                  <th>报减截止</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>养老保险</strong></td>
+                  <td>001</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>15</td><td>0.00</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>8</td><td>0.00</td>
+                  <td>当月增员当月生效</td><td>15号</td>
+                  <td>当月减员当月生效</td><td>15号</td>
+                  <td><span class="tag tag-blue">月度</span></td>
+                  <td>
+                    <button class="action-link">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link">复制</button><span class="action-sep">|</span>
+                    <button class="action-link danger">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>医疗保险</strong></td>
+                  <td>002</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>8</td><td>0.00</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>2</td><td>0.00</td>
+                  <td>当月增员当月生效</td><td>15号</td>
+                  <td>当月减员当月生效</td><td>15号</td>
+                  <td><span class="tag tag-blue">月度</span></td>
+                  <td>
+                    <button class="action-link">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link">复制</button><span class="action-sep">|</span>
+                    <button class="action-link danger">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>工伤保险</strong></td>
+                  <td>003</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.4</td><td>0.00</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>0.00</td>
+                  <td>当月增员当月生效</td><td>15号</td>
+                  <td>当月减员当月生效</td><td>15号</td>
+                  <td><span class="tag tag-blue">月度</span></td>
+                  <td>
+                    <button class="action-link">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link">复制</button><span class="action-sep">|</span>
+                    <button class="action-link danger">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>失业保险</strong></td>
+                  <td>004</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.7</td><td>0.00</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.3</td><td>0.00</td>
+                  <td>当月增员当月生效</td><td>15号</td>
+                  <td>当月减员当月生效</td><td>15号</td>
+                  <td><span class="tag tag-blue">月度</span></td>
+                  <td>
+                    <button class="action-link">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link">复制</button><span class="action-sep">|</span>
+                    <button class="action-link danger">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>生育保险</strong></td>
+                  <td>005</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.8</td><td>0.00</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>0.00</td>
+                  <td>当月增员当月生效</td><td>15号</td>
+                  <td>当月减员当月生效</td><td>15号</td>
+                  <td><span class="tag tag-blue">月度</span></td>
+                  <td>
+                    <button class="action-link">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link">复制</button><span class="action-sep">|</span>
+                    <button class="action-link danger">移除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>大病险种</strong></td>
+                  <td>007</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>240.00</td>
+                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>100.00</td>
+                  <td>当月增员当月生效</td><td>15号</td>
+                  <td>当月减员当月生效</td><td>15号</td>
+                  <td><span class="tag tag-orange">年度</span></td>
+                  <td>
+                    <button class="action-link">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link">复制</button><span class="action-sep">|</span>
+                    <button class="action-link danger">移除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:16px 24px;">
+            <div class="insurance-summary">
+              <div class="summary-item">
+                <span class="summary-label">单位社保合计舍位方式：</span>
+                <select class="summary-select">
+                  <option selected>四舍五入至分</option>
+                  <option>四舍五入至角</option>
+                  <option>四舍五入至元</option>
+                  <option>舍去至分</option>
+                </select>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">个人社保合计舍位方式：</span>
+                <select class="summary-select">
+                  <option selected>四舍五入至分</option>
+                  <option>四舍五入至角</option>
+                  <option>四舍五入至元</option>
+                  <option>舍去至分</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 3: Field Collection Config ==================== -->
+      <div class="step-panel" id="panel-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">字段采集配置</div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:12px;color:var(--gray-400);">从 <a href="global-field-config-demo.html" style="color:var(--primary);">全局字段字典</a> 中选择字段</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Operation type tabs -->
+            <div class="op-tabs">
+              <div class="op-tab active" data-op="ADD" onclick="switchOp('ADD', this)">增员</div>
+              <div class="op-tab" data-op="REMOVE" onclick="switchOp('REMOVE', this)">减员</div>
+              <div class="op-tab" data-op="ADJUST" onclick="switchOp('ADJUST', this)">调基</div>
+              <div class="op-tab" data-op="SUPPLEMENT" onclick="switchOp('SUPPLEMENT', this)">补缴</div>
+            </div>
+
+            <!-- Field list -->
+            <div id="fieldList">
+              <table class="field-table">
+                <thead>
+                  <tr>
+                    <th style="width:60px">排序</th>
+                    <th>字段名称</th>
+                    <th style="width:80px">类型</th>
+                    <th style="width:80px">来源</th>
+                    <th style="width:60px">必填</th>
+                    <th style="width:140px">校验规则</th>
+                    <th style="width:160px">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="fieldBody">
+                  <!-- Rendered by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty state (shown when no fields configured) -->
+            <div class="empty-state" id="fieldEmpty" style="display:none;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gray-300);"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v4M12 16h.01"/></svg>
+              <p>当前操作类型未配置采集字段</p>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn btn-sm btn-outline" onclick="openFieldPicker()">+ 添加字段</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 4: Rule Config ==================== -->
+      <div class="step-panel" id="panel-4">
+        <div class="card">
+          <div class="card-header"><div class="card-title">规则配置</div></div>
+          <div class="card-body">
+            <div class="toggle-row">
+              <span class="toggle-label">服务节点</span>
+              <button class="cb-toggle" onclick="this.classList.toggle('on')"></button>
+            </div>
+
+            <div class="config-section" style="margin-top:24px;">
+              <div class="config-section-title">新参保强制参保险种</div>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" checked> 养老保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 医疗保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 工伤保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 失业保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 生育保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 大病险种</label>
+              </div>
+            </div>
+
+            <div class="config-section">
+              <div class="config-section-title">补缴强制险种</div>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" checked> 养老保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 医疗保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 工伤保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 失业保险</label>
+                <label class="checkbox-item"><input type="checkbox" checked> 生育保险</label>
+                <label class="checkbox-item"><input type="checkbox"> 大病险种</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="left">
+        <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display:none;">上一步</button>
+      </div>
+      <div class="right">
+        <button class="btn btn-secondary" onclick="window.history.back()">取 消</button>
+        <button class="btn btn-secondary" id="saveDraftBtn">保存草稿</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">下一步</button>
+        <button class="btn btn-primary" id="submitBtn" style="display:none;" onclick="handleSubmit()">保 存</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Field Picker Modal -->
+<div id="fieldPickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:none;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:var(--radius-lg);width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:16px;font-weight:600;">选择字段</span>
+      <button onclick="closePicker()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);">&times;</button>
+    </div>
+    <div style="padding:16px 24px;border-bottom:1px solid var(--gray-100);">
+      <input class="form-input" placeholder="搜索字段名称或编码..." id="fieldSearch" oninput="filterPickerFields()">
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:8px 0;" id="fieldPickerList">
+      <!-- Rendered by JS -->
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:12px;">
+      <button class="btn btn-secondary" onclick="closePicker()">取消</button>
+      <button class="btn btn-primary" onclick="confirmPicker()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== Stepper Navigation ====================
+let currentStep = 1;
+const totalSteps = 4;
+
+function goToStep(step) {
+  // Only allow going to completed steps or current step
+  if (step > currentStep) return;
+  currentStep = step;
+  updateStepper();
+}
+
+function nextStep() {
+  if (currentStep < totalSteps) {
+    currentStep++;
+    updateStepper();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    updateStepper();
+  }
+}
+
+function updateStepper() {
+  // Update step indicators
+  document.querySelectorAll('.step').forEach((el, i) => {
+    const stepNum = i + 1;
+    el.classList.remove('active', 'completed');
+    if (stepNum === currentStep) el.classList.add('active');
+    else if (stepNum < currentStep) el.classList.add('completed');
+  });
+
+  // Update lines
+  for (let i = 1; i < totalSteps; i++) {
+    const line = document.getElementById('line-' + i);
+    line.classList.toggle('completed', i < currentStep);
+  }
+
+  // Update panels
+  document.querySelectorAll('.step-panel').forEach((panel, i) => {
+    panel.classList.toggle('active', i + 1 === currentStep);
+  });
+
+  // Update buttons
+  document.getElementById('prevBtn').style.display = currentStep > 1 ? '' : 'none';
+  document.getElementById('nextBtn').style.display = currentStep < totalSteps ? '' : 'none';
+  document.getElementById('submitBtn').style.display = currentStep === totalSteps ? '' : 'none';
+}
+
+// ==================== Field Collection ====================
+const FIELD_DICT = [
+  { id: 1, code: 'contract_attachment', name: '合同附件', type: 'file', source: 'MANUAL' },
+  { id: 2, code: 'contract_start_date', name: '合同开始日期', type: 'date', source: 'AUTO' },
+  { id: 3, code: 'contract_end_date', name: '合同结束日期', type: 'date', source: 'AUTO' },
+  { id: 4, code: 'id_card_front', name: '身份证正面', type: 'photo', source: 'MANUAL' },
+  { id: 5, code: 'id_card_back', name: '身份证反面', type: 'photo', source: 'MANUAL' },
+  { id: 6, code: 'household_type', name: '户籍类型', type: 'select', source: 'AUTO' },
+  { id: 7, code: 'household_address', name: '户籍地址', type: 'text', source: 'AUTO' },
+  { id: 8, code: 'social_security_card', name: '社保卡号', type: 'text', source: 'AUTO' },
+  { id: 9, code: 'bank_account', name: '银行账号', type: 'text', source: 'AUTO' },
+  { id: 10, code: 'marriage_status', name: '婚姻状况', type: 'select', source: 'AUTO' },
+  { id: 11, code: 'emergency_contact', name: '紧急联系人', type: 'text', source: 'AUTO' },
+  { id: 12, code: 'emergency_phone', name: '紧急联系电话', type: 'text', source: 'AUTO' }
+];
+
+const TYPE_LABELS = { text: '文本', number: '数值', date: '日期', file: '附件', photo: '照片', select: '下拉' };
+const SOURCE_LABELS = { AUTO: '员工档案', MANUAL: '手动填写' };
+const TYPE_TAG_CLASS = { text: 'tag-blue', number: 'tag-green', date: 'tag-green', file: 'tag-orange', photo: 'tag-orange', select: 'tag-blue' };
+const SOURCE_TAG_CLASS = { AUTO: 'tag-green', MANUAL: 'tag-orange' };
+
+// Config data: { opType: [{ dictId, sortOrder, isRequired, validationRule }] }
+const configData = {
+  ADD: [
+    { dictId: 1, sortOrder: 1, isRequired: 1, validationRule: '' },
+    { dictId: 2, sortOrder: 2, isRequired: 1, validationRule: '' },
+    { dictId: 3, sortOrder: 3, isRequired: 0, validationRule: '' },
+    { dictId: 4, sortOrder: 4, isRequired: 0, validationRule: '' }
+  ],
+  REMOVE: [],
+  ADJUST: [
+    { dictId: 2, sortOrder: 1, isRequired: 1, validationRule: '' }
+  ],
+  SUPPLEMENT: []
+};
+
+let currentOp = 'ADD';
+
+function renderFields() {
+  const items = configData[currentOp] || [];
+  const tbody = document.getElementById('fieldBody');
+  const empty = document.getElementById('fieldEmpty');
+
+  if (items.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    document.querySelector('#fieldList table').style.display = 'none';
+  } else {
+    empty.style.display = 'none';
+    document.querySelector('#fieldList table').style.display = '';
+    tbody.innerHTML = items.map((item, idx) => {
+      const dict = FIELD_DICT.find(f => f.id === item.dictId);
+      if (!dict) return '';
+      return `<tr>
+        <td><input class="sort-input" type="number" value="${item.sortOrder}" min="1" onchange="updateField(${idx}, 'sortOrder', +this.value)"></td>
+        <td><strong>${dict.name}</strong><br><span style="font-size:11px;color:var(--gray-400);font-family:monospace;">${dict.code}</span></td>
+        <td><span class="tag ${TYPE_TAG_CLASS[dict.type] || 'tag-gray'}">${TYPE_LABELS[dict.type]}</span></td>
+        <td><span class="tag ${SOURCE_TAG_CLASS[dict.source] || 'tag-gray'}">${SOURCE_LABELS[dict.source]}</span></td>
+        <td><button class="cb-toggle ${item.isRequired ? 'on' : ''}" onclick="updateField(${idx}, 'isRequired', ${item.isRequired ? 0 : 1}); this.classList.toggle('on')"></button></td>
+        <td><span style="font-size:12px;color:var(--gray-400);">${item.validationRule || '—'}</span> <button class="action-link" onclick="editValidation(${idx})" style="font-size:12px;">编辑</button></td>
+        <td><button class="action-link danger" onclick="removeField(${idx})">移除</button></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function switchOp(op, el) {
+  currentOp = op;
+  document.querySelectorAll('.op-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderFields();
+}
+
+function updateField(idx, key, value) {
+  configData[currentOp][idx][key] = value;
+}
+
+function removeField(idx) {
+  configData[currentOp].splice(idx, 1);
+  renderFields();
+}
+
+function editValidation(idx) {
+  const item = configData[currentOp][idx];
+  const rule = prompt('请输入校验规则（正则表达式）:', item.validationRule || '');
+  if (rule !== null) {
+    item.validationRule = rule;
+    renderFields();
+  }
+}
+
+// Field Picker Modal
+let selectedPickerFields = new Set();
+
+function openFieldPicker() {
+  const currentIds = (configData[currentOp] || []).map(i => i.dictId);
+  const available = FIELD_DICT.filter(f => !currentIds.includes(f.id));
+  const list = document.getElementById('fieldPickerList');
+  list.innerHTML = available.map(f => `
+    <label style="display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;border-bottom:1px solid var(--gray-50);">
+      <input type="checkbox" value="${f.id}" onchange="togglePickerField(${f.id}, this.checked)">
+      <div>
+        <div style="font-weight:500;">${f.name}</div>
+        <div style="font-size:12px;color:var(--gray-400);font-family:monospace;">${f.code}</div>
+      </div>
+      <span class="tag ${TYPE_TAG_CLASS[f.type] || 'tag-gray'}" style="margin-left:auto;">${TYPE_LABELS[f.type]}</span>
+      <span class="tag ${SOURCE_TAG_CLASS[f.source] || 'tag-gray'}">${SOURCE_LABELS[f.source]}</span>
+    </label>
+  `).join('');
+
+  if (available.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>所有字段已添加</p></div>';
+  }
+
+  selectedPickerFields.clear();
+  const modal = document.getElementById('fieldPickerModal');
+  modal.style.display = 'flex';
+}
+
+function closePicker() {
+  document.getElementById('fieldPickerModal').style.display = 'none';
+}
+
+function togglePickerField(id, checked) {
+  if (checked) selectedPickerFields.add(id);
+  else selectedPickerFields.delete(id);
+}
+
+function filterPickerFields() {
+  const keyword = document.getElementById('fieldSearch').value.toLowerCase();
+  document.querySelectorAll('#fieldPickerList label').forEach(label => {
+    const text = label.textContent.toLowerCase();
+    label.style.display = text.includes(keyword) ? '' : 'none';
+  });
+}
+
+function confirmPicker() {
+  const maxOrder = configData[currentOp].length > 0 ? Math.max(...configData[currentOp].map(i => i.sortOrder)) : 0;
+  let order = maxOrder + 1;
+  selectedPickerFields.forEach(dictId => {
+    configData[currentOp].push({ dictId, sortOrder: order++, isRequired: 0, validationRule: '' });
+  });
+  closePicker();
+  renderFields();
+}
+
+// Submit
+function handleSubmit() {
+  alert('保存成功！');
+}
+
+// Init
+renderFields();
+</script>
+
+</body>
+</html>
