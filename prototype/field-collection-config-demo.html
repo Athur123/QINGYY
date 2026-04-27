@@ -211,17 +211,226 @@
             </div>
           </div>
         </div>
+
+        <!-- Tab: Field Collection Config -->
+        <div class="tab-panel" id="panel-collection" style="display: none;">
+          <!-- Operation type buttons -->
+          <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+            <button class="op-btn active" data-op="add" onclick="switchOp('add')">增员</button>
+            <button class="op-btn" data-op="remove" onclick="switchOp('remove')">减员</button>
+            <button class="op-btn" data-op="adjust" onclick="switchOp('adjust')">调基</button>
+            <button class="op-btn" data-op="supplement" onclick="switchOp('supplement')">补缴</button>
+          </div>
+
+          <style>
+            .op-btn {
+              padding: 8px 20px; border: 1px solid var(--gray-200); border-radius: var(--radius-md);
+              background: white; color: var(--gray-600); font-size: 13px; cursor: pointer;
+              transition: all 150ms; font-weight: 500;
+            }
+            .op-btn:hover { border-color: var(--gray-300); color: var(--gray-800); }
+            .op-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+          </style>
+
+          <!-- Field list panel for ADD -->
+          <div class="op-panel" id="op-add">
+            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                  <tr style="background: var(--gray-50); border-bottom: 2px solid var(--gray-200);">
+                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 60px;">排序</th>
+                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500;">字段名称</th>
+                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 100px;">字段类型</th>
+                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 120px;">值来源</th>
+                    <th style="text-align: center; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 70px;">必填</th>
+                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 140px;">校验规则</th>
+                    <th style="text-align: center; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 80px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="field-table-body">
+                  <!-- Rows rendered by JS -->
+                </tbody>
+              </table>
+            </div>
+            <button onclick="openFieldPicker()" style="margin-top: 16px; width: 100%; padding: 12px; background: white; border: 1px dashed var(--primary); border-radius: var(--radius-md); color: var(--primary); font-size: 14px; cursor: pointer; font-weight: 500;">
+              + 添加字段
+            </button>
+          </div>
+
+          <!-- Empty panels for other ops -->
+          <div class="op-panel" id="op-remove" style="display: none;">
+            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 48px; text-align: center;">
+              <div style="font-size: 36px; margin-bottom: 12px; color: var(--gray-300);">&#128203;</div>
+              <div style="font-size: 14px; color: var(--gray-400);">减员操作暂未配置采集字段</div>
+              <button onclick="switchOp('add')" style="margin-top: 16px; padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 13px;">前往增员配置</button>
+            </div>
+          </div>
+          <div class="op-panel" id="op-adjust" style="display: none;">
+            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 48px; text-align: center;">
+              <div style="font-size: 36px; margin-bottom: 12px; color: var(--gray-300);">&#128203;</div>
+              <div style="font-size: 14px; color: var(--gray-400);">调基操作暂未配置采集字段</div>
+            </div>
+          </div>
+          <div class="op-panel" id="op-supplement" style="display: none;">
+            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 48px; text-align: center;">
+              <div style="font-size: 36px; margin-bottom: 12px; color: var(--gray-300);">&#128203;</div>
+              <div style="font-size: 14px; color: var(--gray-400);">补缴操作暂未配置采集字段</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <script>
+    // ========== Tab switching ==========
     function switchTab(tabId) {
       document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
       document.querySelector(`.config-tab[data-tab="${tabId}"]`).classList.add('active');
       document.getElementById(`panel-${tabId}`).style.display = '';
     }
+
+    // ========== Operation switching ==========
+    function switchOp(opId) {
+      document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.op-panel').forEach(p => p.style.display = 'none');
+      document.querySelector(`.op-btn[data-op="${opId}"]`).classList.add('active');
+      document.getElementById(`op-${opId}`).style.display = '';
+    }
+
+    // ========== Field data (demo for ADD operation) ==========
+    let fields = [
+      { id: 1, sort: 1, dictId: 'contract_attachment', label: '合同附件', required: true, validation: '', placeholder: '' },
+      { id: 2, sort: 2, dictId: 'contract_start_date', label: '合同开始日期', required: true, validation: '', placeholder: '' },
+      { id: 3, sort: 3, dictId: 'id_card_front', label: '身份证正面', required: false, validation: '', placeholder: '' },
+      { id: 4, sort: 4, dictId: 'household_type', label: '户籍类型', required: true, validation: '', placeholder: '' },
+    ];
+    let nextId = 5;
+
+    // ========== Field dictionary ==========
+    const fieldDict = {
+      contract_attachment:  { name: '合同附件',       type: 'file',   source: 'MANUAL' },
+      contract_start_date:  { name: '合同开始日期',   type: 'date',   source: 'AUTO',   path: 'employee.contract.startDate' },
+      contract_end_date:    { name: '合同结束日期',   type: 'date',   source: 'AUTO',   path: 'employee.contract.endDate' },
+      id_card_front:        { name: '身份证正面',     type: 'photo',  source: 'MANUAL' },
+      id_card_back:         { name: '身份证反面',     type: 'photo',  source: 'MANUAL' },
+      household_type:       { name: '户籍类型',       type: 'select', source: 'AUTO',   path: 'employee.household.type' },
+      household_address:    { name: '户籍地址',       type: 'text',   source: 'AUTO',   path: 'employee.household.address' },
+      social_security_card: { name: '社保卡号',       type: 'text',   source: 'AUTO',   path: 'employee.socialSecurity.cardNo' },
+      bank_account:         { name: '银行账号',       type: 'text',   source: 'AUTO',   path: 'employee.bankAccount.no' },
+      marriage_status:      { name: '婚姻状况',       type: 'select', source: 'AUTO',   path: 'employee.basic.marriageStatus' },
+      emergency_contact:    { name: '紧急联系人',     type: 'text',   source: 'AUTO',   path: 'employee.emergency.name' },
+      emergency_phone:      { name: '紧急联系电话',   type: 'text',   source: 'AUTO',   path: 'employee.emergency.phone' },
+    };
+
+    const typeLabels = { text: '文本', number: '数值', date: '日期', file: '附件', photo: '照片', select: '下拉' };
+    const sourceLabels = { AUTO: '员工档案', MANUAL: '手动填写' };
+    const typeColors = { text: '#3b82f6', number: '#8b5cf6', date: '#10b981', file: '#f59e0b', photo: '#ec4899', select: '#06b6d4' };
+
+    // ========== Render field table ==========
+    function renderFields() {
+      const tbody = document.getElementById('field-table-body');
+      if (!fields.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray-400);">未配置采集字段，点击下方"添加字段"开始配置</td></tr>';
+        return;
+      }
+      fields.sort((a, b) => a.sort - b.sort);
+      tbody.innerHTML = fields.map((f) => {
+        const dict = fieldDict[f.dictId];
+        if (!dict) return '';
+        const bgColor = typeColors[dict.type] || '#64748b';
+        return '<tr style="border-bottom: 1px solid var(--gray-100); transition: background 150ms;" onmouseover="this.style.background=\'var(--gray-50)\'" onmouseout="this.style.background=\'\'">' +
+          '<td style="padding: 10px 16px;"><input type="number" value="' + f.sort + '" onchange="updateField(' + f.id + ',\'sort\',this.value)" style="width: 50px; padding: 4px 6px; border: 1px solid var(--gray-300); border-radius: 4px; font-size: 13px; text-align: center;"></td>' +
+          '<td style="padding: 10px 16px; font-weight: 500;">' + (f.label || dict.name) + '</td>' +
+          '<td style="padding: 10px 16px;"><span style="background:' + bgColor + '15; color:' + bgColor + '; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;">' + typeLabels[dict.type] + '</span></td>' +
+          '<td style="padding: 10px 16px; font-size: 12px; color: var(--gray-500);">' + sourceLabels[dict.source] + (dict.path ? '<br><span style="font-size:11px;color:var(--gray-400);font-family:monospace;">' + dict.path + '</span>' : '') + '</td>' +
+          '<td style="padding: 10px 16px; text-align: center;">' +
+            '<label style="cursor:pointer;position:relative;width:36px;height:20px;display:inline-block;">' +
+              '<input type="checkbox" ' + (f.required ? 'checked' : '') + ' onchange="updateField(' + f.id + ',\'required\',this.checked)" style="opacity:0;width:0;height:0;">' +
+              '<span style="position:absolute;inset:0;background:' + (f.required ? 'var(--primary)' : 'var(--gray-300)') + ';border-radius:10px;transition:200ms;" onclick="this.previousSibling.checked=!this.previousSibling.checked;this.previousSibling.dispatchEvent(new Event(\'change\'))">' +
+                '<span style="position:absolute;left:' + (f.required ? '18px' : '2px') + ';top:2px;width:16px;height:16px;background:white;border-radius:50%;transition:200ms;"></span>' +
+              '</span>' +
+            '</label>' +
+          '</td>' +
+          '<td style="padding: 10px 16px;">' +
+            (f.validation ? '<span style="font-size:12px;color:var(--gray-600);font-family:monospace;">' + f.validation + '</span>' : '<span style="color:var(--gray-300);font-size:12px;">-</span>') +
+            '<button onclick="editValidation(' + f.id + ')" style="margin-left:8px;background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;">编辑</button>' +
+          '</td>' +
+          '<td style="padding: 10px 16px; text-align: center;">' +
+            '<button onclick="removeField(' + f.id + ')" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:13px;">移除</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function updateField(id, key, val) {
+      const f = fields.find(x => x.id === id);
+      if (!f) return;
+      if (key === 'sort') f.sort = parseInt(val) || 0;
+      if (key === 'required') f.required = val;
+      renderFields();
+    }
+
+    function removeField(id) {
+      fields = fields.filter(x => x.id !== id);
+      renderFields();
+    }
+
+    function editValidation(id) {
+      const f = fields.find(x => x.id === id);
+      if (!f) return;
+      const val = prompt('输入校验规则（正则表达式）：', f.validation || '');
+      if (val !== null) { f.validation = val; renderFields(); }
+    }
+
+    // ========== Field picker modal ==========
+    function openFieldPicker() {
+      const existing = fields.map(f => f.dictId);
+      const available = Object.keys(fieldDict).filter(k => !existing.includes(k));
+      if (!available.length) { alert('所有字段已添加'); return; }
+      const html = available.map(k => {
+        const d = fieldDict[k];
+        return '<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--gray-100);cursor:pointer;">' +
+          '<input type="checkbox" value="' + k + '" class="picker-cb">' +
+          '<span style="font-size:13px;font-weight:500;">' + d.name + '</span>' +
+          '<span style="font-size:11px;color:var(--gray-400);">(' + typeLabels[d.type] + ')</span>' +
+          '<span style="font-size:11px;color:' + (d.source === 'AUTO' ? '#10b981' : '#f59e0b') + ';">' + sourceLabels[d.source] + '</span>' +
+        '</label>';
+      }).join('');
+      const overlay = document.createElement('div');
+      overlay.id = 'picker-overlay';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;';
+      overlay.innerHTML = '<div style="background:white;border-radius:12px;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,0.15);">' +
+        '<div style="padding:20px 24px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;">' +
+          '<h3 style="font-size:16px;font-weight:600;">选择字段</h3>' +
+          '<button onclick="closePicker()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);">&times;</button>' +
+        '</div>' +
+        '<div style="padding:16px 24px;" id="picker-list">' + html + '</div>' +
+        '<div style="padding:16px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:8px;">' +
+          '<button onclick="closePicker()" style="padding:8px 20px;background:white;border:1px solid var(--gray-300);border-radius:6px;cursor:pointer;">取消</button>' +
+          '<button onclick="confirmPicker()" style="padding:8px 20px;background:var(--primary);color:white;border:none;border-radius:6px;cursor:pointer;">确认添加</button>' +
+        '</div>' +
+      '</div>';
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closePicker(); });
+      document.body.appendChild(overlay);
+    }
+
+    function closePicker() {
+      const el = document.getElementById('picker-overlay');
+      if (el) el.remove();
+    }
+
+    function confirmPicker() {
+      const cbs = document.querySelectorAll('.picker-cb:checked');
+      cbs.forEach(cb => {
+        const maxSort = fields.length ? Math.max(...fields.map(f => f.sort)) : 0;
+        fields.push({ id: nextId++, sort: maxSort + 1, dictId: cb.value, label: '', required: false, validation: '', placeholder: '' });
+      });
+      closePicker();
+      renderFields();
+    }
+
+    // ========== Init ==========
+    renderFields();
   </script>
 </body>
 </html>
