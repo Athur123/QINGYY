@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>配置社保参保规则 - 青阳云HRO</title>
+  <link rel="stylesheet" href="../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../styles/qingyang-base.css">
+  <link rel="stylesheet" href="../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../styles/qingyang-forms.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -134,7 +138,6 @@
     .op-tab:not(.active) .count { background: var(--gray-100); color: var(--gray-500); }
     .op-tab.active .count { background: rgba(255,255,255,0.3); color: white; }
 
-    /* Copy from dropdown */
     .copy-from-wrap { margin-left: auto; display: flex; align-items: center; gap: 8px; }
     .copy-from-label { font-size: 12px; color: var(--gray-400); }
     .copy-from-select { height: 32px; padding: 0 28px 0 10px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 12px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; appearance: none; cursor: pointer; color: var(--gray-600); }
@@ -143,8 +146,10 @@
     .field-table th { background: var(--gray-50); padding: 10px 12px; text-align: left; font-weight: 600; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); }
     .field-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); }
     .field-table tr:last-child td { border-bottom: none; }
-    .field-table tr { transition: background 150ms; }
+    .field-table tbody tr { transition: background 150ms; }
     .field-table tbody tr:hover td { background: var(--gray-50); }
+    .field-table tbody tr.dragging { opacity: 0.5; background: var(--primary-light); }
+    .field-table tbody tr.drag-over td { border-top: 2px solid var(--primary); }
 
     .cb-toggle { width: 36px; height: 20px; border-radius: 10px; background: var(--gray-300); position: relative; cursor: pointer; transition: background 200ms; border: none; padding: 0; }
     .cb-toggle.on { background: var(--primary); }
@@ -156,8 +161,6 @@
 
     .drag-handle { cursor: grab; color: var(--gray-400); display: inline-flex; padding: 2px; }
     .drag-handle:hover { color: var(--gray-600); }
-    .field-table tbody tr.dragging { opacity: 0.5; background: var(--primary-light); }
-    .field-table tbody tr.drag-over td { border-top: 2px solid var(--primary); }
 
     .empty-state { text-align: center; padding: 48px 24px; color: var(--gray-400); }
     .empty-state p { font-size: 14px; margin-top: 8px; }
@@ -182,14 +185,6 @@
     .insurance-summary .summary-label { font-size: 13px; color: var(--gray-500); }
     .insurance-summary .summary-select { height: 36px; padding: 0 32px 0 10px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 13px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; appearance: none; }
 
-    /* Modal overlay */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; animation: fadeInOverlay 150ms ease-out; }
-    .modal-overlay.show { display: flex; }
-    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
-
-    .modal-box { background: white; border-radius: var(--radius-lg); width: 560px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 200ms ease-out; }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
     /* Confirm dialog */
     .confirm-modal { width: 400px; text-align: center; }
     .confirm-modal .modal-header { padding: 24px 24px 16px; }
@@ -204,6 +199,12 @@
     .validation-modal .modal-body { padding: 24px; }
     .validation-modal .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray-200); display: flex; justify-content: flex-end; gap: 12px; }
 
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; display: none; align-items: center; justify-content: center; animation: fadeInOverlay 150ms ease-out; }
+    .modal-overlay.show { display: flex; }
+    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box { background: white; border-radius: var(--radius-lg); width: 560px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 200ms ease-out; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
     /* Toast */
     .toast-container { position: fixed; top: 24px; right: 32px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
     .toast { padding: 12px 20px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: white; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: slideInRight 250ms ease-out; min-width: 200px; }
@@ -212,7 +213,6 @@
     .toast.warning { background: var(--warning); }
     @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    /* Required highlight */
     .form-field.has-error .form-input,
     .form-field.has-error .form-select,
     .form-field.has-error .form-textarea { border-color: var(--error); }
@@ -221,21 +221,15 @@
     .error-msg { font-size: 12px; color: var(--error); margin-top: 4px; display: none; }
     .form-field.has-error .error-msg { display: block; }
 
-    /* Loading spinner on button */
     .btn .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 600ms linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* Copy button in picker */
     .picker-count { font-size: 12px; color: var(--gray-400); padding: 8px 24px; border-bottom: 1px solid var(--gray-100); }
     .picker-count strong { color: var(--gray-700); }
-
-    /* Field picker item hover */
     .picker-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; cursor: pointer; border-bottom: 1px solid var(--gray-50); transition: background 100ms; }
     .picker-item:hover { background: var(--gray-50); }
     .picker-item input { accent-color: var(--primary); width: 16px; height: 16px; }
-
-    /* Badge count in field table */
     .field-count-badge { font-size: 11px; color: var(--gray-400); font-weight: 400; }
   </style>
 </head>
@@ -357,7 +351,7 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title">参保险种</div>
-            <button class="btn btn-sm btn-outline" onclick="showToast('添加险种（原型未实现）','info')">+ 添加险种</button>
+            <button class="btn btn-sm btn-outline" onclick="openInsuranceDrawer()">+ 添加险种</button>
           </div>
           <div class="card-body" style="padding:0;">
             <table class="qy-table">
@@ -378,74 +372,74 @@
                 </tr>
               </thead>
               <tbody id="insuranceBody">
-                <tr data-id="001">
+                <tr>
                   <td><strong>养老保险</strong></td><td>001</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>15</td><td>0.00</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>8</td><td>0.00</td>
                   <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
                   <td><span class="tag tag-blue">月度</span></td>
                   <td>
-                    <button class="action-link" onclick="showToast('编辑险种（原型未实现）','info')">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link" onclick="openInsuranceDrawer('养老保险')">编辑</button><span class="action-sep">|</span>
                     <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
                     <button class="action-link danger" onclick="confirmRemoveInsurance('养老保险', this)">移除</button>
                   </td>
                 </tr>
-                <tr data-id="002">
+                <tr>
                   <td><strong>医疗保险</strong></td><td>002</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>8</td><td>0.00</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>2</td><td>0.00</td>
                   <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
                   <td><span class="tag tag-blue">月度</span></td>
                   <td>
-                    <button class="action-link" onclick="showToast('编辑险种（原型未实现）','info')">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link" onclick="openInsuranceDrawer('医疗保险')">编辑</button><span class="action-sep">|</span>
                     <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
                     <button class="action-link danger" onclick="confirmRemoveInsurance('医疗保险', this)">移除</button>
                   </td>
                 </tr>
-                <tr data-id="003">
+                <tr>
                   <td><strong>工伤保险</strong></td><td>003</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.4</td><td>0.00</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>0.00</td>
                   <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
                   <td><span class="tag tag-blue">月度</span></td>
                   <td>
-                    <button class="action-link" onclick="showToast('编辑险种（原型未实现）','info')">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link" onclick="openInsuranceDrawer('工伤保险')">编辑</button><span class="action-sep">|</span>
                     <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
                     <button class="action-link danger" onclick="confirmRemoveInsurance('工伤保险', this)">移除</button>
                   </td>
                 </tr>
-                <tr data-id="004">
+                <tr>
                   <td><strong>失业保险</strong></td><td>004</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.7</td><td>0.00</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.3</td><td>0.00</td>
                   <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
                   <td><span class="tag tag-blue">月度</span></td>
                   <td>
-                    <button class="action-link" onclick="showToast('编辑险种（原型未实现）','info')">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link" onclick="openInsuranceDrawer('失业保险')">编辑</button><span class="action-sep">|</span>
                     <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
                     <button class="action-link danger" onclick="confirmRemoveInsurance('失业保险', this)">移除</button>
                   </td>
                 </tr>
-                <tr data-id="005">
+                <tr>
                   <td><strong>生育保险</strong></td><td>005</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.8</td><td>0.00</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>0.00</td>
                   <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
                   <td><span class="tag tag-blue">月度</span></td>
                   <td>
-                    <button class="action-link" onclick="showToast('编辑险种（原型未实现）','info')">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link" onclick="openInsuranceDrawer('生育保险')">编辑</button><span class="action-sep">|</span>
                     <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
                     <button class="action-link danger" onclick="confirmRemoveInsurance('生育保险', this)">移除</button>
                   </td>
                 </tr>
-                <tr data-id="007">
+                <tr>
                   <td><strong>大病险种</strong></td><td>007</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>240.00</td>
                   <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>100.00</td>
                   <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
                   <td><span class="tag tag-orange">年度</span></td>
                   <td>
-                    <button class="action-link" onclick="showToast('编辑险种（原型未实现）','info')">编辑</button><span class="action-sep">|</span>
+                    <button class="action-link" onclick="openInsuranceDrawer('大病险种')">编辑</button><span class="action-sep">|</span>
                     <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
                     <button class="action-link danger" onclick="confirmRemoveInsurance('大病险种', this)">移除</button>
                   </td>
@@ -518,11 +512,11 @@
             <div class="empty-state" id="fieldEmpty" style="display:none;">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--gray-300);"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v4M12 16h.01"/></svg>
               <p>当前操作类型未配置采集字段</p>
-              <button class="btn btn-sm btn-outline" style="margin-top:16px;" onclick="openFieldPicker()">+ 添加字段</button>
+              <button class="btn btn-sm btn-outline" style="margin-top:16px;" onclick="openFieldDrawer()">+ 添加字段</button>
             </div>
 
             <div style="margin-top:16px;">
-              <button class="btn btn-sm btn-outline" onclick="openFieldPicker()">+ 添加字段</button>
+              <button class="btn btn-sm btn-outline" onclick="openFieldDrawer()">+ 添加字段</button>
             </div>
           </div>
         </div>
@@ -583,24 +577,126 @@
   </main>
 </div>
 
-<!-- Field Picker Modal -->
-<div class="modal-overlay" id="fieldPickerModal">
-  <div class="modal-box">
-    <div style="padding:20px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:16px;font-weight:600;">选择字段</span>
-      <button onclick="closePicker()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray-400);line-height:1;">&times;</button>
+<!-- ===== Drawer: Insurance Type Add/Edit ===== -->
+<div class="qy-drawer qy-drawer--right" id="insuranceDrawer">
+  <div class="qy-drawer__overlay" onclick="closeInsuranceDrawer()"></div>
+  <div class="qy-drawer__container" style="width:640px;">
+    <div class="qy-drawer__header">
+      <span class="qy-drawer__title" id="insuranceDrawerTitle">添加险种</span>
+      <button class="qy-drawer__close" onclick="closeInsuranceDrawer()">&times;</button>
     </div>
-    <div style="padding:12px 24px;border-bottom:1px solid var(--gray-100);display:flex;gap:12px;align-items:center;">
-      <input class="form-input" placeholder="搜索字段名称或编码..." id="fieldSearch" oninput="filterPickerFields()" style="flex:1;">
-    </div>
-    <div class="picker-count" id="pickerCount">可添加 <strong>8</strong> 个字段</div>
-    <div style="flex:1;overflow-y:auto;padding:8px 0;" id="fieldPickerList"></div>
-    <div style="padding:16px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:12px;color:var(--gray-400);">已选 <strong id="selectedCount">0</strong> 个字段</span>
-      <div style="display:flex;gap:12px;">
-        <button class="btn btn-secondary" onclick="closePicker()">取消</button>
-        <button class="btn btn-primary" onclick="confirmPicker()">确认添加</button>
+    <div class="qy-drawer__body">
+      <div class="form-field" style="margin-bottom:20px;">
+        <label class="form-field-label"><span class="req">*</span> 险种名称</label>
+        <input class="form-input" id="insName" placeholder="如：养老保险">
       </div>
+      <div class="form-field" style="margin-bottom:20px;">
+        <label class="form-field-label"><span class="req">*</span> 险种编码</label>
+        <input class="form-input" id="insCode" placeholder="如：001">
+      </div>
+      <div class="form-row two-col">
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--primary)">单位 - 基数上限</label>
+          <input class="form-input" type="number" value="21789.00">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--primary)">单位 - 基数下限</label>
+          <input class="form-input" type="number" value="4357.00">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--primary)">单位 - 默认基数</label>
+          <input class="form-input" type="number" value="4357.00">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--primary)">单位 - 比例(%)</label>
+          <input class="form-input" type="number" value="15">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--primary)">单位 - 固定额</label>
+          <input class="form-input" type="number" value="0.00">
+        </div>
+      </div>
+      <div style="height:1px;background:var(--gray-200);margin:20px 0;"></div>
+      <div class="form-row two-col">
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--success)">个人 - 基数上限</label>
+          <input class="form-input" type="number" value="21789.00">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--success)">个人 - 基数下限</label>
+          <input class="form-input" type="number" value="4357.00">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--success)">个人 - 默认基数</label>
+          <input class="form-input" type="number" value="4357.00">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--success)">个人 - 比例(%)</label>
+          <input class="form-input" type="number" value="8">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--success)">个人 - 固定额</label>
+          <input class="form-input" type="number" value="0.00">
+        </div>
+      </div>
+      <div style="height:1px;background:var(--gray-200);margin:20px 0;"></div>
+      <div class="form-row two-col">
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--warning)">增员规则</label>
+          <select class="form-select">
+            <option>当月增员当月生效</option><option>次月生效</option><option>指定月份生效</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--warning)">报增截止</label>
+          <input class="form-input" type="text" value="15号">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--warning)">减员规则</label>
+          <select class="form-select">
+            <option>当月减员当月生效</option><option>次月生效</option><option>指定月份生效</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-field-label" style="color:var(--warning)">报减截止</label>
+          <input class="form-input" type="text" value="15号">
+        </div>
+        <div class="form-field">
+          <label class="form-field-label">存缴类型</label>
+          <select class="form-select">
+            <option selected>月度</option><option>年度</option><option>季度</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="qy-drawer__footer">
+      <button class="btn btn-secondary" onclick="closeInsuranceDrawer()">取 消</button>
+      <button class="btn btn-primary" onclick="saveInsurance()">确 定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Drawer: Field Selection ===== -->
+<div class="qy-drawer qy-drawer--right" id="fieldDrawer">
+  <div class="qy-drawer__overlay" onclick="closeFieldDrawer()"></div>
+  <div class="qy-drawer__container" style="width:520px;">
+    <div class="qy-drawer__header">
+      <span class="qy-drawer__title">选择字段</span>
+      <button class="qy-drawer__close" onclick="closeFieldDrawer()">&times;</button>
+    </div>
+    <div class="qy-drawer__body" style="padding:0;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);">
+        <input class="form-input" placeholder="搜索字段名称或编码..." id="drawerFieldSearch" oninput="filterDrawerFields()" style="width:100%;">
+      </div>
+      <div style="padding:8px 20px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-400);">
+        可添加 <strong id="drawerAvailableCount">8</strong> 个字段
+      </div>
+      <div id="drawerFieldList" style="overflow-y:auto;max-height:calc(100vh - 200px);"></div>
+    </div>
+    <div class="qy-drawer__footer">
+      <span style="font-size:12px;color:var(--gray-400);margin-right:auto;">已选 <strong id="drawerSelectedCount">0</strong> 个字段</span>
+      <button class="btn btn-secondary" onclick="closeFieldDrawer()">取 消</button>
+      <button class="btn btn-primary" onclick="confirmDrawerFields()">确认添加</button>
     </div>
   </div>
 </div>
@@ -709,7 +805,27 @@ function updateStepper() {
   updateStepCounts();
 }
 
-// ==================== Field Collection ====================
+// ==================== Insurance Drawer ====================
+function openInsuranceDrawer(name) {
+  const title = name ? '编辑险种 - ' + name : '添加险种';
+  document.getElementById('insuranceDrawerTitle').textContent = title;
+  document.getElementById('insName').value = name || '';
+  document.getElementById('insCode').value = '';
+  document.getElementById('insuranceDrawer').classList.add('is-open');
+}
+
+function closeInsuranceDrawer() {
+  document.getElementById('insuranceDrawer').classList.remove('is-open');
+}
+
+function saveInsurance() {
+  const name = document.getElementById('insName').value.trim();
+  if (!name) { showToast('请填写险种名称', 'warning'); return; }
+  closeInsuranceDrawer();
+  showToast(name + ' 已保存', 'success');
+}
+
+// ==================== Field Drawer ====================
 const FIELD_DICT = [
   { id:1, code:'contract_attachment', name:'合同附件', type:'file', source:'MANUAL' },
   { id:2, code:'contract_start_date', name:'合同开始日期', type:'date', source:'AUTO' },
@@ -745,6 +861,71 @@ const configData = {
 
 let currentOp = 'ADD';
 let validationEditIdx = -1;
+let drawerSelectedFields = new Set();
+
+function openFieldDrawer() {
+  const currentIds = (configData[currentOp] || []).map(i => i.dictId);
+  const available = FIELD_DICT.filter(f => !currentIds.includes(f.id));
+  const list = document.getElementById('drawerFieldList');
+  document.getElementById('drawerAvailableCount').textContent = available.length;
+
+  if (available.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:40px 24px;"><p>所有字段已添加</p></div>';
+  } else {
+    list.innerHTML = available.map(f => `
+      <label class="picker-item" data-name="${f.name}" data-code="${f.code}">
+        <input type="checkbox" value="${f.id}" onchange="toggleDrawerField(${f.id}, this.checked)">
+        <div style="flex:1;">
+          <div style="font-weight:500;">${f.name}</div>
+          <div style="font-size:12px;color:var(--gray-400);font-family:monospace;">${f.code}</div>
+        </div>
+        <span class="tag ${TYPE_TAG[f.type]||'tag-gray'}">${TYPE_LABELS[f.type]}</span>
+        <span class="tag ${SOURCE_TAG[f.source]||'tag-gray'}">${SOURCE_LABELS[f.source]}</span>
+      </label>
+    `).join('');
+  }
+  drawerSelectedFields.clear();
+  updateDrawerSelectedCount();
+  document.getElementById('drawerFieldSearch').value = '';
+  document.getElementById('fieldDrawer').classList.add('is-open');
+}
+
+function closeFieldDrawer() {
+  document.getElementById('fieldDrawer').classList.remove('is-open');
+}
+
+function toggleDrawerField(id, checked) {
+  if (checked) drawerSelectedFields.add(id);
+  else drawerSelectedFields.delete(id);
+  updateDrawerSelectedCount();
+}
+
+function updateDrawerSelectedCount() {
+  const el = document.getElementById('drawerSelectedCount');
+  if (el) el.textContent = drawerSelectedFields.size;
+}
+
+function filterDrawerFields() {
+  const kw = document.getElementById('drawerFieldSearch').value.toLowerCase();
+  document.querySelectorAll('#drawerFieldList .picker-item').forEach(item => {
+    const name = item.dataset.name.toLowerCase();
+    const code = item.dataset.code.toLowerCase();
+    item.style.display = (name.includes(kw) || code.includes(kw)) ? '' : 'none';
+  });
+}
+
+function confirmDrawerFields() {
+  const maxOrder = configData[currentOp].length > 0 ? Math.max(...configData[currentOp].map(i => i.sortOrder)) : 0;
+  let order = maxOrder + 1;
+  drawerSelectedFields.forEach(dictId => {
+    configData[currentOp].push({ dictId, sortOrder: order++, isRequired: 0, validationRule: '' });
+  });
+  closeFieldDrawer();
+  renderFields();
+  if (drawerSelectedFields.size > 0) {
+    showToast(`已添加 ${drawerSelectedFields.size} 个字段`, 'success');
+  }
+}
 
 function renderFields() {
   const items = configData[currentOp] || [];
@@ -806,7 +987,7 @@ function copyFromOp(srcOp) {
   }
   const target = configData[currentOp];
   if (target.length > 0) {
-    if (!window.confirm(`将覆盖当前 ${OP_LABELS[currentOp]} 的 ${target.length} 个字段，是否继续？`)) {
+    if (!confirm(`将覆盖当前 ${OP_LABELS[currentOp]} 的 ${target.length} 个字段，是否继续？`)) {
       document.getElementById('copyFromSelect').value = '';
       return;
     }
@@ -901,71 +1082,6 @@ function saveValidation() {
   showToast('校验规则已保存', 'success');
 }
 
-// Field Picker
-let selectedPickerFields = new Set();
-
-function openFieldPicker() {
-  const currentIds = (configData[currentOp] || []).map(i => i.dictId);
-  const available = FIELD_DICT.filter(f => !currentIds.includes(f.id));
-  const list = document.getElementById('fieldPickerList');
-  document.getElementById('pickerCount').innerHTML = `可添加 <strong>${available.length}</strong> 个字段`;
-
-  if (available.length === 0) {
-    list.innerHTML = '<div class="empty-state"><p>所有字段已添加</p></div>';
-  } else {
-    list.innerHTML = available.map(f => `
-      <label class="picker-item">
-        <input type="checkbox" value="${f.id}" onchange="togglePickerField(${f.id}, this.checked)">
-        <div style="flex:1;">
-          <div style="font-weight:500;">${f.name}</div>
-          <div style="font-size:12px;color:var(--gray-400);font-family:monospace;">${f.code}</div>
-        </div>
-        <span class="tag ${TYPE_TAG[f.type]||'tag-gray'}">${TYPE_LABELS[f.type]}</span>
-        <span class="tag ${SOURCE_TAG[f.source]||'tag-gray'}">${SOURCE_LABELS[f.source]}</span>
-      </label>
-    `).join('');
-  }
-  selectedPickerFields.clear();
-  updateSelectedCount();
-  document.getElementById('fieldSearch').value = '';
-  document.getElementById('fieldPickerModal').classList.add('show');
-}
-
-function closePicker() {
-  document.getElementById('fieldPickerModal').classList.remove('show');
-}
-
-function togglePickerField(id, checked) {
-  if (checked) selectedPickerFields.add(id);
-  else selectedPickerFields.delete(id);
-  updateSelectedCount();
-}
-
-function updateSelectedCount() {
-  const el = document.getElementById('selectedCount');
-  if (el) el.textContent = selectedPickerFields.size;
-}
-
-function filterPickerFields() {
-  const kw = document.getElementById('fieldSearch').value.toLowerCase();
-  document.querySelectorAll('#fieldPickerList .picker-item').forEach(item => {
-    item.style.display = item.textContent.toLowerCase().includes(kw) ? '' : 'none';
-  });
-}
-
-function confirmPicker() {
-  const maxOrder = configData[currentOp].length > 0 ? Math.max(...configData[currentOp].map(i => i.sortOrder)) : 0;
-  let order = maxOrder + 1;
-  selectedPickerFields.forEach(dictId => {
-    configData[currentOp].push({ dictId, sortOrder: order++, isRequired: 0, validationRule: '' });
-  });
-  closePicker();
-  renderFields();
-  if (selectedPickerFields.size > 0) {
-    showToast(`已添加 ${selectedPickerFields.size} 个字段`, 'success');
-  }
-}
-
 // Checkbox select all
 function toggleAllNew(el) {
   document.querySelectorAll('#newInsCheckboxes .new-ins').forEach(cb => cb.checked = el.checked);
@@ -1003,30 +1119,23 @@ function handleSaveDraft() {
 }
 
 function handleCancel() {
-  if (currentStep > 1) {
-    currentStep = 1;
-    updateStepper();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
   showToast('已取消', 'info');
 }
 
-// Keyboard: Escape to close modals
+// Keyboard: Escape to close drawers and modals
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    closePicker();
+    closeInsuranceDrawer();
+    closeFieldDrawer();
     closeConfirm();
     closeValidationModal();
   }
 });
 
 // Close modals on overlay click
-['fieldPickerModal', 'confirmModal', 'validationModal'].forEach(id => {
+['confirmModal', 'validationModal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.classList.remove('show');
-    }
+    if (e.target === this) this.classList.remove('show');
   });
 });
 
