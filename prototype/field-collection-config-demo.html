@@ -113,8 +113,115 @@
           </button>
           <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-900);">配置社保参保规则</h2>
         </div>
+
+        <!-- Tab Navigation -->
+        <div style="display: flex; border-bottom: 2px solid var(--gray-200); margin-bottom: 24px;">
+          <div class="config-tab active" data-tab="basic" onclick="switchTab('basic')">基本信息</div>
+          <div class="config-tab" data-tab="insurance" onclick="switchTab('insurance')">参保险种</div>
+          <div class="config-tab" data-tab="rules" onclick="switchTab('rules')">规则配置</div>
+          <div class="config-tab new" data-tab="collection" onclick="switchTab('collection')">
+            <span style="background: var(--primary); color: white; padding: 1px 8px; border-radius: 4px; font-size: 10px; margin-right: 6px; font-weight: 600;">NEW</span>
+            字段采集配置
+          </div>
+        </div>
+
+        <style>
+          .config-tab {
+            padding: 12px 20px; cursor: pointer; font-size: 14px; color: var(--gray-500);
+            border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 150ms;
+            font-weight: 500;
+          }
+          .config-tab:hover { color: var(--gray-700); }
+          .config-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+          .config-tab.new { color: var(--primary); }
+        </style>
+
+        <!-- Tab: Basic Info -->
+        <div class="tab-panel" id="panel-basic">
+          <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; margin-bottom: 20px;">
+            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--gray-100);">基本信息</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+              <div>
+                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 规则名称</label>
+                <input type="text" value="二级户专属社保规则" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px;">
+              </div>
+              <div>
+                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 所属组织</label>
+                <input type="text" value="2046892568145866753" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
+              </div>
+              <div>
+                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 生效月份</label>
+                <input type="text" value="2026-05" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px;">
+              </div>
+              <div>
+                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 规则编码</label>
+                <input type="text" value="EJH20260427" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
+              </div>
+              <div>
+                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 参保地区</label>
+                <input type="text" value="云南省 / 昭通市 / 巧家县" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
+              </div>
+              <div>
+                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 负责人</label>
+                <input type="text" value="于佳" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Insurance Types -->
+        <div class="tab-panel" id="panel-insurance" style="display: none;">
+          <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; margin-bottom: 20px;">
+            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 16px;">参保险种</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--gray-200);">
+                  <th style="text-align: left; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">险种名称</th>
+                  <th style="text-align: left; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">编码</th>
+                  <th style="text-align: center; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">单位比例</th>
+                  <th style="text-align: center; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">个人比例</th>
+                  <th style="text-align: center; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">基数范围</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">养老保险</td><td style="padding: 10px 12px;">001</td><td style="text-align: center;">15%</td><td style="text-align: center;">8%</td><td style="text-align: center;">4357 - 21789</td></tr>
+                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">医疗保险</td><td style="padding: 10px 12px;">002</td><td style="text-align: center;">8%</td><td style="text-align: center;">2%</td><td style="text-align: center;">4357 - 21789</td></tr>
+                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">工伤保险</td><td style="padding: 10px 12px;">003</td><td style="text-align: center;">0.4%</td><td style="text-align: center;">0%</td><td style="text-align: center;">4357 - 21789</td></tr>
+                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">失业保险</td><td style="padding: 10px 12px;">004</td><td style="text-align: center;">0.7%</td><td style="text-align: center;">0.3%</td><td style="text-align: center;">4357 - 21789</td></tr>
+                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">生育保险</td><td style="padding: 10px 12px;">005</td><td style="text-align: center;">0.8%</td><td style="text-align: center;">0%</td><td style="text-align: center;">4357 - 21789</td></tr>
+                <tr><td style="padding: 10px 12px;">大病险种</td><td style="padding: 10px 12px;">007</td><td style="text-align: center;">固定240</td><td style="text-align: center;">固定100</td><td style="text-align: center;">4357 - 21789</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab: Rules -->
+        <div class="tab-panel" id="panel-rules" style="display: none;">
+          <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; margin-bottom: 20px;">
+            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 16px;">规则配置</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 13px; color: var(--gray-600); min-width: 140px;">新参保强制参保险种:</span>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox" checked> 养老保险</label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox" checked> 医疗保险</label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox"> 工伤保险</label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox"> 失业保险</label>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox"> 生育保险</label>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+      document.querySelector(`.config-tab[data-tab="${tabId}"]`).classList.add('active');
+      document.getElementById(`panel-${tabId}`).style.display = '';
+    }
+  </script>
 </body>
 </html>
