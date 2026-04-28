@@ -1412,6 +1412,9 @@
   background: var(--qy-bg-primary);
   box-shadow: var(--qy-shadow-xl);
   transition: transform var(--qy-duration-normal) var(--qy-ease-out);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .qy-drawer--right .qy-drawer__container {
@@ -1469,6 +1472,9 @@
 }
 
 .qy-drawer__close {
+  background: none;
+  border: none;
+  padding: 0;
   color: var(--qy-text-muted);
   cursor: pointer;
   transition: color var(--qy-transition-fast);
@@ -1481,7 +1487,7 @@
 .qy-drawer__body {
   padding: var(--qy-space-5);
   overflow-y: auto;
-  height: calc(100% - 60px);
+  flex: 1;
 }
 
 .qy-drawer__footer {
@@ -1492,6 +1498,7 @@
   padding: var(--qy-space-4) var(--qy-space-5);
   border-top: 1px solid var(--qy-border-light);
   background: var(--qy-bg-primary);
+  flex-shrink: 0;
 }
 
 .qy-drawer__section {
