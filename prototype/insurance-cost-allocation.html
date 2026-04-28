@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>保险福利核算 — 青阳云HRO</title>
+  <link rel="stylesheet" href="../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../styles/qingyang-forms.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--qy-font-primary);
+      font-size: var(--qy-font-size-14);
+      color: var(--qy-text-primary);
+      background: var(--qy-bg-secondary);
+    }
+
+    .app-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--qy-sidebar-width);
+      background: var(--qy-sidebar-bg);
+      border-right: var(--qy-sidebar-border);
+      position: fixed; height: 100vh; z-index: var(--qy-z-sticky);
+    }
+    .sidebar-logo { padding: var(--qy-space-5) var(--qy-space-6); border-bottom: var(--qy-sidebar-border); }
+    .sidebar-logo h1 { font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold); color: var(--qy-color-primary); }
+    .sidebar-nav { list-style: none; padding: var(--qy-space-3) 0; }
+    .sidebar-nav-item {
+      padding: var(--qy-space-3) var(--qy-space-6);
+      cursor: pointer; display: flex; align-items: center; gap: var(--qy-space-3);
+      color: var(--qy-text-secondary); font-size: var(--qy-font-size-13);
+      transition: var(--qy-transition-fast);
+    }
+    .sidebar-nav-item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+    .sidebar-nav-item.active {
+      background: var(--qy-primary-50); color: var(--qy-color-primary);
+      font-weight: var(--qy-font-weight-medium);
+    }
+
+    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); }
+    .topbar {
+      height: var(--qy-header-height);
+      background: var(--qy-header-bg);
+      border-bottom: var(--qy-header-border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--qy-content-padding-x);
+    }
+    .topbar-breadcrumb { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .content-area { padding: var(--qy-content-padding-y) var(--qy-content-padding-x); }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--qy-space-5); }
+    .page-title { font-size: var(--qy-font-size-20); font-weight: var(--qy-font-weight-bold); }
+
+    .filter-card {
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      padding: var(--qy-space-4) var(--qy-space-5);
+      margin-bottom: var(--qy-space-4);
+      display: flex; align-items: center; gap: var(--qy-space-4); flex-wrap: wrap;
+    }
+    .filter-card label { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .filter-card .qy-input {
+      height: var(--qy-input-height-md);
+      padding: 0 var(--qy-space-3);
+      border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-radius-md);
+      font-size: var(--qy-font-size-13);
+      width: 180px;
+    }
+    .filter-card .qy-btn--sm { height: 32px; font-size: var(--qy-font-size-13); padding: 0 var(--qy-space-4); }
+
+    .alert-bar { margin-bottom: var(--qy-space-4); }
+
+    .table-card {
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      overflow: hidden;
+    }
+    .table-card table { width: 100%; border-collapse: collapse; font-size: var(--qy-font-size-13); }
+    .table-card th, .table-card td {
+      padding: var(--qy-space-3) var(--qy-space-4);
+      text-align: left; border-bottom: 1px solid var(--qy-border-light);
+    }
+    .table-card th {
+      background: var(--qy-table-header-bg);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-secondary);
+      font-size: var(--qy-font-size-12);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .table-card tbody tr:hover td { background: var(--qy-table-row-hover); }
+
+    .action-link {
+      background: none; border: none; color: var(--qy-primary-500);
+      cursor: pointer; font-size: var(--qy-font-size-13); padding: 2px 4px;
+    }
+    .action-link:hover { color: var(--qy-primary-700); text-decoration: underline; }
+
+    /* Drawer override */
+    .cost-adjustment-drawer .qy-drawer__container { width: 720px; }
+
+    /* Adjustment panel inner */
+    .adjustment-panel { display: flex; flex-direction: column; height: 100%; }
+    .adjustment-tabs {
+      display: flex; border-bottom: 1px solid var(--qy-border-light);
+      padding: 0 var(--qy-space-5);
+    }
+    .adjustment-tab {
+      padding: var(--qy-space-3) var(--qy-space-4);
+      font-size: var(--qy-font-size-14); color: var(--qy-text-secondary);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: var(--qy-transition-fast);
+    }
+    .adjustment-tab:hover { color: var(--qy-text-primary); }
+    .adjustment-tab.is-active {
+      color: var(--qy-primary-500); border-bottom-color: var(--qy-primary-500);
+      font-weight: var(--qy-font-weight-medium);
+    }
+
+    .adjustment-table { width: 100%; font-size: var(--qy-font-size-13); border-collapse: collapse; }
+    .adjustment-table th, .adjustment-table td {
+      padding: var(--qy-space-3) var(--qy-space-4);
+      text-align: left; border-bottom: 1px solid var(--qy-border-light);
+    }
+    .adjustment-table th {
+      background: var(--qy-bg-secondary);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-secondary); font-size: var(--qy-font-size-12);
+    }
+    .adjustment-table tbody tr:hover td { background: var(--qy-bg-secondary); }
+
+    .adjustment-detail-row {
+      padding: var(--qy-space-2) var(--qy-space-4) var(--qy-space-3);
+      font-size: var(--qy-font-size-12); color: var(--qy-text-secondary);
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+    .adjustment-detail-row .detail-text { margin-bottom: var(--qy-space-2); }
+
+    .batch-footer {
+      display: none; align-items: center; gap: var(--qy-space-3);
+      padding: var(--qy-space-4) var(--qy-space-5);
+      border-top: 1px solid var(--qy-border-light);
+      background: var(--qy-bg-primary);
+      position: sticky; bottom: 0;
+    }
+    .batch-footer .batch-count { font-weight: var(--qy-font-weight-bold); color: var(--qy-primary-600); }
+
+    .preview-modal .qy-modal__container { max-width: 700px; }
+    .preview-summary {
+      margin-top: var(--qy-space-4);
+      padding: var(--qy-space-4);
+      background: var(--qy-bg-secondary);
+      border-radius: var(--qy-radius-md);
+    }
+    .preview-summary-item {
+      display: flex; justify-content: space-between;
+      padding: var(--qy-space-2) 0; font-size: var(--qy-font-size-13);
+    }
+    .preview-summary-item + .preview-summary-item { border-top: 1px solid var(--qy-border-light); }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo"><h1>青阳云HRO</h1></div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">工作台</li>
+        <li class="sidebar-nav-item active">保险福利核算</li>
+        <li class="sidebar-nav-item">账单管理</li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="topbar">
+        <span class="topbar-breadcrumb">保险福利 / 账单核算</span>
+        <span style="font-size:13px;color:var(--qy-text-secondary)">管理员</span>
+      </div>
+      <div class="content-area">
+        <div class="page-header">
+          <h2 class="page-title">保险福利核算</h2>
+        </div>
+
+        <!-- Alert Banner -->
+        <div class="alert-bar">
+          <div class="qy-alert-banner qy-alert-banner--warning" id="alertBanner">
+            <svg class="qy-alert-banner__icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color:var(--qy-warning-600)">
+              <path d="M12 2L1 21h22L12 2zm0 4l7.53 13H4.47L12 6zm-1 5v4h2v-4h-2zm0 6v2h2v-2h-2z"/>
+            </svg>
+            <span class="qy-alert-banner__content">
+              检测到 <strong>3</strong> 条账单受员工归属变更影响，建议重新核算
+            </span>
+            <span class="qy-alert-banner__action">
+              <button class="qy-btn qy-btn--primary qy-btn--sm" onclick="openDrawer()">查看详情</button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-card">
+          <label>月份</label>
+          <input type="text" class="qy-input" value="2026-05">
+          <label>客户</label>
+          <select class="qy-input">
+            <option>全部客户</option>
+            <option>人才产业园</option>
+            <option>北京项目</option>
+          </select>
+          <label>项目</label>
+          <select class="qy-input">
+            <option>全部项目</option>
+            <option>人才产业园</option>
+            <option>上海项目</option>
+          </select>
+          <button class="qy-btn qy-btn--primary qy-btn--sm">查询</button>
+          <button class="qy-btn qy-btn--secondary qy-btn--sm">重置</button>
+        </div>
+
+        <!-- Bill Table -->
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th><th>手机号</th><th>员工类型</th>
+                <th>归属客户</th><th>归属项目</th><th>费用月份</th>
+                <th>单位应缴</th><th>个人应缴</th><th>合计</th>
+                <th>状态</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>丁霞</td><td>196***0821</td><td>退休返聘</td>
+                <td>人才产业园</td><td>上海项目</td><td>2026-05</td>
+                <td>¥6,308.96</td><td>¥3,154.48</td><td>¥9,463.44</td>
+                <td><span class="qy-tag qy-tag--success">待确认</span></td>
+                <td><button class="action-link">明细</button></td>
+              </tr>
+              <tr>
+                <td>萧秀兰</td><td>172***1264</td><td>劳务派遣</td>
+                <td>人才产业园</td><td>上海项目</td><td>2026-05</td>
+                <td>¥3,292.00</td><td>¥1,646.00</td><td>¥4,938.00</td>
+                <td><span class="qy-tag qy-tag--success">待确认</span></td>
+                <td><button class="action-link">明细</button></td>
+              </tr>
+              <tr>
+                <td>张伟</td><td>138***5678</td><td>正式员工</td>
+                <td>北京项目</td><td>北京项目</td><td>2026-05</td>
+                <td>¥5,200.00</td><td>¥2,600.00</td><td>¥7,800.00</td>
+                <td><span class="qy-tag qy-tag--warning">未归档</span></td>
+                <td><button class="action-link">明细</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Drawer: 费用调整面板 -->
+  <div class="qy-drawer qy-drawer--right cost-adjustment-drawer" id="adjustmentDrawer">
+    <div class="qy-drawer__overlay" onclick="closeDrawer()"></div>
+    <div class="qy-drawer__container">
+      <div class="qy-drawer__header">
+        <h3 class="qy-drawer__title">费用调整管理</h3>
+        <button class="qy-drawer__close" onclick="closeDrawer()">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="adjustment-panel">
+        <div class="adjustment-tabs">
+          <div class="adjustment-tab is-active" data-tab="pending" onclick="switchTab(this)">待处理 (3)</div>
+          <div class="adjustment-tab" data-tab="processed" onclick="switchTab(this)">已处理 (12)</div>
+        </div>
+
+        <div class="qy-drawer__body" id="tab-pending" style="padding:0;overflow:auto;">
+          <table class="adjustment-table">
+            <thead>
+              <tr>
+                <th style="width:32px"><input type="checkbox" onclick="toggleAll(this)"></th>
+                <th>姓名</th><th>手机号</th><th>员工类型</th>
+                <th>调动次数</th><th>涉及月份</th><th>总金额</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="row-check" onchange="updateBatchCount()"></td>
+                <td>丁霞</td><td>196***0821</td><td>退休返聘</td>
+                <td>2次</td><td>3个月</td><td>¥9,463</td>
+                <td>
+                  <button class="action-link" onclick="openPreview()">预览</button>
+                  <button class="action-link" onclick="recalculate(this)">重算</button>
+                </td>
+              </tr>
+              <tr><td colspan="8" style="padding:0">
+                <div class="adjustment-detail-row">
+                  <div class="detail-text">
+                    归属变更: <span style="color:var(--qy-text-primary)">人才产业园</span> → <span style="color:var(--qy-text-primary)">北京项目</span> → <span style="color:var(--qy-text-primary)">上海项目</span> · 将拆分为3笔
+                  </div>
+                </div>
+              </td></tr>
+              <tr>
+                <td><input type="checkbox" class="row-check" onchange="updateBatchCount()"></td>
+                <td>萧秀兰</td><td>172***1264</td><td>劳务派遣</td>
+                <td>1次</td><td>2个月</td><td>¥4,938</td>
+                <td>
+                  <button class="action-link" onclick="openPreview()">预览</button>
+                  <button class="action-link" onclick="recalculate(this)">重算</button>
+                </td>
+              </tr>
+              <tr><td colspan="8" style="padding:0">
+                <div class="adjustment-detail-row">
+                  <div class="detail-text">
+                    归属变更: <span style="color:var(--qy-text-primary)">人才产业园</span> → <span style="color:var(--qy-text-primary)">上海项目</span> · 将拆分为2笔
+                  </div>
+                </div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qy-drawer__body" id="tab-processed" style="display:none;padding:0;overflow:auto;">
+          <table class="adjustment-table">
+            <thead>
+              <tr><th>姓名</th><th>处理时间</th><th>涉及月份</th><th>总金额</th><th>状态</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>李明</td><td>2026-05-20 14:30</td><td>2个月</td><td>¥7,200</td>
+                <td><span class="qy-tag qy-tag--success">已重算</span></td>
+              </tr>
+              <tr>
+                <td>王芳</td><td>2026-05-19 09:15</td><td>1个月</td><td>¥3,600</td>
+                <td><span class="qy-tag qy-tag--success">已重算</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="batch-footer" id="batchFooter">
+          <span class="batch-count">已选 <strong id="batchCount">0</strong> 项</span>
+          <button class="qy-btn qy-btn--primary qy-btn--sm" onclick="batchRecalculate()">批量重算</button>
+          <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="batchPreview()">批量预览</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div class="qy-modal" id="previewModal">
+    <div class="qy-modal__overlay" onclick="closePreview()"></div>
+    <div class="qy-modal__container preview-modal">
+      <div class="qy-modal__header">
+        <h3 class="qy-modal__title">费用调整预览 — 丁霞</h3>
+        <button class="qy-modal__close" onclick="closePreview()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5L5 15M5 5l10 10"/></svg>
+        </button>
+      </div>
+      <div class="qy-modal__body">
+        <div style="margin-bottom:16px;font-size:13px;color:var(--qy-text-secondary)">
+          员工: <strong style="color:var(--qy-text-primary)">丁霞</strong> | 196***0821 | 退休返聘
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">员工调动记录:</div>
+          <div style="font-size:12px;color:var(--qy-text-secondary);padding-left:12px;line-height:1.8">
+            2026-03 人才产业园 → 北京项目<br>
+            2026-04 北京项目 → 上海项目
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">账单拆分预览:</div>
+        <table class="adjustment-table" style="margin-bottom:16px">
+          <thead>
+            <tr><th>月份</th><th>原归属</th><th>新归属</th><th>金额</th><th>拆分后账单</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-03</td><td>人才产业园</td><td>人才产业园</td><td>¥3,154.48</td>
+              <td><span class="qy-tag qy-tag--info">归属不变</span></td>
+            </tr>
+            <tr>
+              <td>2026-04</td><td>人才产业园</td><td>北京项目</td><td>¥3,154.48</td>
+              <td>拆分至北京</td>
+            </tr>
+            <tr>
+              <td>2026-05</td><td>人才产业园</td><td>上海项目</td><td>¥3,154.48</td>
+              <td>拆分至上海</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="preview-summary">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px">拆分结果:</div>
+          <div class="preview-summary-item">
+            <span>人才产业园账单: 保留 2026-03</span><strong>¥3,154.48</strong>
+          </div>
+          <div class="preview-summary-item">
+            <span>北京项目账单: 新增 2026-04</span><strong>¥3,154.48</strong>
+          </div>
+          <div class="preview-summary-item">
+            <span>上海项目账单: 新增 2026-05</span><strong>¥3,154.48</strong>
+          </div>
+        </div>
+      </div>
+      <div class="qy-modal__footer">
+        <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="closePreview()">取消</button>
+        <button class="qy-btn qy-btn--primary qy-btn--sm" onclick="confirmSplit()">确认拆分</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openDrawer() { document.getElementById('adjustmentDrawer').classList.add('is-open'); }
+    function closeDrawer() { document.getElementById('adjustmentDrawer').classList.remove('is-open'); }
+    function openPreview() { document.getElementById('previewModal').classList.add('is-open'); }
+    function closePreview() { document.getElementById('previewModal').classList.remove('is-open'); }
+    function switchTab(el) {
+      document.querySelectorAll('.adjustment-tab').forEach(t => t.classList.remove('is-active'));
+      el.classList.add('is-active');
+      const tab = el.dataset.tab;
+      document.getElementById('tab-pending').style.display = tab === 'pending' ? '' : 'none';
+      document.getElementById('tab-processed').style.display = tab === 'processed' ? '' : 'none';
+    }
+    function toggleAll(el) {
+      document.querySelectorAll('.row-check').forEach(cb => cb.checked = el.checked);
+      updateBatchCount();
+    }
+    function updateBatchCount() {
+      const count = document.querySelectorAll('.row-check:checked').length;
+      document.getElementById('batchCount').textContent = count;
+      document.getElementById('batchFooter').style.display = count > 0 ? 'flex' : 'none';
+    }
+    function batchRecalculate() { alert('批量重算 ' + document.querySelectorAll('.row-check:checked').length + ' 项'); }
+    function batchPreview() { openPreview(); }
+    function recalculate(btn) {
+      const row = btn.closest('tr');
+      const name = row.cells[1].textContent;
+      btn.textContent = '重算中...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = '已重算';
+        btn.style.color = 'var(--qy-success-500)';
+        btn.style.pointerEvents = 'none';
+        showToast(name + ' 重算成功');
+      }, 1500);
+    }
+    function confirmSplit() { closePreview(); showToast('拆分成功，账单已按归属重新核算'); }
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--qy-success-500);color:white;padding:10px 24px;border-radius:var(--qy-radius-md);font-size:14px;z-index:10000;box-shadow:var(--qy-shadow-lg)';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+</body>
+</html>

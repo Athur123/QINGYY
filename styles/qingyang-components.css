@@ -1848,3 +1848,60 @@
   user-select: none;
   white-space: nowrap;
 }
+
+/* ========================================
+   26. 警告横幅 / Alert Banner
+   ======================================== */
+
+.qy-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--qy-space-3);
+  padding: var(--qy-space-3) var(--qy-space-5);
+  border-radius: var(--qy-radius-md);
+  font-size: var(--qy-font-size-14);
+  animation: qy-alert-fade-in 0.3s ease-out;
+}
+
+.qy-alert-banner--warning {
+  background: var(--qy-warning-50);
+  border: 1px solid var(--qy-warning-200);
+  color: var(--qy-warning-800);
+}
+
+.qy-alert-banner--info {
+  background: var(--qy-primary-50);
+  border: 1px solid var(--qy-primary-200);
+  color: var(--qy-primary-800);
+}
+
+.qy-alert-banner--error {
+  background: var(--qy-error-50);
+  border: 1px solid var(--qy-error-200);
+  color: var(--qy-error-800);
+}
+
+.qy-alert-banner--success {
+  background: var(--qy-success-50);
+  border: 1px solid var(--qy-success-200);
+  color: var(--qy-success-800);
+}
+
+.qy-alert-banner__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.qy-alert-banner__content {
+  flex: 1;
+}
+
+.qy-alert-banner__action {
+  flex-shrink: 0;
+}
+
+@keyframes qy-alert-fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

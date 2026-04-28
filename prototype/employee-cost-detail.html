@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>员工费用明细 — 丁霞 — 青阳云HRO</title>
+  <link rel="stylesheet" href="../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../styles/qingyang-forms.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--qy-font-primary);
+      font-size: var(--qy-font-size-14);
+      color: var(--qy-text-primary);
+      background: var(--qy-bg-secondary);
+    }
+
+    .app-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--qy-sidebar-width);
+      background: var(--qy-sidebar-bg);
+      border-right: var(--qy-sidebar-border);
+      position: fixed; height: 100vh; z-index: var(--qy-z-sticky);
+    }
+    .sidebar-logo { padding: var(--qy-space-5) var(--qy-space-6); border-bottom: var(--qy-sidebar-border); }
+    .sidebar-logo h1 { font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold); color: var(--qy-color-primary); }
+    .sidebar-nav { list-style: none; padding: var(--qy-space-3) 0; }
+    .sidebar-nav-item {
+      padding: var(--qy-space-3) var(--qy-space-6);
+      cursor: pointer; display: flex; align-items: center; gap: var(--qy-space-3);
+      color: var(--qy-text-secondary); font-size: var(--qy-font-size-13);
+      transition: var(--qy-transition-fast);
+    }
+    .sidebar-nav-item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+    .sidebar-nav-item.active { background: var(--qy-primary-50); color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
+
+    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); }
+    .topbar {
+      height: var(--qy-header-height);
+      background: var(--qy-header-bg);
+      border-bottom: var(--qy-header-border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--qy-content-padding-x);
+    }
+    .topbar-breadcrumb { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .content-area { padding: var(--qy-content-padding-y) var(--qy-content-padding-x); }
+
+    .page-header { display: flex; align-items: center; gap: var(--qy-space-3); margin-bottom: var(--qy-space-5); }
+    .page-title { font-size: var(--qy-font-size-20); font-weight: var(--qy-font-weight-bold); }
+    .back-link {
+      background: none; border: none; color: var(--qy-primary-500);
+      cursor: pointer; font-size: var(--qy-font-size-14); padding: 4px;
+    }
+    .back-link:hover { color: var(--qy-primary-700); }
+
+    .employee-card {
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      padding: var(--qy-space-5);
+      margin-bottom: var(--qy-space-4);
+    }
+    .employee-info { display: flex; align-items: center; gap: var(--qy-space-3); margin-bottom: var(--qy-space-4); }
+    .employee-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--qy-primary-500); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold);
+    }
+    .employee-name { font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold); }
+    .employee-meta { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+
+    .attribution-timeline {
+      display: flex; align-items: center; gap: var(--qy-space-2);
+      padding: var(--qy-space-3) var(--qy-space-4);
+      background: var(--qy-bg-secondary);
+      border-radius: var(--qy-radius-md);
+      font-size: var(--qy-font-size-13);
+    }
+    .attribution-timeline-label { color: var(--qy-text-secondary); flex-shrink: 0; }
+    .attribution-step {
+      display: inline-flex; align-items: center; gap: var(--qy-space-1);
+      padding: 2px 8px; border-radius: var(--qy-radius-sm);
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      color: var(--qy-text-primary);
+      font-weight: var(--qy-font-weight-medium);
+      white-space: nowrap;
+    }
+    .attribution-step.is-current {
+      background: var(--qy-primary-50);
+      border-color: var(--qy-primary-200);
+      color: var(--qy-primary-700);
+    }
+    .attribution-arrow { color: var(--qy-text-muted); }
+
+    .filter-card {
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      padding: var(--qy-space-4) var(--qy-space-5);
+      margin-bottom: var(--qy-space-4);
+      display: flex; align-items: center; gap: var(--qy-space-4); flex-wrap: wrap;
+    }
+    .filter-card label { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .filter-card select {
+      height: var(--qy-input-height-md);
+      padding: 0 var(--qy-space-3);
+      border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-radius-md);
+      font-size: var(--qy-font-size-13);
+      width: 160px;
+    }
+
+    .detail-card {
+      background: var(--qy-bg-primary);
+      border: 1px solid var(--qy-border-light);
+      border-radius: var(--qy-radius-lg);
+      overflow: hidden;
+    }
+    .detail-card__header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--qy-space-4) var(--qy-space-5);
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+    .detail-card__title { font-size: var(--qy-font-size-16); font-weight: var(--qy-font-weight-bold); }
+    .detail-card__actions { display: flex; gap: var(--qy-space-3); }
+
+    .detail-table { width: 100%; border-collapse: collapse; font-size: var(--qy-font-size-12); }
+    .detail-table th, .detail-table td {
+      padding: var(--qy-space-2) var(--qy-space-3);
+      text-align: left; border-bottom: 1px solid var(--qy-border-light);
+      white-space: nowrap;
+    }
+    .detail-table th {
+      background: var(--qy-table-header-bg);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-secondary);
+      font-size: var(--qy-font-size-11);
+    }
+    .detail-table th.sub-header {
+      font-weight: var(--qy-font-weight-medium);
+      font-size: var(--qy-font-size-11);
+      color: var(--qy-text-muted);
+      background: var(--qy-bg-secondary);
+    }
+    .detail-table tbody tr:hover td { background: var(--qy-table-row-hover); }
+
+    .row-declare td { background: var(--qy-bg-primary); }
+    .row-bear td { background: var(--qy-bg-secondary); }
+
+    .cell-compound .compound-label { font-size: var(--qy-font-size-11); color: var(--qy-text-muted); }
+
+    .detail-table tfoot td {
+      background: var(--qy-bg-secondary);
+      font-weight: var(--qy-font-weight-bold);
+      font-size: var(--qy-font-size-12);
+      border-top: 2px solid var(--qy-border-light);
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo"><h1>青阳云HRO</h1></div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">工作台</li>
+        <li class="sidebar-nav-item active">保险福利核算</li>
+      </ul>
+    </aside>
+
+    <div class="main-content">
+      <div class="topbar">
+        <span class="topbar-breadcrumb">保险福利 / 账单核算 / 员工费用明细</span>
+        <span style="font-size:13px;color:var(--qy-text-secondary)">管理员</span>
+      </div>
+      <div class="content-area">
+        <div class="page-header">
+          <button class="back-link" onclick="history.back()">← 返回</button>
+          <h2 class="page-title">员工费用明细</h2>
+        </div>
+
+        <!-- Employee Card -->
+        <div class="employee-card">
+          <div class="employee-info">
+            <div class="employee-avatar">丁</div>
+            <div>
+              <div class="employee-name">丁霞</div>
+              <div class="employee-meta">女 · 退休返聘 · 196****0821</div>
+            </div>
+          </div>
+          <div class="attribution-timeline">
+            <span class="attribution-timeline-label">费用归属时间线:</span>
+            <span class="attribution-step">2026-03 人才产业园</span>
+            <span class="attribution-arrow">→</span>
+            <span class="attribution-step">2026-04 北京项目</span>
+            <span class="attribution-arrow">→</span>
+            <span class="attribution-step is-current">2026-05~至今 上海项目</span>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-card">
+          <label>月份</label>
+          <select><option>全部月份</option><option>2026-03</option><option>2026-04</option><option selected>2026-05</option></select>
+          <label>费用类型</label>
+          <select><option>全部类型</option><option>参保费用</option><option>补缴费用</option><option>补差补退费用</option></select>
+          <label>归属项目</label>
+          <select><option>全部项目</option><option>人才产业园</option><option>北京项目</option><option>上海项目</option></select>
+        </div>
+
+        <!-- Detail Table Card -->
+        <div class="detail-card">
+          <div class="detail-card__header">
+            <h3 class="detail-card__title">费用明细</h3>
+            <div class="detail-card__actions">
+              <button class="qy-btn qy-btn--secondary qy-btn--sm">历史记录</button>
+              <button class="qy-btn qy-btn--primary qy-btn--sm">重新计算</button>
+            </div>
+          </div>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th rowspan="2">月份</th>
+                <th rowspan="2">费用类型</th>
+                <th rowspan="2">归属项目</th>
+                <th rowspan="2">险种</th>
+                <th colspan="4" style="text-align:center">单位</th>
+                <th colspan="4" style="text-align:center">个人</th>
+                <th rowspan="2">存缴类型</th>
+                <th rowspan="2">合计</th>
+              </tr>
+              <tr>
+                <th class="sub-header">参保基数</th>
+                <th class="sub-header">应缴</th>
+                <th class="sub-header">固定</th>
+                <th class="sub-header">实担</th>
+                <th class="sub-header">参保基数</th>
+                <th class="sub-header">应缴</th>
+                <th class="sub-header">固定</th>
+                <th class="sub-header">实担</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 养老 2026-05 上海 -->
+              <tr class="row-declare">
+                <td rowspan="2">2026-05</td>
+                <td rowspan="2">参保费用</td>
+                <td rowspan="2" style="font-weight:500">上海项目</td>
+                <td style="font-weight:500">养老</td>
+                <td>10000.00</td><td>1000</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>1000</td><td>0.00</td><td>—</td>
+                <td rowspan="2">月度</td>
+                <td rowspan="2" style="font-weight:600">¥2,000.00</td>
+              </tr>
+              <tr class="row-bear">
+                <td><span class="compound-label">承担</span></td>
+                <td>4000.00</td><td>—</td><td>—</td><td>400</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>1600</td>
+              </tr>
+              <!-- 医疗 2026-05 上海 -->
+              <tr class="row-declare">
+                <td rowspan="2">2026-05</td>
+                <td rowspan="2">参保费用</td>
+                <td rowspan="2" style="font-weight:500">上海项目</td>
+                <td style="font-weight:500">医疗</td>
+                <td>10000.00</td><td>200</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>200</td><td>0.00</td><td>—</td>
+                <td rowspan="2">月度</td>
+                <td rowspan="2" style="font-weight:600">¥400.00</td>
+              </tr>
+              <tr class="row-bear">
+                <td><span class="compound-label">承担</span></td>
+                <td>10000.00</td><td>—</td><td>—</td><td>200</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>200</td>
+              </tr>
+              <!-- 养老 2026-04 北京 补缴 -->
+              <tr class="row-declare">
+                <td rowspan="2">2026-04</td>
+                <td rowspan="2">补缴费用</td>
+                <td rowspan="2" style="font-weight:500">北京项目</td>
+                <td style="font-weight:500">养老</td>
+                <td>10000.00</td><td>1000</td><td>50.00</td><td>—</td>
+                <td>10000.00</td><td>1000</td><td>25.00</td><td>—</td>
+                <td rowspan="2">月度</td>
+                <td rowspan="2" style="font-weight:600">¥2,175.00</td>
+              </tr>
+              <tr class="row-bear">
+                <td><span class="compound-label">承担</span></td>
+                <td>4000.00</td><td>—</td><td>—</td><td>400</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>1600</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4">合计</td>
+                <td>—</td><td>2,200</td><td>50.00</td><td>—</td>
+                <td>—</td><td>2,200</td><td>25.00</td><td>—</td>
+                <td>—</td>
+                <td>¥4,575.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
