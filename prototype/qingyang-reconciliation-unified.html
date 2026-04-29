@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社保对账复核 - 统一账单模式 v5 - 青阳云 HRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .qy-layout { display: flex; width: 100%; height: 100vh; max-width: none; overflow: hidden; }
+        .qy-sidebar { width: 160px; height: 100%; background: var(--qy-bg-primary); border-right: 1px solid var(--qy-border-light); flex-shrink: 0; overflow-y: auto; }
+        .qy-main { flex: 1; min-width: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+        .qy-page { flex: 1; width: 100%; padding: 20px 24px; overflow-y: auto; overflow-x: auto; }
+
+        /* Sidebar */
+        .qy-sidebar__logo { padding: 20px 16px; border-bottom: 1px solid var(--qy-border-light); }
+        .qy-sidebar__logo h1 { font-size: 16px; font-weight: 700; color: var(--qy-primary-500); }
+        .qy-sidebar__logo span { font-size: 11px; color: var(--qy-text-muted); }
+        .qy-sidebar__nav { padding: 12px 8px; }
+        .qy-sidebar__group { margin-bottom: 16px; }
+        .qy-sidebar__title { font-size: 10px; font-weight: 600; color: var(--qy-text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 8px; margin-bottom: 4px; }
+        .qy-sidebar__item { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: var(--qy-radius-md); color: var(--qy-text-secondary); text-decoration: none; font-size: 13px; cursor: pointer; transition: all var(--qy-transition-fast); }
+        .qy-sidebar__item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .qy-sidebar__item.is-active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 500; }
+
+        /* Header */
+        .qy-header { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 52px; background: var(--qy-bg-primary); border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .qy-header__nav { display: flex; gap: 4px; }
+        .qy-header__tab { padding: 8px 16px; border: none; background: none; font-size: 13px; color: var(--qy-text-secondary); cursor: pointer; border-radius: var(--qy-radius-md); transition: all var(--qy-transition-fast); }
+        .qy-header__tab:hover { background: var(--qy-bg-secondary); }
+        .qy-header__tab.is-active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 500; }
+
+        /* Page */
+        .qy-page__header { margin-bottom: 20px; }
+        .qy-page__title { font-size: 20px; font-weight: 700; color: var(--qy-text-primary); margin-bottom: 4px; }
+        .qy-page__subtitle { font-size: 13px; color: var(--qy-text-secondary); }
+
+        /* Toolbar */
+        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .toolbar__left, .toolbar__right { display: flex; align-items: center; gap: 12px; }
+        .qy-select { height: 32px; padding: 0 32px 0 12px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); background: var(--qy-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; font-size: 13px; color: var(--qy-text-primary); cursor: pointer; appearance: none; }
+        .qy-select:focus { outline: none; border-color: var(--qy-primary-400); box-shadow: var(--qy-shadow-focus); }
+        .qy-input { height: 32px; padding: 0 12px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); background: var(--qy-bg-primary); font-size: 13px; color: var(--qy-text-primary); width: 140px; }
+        .qy-input:focus { outline: none; border-color: var(--qy-primary-400); box-shadow: var(--qy-shadow-focus); }
+        .qy-input::placeholder { color: var(--qy-text-muted); }
+        .qy-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border: none; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--qy-transition-fast); white-space: nowrap; }
+        .qy-btn--primary { background: var(--qy-primary-500); color: white; }
+        .qy-btn--primary:hover { background: var(--qy-primary-600); }
+        .qy-btn--secondary { background: var(--qy-bg-primary); color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium); }
+        .qy-btn--secondary:hover { background: var(--qy-bg-secondary); }
+        .qy-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .qy-btn svg { flex-shrink: 0; }
+
+        /* Summary Cards */
+        .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .summary-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow: hidden; min-height: 88px; }
+        .summary-card__icon { width: 40px; height: 40px; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .summary-card__info { flex: 1; min-width: 0; }
+        .summary-card__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 4px; }
+        .summary-card__stats { font-size: 11px; color: var(--qy-text-secondary); display: flex; gap: 10px; }
+        .summary-card__stat-value { font-weight: 600; color: var(--qy-text-primary); }
+        .summary-card__amount { text-align: right; flex-shrink: 0; min-width: 90px; }
+        .summary-card__amount-row { font-size: 13px; font-weight: 600; color: var(--qy-text-primary); }
+        .summary-card__amount-label { font-size: 10px; color: var(--qy-text-muted); }
+        .summary-card__diff { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
+        .summary-card__diff-value { font-size: 14px; font-weight: 700; color: var(--qy-error-500); line-height: 1.2; }
+        .summary-card__diff-label { font-size: 10px; color: var(--qy-text-muted); }
+
+        /* Card color variants */
+        .summary-card--total .summary-card__icon { background: var(--qy-bg-tertiary); }
+        .summary-card--total { border-left: 3px solid var(--qy-text-muted); background: var(--qy-bg-secondary); }
+        .summary-card--huijiao .summary-card__icon { background: #DBEAFE; }
+        .summary-card--huijiao { border-left: 3px solid #2563EB; }
+        .summary-card--bujiao .summary-card__icon { background: #EDE9FE; }
+        .summary-card--bujiao { border-left: 3px solid #7C3AED; }
+        .summary-card--tiaoji .summary-card__icon { background: #E0F2FE; }
+        .summary-card--tiaoji { border-left: 3px solid #0891B2; }
+
+        /* Unified Filter Bar */
+        .filter-bar { display: flex; align-items: center; gap: 20px; padding: 10px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-bar__group { display: flex; align-items: center; gap: 8px; }
+        .filter-bar__label { font-size: 12px; color: var(--qy-text-muted); font-weight: 500; white-space: nowrap; }
+        .filter-bar__divider { width: 1px; height: 20px; background: var(--qy-border-light); flex-shrink: 0; }
+        .filter-bar__item { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--qy-radius-sm); cursor: pointer; font-size: 12px; transition: all var(--qy-transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .filter-bar__item:hover { background: var(--qy-bg-secondary); }
+        .filter-bar__item.is-active { border-color: currentColor; }
+        /* Diff items */
+        .filter-bar__item--system { color: #991B1B; }
+        .filter-bar__item--system.is-active { background: #FEE2E2; }
+        .filter-bar__item--ledger { color: #854D0E; }
+        .filter-bar__item--ledger.is-active { background: #FEF3C7; }
+        .filter-bar__item--diff-all { color: var(--qy-text-secondary); }
+        .filter-bar__item--diff-all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        /* Type items */
+        .filter-bar__item--type-all { color: var(--qy-text-secondary); }
+        .filter-bar__item--type-all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .filter-bar__item--huijiao { color: #2563EB; }
+        .filter-bar__item--huijiao.is-active { background: #DBEAFE; }
+        .filter-bar__item--bujiao { color: #7C3AED; }
+        .filter-bar__item--bujiao.is-active { background: #EDE9FE; }
+        .filter-bar__item--tiaoji { color: #0891B2; }
+        .filter-bar__item--tiaoji.is-active { background: #E0F2FE; }
+        .filter-bar__dot { width: 8px; height: 8px; border-radius: 50%; }
+        .filter-bar__dot--system { background: #EF4444; }
+        .filter-bar__dot--ledger { background: #F59E0B; }
+        .filter-bar__count { font-weight: 600; }
+
+        /* Data Table */
+        .data-table { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow-x: auto; }
+        .data-table .qy-table { table-layout: fixed; width: 100%; min-width: 1100px; }
+        .data-table .qy-table th { white-space: nowrap; }
+        .data-table .qy-table td { vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .data-table .qy-table th:first-child,
+        .data-table .qy-table td:first-child { width: 40px; text-align: center; }
+        .data-table .qy-table th:last-child,
+        .data-table .qy-table td:last-child { width: 70px; text-align: center; }
+        .data-table .qy-table tr.row-matched:hover td { background: var(--qy-bg-secondary); }
+        .data-table .qy-table tr.row-system td { background: #FEF2F2; }
+        .data-table .qy-table tr.row-system:hover td { background: #FEE2E2; }
+        .data-table .qy-table tr.row-ledger td { background: #FFFBEB; }
+        .data-table .qy-table tr.row-ledger:hover td { background: #FEF3C7; }
+
+        /* Column widths */
+        .data-table .qy-table th:nth-child(1), .data-table .qy-table td:nth-child(1) { width: 40px; text-align: center; }
+        .data-table .qy-table th:nth-child(2), .data-table .qy-table td:nth-child(2) { width: 72px; }
+        .data-table .qy-table th:nth-child(3), .data-table .qy-table td:nth-child(3) { width: 130px; }
+        .data-table .qy-table th:nth-child(4), .data-table .qy-table td:nth-child(4) { width: 100px; }
+        .data-table .qy-table th:nth-child(5), .data-table .qy-table td:nth-child(5) { width: 70px; }
+        .data-table .qy-table th:nth-child(6), .data-table .qy-table td:nth-child(6) { width: 72px; }
+        .data-table .qy-table th:nth-child(7), .data-table .qy-table td:nth-child(7) { width: 72px; }
+        .data-table .qy-table th:nth-child(8), .data-table .qy-table td:nth-child(8) { width: 100px; }
+        .data-table .qy-table th:nth-child(9), .data-table .qy-table td:nth-child(9) { width: 100px; }
+        .data-table .qy-table th:nth-child(10), .data-table .qy-table td:nth-child(10) { width: 80px; }
+        .data-table .qy-table th:nth-child(11), .data-table .qy-table td:nth-child(11) { width: 80px; }
+        .data-table .qy-table th:nth-child(12), .data-table .qy-table td:nth-child(12) { width: 70px; }
+
+        /* Type Badge */
+        .type-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: var(--qy-radius-sm); font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .type-badge--huijiao { background: #DBEAFE; color: #1E40AF; }
+        .type-badge--bujiao { background: #EDE9FE; color: #5B21B6; }
+        .type-badge--tiaoji { background: #E0F2FE; color: #0E7490; }
+
+        /* Month Badge */
+        .month-badge { display: inline-block; padding: 2px 6px; background: var(--qy-bg-secondary); border-radius: var(--qy-radius-sm); font-size: 11px; color: var(--qy-text-secondary); }
+        .month-badge--highlight { background: #EDE9FE; color: #7C3AED; }
+        .month-badge--tiaoji { background: #E0F2FE; color: #0891B2; }
+
+        /* Status Badge */
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--qy-radius-full); font-size: 11px; font-weight: 600; }
+        .status-badge--matched { background: #DCFCE7; color: #166534; }
+        .status-badge--matched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-badge--system-more { background: #FEE2E2; color: #991B1B; }
+        .status-badge--system-more::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .status-badge--ledger-more { background: #FEF3C7; color: #854D0E; }
+        .status-badge--ledger-more::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* Verify Badge */
+        .verify-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--qy-radius-full); font-size: 11px; font-weight: 600; }
+        .verify-badge--verified { background: #DCFCE7; color: #166534; }
+        .verify-badge--pending { background: #FEF3C7; color: #854D0E; }
+
+        /* Match Tag */
+        .match-tag { display: inline-flex; align-items: center; gap: 3px; padding: 1px 4px; border-radius: 2px; font-size: 10px; font-weight: 500; color: var(--qy-success-600); vertical-align: middle; margin-left: 4px; border: 1px solid var(--qy-success-200); }
+
+        /* Money Cell */
+        .money-cell { display: flex; flex-direction: column; gap: 2px; }
+        .money-cell__total { font-weight: 600; }
+        .money-cell__split { font-size: 11px; color: var(--qy-text-muted); display: flex; gap: 8px; }
+        .money-cell__diff { color: var(--qy-error-500); font-weight: 500; }
+
+        /* Action Buttons */
+        .btn-action { padding: 4px 10px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); transition: all var(--qy-transition-fast); }
+        .btn-action:hover { background: var(--qy-primary-50); }
+
+        /* Table Footer */
+        .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--qy-border-light); background: var(--qy-bg-secondary); }
+        .table-footer__left { display: flex; gap: 12px; }
+        .table-footer__right { font-size: 12px; color: var(--qy-text-secondary); }
+
+        /* Checkbox */
+        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--qy-primary-500); }
+
+        /* Alert Banner */
+        .alert-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; margin-bottom: 16px; }
+        .alert-banner__icon { font-size: 16px; }
+        .alert-banner__text { font-size: 13px; color: #991B1B; }
+        .alert-banner__text strong { font-weight: 600; }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+        .toast { padding: 10px 20px; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; box-shadow: var(--qy-shadow-lg); transition: all var(--qy-transition-normal); opacity: 0; transform: translateY(10px); pointer-events: auto; white-space: nowrap; }
+        .toast.is-visible { opacity: 1; transform: translateY(0); }
+        .toast--success { background: var(--qy-success-500); color: white; }
+        .toast--warning { background: var(--qy-warning-500); color: white; }
+        .toast--error { background: var(--qy-error-500); color: white; }
+        .toast--info { background: var(--qy-primary-500); color: white; }
+
+        /* Detail Drawer */
+        .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity var(--qy-transition-normal); }
+        .drawer-overlay.is-visible { opacity: 1; visibility: visible; }
+        .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 520px; max-width: 100%; background: var(--qy-bg-primary); box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--qy-transition-slow); }
+        .drawer-overlay.is-visible .drawer { transform: translateX(0); }
+        .drawer__header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .drawer__title { font-size: 16px; font-weight: 600; color: var(--qy-text-primary); }
+        .drawer__close { width: 32px; height: 32px; border: none; background: none; font-size: 20px; color: var(--qy-text-muted); cursor: pointer; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; }
+        .drawer__close:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .drawer__body { flex: 1; overflow-y: auto; padding: 20px; }
+        .drawer__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .drawer-section { margin-bottom: 24px; }
+        .drawer-section__title { font-size: 13px; font-weight: 600; color: var(--qy-text-primary); padding-bottom: 10px; border-bottom: 1px solid var(--qy-border-light); margin-bottom: 12px; }
+        .drawer-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--qy-border-light); }
+        .drawer-row:last-child { border-bottom: none; }
+        .drawer-row__label { color: var(--qy-text-muted); flex-shrink: 0; }
+        .drawer-row__value { color: var(--qy-text-primary); font-weight: 500; text-align: right; }
+        .drawer-row__value--muted { color: var(--qy-text-muted); }
+        .drawer-analysis { background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md); padding: 14px; }
+        .drawer-analysis__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 8px; }
+        .drawer-analysis__content { font-size: 13px; color: var(--qy-text-secondary); line-height: 1.6; }
+        .drawer-analysis__cause { margin-top: 8px; font-size: 12px; color: var(--qy-text-muted); }
+
+        /* Import Dialog */
+        .import-dialog { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1001; display: none; align-items: center; justify-content: center; }
+        .import-dialog.is-visible { display: flex; }
+        .import-dialog__box { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 520px; max-width: 90%; box-shadow: var(--qy-shadow-lg); }
+        .import-dialog__header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
+        .import-dialog__title { font-size: 16px; font-weight: 600; }
+        .import-dialog__body { padding: 20px; }
+        .import-dialog__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--qy-border-light); }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group__label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+        .form-group__input, .form-group__select { width: 100%; height: 36px; padding: 0 12px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: 13px; }
+        .form-group__input:focus, .form-group__select:focus { outline: none; border-color: var(--qy-primary-400); box-shadow: var(--qy-shadow-focus); }
+
+        .drop-zone { border: 2px dashed var(--qy-border-medium); border-radius: var(--qy-radius-md); padding: 32px; text-align: center; cursor: pointer; transition: border-color var(--qy-transition-fast); }
+        .drop-zone:hover, .drop-zone.is-dragover { border-color: var(--qy-primary-400); background: var(--qy-primary-50); }
+        .drop-zone__text { font-size: 14px; color: var(--qy-text-secondary); }
+        .drop-zone__hint { font-size: 12px; color: var(--qy-text-muted); margin-top: 8px; }
+
+        .import-preview__error { background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--qy-radius-md); padding: 12px; margin-bottom: 12px; font-size: 12px; color: #991B1B; }
+        .import-preview__table { font-size: 12px; }
+
+        /* Matching Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-card { padding: 14px 16px; border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); background: var(--qy-bg-primary); }
+        .stat-card__label { font-size: 12px; color: var(--qy-text-muted); margin-bottom: 4px; }
+        .stat-card__value { font-size: 22px; font-weight: 700; }
+        .stat-card__amount { font-size: 13px; color: var(--qy-text-secondary); margin-top: 4px; }
+        .stat-card--total { border-left: 3px solid var(--qy-text-muted); }
+        .stat-card--total .stat-card__value { color: var(--qy-text-primary); }
+        .stat-card--matched { border-left: 3px solid #16A34A; }
+        .stat-card--matched .stat-card__value { color: #16A34A; }
+        .stat-card--pending { border-left: 3px solid #CA8A04; }
+        .stat-card--pending .stat-card__value { color: #CA8A04; }
+        .stat-card--diff { border-left: 3px solid #DC2626; }
+        .stat-card--diff .stat-card__value { color: #DC2626; }
+
+        /* Match Status Badges */
+        .status-badge--matched { background: #DCFCE7; color: #166534; }
+        .status-badge--matched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
+        .status-badge--pending { background: #FEF3C7; color: #854D0E; }
+        .status-badge--pending::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
+        .status-badge--diff { background: #FEE2E2; color: #991B1B; }
+        .status-badge--diff::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
+
+        /* Row color variants */
+        .row-matched td { background: #F0FDF4; }
+        .row-matched:hover td { background: #DCFCE7; }
+        .row-pending td { background: #FEFCE8; }
+        .row-pending:hover td { background: #FEF3C7; }
+        .row-diff td { background: #FEF2F2; }
+        .row-diff:hover td { background: #FEE2E2; }
+
+        /* Pairing Drawer */
+        .pairing-section { margin-bottom: 16px; }
+        .pairing-section__title { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--qy-border-light); }
+        .pairing-recommendation { background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md); padding: 12px; margin-bottom: 12px; }
+        .pairing-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--qy-border-light); }
+        .pairing-row:last-child { border-bottom: none; }
+        .pairing-row__check { width: 18px; height: 18px; accent-color: var(--qy-primary-500); }
+        .pairing-row__label { font-size: 12px; color: var(--qy-text-secondary); flex-shrink: 0; min-width: 120px; }
+        .pairing-row__arrow { color: var(--qy-text-muted); }
+        .pairing-row__select { flex: 1; height: 32px; padding: 0 28px 0 10px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-sm); font-size: 12px; appearance: none; background: var(--qy-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; }
+        .pairing-hint { font-size: 12px; color: var(--qy-text-muted); margin-top: 8px; padding: 8px; background: #EFF6FF; border-radius: var(--qy-radius-sm); }
+
+        /* Diff analysis */
+        .diff-analysis { background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md); padding: 14px; }
+        .diff-analysis__title { font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+        .diff-analysis__content { font-size: 12px; color: var(--qy-text-secondary); line-height: 1.6; }
+        .diff-analysis__cause { font-size: 12px; color: var(--qy-text-muted); }
+        .diff-analysis__cause ul { margin: 4px 0; padding-left: 16px; }
+
+        /* Loading overlay */
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .loading-overlay.is-visible { display: flex; }
+        .loading-spinner { text-align: center; }
+        .loading-spinner__icon { font-size: 32px; animation: spin 1s linear infinite; }
+        .loading-spinner__text { font-size: 14px; color: var(--qy-text-secondary); margin-top: 12px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Info table in drawer */
+        .info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .info-table th { text-align: left; padding: 8px; background: var(--qy-bg-secondary); font-size: 12px; color: var(--qy-text-muted); border-bottom: 1px solid var(--qy-border-light); }
+        .info-table td { padding: 8px; border-bottom: 1px solid var(--qy-border-light); }
+        .info-table .amount-breakdown { font-size: 11px; color: var(--qy-text-muted); }
+
+        /* Confirm overlay */
+        .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1002; display: none; align-items: center; justify-content: center; }
+        .confirm-overlay.is-visible { display: flex; }
+        .confirm-box { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 400px; max-width: 90%; box-shadow: var(--qy-shadow-lg); padding: 24px; }
+        .confirm-box__title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+        .confirm-box__text { font-size: 14px; color: var(--qy-text-secondary); margin-bottom: 20px; line-height: 1.6; }
+        .confirm-box__footer { display: flex; justify-content: flex-end; gap: 12px; }
+
+        /* Filter bar match status items */
+        .filter-bar__item--match-all { color: var(--qy-text-secondary); }
+        .filter-bar__item--match-all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .filter-bar__item--matched { color: #166534; }
+        .filter-bar__item--matched.is-active { background: #DCFCE7; }
+        .filter-bar__item--pending { color: #854D0E; }
+        .filter-bar__item--pending.is-active { background: #FEF3C7; }
+        .filter-bar__item--diff { color: #991B1B; }
+        .filter-bar__item--diff.is-active { background: #FEE2E2; }
+    </style>
+</head>
+<body>
+    <div class="qy-layout">
+        <!-- Sidebar -->
+        <aside class="qy-sidebar">
+            <div class="qy-sidebar__logo">
+                <h1>青阳云</h1>
+                <span>HRO管理系统</span>
+            </div>
+            <nav class="qy-sidebar__nav">
+                <div class="qy-sidebar__group">
+                    <div class="qy-sidebar__title">智能薪酬</div>
+                    <a class="qy-sidebar__item">
+                        <span>&#128203;</span> 员工参保档案
+                    </a>
+                    <a class="qy-sidebar__item is-active">
+                        <span>&#128269;</span> 对账复核
+                    </a>
+                    <a class="qy-sidebar__item">
+                        <span>&#129512;</span> 社保方案计算
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="qy-main">
+            <header class="qy-header">
+                <nav class="qy-header__nav">
+                    <button class="qy-header__tab">核心人事</button>
+                    <button class="qy-header__tab is-active">智能薪酬</button>
+                    <button class="qy-header__tab">假勤管理</button>
+                    <button class="qy-header__tab">审批中心</button>
+                </nav>
+                <button class="qy-btn qy-btn--text" style="height: 32px;">管理员</button>
+            </header>
+
+            <div class="qy-page">
+                <div class="qy-page__header">
+                    <h1 class="qy-page__title">社保对账复核</h1>
+                    <p class="qy-page__subtitle">统一账单模式 — 汇缴/补缴/调基补差合并展示（PRD v5）</p>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar__left">
+                        <select class="qy-select" id="filterMonth">
+                            <option value="2026-04">2026年4月</option>
+                            <option value="2026-03">2026年3月</option>
+                        </select>
+                        <select class="qy-select" id="filterSettlement">
+                            <option value="">按结算主体</option>
+                        </select>
+                        <input type="text" class="qy-input" id="filterName" placeholder="姓名/身份证">
+                        <button class="qy-btn qy-btn--primary" onclick="filterRecords()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            搜索
+                        </button>
+                    </div>
+                    <div class="toolbar__right">
+                        <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">
+                            📥 导入台账
+                        </button>
+                        <button class="qy-btn qy-btn--primary" onclick="startReconciliation()">
+                            ▶ 开始对账
+                        </button>
+                        <button class="qy-btn qy-btn--secondary" onclick="archiveResults()">
+                            ✅ 归档结果
+                        </button>
+                        <button class="qy-btn qy-btn--secondary">
+                            📤 导出
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card stat-card--total">
+                        <div class="stat-card__label">总记录数</div>
+                        <div class="stat-card__value" id="statTotal">0</div>
+                        <div class="stat-card__amount" id="statTotalAmount">¥0.00</div>
+                    </div>
+                    <div class="stat-card stat-card--matched">
+                        <div class="stat-card__label">已匹配</div>
+                        <div class="stat-card__value" id="statMatched">0</div>
+                        <div class="stat-card__amount" id="statMatchedAmount">¥0.00</div>
+                    </div>
+                    <div class="stat-card stat-card--pending">
+                        <div class="stat-card__label">待确认</div>
+                        <div class="stat-card__value" id="statPending">0</div>
+                        <div class="stat-card__amount" id="statPendingAmount">¥0.00</div>
+                    </div>
+                    <div class="stat-card stat-card--diff">
+                        <div class="stat-card__label">差异</div>
+                        <div class="stat-card__value" id="statDiff">0</div>
+                        <div class="stat-card__amount" id="statDiffAmount">¥0.00</div>
+                    </div>
+                </div>
+
+                <!-- Match Status Filter -->
+                <div class="filter-bar" id="matchFilterBar">
+                    <span class="filter-bar__label">匹配状态</span>
+                    <div class="filter-bar__group">
+                        <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleMatchFilter('all')">
+                            全部 <span class="filter-bar__count" id="matchCountAll">0</span>
+                        </div>
+                        <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleMatchFilter('matched')">
+                            已匹配 <span class="filter-bar__count" id="matchCountMatched">0</span>
+                        </div>
+                        <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleMatchFilter('pending')">
+                            待确认 <span class="filter-bar__count" id="matchCountPending">0</span>
+                        </div>
+                        <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleMatchFilter('diff')">
+                            差异 <span class="filter-bar__count" id="matchCountDiff">0</span>
+                        </div>
+                    </div>
+                    <div class="filter-bar__divider"></div>
+                    <span class="filter-bar__label">账单类型</span>
+                    <div class="filter-bar__group">
+                        <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleTypeFilter('all')">
+                            全部
+                        </div>
+                        <div class="filter-bar__item filter-bar__item--huijiao" data-type="huijiao" onclick="toggleTypeFilter('huijiao')">
+                            汇缴
+                        </div>
+                        <div class="filter-bar__item filter-bar__item--bujiao" data-type="bujiao" onclick="toggleTypeFilter('bujiao')">
+                            补缴
+                        </div>
+                        <div class="filter-bar__item filter-bar__item--tiaoji" data-type="tiaoji" onclick="toggleTypeFilter('tiaoji')">
+                            调基补差
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div id="unifiedTable">
+                    <div class="data-table">
+                        <table class="qy-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" onchange="toggleSelectAll()"></th>
+                                    <th>匹配状态</th>
+                                    <th>账单类型</th>
+                                    <th>姓名</th>
+                                    <th>身份证号</th>
+                                    <th>险种</th>
+                                    <th>应缴月份</th>
+                                    <th>系统金额</th>
+                                    <th>台账金额</th>
+                                    <th>差异</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unifiedTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="table-footer__left">
+                            <button class="qy-btn qy-btn--secondary" id="selectAllBtn" onclick="toggleSelectAll()">全选</button>
+                            <button class="qy-btn qy-btn--primary" disabled id="batchConfirmBtn" onclick="batchConfirm()">确认所选</button>
+                            <button class="qy-btn qy-btn--secondary" disabled id="batchCancelBtn" onclick="batchCancel()">取消确认</button>
+                        </div>
+                        <div class="table-footer__right" id="tableFooterInfo">共 <strong>11</strong> 条差异 / 1页</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Import Dialog -->
+    <div class="import-dialog" id="importDialog" onclick="closeImportDialog(event)">
+        <div class="import-dialog__box" onclick="event.stopPropagation()">
+            <div class="import-dialog__header">
+                <h3 class="import-dialog__title">导入税务台账</h3>
+                <button class="drawer__close" onclick="closeImportDialog()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="import-dialog__body" id="importDialogBody">
+                <div id="importStep1">
+                    <div class="form-group">
+                        <label class="form-group__label">参保主体</label>
+                        <select class="form-group__select" id="importSubject">
+                            <option value="">请选择</option>
+                            <option value="某科技有限公司">某科技有限公司</option>
+                            <option value="另一家公司">另一家公司</option>
+                            <option value="第三家公司">第三家公司</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label">参保规则</label>
+                        <select class="form-group__select" id="importRule">
+                            <option value="">请选择</option>
+                            <option value="社保规则A">社保规则A</option>
+                            <option value="社保规则B">社保规则B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-group__label">应缴月份</label>
+                        <select class="form-group__select" id="importMonth">
+                            <option value="2026-04">2026-04</option>
+                            <option value="2026-03">2026-03</option>
+                        </select>
+                    </div>
+                    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <div class="drop-zone__text">📁 拖拽文件到此处，或点击选择文件</div>
+                        <div class="drop-zone__hint">支持格式：.xlsx, .xls</div>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+                    </div>
+                </div>
+                <div id="importStep2" style="display:none;">
+                    <p style="font-size:13px;margin-bottom:12px;" id="importPreviewSummary"></p>
+                    <div id="importPreviewErrors"></div>
+                    <table class="qy-table import-preview__table" id="importPreviewTable">
+                        <thead>
+                            <tr><th>姓名</th><th>身份证</th><th>险种</th><th>月份</th><th>金额</th><th>状态</th></tr>
+                        </thead>
+                        <tbody id="importPreviewBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="import-dialog__footer" id="importDialogFooter">
+                <button class="qy-btn qy-btn--secondary" onclick="closeImportDialog()">取消</button>
+                <button class="qy-btn qy-btn--primary" id="importNextBtn" onclick="importNextStep()">下一步</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Overlay -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <div class="confirm-box__title" id="confirmTitle">确认</div>
+            <div class="confirm-box__text" id="confirmText"></div>
+            <div class="confirm-box__footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closeConfirm(false)">取消</button>
+                <button class="qy-btn qy-btn--primary" onclick="closeConfirm(true)">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="loading-spinner__icon">⏳</div>
+            <div class="loading-spinner__text" id="loadingText">正在对账...</div>
+        </div>
+    </div>
+
+    <!-- Pairing Drawer -->
+    <div class="drawer-overlay" id="pairingDrawer" onclick="closePairingDrawer(event)">
+        <div class="drawer" style="width: 600px;">
+            <div class="drawer__header">
+                <h3 class="drawer__title" id="pairingDrawerTitle">确认配对</h3>
+                <button class="drawer__close" onclick="closePairingDrawer()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="drawer__body" id="pairingDrawerBody"></div>
+            <div class="drawer__footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closePairingDrawer()">取消</button>
+                <button class="qy-btn qy-btn--primary" id="pairingConfirmBtn" onclick="confirmPairing()">确认全部配对</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Drawer -->
+    <div class="drawer-overlay" id="detailDrawer" onclick="closeDetailDrawer(event)">
+        <div class="drawer">
+            <div class="drawer__header">
+                <h3 class="drawer__title" id="drawerTitle">差异详情</h3>
+                <button class="drawer__close" onclick="closeDetailDrawer()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="drawer__body" id="drawerBody"></div>
+            <div class="drawer__footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closeDetailDrawer()">关闭</button>
+                <button class="qy-btn qy-btn--primary" id="drawerConfirmBtn" onclick="confirmFromDrawer()">确认核对</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 数据模型 ==========
+
+        const BILL_TYPES = {
+            HUIJIAO: 'huijiao',
+            BUJIAO: 'bujiao',
+            TIAOJI: 'tiaoji'
+        };
+
+        const BILL_TYPE_LABELS = {
+            huijiao: '汇缴',
+            bujiao: '补缴',
+            tiaoji: '调基补差'
+        };
+
+        const MATCH_STATUS = {
+            UNMATCHED: 'UNMATCHED',
+            MATCHED: 'MATCHED',
+            PENDING: 'PENDING',
+            DIFF: 'DIFF'
+        };
+
+        const DIFF_TYPE = {
+            SYSTEM_MORE: 'system_more',
+            LEDGER_MORE: 'ledger_more',
+            AMOUNT_MISMATCH: 'amount_mismatch'
+        };
+
+        const VERIFY_STATUS = {
+            PENDING: 'PENDING',
+            VERIFIED: 'VERIFIED'
+        };
+
+        // 险种名称映射表
+        const INSURANCE_TYPE_ALIAS = {
+            '养老': ['养老', '基本养老保险', '养老保险', '基本养老'],
+            '医疗': ['医疗', '基本医疗保险', '医疗保险', '基本医疗'],
+            '失业': ['失业', '失业保险', '失业保险金'],
+            '工伤': ['工伤', '工伤保险', '工伤保险金'],
+            '生育': ['生育', '生育保险', '生育保险金'],
+            '公积金': ['公积金', '住房公积金', '住房公积'],
+        };
+
+        // 系统侧费用记录
+        let systemRecords = [
+            { id: 'S001', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', payableMonth: '2026-04', amountCompany: 1000, amountPersonal: 500, amount: 1500, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S002', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', payableMonth: null, amountCompany: 423.50, amountPersonal: 211.75, amount: 635.25, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S003', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', payableMonth: null, amountCompany: 256, amountPersonal: 128, amount: 384, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S004', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'tiaoji', payableMonth: null, amountCompany: 78, amountPersonal: 39, amount: 117, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S005', name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'bujiao', payableMonth: null, amountCompany: 400, amountPersonal: 200, amount: 600, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S006', name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', payableMonth: '2026-04', amountCompany: 120, amountPersonal: 30, amount: 150, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+        ];
+
+        // 台账侧记录（导入后填充）
+        let ledgerRecords = [];
+
+        // 导入元数据
+        let importMeta = {
+            insuranceSubject: '',
+            insuranceRule: '',
+            billingMonth: '',
+            importBatchId: null,
+            importedAt: null,
+        };
+
+        // 对账结果
+        let matchingResults = {
+            matched: [],
+            pending: [],
+            diffs: [],
+            executed: false,
+        };
+
+        // Filter states
+        let currentMatchFilter = 'all';
+        let currentTypeFilter = 'all';
+        let currentDetailRecord = null;
+        let currentPendingGroup = null;
+
+        // ========== 工具函数 ==========
+
+        function normalizeIdCard(idCard) {
+            if (!idCard) return '';
+            return idCard.replace(/\s/g, '').toUpperCase().trim();
+        }
+
+        function normalizeInsuranceType(name) {
+            if (!name) return '未知';
+            const trimmed = name.trim();
+            for (const [standard, aliases] of Object.entries(INSURANCE_TYPE_ALIAS)) {
+                if (aliases.includes(trimmed)) return standard;
+            }
+            return '未知';
+        }
+
+        function roundToCents(amount) {
+            if (typeof amount !== 'number') return null;
+            return Math.round(amount * 100) / 100;
+        }
+
+        function makeGroupKey(record) {
+            return `${normalizeIdCard(record.idCard)}|${normalizeInsuranceType(record.insuranceType)}|${record.billingMonth}`;
+        }
+
+        function groupByKey(records, keyFn) {
+            const groups = new Map();
+            for (const record of records) {
+                const key = keyFn(record);
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(record);
+            }
+            return groups;
+        }
+
+        function countByAmount(records) {
+            const map = new Map();
+            for (const record of records) {
+                const amount = record.amount;
+                if (!map.has(amount)) map.set(amount, []);
+                map.get(amount).push(record);
+            }
+            return map;
+        }
+
+        function formatMoney(v) {
+            if (v === null || v === undefined) return '—';
+            return '¥' + Number(v).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function maskIdCard(v) {
+            if (!v) return '—';
+            return v.replace(/(\d{3})\d{11}(\d{4})/, '$1***********$2');
+        }
+
+        function getBillTypeLabel(type) {
+            return BILL_TYPE_LABELS[type] || '—';
+        }
+
+        function getMatchStatusLabel(status) {
+            const labels = {
+                [MATCH_STATUS.MATCHED]: '已匹配',
+                [MATCH_STATUS.PENDING]: '待确认',
+                [MATCH_STATUS.DIFF]: '差异',
+                [MATCH_STATUS.UNMATCHED]: '未匹配',
+            };
+            return labels[status] || '—';
+        }
+
+        function getMatchStatusClass(status) {
+            const classes = {
+                [MATCH_STATUS.MATCHED]: 'status-badge--matched',
+                [MATCH_STATUS.PENDING]: 'status-badge--pending',
+                [MATCH_STATUS.DIFF]: 'status-badge--diff',
+                [MATCH_STATUS.UNMATCHED]: '',
+            };
+            return classes[status] || '';
+        }
+
+        // ========== 匹配算法 ==========
+
+        function executeMatching() {
+            matchingResults = { matched: [], pending: [], diffs: [], executed: false };
+            systemRecords.forEach(r => {
+                r.matchStatus = MATCH_STATUS.UNMATCHED;
+                r.matchedLedgerId = null;
+                r.diffType = null;
+                r.diffAmount = null;
+            });
+            ledgerRecords.forEach(r => {
+                r.matchStatus = MATCH_STATUS.UNMATCHED;
+                r.matchedSystemId = null;
+                r.feeTypeInferred = null;
+                r.diffType = null;
+                r.diffAmount = null;
+            });
+
+            const sysGroups = groupByKey(systemRecords, makeGroupKey);
+            const ledGroups = groupByKey(ledgerRecords, makeGroupKey);
+            const allKeys = new Set([...sysGroups.keys(), ...ledGroups.keys()]);
+
+            for (const key of allKeys) {
+                const sysRecs = sysGroups.get(key) ?? [];
+                const ledRecs = ledGroups.get(key) ?? [];
+
+                const sysAmountMap = countByAmount(sysRecs);
+                const ledAmountMap = countByAmount(ledRecs);
+                const allAmounts = new Set([...sysAmountMap.keys(), ...ledAmountMap.keys()]);
+
+                for (const amount of allAmounts) {
+                    const sysForAmount = sysAmountMap.get(amount) ?? [];
+                    const ledForAmount = ledAmountMap.get(amount) ?? [];
+
+                    if (sysForAmount.length > 0 && ledForAmount.length === 0) {
+                        for (const r of sysForAmount) {
+                            r.matchStatus = MATCH_STATUS.DIFF;
+                            r.diffType = DIFF_TYPE.SYSTEM_MORE;
+                            r.diffAmount = r.amount;
+                        }
+                        for (const r of sysForAmount) {
+                            matchingResults.diffs.push({ systemRecord: r, ledgerRecord: null });
+                        }
+                    } else if (sysForAmount.length === 0 && ledForAmount.length > 0) {
+                        for (const r of ledForAmount) {
+                            r.matchStatus = MATCH_STATUS.DIFF;
+                            r.diffType = DIFF_TYPE.LEDGER_MORE;
+                            r.diffAmount = -r.amount;
+                        }
+                        for (const r of ledForAmount) {
+                            matchingResults.diffs.push({ systemRecord: null, ledgerRecord: r });
+                        }
+                    } else if (sysForAmount.length === 1 && ledForAmount.length === 1) {
+                        const sysRec = sysForAmount[0];
+                        const ledRec = ledForAmount[0];
+                        sysRec.matchStatus = MATCH_STATUS.MATCHED;
+                        sysRec.matchedLedgerId = ledRec.id;
+                        ledRec.matchStatus = MATCH_STATUS.MATCHED;
+                        ledRec.matchedSystemId = sysRec.id;
+                        sysRec.payableMonth = ledRec.billingMonth;
+                        ledRec.feeTypeInferred = sysRec.feeType;
+                        matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
+                    } else {
+                        for (const r of sysForAmount) r.matchStatus = MATCH_STATUS.PENDING;
+                        for (const r of ledForAmount) r.matchStatus = MATCH_STATUS.PENDING;
+                        matchingResults.pending.push({
+                            amount,
+                            systemRecords: sysForAmount,
+                            ledgerRecords: ledForAmount,
+                        });
+                    }
+                }
+            }
+
+            matchingResults.executed = true;
+            return matchingResults;
+        }
+
+        function confirmPendingPairing(systemId, ledgerId) {
+            const sysRec = systemRecords.find(r => r.id === systemId);
+            const ledRec = ledgerRecords.find(r => r.id === ledgerId);
+            if (!sysRec || !ledRec) return false;
+
+            sysRec.matchStatus = MATCH_STATUS.MATCHED;
+            sysRec.matchedLedgerId = ledRec.id;
+            ledRec.matchStatus = MATCH_STATUS.MATCHED;
+            ledRec.matchedSystemId = sysRec.id;
+            sysRec.payableMonth = ledRec.billingMonth;
+            ledRec.feeTypeInferred = sysRec.feeType;
+            matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
+
+            matchingResults.pending = matchingResults.pending.filter(g =>
+                !(g.systemRecords.some(r => r.id === systemId) && g.ledgerRecords.some(r => r.id === ledgerId))
+            );
+            return true;
+        }
+
+        function cancelMatch(recordId) {
+            const sysRec = systemRecords.find(r => r.id === recordId);
+            const ledRec = ledgerRecords.find(r => r.id === recordId);
+            if (sysRec) {
+                sysRec.matchStatus = MATCH_STATUS.UNMATCHED;
+                sysRec.matchedLedgerId = null;
+                sysRec.payableMonth = sysRec.feeType === 'huijiao' ? sysRec.billingMonth : null;
+            }
+            if (ledRec) {
+                ledRec.matchStatus = MATCH_STATUS.UNMATCHED;
+                ledRec.matchedSystemId = null;
+                ledRec.feeTypeInferred = null;
+            }
+            matchingResults.matched = matchingResults.matched.filter(
+                m => m.systemRecord.id !== recordId && m.ledgerRecord.id !== recordId
+            );
+        }
+
+        function markDiffHandled(recordId) {
+            const sysRec = systemRecords.find(r => r.id === recordId);
+            const ledRec = ledgerRecords.find(r => r.id === recordId);
+            if (sysRec && sysRec.matchStatus === MATCH_STATUS.DIFF) {
+                sysRec.remark = '已处理';
+            }
+            if (ledRec && ledRec.matchStatus === MATCH_STATUS.DIFF) {
+                ledRec.remark = '已处理';
+            }
+        }
+
+        // ========== 筛选与渲染 ==========
+
+        function toggleMatchFilter(filterType) {
+            currentMatchFilter = filterType;
+            document.querySelectorAll('.filter-bar__item[data-match]').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.match === filterType);
+            });
+            renderTable();
+        }
+
+        function toggleTypeFilter(type) {
+            currentTypeFilter = type;
+            document.querySelectorAll('.filter-bar__item[data-type]').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.type === type);
+            });
+            renderTable();
+        }
+
+        function getAllDisplayRecords() {
+            const records = [];
+            const processedLedgerIds = new Set();
+
+            for (const sysRec of systemRecords) {
+                const ledRec = sysRec.matchedLedgerId
+                    ? ledgerRecords.find(r => r.id === sysRec.matchedLedgerId)
+                    : null;
+
+                records.push({
+                    id: sysRec.id,
+                    side: 'system',
+                    name: sysRec.name,
+                    idCard: sysRec.idCard,
+                    insuranceType: sysRec.insuranceType,
+                    billingMonth: sysRec.billingMonth,
+                    feeType: sysRec.feeType,
+                    sysAmount: sysRec.amount,
+                    ledgerAmount: ledRec ? ledRec.amount : null,
+                    matchStatus: sysRec.matchStatus,
+                    diffType: sysRec.diffType,
+                    diffAmount: sysRec.diffAmount,
+                    record: sysRec,
+                    ledgerRecord: ledRec,
+                });
+
+                if (ledRec) processedLedgerIds.add(ledRec.id);
+            }
+
+            for (const ledRec of ledgerRecords) {
+                if (!processedLedgerIds.has(ledRec.id)) {
+                    records.push({
+                        id: ledRec.id,
+                        side: 'ledger',
+                        name: ledRec.name,
+                        idCard: ledRec.idCard,
+                        insuranceType: ledRec.insuranceType,
+                        billingMonth: ledRec.billingMonth,
+                        feeType: ledRec.feeTypeInferred || '—',
+                        sysAmount: null,
+                        ledgerAmount: ledRec.amount,
+                        matchStatus: ledRec.matchStatus,
+                        diffType: ledRec.diffType,
+                        diffAmount: ledRec.diffAmount,
+                        record: ledRec,
+                        ledgerRecord: ledRec,
+                    });
+                }
+            }
+
+            return records;
+        }
+
+        function getFilteredRecords() {
+            let records = getAllDisplayRecords();
+
+            if (currentMatchFilter !== 'all') {
+                if (currentMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
+                else if (currentMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
+            }
+
+            if (currentTypeFilter !== 'all') {
+                records = records.filter(r => r.feeType === currentTypeFilter);
+            }
+
+            const nameVal = document.getElementById('filterName')?.value?.trim();
+            if (nameVal) {
+                records = records.filter(r =>
+                    r.name.includes(nameVal) || r.idCard.includes(nameVal)
+                );
+            }
+
+            return records;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('unifiedTableBody');
+            if (!tbody) return;
+            const records = getFilteredRecords();
+
+            tbody.innerHTML = records.map(r => {
+                const statusBadge = `<span class="status-badge ${getMatchStatusClass(r.matchStatus)}">${getMatchStatusLabel(r.matchStatus)}</span>`;
+                const typeBadge = r.feeType !== '—' ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '';
+
+                let diffStr = '—';
+                if (r.diffAmount !== null && r.diffAmount !== 0) {
+                    diffStr = (r.diffAmount > 0 ? '+' : '') + formatMoney(r.diffAmount);
+                }
+
+                let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', '${r.side}')">详情</button>`;
+                if (r.matchStatus === MATCH_STATUS.PENDING) {
+                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}')">确认配对</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
+                    actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.DIFF) {
+                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', '${r.side}')">详情</button>`;
+                }
+
+                const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
+                    : r.matchStatus === MATCH_STATUS.PENDING ? 'row-pending'
+                    : r.matchStatus === MATCH_STATUS.DIFF ? 'row-diff' : '';
+
+                return `<tr class="${rowClass}" data-id="${r.id}">
+                    <td><input type="checkbox" class="row-checkbox" data-id="${r.id}" data-side="${r.side}" onchange="updateBatchButtons()"></td>
+                    <td>${statusBadge}</td>
+                    <td>${typeBadge}</td>
+                    <td><strong>${r.name}</strong></td>
+                    <td>${maskIdCard(r.idCard)}</td>
+                    <td>${r.insuranceType}</td>
+                    <td>${r.billingMonth}</td>
+                    <td>${r.sysAmount !== null ? formatMoney(r.sysAmount) : '—'}</td>
+                    <td>${r.ledgerAmount !== null ? formatMoney(r.ledgerAmount) : '—'}</td>
+                    <td style="color: ${r.diffAmount && r.diffAmount !== 0 ? '#DC2626' : 'inherit'}; font-weight: ${r.diffAmount && r.diffAmount !== 0 ? '600' : '400'}">${diffStr}</td>
+                    <td>${actionBtn}</td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('tableFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
+            updateBatchButtons();
+        }
+
+        function doCancelMatch(id) {
+            cancelMatch(id);
+            renderTable();
+            updateStats();
+            updateMatchCounts();
+            showToast('已取消匹配', 'success');
+        }
+
+        function updateStats() {
+            const matchedCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
+            const pendingCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+
+            const ledgerOnly = ledgerRecords.filter(r => !systemRecords.some(s => s.matchedLedgerId === r.id));
+            const totalCount = systemRecords.length + ledgerOnly.length;
+
+            const matchedAmount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.amount, 0);
+            const pendingAmount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.amount, 0);
+            const diffAmt = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + Math.abs(r.diffAmount || 0), 0);
+            diffAmt + ledgerOnly.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + Math.abs(r.diffAmount || 0), 0);
+
+            const totalAmt = systemRecords.reduce((s, r) => s + r.amount, 0) + ledgerRecords.reduce((s, r) => s + r.amount, 0);
+
+            document.getElementById('statTotal').textContent = totalCount;
+            document.getElementById('statTotalAmount').textContent = formatMoney(totalAmt);
+            document.getElementById('statMatched').textContent = matchedCount;
+            document.getElementById('statMatchedAmount').textContent = formatMoney(matchedAmount);
+            document.getElementById('statPending').textContent = pendingCount;
+            document.getElementById('statPendingAmount').textContent = formatMoney(pendingAmount);
+            document.getElementById('statDiff').textContent = diffCount + ledgerOnly.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+            document.getElementById('statDiffAmount').textContent = formatMoney(diffAmt);
+        }
+
+        function updateMatchCounts() {
+            const all = getAllDisplayRecords();
+            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
+            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+            const totalCount = all.length;
+
+            document.getElementById('matchCountAll').textContent = totalCount;
+            document.getElementById('matchCountMatched').textContent = matchedCount;
+            document.getElementById('matchCountPending').textContent = pendingCount;
+            document.getElementById('matchCountDiff').textContent = diffCount;
+        }
+
+        // ========== 台账导入 ==========
+
+        let importFileData = null;
+
+        function openImportDialog() {
+            document.getElementById('importStep1').style.display = 'block';
+            document.getElementById('importStep2').style.display = 'none';
+            document.getElementById('importDialog').classList.add('is-visible');
+            importFileData = null;
+            document.getElementById('importNextBtn').textContent = '下一步';
+        }
+
+        function closeImportDialog(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('importDialog').classList.remove('is-visible');
+            importFileData = null;
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) useMockImportData();
+        }
+
+        function useMockImportData() {
+            importFileData = {
+                successRows: [
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 1500 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 635.25 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 384 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 117 },
+                    { name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', amount: 450 },
+                    { name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', amount: 142.50 },
+                    { name: '赵六', idCard: '430108199304044567', insuranceType: '养老', billingMonth: '2026-04', amount: 823 },
+                ],
+                errorRows: [],
+            };
+            showImportPreview();
+        }
+
+        function showImportPreview() {
+            document.getElementById('importStep1').style.display = 'none';
+            document.getElementById('importStep2').style.display = 'block';
+            document.getElementById('importNextBtn').textContent = '确认导入';
+
+            const { successRows, errorRows } = importFileData;
+            document.getElementById('importPreviewSummary').textContent =
+                `导入结果：成功 ${successRows.length} 条 / 格式错误 ${errorRows.length} 条`;
+
+            const errorDiv = document.getElementById('importPreviewErrors');
+            if (errorRows.length > 0) {
+                errorDiv.innerHTML = '<div class="import-preview__error">' +
+                    errorRows.map(e => `第 ${e.row} 行：${e.errors.join('、')}`).join('<br>') +
+                    '</div>';
+            } else {
+                errorDiv.innerHTML = '';
+            }
+
+            const tbody = document.getElementById('importPreviewBody');
+            tbody.innerHTML = successRows.slice(0, 10).map(r =>
+                `<tr><td>${r.name}</td><td>${maskIdCard(r.idCard)}</td><td>${r.insuranceType}</td><td>${r.billingMonth}</td><td>${formatMoney(r.amount)}</td><td style="color:#16A34A;">✅</td></tr>`
+            ).join('') + (successRows.length > 10 ? `<tr><td colspan="6">... 还有 ${successRows.length - 10} 条</td></tr>` : '');
+        }
+
+        function importNextStep() {
+            if (document.getElementById('importStep1').style.display !== 'none') {
+                useMockImportData();
+                return;
+            }
+
+            const { successRows } = importFileData;
+            ledgerRecords = successRows.map((r, i) => ({
+                id: 'T' + String(i + 1).padStart(3, '0'),
+                name: r.name,
+                idCard: r.idCard,
+                insuranceType: r.insuranceType,
+                billingMonth: r.billingMonth,
+                amount: r.amount,
+                feeType: null,
+                feeTypeInferred: null,
+                matchStatus: MATCH_STATUS.UNMATCHED,
+                matchedSystemId: null,
+                diffType: null,
+                diffAmount: null,
+                remark: null,
+            }));
+
+            importMeta = {
+                insuranceSubject: document.getElementById('importSubject').value,
+                insuranceRule: document.getElementById('importRule').value,
+                billingMonth: document.getElementById('importMonth').value,
+                importBatchId: 'batch_' + Date.now(),
+                importedAt: new Date().toLocaleString('zh-CN'),
+            };
+
+            closeImportDialog();
+            updateStats();
+            updateMatchCounts();
+            renderTable();
+            showToast(`导入成功：${successRows.length} 条记录`, 'success');
+        }
+
+        // Drag and drop setup
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) {
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('is-dragover');
+                });
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('is-dragover');
+                });
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('is-dragover');
+                    const file = e.dataTransfer.files[0];
+                    if (file) useMockImportData();
+                });
+            }
+        });
+
+        // ========== 开始对账 ==========
+
+        function startReconciliation() {
+            if (ledgerRecords.length === 0) {
+                showToast('请先导入台账数据', 'warning');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('is-visible');
+
+            setTimeout(() => {
+                executeMatching();
+                document.getElementById('loadingOverlay').classList.remove('is-visible');
+                renderTable();
+                updateStats();
+                updateMatchCounts();
+
+                const { matched, pending, diffs } = matchingResults;
+                showToast(`对账完成：已匹配 ${matched.length} 条，待确认 ${pending.length} 条，差异 ${diffs.length} 条`, 'success');
+            }, 800);
+        }
+
+        // ========== 确认配对抽屉 ==========
+
+        let currentPairingGroup = null;
+        let pairingSelections = {};
+
+        function openPairingDrawer(systemId) {
+            const sysRec = systemRecords.find(r => r.id === systemId);
+            if (!sysRec || sysRec.matchStatus !== MATCH_STATUS.PENDING) return;
+
+            const group = matchingResults.pending.find(g =>
+                g.systemRecords.some(r => r.id === systemId)
+            );
+            if (!group) return;
+
+            currentPairingGroup = group;
+            pairingSelections = {};
+            group.systemRecords.forEach((sys, i) => {
+                if (group.ledgerRecords[i]) {
+                    pairingSelections[sys.id] = group.ledgerRecords[i].id;
+                }
+            });
+
+            renderPairingDrawer();
+            document.getElementById('pairingDrawer').classList.add('is-visible');
+        }
+
+        function closePairingDrawer(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('pairingDrawer').classList.remove('is-visible');
+            currentPairingGroup = null;
+            pairingSelections = {};
+        }
+
+        function renderPairingDrawer() {
+            const group = currentPairingGroup;
+            if (!group) return;
+
+            const firstSys = group.systemRecords[0];
+            const body = document.getElementById('pairingDrawerBody');
+
+            let html = `
+                <div class="drawer-section">
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">员工</span>
+                        <span class="drawer-row__value">${firstSys.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value">${firstSys.insuranceType}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">应缴月份</span>
+                        <span class="drawer-row__value">${firstSys.billingMonth}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">同金额待确认</span>
+                        <span class="drawer-row__value">${formatMoney(group.amount)}（系统${group.systemRecords.length}笔 / 台账${group.ledgerRecords.length}笔）</span>
+                    </div>
+                </div>
+
+                <div class="pairing-section">
+                    <div class="pairing-section__title">智能推荐配对</div>
+                    <div class="pairing-recommendation">
+            `;
+
+            group.systemRecords.forEach((sys, i) => {
+                const led = group.ledgerRecords[i];
+                const isChecked = pairingSelections[sys.id] === led?.id;
+                html += `
+                    <div class="pairing-row">
+                        <input type="checkbox" class="pairing-row__check" ${isChecked ? 'checked' : ''} onchange="togglePairingCheck('${sys.id}')" id="pairCheck_${sys.id}">
+                        <span class="pairing-row__label">${getBillTypeLabel(sys.feeType)} ${formatMoney(sys.amount)}</span>
+                        <span class="pairing-row__arrow">→</span>
+                        <select class="pairing-row__select" id="pairSelect_${sys.id}" onchange="updatePairingSelection('${sys.id}', this.value)">
+                            <option value="">-- 选择台账记录 --</option>
+                            ${group.ledgerRecords.map(l =>
+                                `<option value="${l.id}" ${pairingSelections[sys.id] === l.id ? 'selected' : ''}>${l.billingMonth} ${formatMoney(l.amount)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <div class="pairing-hint">💡 系统按列表顺序推荐配对。可通过下拉菜单修改配对关系。</div>
+                </div>
+            `;
+
+            body.innerHTML = html;
+            document.getElementById('pairingDrawerTitle').textContent = `确认配对 — ${firstSys.name} | ${firstSys.insuranceType} | ${firstSys.billingMonth}`;
+        }
+
+        function togglePairingCheck(systemId) {
+            const checkbox = document.getElementById('pairCheck_' + systemId);
+            if (checkbox.checked) {
+                const idx = currentPairingGroup.systemRecords.findIndex(r => r.id === systemId);
+                if (currentPairingGroup.ledgerRecords[idx]) {
+                    pairingSelections[systemId] = currentPairingGroup.ledgerRecords[idx].id;
+                }
+            } else {
+                delete pairingSelections[systemId];
+            }
+            const select = document.getElementById('pairSelect_' + systemId);
+            if (select) select.value = pairingSelections[systemId] || '';
+        }
+
+        function updatePairingSelection(systemId, ledgerId) {
+            if (ledgerId) {
+                pairingSelections[systemId] = ledgerId;
+                const checkbox = document.getElementById('pairCheck_' + systemId);
+                if (checkbox) checkbox.checked = true;
+            } else {
+                delete pairingSelections[systemId];
+                const checkbox = document.getElementById('pairCheck_' + systemId);
+                if (checkbox) checkbox.checked = false;
+            }
+        }
+
+        function confirmPairing() {
+            const selectedLedgerIds = Object.values(pairingSelections);
+            const uniqueLedgerIds = new Set(selectedLedgerIds);
+            if (uniqueLedgerIds.size < selectedLedgerIds.length) {
+                showToast('配对冲突：多条系统记录选择了同一条台账记录', 'error');
+                return;
+            }
+
+            let confirmed = 0;
+            for (const [sysId, ledId] of Object.entries(pairingSelections)) {
+                if (confirmPendingPairing(sysId, ledId)) {
+                    confirmed++;
+                }
+            }
+
+            closePairingDrawer();
+            renderTable();
+            updateStats();
+            updateMatchCounts();
+            if (confirmed > 0) {
+                showToast(`已确认 ${confirmed} 对配对`, 'success');
+            }
+        }
+
+        // ========== 差异详情抽屉 ==========
+
+        function showNewDetail(recordId, side) {
+            let sysRec, ledRec;
+            if (side === 'system') {
+                sysRec = systemRecords.find(r => r.id === recordId);
+                ledRec = sysRec?.matchedLedgerId ? ledgerRecords.find(r => r.id === sysRec.matchedLedgerId) : null;
+            } else {
+                ledRec = ledgerRecords.find(r => r.id === recordId);
+                sysRec = ledRec?.matchedSystemId ? systemRecords.find(r => r.id === ledRec.matchedSystemId) : null;
+            }
+
+            const displayRec = sysRec || ledRec;
+            if (!displayRec) return;
+            currentDetailRecord = displayRec;
+
+            const body = document.getElementById('drawerBody');
+            let html = `
+                <div class="drawer-section">
+                    <div class="drawer-section__title">基本信息</div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">员工</span>
+                        <span class="drawer-row__value">${displayRec.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">身份证</span>
+                        <span class="drawer-row__value">${displayRec.idCard}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value">${displayRec.insuranceType}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">应缴月份</span>
+                        <span class="drawer-row__value">${displayRec.billingMonth}</span>
+                    </div>
+                    ${displayRec.feeType ? `<div class="drawer-row">
+                        <span class="drawer-row__label">账单类型</span>
+                        <span class="drawer-row__value"><span class="type-badge type-badge--${displayRec.feeType}">${getBillTypeLabel(displayRec.feeType)}</span></span>
+                    </div>` : ''}
+                    ${displayRec.feeTypeInferred ? `<div class="drawer-row">
+                        <span class="drawer-row__label">推断类型</span>
+                        <span class="drawer-row__value">${getBillTypeLabel(displayRec.feeTypeInferred)}</span>
+                    </div>` : ''}
+                    ${displayRec.payableMonth ? `<div class="drawer-row">
+                        <span class="drawer-row__label">具体应缴月份</span>
+                        <span class="drawer-row__value">${displayRec.payableMonth}</span>
+                    </div>` : ''}
+                </div>
+
+                <div class="drawer-section">
+                    <div class="drawer-section__title">金额对比</div>
+            `;
+
+            if (sysRec) {
+                html += `
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">系统金额</span>
+                        <span class="drawer-row__value">${formatMoney(sysRec.amount)}
+                            <span class="amount-breakdown">（单位: ${formatMoney(sysRec.amountCompany)} / 个人: ${formatMoney(sysRec.amountPersonal)}）</span>
+                        </span>
+                    </div>
+                `;
+            }
+            if (ledRec) {
+                html += `
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">台账金额</span>
+                        <span class="drawer-row__value">${formatMoney(ledRec.amount)}</span>
+                    </div>
+                `;
+            }
+            if (!sysRec) {
+                html += `<div class="drawer-row"><span class="drawer-row__label">系统侧</span><span class="drawer-row__value" style="color:#DC2626;">无匹配记录</span></div>`;
+            }
+            if (!ledRec && sysRec?.matchStatus === MATCH_STATUS.DIFF) {
+                html += `<div class="drawer-row"><span class="drawer-row__label">台账侧</span><span class="drawer-row__value" style="color:#DC2626;">无匹配记录</span></div>`;
+            }
+
+            if (displayRec.diffAmount !== null && displayRec.diffAmount !== 0) {
+                const diffLabel = displayRec.diffAmount > 0 ? `+${formatMoney(displayRec.diffAmount)}（系统多）` : `${formatMoney(displayRec.diffAmount)}（台账多）`;
+                html += `<div class="drawer-row"><span class="drawer-row__label">差异</span><span class="drawer-row__value" style="color:#DC2626;">${diffLabel}</span></div>`;
+            }
+
+            html += `</div>`;
+
+            if (displayRec.matchStatus === MATCH_STATUS.DIFF) {
+                html += `
+                    <div class="drawer-section">
+                        <div class="drawer-section__title">差异分析</div>
+                        <div class="diff-analysis">
+                            <div class="diff-analysis__content">
+                `;
+                if (displayRec.diffType === DIFF_TYPE.SYSTEM_MORE) {
+                    html += `<strong>系统侧有记录，台账侧无此记录</strong>
+                        <div class="diff-analysis__cause">
+                            可能原因：
+                            <ul><li>台账漏采集：税务系统未采集该笔费用</li><li>误增员：系统多申报了该员工</li><li>申报失败未通知</li></ul>
+                        </div>`;
+                } else if (displayRec.diffType === DIFF_TYPE.LEDGER_MORE) {
+                    html += `<strong>台账侧有记录，系统侧无此记录</strong>
+                        <div class="diff-analysis__cause">
+                            可能原因：
+                            <ul><li>系统漏申报</li><li>台账误增</li><li>跨月申报</li></ul>
+                        </div>`;
+                }
+                html += `
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;">
+                            <label style="font-size:12px;color:var(--qy-text-muted);">备注</label>
+                            <input type="text" class="form-group__input" id="diffRemark" placeholder="输入处理备注" value="${displayRec.remark || ''}" style="margin-top:4px;">
+                        </div>
+                    </div>
+                `;
+            }
+
+            body.innerHTML = html;
+
+            const footer = document.querySelector('#detailDrawer .drawer__footer');
+            if (displayRec.matchStatus === MATCH_STATUS.DIFF) {
+                footer.innerHTML = `
+                    <button class="qy-btn qy-btn--secondary" onclick="closeDetailDrawer()">关闭</button>
+                    <button class="qy-btn qy-btn--primary" onclick="handleDiffRemark()">标记已处理</button>
+                `;
+            } else {
+                footer.innerHTML = `<button class="qy-btn qy-btn--secondary" onclick="closeDetailDrawer()">关闭</button>`;
+            }
+
+            document.getElementById('drawerTitle').textContent = `详情：${displayRec.name} | ${displayRec.insuranceType}`;
+            document.getElementById('detailDrawer').classList.add('is-visible');
+        }
+
+        function handleDiffRemark() {
+            const remark = document.getElementById('diffRemark')?.value || '';
+            if (currentDetailRecord) {
+                currentDetailRecord.remark = remark || '已处理';
+                markDiffHandled(currentDetailRecord.id);
+            }
+            closeDetailDrawer();
+            renderTable();
+            updateStats();
+            updateMatchCounts();
+            showToast('已标记为已处理', 'success');
+        }
+
+        function archiveResults() {
+            if (!matchingResults.executed) {
+                showToast('请先执行对账', 'warning');
+                return;
+            }
+
+            const pendingCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF && !r.remark).length;
+
+            if (pendingCount > 0 || diffCount > 0) {
+                showConfirmDialog(
+                    '归档确认',
+                    `还有 ${pendingCount} 条待确认和 ${diffCount} 条未处理差异，是否继续归档？`,
+                    (confirmed) => { if (confirmed) doArchive(); }
+                );
+            } else {
+                doArchive();
+            }
+        }
+
+        function doArchive() {
+            systemRecords.forEach(r => {
+                if (r.matchStatus === MATCH_STATUS.MATCHED) {
+                    r.archived = true;
+                    r.archivedAt = new Date().toLocaleString('zh-CN');
+                }
+            });
+            ledgerRecords.forEach(r => {
+                if (r.matchStatus === MATCH_STATUS.MATCHED) {
+                    r.archived = true;
+                    r.archivedAt = new Date().toLocaleString('zh-CN');
+                }
+            });
+
+            renderTable();
+            updateStats();
+            updateMatchCounts();
+            showToast(`归档完成：共归档 ${systemRecords.filter(r => r.archived).length} 条记录`, 'success');
+        }
+
+        function showConfirmDialog(title, text, callback) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmText').textContent = text;
+            confirmCallback = callback;
+            document.getElementById('confirmOverlay').classList.add('is-visible');
+        }
+
+        function closeConfirm(result) {
+            document.getElementById('confirmOverlay').classList.remove('is-visible');
+            if (confirmCallback) confirmCallback(result);
+            confirmCallback = null;
+        }
+
+        let confirmCallback = null;
+
+        // ========== Batch Operations ==========
+
+        function getSelectedIds() {
+            return Array.from(document.querySelectorAll('#unifiedTableBody .row-checkbox:checked')).map(cb => cb.dataset.id);
+        }
+
+        function toggleSelectAll() {
+            const rowCheckboxes = document.querySelectorAll('#unifiedTableBody .row-checkbox');
+            const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
+            const newChecked = !allChecked;
+            rowCheckboxes.forEach(cb => cb.checked = newChecked);
+            updateBatchButtons();
+        }
+
+        function updateBatchButtons() {
+            const selectedIds = getSelectedIds();
+            const hasSelection = selectedIds.length > 0;
+            const batchConfirmBtn = document.getElementById('batchConfirmBtn');
+            const batchCancelBtn = document.getElementById('batchCancelBtn');
+            if (batchConfirmBtn) batchConfirmBtn.disabled = !hasSelection;
+            if (batchCancelBtn) batchCancelBtn.disabled = !hasSelection;
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            if (selectAllBtn) {
+                const totalCount = document.querySelectorAll('#unifiedTableBody .row-checkbox').length;
+                selectAllBtn.textContent = selectedIds.length === totalCount ? '取消全选' : '全选';
+            }
+        }
+
+        // ========== Toast ==========
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast--${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('is-visible'));
+            setTimeout(() => {
+                toast.classList.remove('is-visible');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========== Init ==========
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            updateMatchCounts();
+            renderTable();
+        });
+    </script>
+</body>
+</html>
