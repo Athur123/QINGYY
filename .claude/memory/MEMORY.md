@@ -9,3 +9,5 @@
 
 ## 设计反馈
 - [设计检查清单](feedback-design-checklist.md) — 开发页面/组件必做的7项检查
+## 变更记录
+- 2026-04-28: update

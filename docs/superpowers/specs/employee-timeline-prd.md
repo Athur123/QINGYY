@@ -64,72 +64,54 @@
 * 支持点击右上角关闭按钮、点击遮罩层、或按 `ESC` 键关闭抽屉。
 
 ## 4. 数据结构与接口定义建议
+### 4.1 核心数据结构 (Timeline Item)
+为了支撑前端卡片式渲染与 Diff 展示，建议后端接口按以下聚合结构返回单条时间轴数据：
 
-### 4.1 动态记录数据结构
-
-**单条记录：**
-```typescript
-interface DynamicLog {
-  id: string;                    // 记录唯一标识
-  eventType: string;              // 事件类型
-  eventTypeClass: 'success' | 'primary' | 'danger' | 'gray';
-  eventTime: string;              // 操作时间 (YYYY-MM-DD HH:mm)
-  operator: string;               // 操作人
-  operatorRole?: string;          // 操作人角色（如"管理员"）
-  dotClass: string;               // 圆点样式类
-  action: '新增' | '编辑' | '删除';
-  tabName?: string;               // Tab名称，基础信息为空
-  record?: string;                // 记录名称
-  changes?: Change[];              // 变更字段（编辑时）
-  fields?: Record<string, any>;    // 完整字段（新增/删除时）
-  details?: Detail[];              // 批量变更明细
-  channel?: string;               // 渠道来源（如"Excel批量导入"）
-  snapshotId?: string;             // 快照ID（重大节点有值）
-}
-
-interface Change {
-  field: string;                  // 字段名
-  oldValue: string;                // 旧值
-  newValue: string;                // 新值
-}
-
-interface Detail {
-  record: string;                 // 记录名称
-  changes?: Change[];              // 变更字段
-  fields?: Record<string, any>;    // 完整字段
-}
-```
-
-### 4.2 事件类型枚举
-
-| 事件类型 | 说明 | 圆点颜色 |
-|---------|------|---------|
-| 入职 | 新员工入职 | green |
-| 转正 | 试用期转正式 | green |
-| 调岗 | 岗位变动 | blue |
-| 调薪 | 薪资调整 | blue |
-| 离职 | 员工离职 | red |
-| 重新入职 | 离职后再入职 | green |
-| 信息变更 | 编辑修改档案 | gray |
-| 修改员工档案 | 通用明细操作 | blue/gray/red |
-| 参保报送 | 社保公积金报送 | blue |
-| 个税报送 | 税务申报 | blue |
-| 添加报送人员 | 添加个税报送人员 | blue |
-| 修改默认申报主体 | 修改默认申报主体 | blue |
-| 同步报送信息 | 同步报送状态 | blue |
-| 人员报送 | 人员报送操作 | blue |
-
-### 4.3 筛选参数
-
-```typescript
-interface LogFilterParams {
-  typeFilter?: string;      // 事件类型
-  timeFilter?: number;      // 时间范围（天数：7/30/90/365）
-  tabFilter?: string;       // 模块筛选
-  operatorFilter?: string;  // 操作人筛选
+```json
+{
+  "eventId": "EVT_10029381",
+  "eventName": "修改人员档案",        // 主事件名称
+  "operateTime": "2026-04-23 10:05:00",
+  "operatorName": "张HR",            // 操作人名称，若为系统则传"系统自动触发"
+  "operatorRole": "管理员",          // 操作人角色
+  "channel": "Web端",                // 操作渠道（Web端、薪税系统接口、Excel导入等）
+  "snapshotId": "SNAP_88392",        // 快照ID（若无快照则为 null）
+  "eventColor": "blue",              // 节点颜色（blue/green/orange/red）
+  
+  // 子记录卡片数组（同一次操作可能修改多个不同模块/实体）
+  "subRecords": [
+    {
+      "actionType": "edit",          // 动作类型：add/edit/delete
+      "actionLabel": "编辑",          // Tag 展示文案
+      "targetName": "薪税档案 (深圳分公司)", // 被修改对象名称
+      
+      // 字段变更明细数组
+      "changes": [
+        {
+          "fieldLabel": "申报状态",
+          "oldValue": "未报送",      // 若为新增，oldValue 为 null
+          "newValue": "申报中",      // 若为删除，newValue 为 null
+          "isMono": false           // 是否需要等宽字体渲染（如身份证号）
+        }
+      ]
+    }
+  ]
 }
 ```
+
+### 4.2 接口交互建议
+1. **列表查询接口**：采用基于游标（Cursor-based）或页码（Page-based）的分页查询，入参需包含员工 ID、日期区间（`startDate`, `endDate`）、模块分类（`moduleCode`）及操作人（`operatorId`）。
+2. **快照获取接口**：前端点击“查看快照”时，通过 `snapshotId` 单独调用接口拉取历史全量结构化数据进行渲染。
 
 ## 5. 异常流与边界条件
+### 5.1 数据为空 (Empty State)
+* **无任何记录**：员工刚建档，尚未产生历史操作时，展示“暂无动态记录”的空状态提示及插画。
+* **筛选无结果**：用户使用条件过滤后未匹配到数据时，展示“暂无符合条件的动态记录”。
 
-[To be written]
+### 5.2 极端数据边界
+* **超长文本修改**：如果修改的字段是一个长文本（如“备注”），前端 `change-list` 需限制最大高度，并使用 `text-overflow: ellipsis` 截断，支持 Hover 或点击查看完整对比。
+* **批量大规模修改**：如果一次 Excel 导入同时修改了该员工 50 个字段，前端不应截断，应允许该 `timeline-item` 在页面内自然拉长，由浏览器原生滚动条处理。
+
+### 5.3 快照缺失与数据断层
+* **快照过期或清理**：若历史快照由于数据清理策略被物理删除，点击“查看快照”时应给予 Toast 提示：“该历史快照已归档或清理，无法查看”。
+* **操作人离职**：如果历史操作人已从系统中离职被删，操作人名称应回显为其离职前的历史快照名字（而非 ID 或空值）。

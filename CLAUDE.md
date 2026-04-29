@@ -4,103 +4,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) system project - a SaaS HR management platform. The codebase contains:
+This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) system project — a SaaS HR management platform. The codebase is a **prototype and design system repository** (no build process, no package.json):
 
-1. **HTML Prototypes** (`prototype/`) - UI/UX prototypes for the HRO system pages
-2. **Design System** (`styles/`) - CSS/SCSS component library with 25+ components
-3. **Resume Parser Scripts** - Python scripts for parsing resumes with OCR
-4. **Claude Skills** (`.claude/skills/`) - Automation skills for interacting with the Qingyang HRO system
+1. **HTML Prototypes** (`prototype/`) — 30+ UI/UX prototype pages for the HRO system
+2. **Design System** (`styles/`) — CSS/SCSS component library with 25+ components
+3. **Design Documentation** — Comprehensive design specs in markdown
+4. **Claude Skills** (`.claude/skills/`) — Browser automation for the live HRO system
+5. **Planning Docs** (`docs/superpowers/`) — Specs, plans, and SQL drafts
 
 ## Key Directories
 
 | Directory | Purpose |
 |-----------|---------|
-| `prototype/` | HTML prototype pages for the HRO system (policy pages, dashboard, calculator, etc.) |
-| `styles/` | Design system - CSS variables, components, and form elements |
-| `scripts/` | Python scripts and tools |
-| `scripts/resume-parser/` | Resume parsing scripts with OCR support |
-| `.claude/skills/` | Automation skills for Qingyang Cloud operations |
-| `.claude/memory/` | Persistent memory storage for Claude sessions |
+| `prototype/` | HTML prototype pages (30+ files) — open directly in browser |
+| `styles/` | Design system CSS/SCSS files |
+| `docs/` | Code Wiki, specs, plans, and SQL drafts |
+| `docs/superpowers/specs/` | Design specifications |
+| `docs/superpowers/plans/` | Implementation plans |
+| `docs/superpowers/sql/` | Database migration drafts |
+| `.claude/skills/` | Automation skills for Qingyang Cloud |
+| `.claude/memory/` | Persistent session memory |
 
 ## Design System
 
-The project uses a custom design system documented in `qingyang-ui-ux-guidelines.md` and implemented in `styles/`.
+The design system is documented in two key files:
+- **`qingyang-hro-design-system.md`** — Full component handbook (v2.0, merged guidelines + design-system)
+- **`qingyang-ui-ux-guidelines.md`** — UI/UE guidelines and patterns
 
-### Key Design Tokens
-- **Primary Color**: `#2563EB` (blue)
-- **Background**: `#F8FAFC` (light gray)
-- **Text Primary**: `#1E293B`
-- **Text Secondary**: `#64748B`
-- **Border**: `#E2E8F0`
-- **Font**: Inter, system-ui, sans-serif
+### Key Design Tokens (v2.0)
+- **Primary Color**: `--qy-primary-500` = `#2563EB`
+- **Background**: `--qy-bg-secondary` = `#F8FAFC`
+- **Text Primary**: `--qy-text-primary` = `#1E293B` (11.5:1 contrast)
+- **Text Secondary**: `--qy-text-secondary` = `#64748B` (5.7:1 contrast)
+- **Border**: `--qy-border-light` = `#E2E8F0`
+- **Font**: Plus Jakarta Sans, Inter, system-ui, sans-serif
+- **Body Size**: 14px (upgraded from 12px in v1.x)
 
 ### CSS Files in `styles/`
-- `qingyang-variables.css` - CSS variables/design tokens
-- `qingyang-base.css` - Base styles and utility classes
-- `qingyang-components.css` - 25+ UI components
-- `qingyang-forms.css` - 15+ form controls
-- `qingyang-variables.scss` - SCSS version with mixins
+- `qingyang-variables.css` — CSS variables / design tokens
+- `qingyang-base.css` — Base styles and utilities
+- `qingyang-components.css` — 25+ UI components
+- `qingyang-forms.css` — 15+ form controls
+- `qingyang-design-system.css` — Combined design system
+- `qingyang-variables.scss` — SCSS version with mixins
 
 ### Component Classes
-Components use the `qy-` prefix:
-- `qy-btn` - Buttons (variants: `--primary`, `--secondary`, `--text`, `--danger`)
-- `qy-card` - Cards with `__header`, `__body`, `__footer`
-- `qy-input` - Input fields
-- `qy-table` - Data tables
-- `qy-tag` - Tags/badges
-
-## Claude Skills
-
-Skills are located in `.claude/skills/` and automate interactions with the Qingyang HRO system.
-
-### Available Skills
-
-**1. qingyang-login** - Automates login to the Qingyang Cloud system
-- URL: `http://192.168.10.168/#/login`
-- Credentials stored in `.claude/settings.local.json` env vars
-- Triggers: "登录青阳云", "打开HRO", "进入系统"
-
-**2. qingyang-switch-hro** - Switches from EHR to HRO dimension
-- Accessed via user avatar dropdown → "切换客户组织"
-- Triggers: "切换到HRO", "进入客户组织", "HRO维度"
-
-### Environment Variables (in `.claude/settings.local.json`)
-```json
-{
-  "QINGYANG_LOGIN_URL": "http://192.168.10.168/#/login",
-  "QINGYANG_TENANT": "test",
-  "QINGYANG_USERNAME": "admin",
-  "QINGYANG_PASSWORD": "123456"
-}
-```
+Components use the `--qy-` prefix (BEM-style):
+- `qy-btn` — Buttons (variants: `--primary`, `--secondary`, `--text`, `--danger`)
+- `qy-card` — Cards with `__header`, `__body`, `__footer`
+- `qy-input` — Input fields
+- `qy-table` — Data tables
+- `qy-tag` — Tags/badges
 
 ## Prototype Pages
 
 Key HTML prototypes in `prototype/`:
 
-| File | Description |
+| Page | Description |
 |------|-------------|
-| `qingyang-policy-optimized.html` | Social insurance policy page (227KB) |
-| `qingyang-dashboard-optimized.html` | Dashboard page |
-| `qingyang-insurance-archive-optimized.html` | Insurance archive page |
-| `qingyang-insurance-rule-optimized.html` | Insurance rules page |
-| `calculator-optimized.html` | Calculator tool |
+| `qingyang-policy-optimized.html` | Social insurance policy page |
+| `qingyang-dashboard-optimized.html` | Dashboard |
+| `insurance-archive-optimized.html` | Insurance archive |
+| `insurance-archive-v2.html` | Insurance archive v2 with tabs |
+| `settlement-plan-optimized.html` | Settlement plan management |
+| `settlement-detail-optimized.html` | Settlement detail page |
+| `employee-detail-redesign.html` | Employee detail redesign |
+| `social-insurance-rule-stepper.html` | Insurance rule stepper wizard |
+| `field-collection-config-demo.html` | Field collection config |
+| `sys-log.html` | System log viewer |
+| `log-viewer.html` | Log viewer component |
+| `approval-template-management.html` | Approval template management |
 
-## Resume Parser Scripts
+## Claude Skills
 
-Located in `scripts/resume-parser/` - Python scripts for parsing PDF resumes using OCR and text extraction.
+Skills in `.claude/skills/` automate interactions with the live Qingyang HRO system.
 
-| Script | Purpose |
-|--------|---------|
-| `parse_resumes.py` | Basic resume parser with regex matching |
-| `parse_resumes_v2.py` | Enhanced parser with improved field extraction |
-| `parse_resumes_detailed.py` | Detailed parser (Yuque standard structure) |
-| `parse_resumes_json.py` | JSON output format |
-| `parse_resumes_standard.py` | Standardized output format |
-| `extract_he_resume_ocr.py` | OCR-based extraction for scanned PDFs |
-| `extract_he_resume_v2.py` | Enhanced OCR with text cleanup |
+### Available Skills
 
-See `scripts/resume-parser/README.md` for usage instructions.
+**1. qingyang-login** — Login to Qingyang Cloud
+- URL: `https://qingyangyun.com.cn/#/login`
+- Credentials from `.claude/settings.local.json` env vars
+- Triggers: "登录青阳云", "打开HRO", "进入系统"
+
+**2. qingyang-switch-hro** — Switch from EHR to HRO dimension
+- Via user avatar dropdown → "切换客户组织"
+- Triggers: "切换到HRO", "进入客户组织", "HRO维度"
+
+### Environment Variables (in `.claude/settings.local.json`)
+```json
+{
+  "QINGYANG_LOGIN_URL": "https://qingyangyun.com.cn/#/login",
+  "QINGYANG_TENANT": "zjhcrl",
+  "QINGYANG_USERNAME": "admin",
+  "QINGYANG_PASSWORD": "<redacted>"
+}
+```
 
 ## Development Workflow
 
@@ -137,10 +135,6 @@ Skills auto-trigger on keywords. To manually invoke:
   background: $primary-500;
   padding: space(4);
   border-radius: radius('md');
-  
-  @include respond-to('desktop') {
-    padding: space(6);
-  }
 }
 ```
 
@@ -150,18 +144,19 @@ Skills auto-trigger on keywords. To manually invoke:
 - **Two dimensions**: EHR (core HR) and HRO (outsourcing/dispatch)
 - **Default after login**: EHR dimension
 - **Switch to HRO**: Via user avatar → "切换客户组织"
-- **HRO Features**: Upstream/downstream management (上下游管理)
+- **HRO Features**: Upstream/downstream management (上下游管理), settlement plans, insurance rules
 
-### Design Philosophy
-- Enterprise SaaS style - professional and trustworthy
-- Soft Elegance design language
-- Information density balanced for efficiency
-- WCAG 2.1 AA accessibility compliance
-- Responsive breakpoints: 768px, 1024px, 1440px
+### Architecture Notes
+- Prototypes use inline `<script>` with vanilla DOM APIs — no framework dependencies
+- Design system referenced via `<link>` tags in prototype HTML
+- Backend/API is mocked in prototypes; real backend only documented in `docs/superpowers/`
+- `API_BASE` constants in prototypes point to mock endpoints
 
 ## Important Notes
 
 1. **Playwright MCP** is configured for browser automation (see `.claude/settings.local.json`)
-2. **No package.json** - This is not a Node.js project (pure HTML/CSS/Python)
-3. **No build process** - Prototypes are static HTML files
-4. **Skills require Playwright MCP** - Ensure plugin is enabled for automation
+2. **No package.json** — Pure HTML/CSS/Python, no build process
+3. **Prototypes are static HTML** — Open directly in browser or serve with `python3 -m http.server`
+4. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
+5. **`.playwright-mcp/`** contains automated test artifacts (screenshots, logs) — safe to clean up
+6. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source

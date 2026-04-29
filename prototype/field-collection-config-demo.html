@@ -3,434 +3,1101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>社保参保规则配置 - 字段采集配置 - 青阳云HRO</title>
+  <title>全局字段配置 - 青阳云HRO</title>
   <link rel="stylesheet" href="../styles/qingyang-variables.css">
   <link rel="stylesheet" href="../styles/qingyang-components.css">
   <link rel="stylesheet" href="../styles/qingyang-forms.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --primary: #2563EB;
-      --primary-hover: #1D4ED8;
-      --primary-light: #EFF6FF;
-      --primary-border: #BFDBFE;
-      --success: #10B981;
-      --success-light: #ECFDF5;
-      --warning: #F59E0B;
-      --warning-light: #FFFBEB;
-      --error: #EF4444;
-      --error-light: #FEF2F2;
-      --gray-50: #F8FAFC;
-      --gray-100: #F1F5F9;
-      --gray-200: #E2E8F0;
-      --gray-300: #CBD5E1;
-      --gray-400: #94A3B8;
-      --gray-500: #64748B;
-      --gray-600: #475569;
-      --gray-700: #334155;
-      --gray-800: #1E293B;
-      --gray-900: #0F172A;
-      --radius-md: 8px;
-      --radius-lg: 12px;
-    }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 14px;
-      color: var(--gray-800);
-      background: var(--gray-100);
-      line-height: 1.5;
-    }
+    body { font-family: var(--qy-font-primary); font-size: var(--qy-font-size-14); color: var(--qy-text-primary); background: var(--qy-bg-secondary); line-height: var(--qy-line-height-normal); }
+
+    /* Layout */
     .app-container { display: flex; min-height: 100vh; }
+    .sidebar { width: var(--qy-sidebar-width); background: var(--qy-sidebar-bg); border-right: var(--qy-sidebar-border); flex-shrink: 0; position: fixed; height: 100vh; z-index: var(--qy-z-sticky); }
+    .sidebar-logo { padding: var(--qy-space-5) var(--qy-space-6); border-bottom: var(--qy-sidebar-border); }
+    .sidebar-logo h1 { font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold); color: var(--qy-color-primary); }
+    .sidebar-nav { list-style: none; padding: var(--qy-space-3) 0; }
+    .sidebar-nav-item { padding: var(--qy-space-3) var(--qy-space-6); cursor: pointer; display: flex; align-items: center; gap: var(--qy-space-3); color: var(--qy-text-secondary); font-size: var(--qy-font-size-13); transition: var(--qy-transition-fast); }
+    .sidebar-nav-item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+    .sidebar-nav-item.active { background: var(--qy-primary-50); color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
+    .sidebar-nav-sub { padding-left: var(--qy-space-12); }
+    .sidebar-nav-sub .sidebar-nav-item { padding: var(--qy-space-2) var(--qy-space-6); font-size: var(--qy-font-size-12); }
+    .sidebar-nav-sub .sidebar-nav-item.active { color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
 
-    /* Sidebar */
-    .sidebar {
-      width: 220px; background: #fff; border-right: 1px solid var(--gray-200);
-      flex-shrink: 0; position: fixed; height: 100vh; z-index: 100;
-    }
-    .sidebar-logo { padding: 20px 24px; border-bottom: 1px solid var(--gray-200); }
-    .sidebar-logo h1 { font-size: 18px; font-weight: 700; color: var(--primary); }
-    .sidebar-nav { list-style: none; padding: 12px 0; }
-    .sidebar-nav-item {
-      padding: 10px 24px; cursor: pointer; display: flex; align-items: center;
-      gap: 10px; color: var(--gray-500); font-size: 13px; transition: all 150ms;
-    }
-    .sidebar-nav-item:hover { background: var(--gray-50); color: var(--gray-800); }
-    .sidebar-nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
-    .sidebar-nav-sub { list-style: none; }
-    .sidebar-nav-sub li {
-      padding: 7px 24px 7px 48px; cursor: pointer; font-size: 12px; color: var(--gray-400);
-      transition: all 150ms;
-    }
-    .sidebar-nav-sub li:hover { color: var(--gray-700); }
-    .sidebar-nav-sub li.active { color: var(--primary); font-weight: 500; }
+    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); display: flex; flex-direction: column; }
+    .topbar { height: var(--qy-header-height); background: var(--qy-header-bg); border-bottom: var(--qy-header-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--qy-content-padding-x); }
+    .topbar-breadcrumb { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .topbar-user { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .content-area { flex: 1; padding: var(--qy-content-padding-y) var(--qy-content-padding-x); }
 
-    /* Main */
-    .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
-    .topbar {
-      height: 56px; background: #fff; border-bottom: 1px solid var(--gray-200);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--qy-space-5); }
+    .page-title { font-size: var(--qy-font-size-20); font-weight: var(--qy-font-weight-bold); color: var(--qy-text-primary); }
+    .page-header-actions { display: flex; gap: var(--qy-space-3); }
+
+    /* Button refinements */
+    .qy-btn { transition: all var(--qy-transition-fast); }
+    .qy-btn:active:not(:disabled) { transform: scale(0.98); }
+    .qy-btn--primary { box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2); }
+    .qy-btn--primary:hover:not(:disabled) { box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
+    .qy-btn--secondary { border-color: var(--qy-border-light); }
+    .qy-btn--secondary:hover:not(:disabled) { border-color: var(--qy-border-medium); color: var(--qy-text-primary); }
+    .qy-btn svg { flex-shrink: 0; }
+    .page-header-actions .qy-btn svg { width: 15px; height: 15px; }
+
+    /* Table Row Actions (from qingyang-design-system) */
+    .qy-table__actions { white-space: nowrap; text-align: center; }
+    .qy-table__actions > * + * { margin-left: var(--qy-space-2); }
+    .qy-btn-action { display: inline-flex; align-items: center; height: 24px; padding: 0 var(--qy-space-3); font-size: var(--qy-font-size-sm); font-weight: var(--qy-font-weight-medium); border: 1px solid; border-radius: var(--qy-radius-full); cursor: pointer; transition: all var(--qy-transition-fast); }
+    .qy-btn-action:hover { filter: brightness(0.95); }
+    .qy-btn-action--text { background: transparent; border-color: transparent; color: var(--qy-primary-500); }
+    .qy-btn-action--text:hover { background: var(--qy-primary-50); color: var(--qy-primary-600); }
+    .qy-btn-action--error { background: var(--qy-error-50); border-color: var(--qy-error-200); color: var(--qy-error-600); }
+    .qy-btn-action:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+
+    /* Page header action buttons — refined enterprise style */
+    .page-header-actions .qy-btn--primary {
+      background: var(--qy-color-primary); color: white; border: none; font-weight: var(--qy-font-weight-medium);
+      border-radius: var(--qy-radius-lg); padding: 0 16px; height: 34px; font-size: var(--qy-font-size-13);
+      letter-spacing: 0.01em; box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
     }
-    .topbar-breadcrumb { font-size: 13px; color: var(--gray-500); }
-    .topbar-user { font-size: 13px; color: var(--gray-600); }
-    .content-area { flex: 1; padding: 32px; }
+    .page-header-actions .qy-btn--primary:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35); background: var(--qy-primary-600); }
+    .page-header-actions .qy-btn--secondary {
+      background: white; color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-radius-lg); padding: 0 14px; height: 34px; font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium);
+    }
+    .page-header-actions .qy-btn--secondary:hover:not(:disabled) { border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50); }
+    .page-header-actions .qy-btn--sm svg { width: 14px; height: 14px; }
+    .page-header-actions .qy-btn svg { margin-right: 6px; }
+
+    /* Card Container */
+    .table-card { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); box-shadow: var(--qy-shadow-sm); display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Filter bar */
+    .filter-bar { padding: var(--qy-space-4) var(--qy-space-5); border-bottom: 1px solid var(--qy-border-light); display: flex; align-items: center; gap: var(--qy-space-4); flex-wrap: wrap; background: var(--qy-bg-primary); }
+    .filter-input-wrap { position: relative; display: inline-flex; align-items: center; }
+    .filter-input-wrap svg { position: absolute; left: var(--qy-space-3); color: var(--qy-text-muted); pointer-events: none; }
+    .filter-input { height: var(--qy-input-height-md); padding: 0 var(--qy-space-3) 0 32px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-13); width: 220px; background: var(--qy-input-bg); transition: var(--qy-transition-fast); }
+    .filter-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .filter-select { height: var(--qy-input-height-md); padding: 0 var(--qy-space-8) 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-13); background: var(--qy-input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--qy-space-2) center; appearance: none; cursor: pointer; color: var(--qy-text-secondary); transition: var(--qy-transition-fast); }
+    .filter-select:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .filter-count { font-size: var(--qy-font-size-13); color: var(--qy-text-muted); margin-left: auto; }
+    .filter-count strong { color: var(--qy-text-primary); font-weight: var(--qy-font-weight-medium); }
+
+    /* Batch bar */
+    .batch-bar { padding: var(--qy-space-2) var(--qy-space-5); background: var(--qy-primary-50); border-bottom: 1px solid var(--qy-primary-100); display: none; align-items: center; gap: var(--qy-space-4); font-size: var(--qy-font-size-13); color: var(--qy-primary-700); animation: slideDown 0.2s ease-out; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .batch-bar.show { display: flex; }
+    .batch-bar .batch-count { font-weight: var(--qy-font-weight-bold); color: var(--qy-primary-600); }
+    .batch-bar .qy-btn--text { background: transparent; border: none; padding: 4px 10px; font-size: var(--qy-font-size-13); color: var(--qy-primary-600); cursor: pointer; border-radius: var(--qy-radius-sm); transition: all var(--qy-transition-fast); font-weight: var(--qy-font-weight-medium); }
+    .batch-bar .qy-btn--text:hover { background: var(--qy-primary-100); color: var(--qy-primary-700); }
+    .batch-bar .qy-btn--text.danger { color: var(--qy-color-error); }
+    .batch-bar .qy-btn--text.danger:hover { background: var(--qy-error-50); color: var(--qy-error-700); }
+
+    /* Table */
+    .table-container { overflow-x: auto; }
+    .field-table { width: 100%; border-collapse: collapse; font-size: var(--qy-font-size-13); text-align: left; }
+    .field-table th { background: var(--qy-gray-50); padding: 12px 16px; font-weight: var(--qy-font-weight-semibold); color: var(--qy-text-secondary); border-bottom: 1px solid var(--qy-border-light); white-space: nowrap; }
+    .field-table td { padding: 12px 16px; border-bottom: 1px solid var(--qy-border-light); color: var(--qy-text-primary); vertical-align: middle; }
+    .field-table tbody tr { transition: background var(--qy-transition-fast); }
+    .field-table tbody tr:hover td { background: var(--qy-gray-50); }
+    .field-table tbody tr.dragging { opacity: 0.5; background: var(--qy-primary-50); }
+    
+    .field-table th.col-center, .field-table td.col-center { text-align: center; }
+
+    .drag-handle { cursor: grab; color: var(--qy-text-muted); display: inline-flex; padding: 4px; border-radius: 4px; opacity: 0.3; transition: all var(--qy-transition-fast); }
+    .field-table tbody tr:hover .drag-handle { opacity: 1; }
+    .drag-handle:hover { background: var(--qy-gray-200); color: var(--qy-text-secondary); }
+    .drag-handle:active { cursor: grabbing; background: var(--qy-gray-300); }
+
+    .code-badge { background: var(--qy-gray-100); color: var(--qy-text-secondary); padding: 2px 6px; border-radius: 4px; font-family: var(--qy-font-mono); font-size: 12px; border: 1px solid var(--qy-border-light); }
+
+    /* Tags */
+    .tag { display: inline-block; padding: 2px var(--qy-space-2); border-radius: var(--qy-radius-full); font-size: var(--qy-font-size-11); font-weight: var(--qy-font-weight-medium); }
+    .tag--blue { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .tag--green { background: var(--qy-success-50); color: var(--qy-success-600); }
+    .tag--purple { background: #ede9fe; color: #7c3aed; }
+    .tag--amber { background: #fef3c7; color: #d97706; }
+    .tag--pink { background: #fce7f3; color: #db2777; }
+    .tag--cyan { background: #cffafe; color: #0891b2; }
+    .tag--gray { background: var(--qy-gray-100); color: var(--qy-text-secondary); border: 1px solid var(--qy-border-light); }
+
+    .ref-badge { display: inline-flex; align-items: center; gap: var(--qy-space-1); font-size: var(--qy-font-size-11); color: var(--qy-text-muted); cursor: pointer; }
+    .ref-badge:hover { color: var(--qy-color-primary); }
+
+    .sort-num { width: 28px; height: 28px; text-align: center; border: 1px solid transparent; border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-13); background: none; color: var(--qy-text-muted); cursor: pointer; }
+    .sort-num:hover { border-color: var(--qy-border-medium); color: var(--qy-text-primary); }
+    .sort-num:focus { outline: none; border-color: var(--qy-color-primary); color: var(--qy-text-primary); }
+
+    /* Options builder */
+    .options-builder { border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); padding: var(--qy-space-3); background: var(--qy-gray-50); }
+    .option-row { display: flex; align-items: center; gap: var(--qy-space-2); margin-bottom: var(--qy-space-2); }
+    .option-row:last-child { margin-bottom: 0; }
+    .option-row .opt-input { flex: 1; height: 32px; padding: 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-13); background: var(--qy-bg-primary); transition: var(--qy-transition-fast); }
+    .option-row .opt-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .option-remove { width: 32px; height: 32px; border: none; background: none; color: var(--qy-text-muted); cursor: pointer; border-radius: var(--qy-radius-sm); display: flex; align-items: center; justify-content: center; transition: var(--qy-transition-fast); }
+    .option-remove:hover { background: var(--qy-error-50); color: var(--qy-color-error); }
+    .add-option-btn { width: 100%; height: 32px; border: 1px dashed var(--qy-border-medium); border-radius: var(--qy-radius-md); background: var(--qy-bg-primary); color: var(--qy-text-secondary); cursor: pointer; font-size: var(--qy-font-size-13); margin-top: var(--qy-space-2); transition: var(--qy-transition-fast); display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .add-option-btn:hover { border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50); }
+
+    /* Category Multi-select (Drawer) */
+    .category-selector { display: flex; flex-direction: column; gap: var(--qy-space-2); }
+    .category-tags { display: flex; flex-wrap: wrap; gap: var(--qy-space-2); }
+    .category-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: var(--qy-gray-100); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-sm); font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .category-tag .remove-cat { cursor: pointer; color: var(--qy-text-muted); display: inline-flex; align-items: center; justify-content: center; border-radius: var(--qy-radius-full); margin-right: -4px; padding: 2px; }
+    .category-tag .remove-cat:hover { color: var(--qy-color-error); background: var(--qy-error-50); }
+    .category-input-wrap { position: relative; }
+    .category-input-wrap .form-input { padding-right: 30px; }
+    .category-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); box-shadow: var(--qy-shadow-lg); z-index: 10; max-height: 200px; overflow-y: auto; display: none; }
+    .category-dropdown.show { display: block; }
+    .category-option { padding: 8px 12px; font-size: var(--qy-font-size-13); cursor: pointer; color: var(--qy-text-primary); display: flex; justify-content: space-between; align-items: center; }
+    .category-option:hover { background: var(--qy-bg-secondary); }
+    .category-option.is-selected { color: var(--qy-color-primary); background: var(--qy-primary-50); font-weight: var(--qy-font-weight-medium); }
+    .category-option.create-new { color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); border-top: 1px dashed var(--qy-border-light); }
+    .form-group { margin-bottom: var(--qy-space-4); }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); font-weight: var(--qy-font-weight-medium); margin-bottom: var(--qy-space-2); }
+    .form-label .req { color: var(--qy-color-error); margin-right: var(--qy-space-1); }
+    .form-input { height: var(--qy-input-height-lg); padding: 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; background: var(--qy-input-bg); transition: var(--qy-transition-fast); }
+    .form-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-input.disabled { background: var(--qy-bg-tertiary); color: var(--qy-text-disabled); cursor: not-allowed; }
+    .form-input.has-error { border-color: var(--qy-color-error); }
+    .form-input.has-error:focus { box-shadow: 0 0 0 3px var(--qy-error-100); }
+    .form-select { height: var(--qy-input-height-lg); padding: 0 var(--qy-space-8) 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; background: var(--qy-input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--qy-space-3) center; appearance: none; cursor: pointer; transition: var(--qy-transition-fast); }
+    .form-select:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-textarea { padding: var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; min-height: 60px; resize: vertical; font-family: var(--qy-font-primary); transition: var(--qy-transition-fast); }
+    .form-textarea:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-textarea.has-error { border-color: var(--qy-color-error); }
+    .form-hint { font-size: var(--qy-font-size-12); color: var(--qy-text-muted); margin-top: var(--qy-space-1); }
+    .form-error { font-size: var(--qy-font-size-12); color: var(--qy-color-error); margin-top: var(--qy-space-1); display: none; }
+    .form-error.show { display: block; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--qy-space-4); }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--qy-space-4); }
+
+    /* Empty State */
+    .qy-empty { padding: 60px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .qy-empty__icon { width: 64px; height: 64px; color: var(--qy-text-disabled); margin-bottom: var(--qy-space-4); }
+    .qy-empty__title { font-size: var(--qy-font-size-15); font-weight: var(--qy-font-weight-medium); color: var(--qy-text-primary); margin-bottom: var(--qy-space-2); }
+    .qy-empty__description { font-size: var(--qy-font-size-13); color: var(--qy-text-muted); margin-bottom: var(--qy-space-5); max-width: 300px; line-height: 1.5; }
+
+    /* Modal overrides for our custom modals */
+    .modal-overlay { position: fixed; inset: 0; background: var(--qy-modal-overlay); z-index: var(--qy-z-modal); display: none; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: var(--qy-bg-primary); border-radius: var(--qy-modal-radius); width: var(--qy-modal-max-width-md); max-height: 85vh; display: flex; flex-direction: column; box-shadow: var(--qy-modal-shadow); }
+    .modal-box.sm { width: var(--qy-modal-max-width-sm); }
+    .modal-header { padding: var(--qy-space-5); border-bottom: 1px solid var(--qy-border-light); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: var(--qy-font-size-16); font-weight: var(--qy-font-weight-semibold); }
+    .modal-close { background: none; border: none; font-size: var(--qy-font-size-20); cursor: pointer; color: var(--qy-text-muted); padding: var(--qy-space-1); }
+    .modal-close:hover { color: var(--qy-text-primary); }
+    .modal-body { padding: var(--qy-space-5); overflow-y: auto; }
+    .modal-footer { padding: var(--qy-space-4) var(--qy-space-5); border-top: 1px solid var(--qy-border-light); display: flex; justify-content: flex-end; gap: var(--qy-space-3); }
+
+    /* Modal / Drawer footer button styling */
+    .modal-footer .qy-btn, .qy-drawer__footer .qy-btn {
+      border-radius: var(--qy-radius-lg); padding: 0 18px; height: 36px; font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium); letter-spacing: 0.01em; transition: all var(--qy-transition-fast);
+    }
+    .modal-footer .qy-btn--secondary, .qy-drawer__footer .qy-btn--secondary {
+      background: white; color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium);
+    }
+    .modal-footer .qy-btn--secondary:hover:not(:disabled), .qy-drawer__footer .qy-btn--secondary:hover:not(:disabled) {
+      border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50);
+    }
+    .modal-footer .qy-btn--primary, .qy-drawer__footer .qy-btn--primary {
+      background: var(--qy-color-primary); color: white; border: none;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    }
+    .modal-footer .qy-btn--primary:hover:not(:disabled), .qy-drawer__footer .qy-btn--primary:hover:not(:disabled) {
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35); background: var(--qy-primary-600);
+    }
+    .modal-footer .qy-btn--danger, .qy-drawer__footer .qy-btn--danger {
+      background: var(--qy-color-error); color: white; border: none;
+      box-shadow: 0 1px 3px rgba(225, 29, 72, 0.25);
+    }
+    .modal-footer .qy-btn--danger:hover:not(:disabled), .qy-drawer__footer .qy-btn--danger:hover:not(:disabled) {
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35); background: var(--qy-error-600);
+    }
+
+    .confirm-icon { width: 48px; height: 48px; border-radius: var(--qy-radius-full); background: var(--qy-error-50); color: var(--qy-color-error); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--qy-space-4); }
+    .confirm-text { font-size: var(--qy-font-size-15); color: var(--qy-text-primary); }
+    .confirm-sub { font-size: var(--qy-font-size-13); color: var(--qy-text-muted); margin-top: var(--qy-space-1); }
+
+    /* Toast */
+    .toast-container { position: fixed; top: var(--qy-space-6); left: 50%; transform: translateX(-50%); z-index: var(--qy-z-toast); display: flex; flex-direction: column; gap: var(--qy-space-2); pointer-events: none; }
+    .toast { padding: var(--qy-message-padding-y) var(--qy-message-padding-x); border-radius: var(--qy-message-radius); font-size: var(--qy-font-size-14); font-weight: var(--qy-font-weight-medium); color: var(--qy-text-inverse); background: var(--qy-color-primary); box-shadow: var(--qy-message-shadow); pointer-events: auto; min-width: 200px; text-align: center; animation: toastIn var(--qy-duration-normal) var(--qy-ease-out); }
+    .toast.success { background: var(--qy-color-success); }
+    .toast.info { background: var(--qy-color-primary); }
+    .toast.warning { background: var(--qy-color-warning); }
+    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .btn .spinner { width: var(--qy-space-4); height: var(--qy-space-4); border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: var(--qy-radius-full); animation: spin 600ms linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
-      <ul class="sidebar-nav">
-        <li class="sidebar-nav-item">📋 薪资档案</li>
-        <li class="sidebar-nav-item active">
-          🛡️ 保险福利
-          <ul class="sidebar-nav-sub">
-            <li>保险台账</li>
-            <li class="active">参保规则</li>
-            <li>二级户</li>
-            <li>员工参保档案</li>
-            <li>保险福利核算</li>
-            <li>保险分组</li>
-            <li>险种配置</li>
-          </ul>
-        </li>
-        <li class="sidebar-nav-item">📝 异动申报</li>
-        <li class="sidebar-nav-item">📊 报表</li>
-      </ul>
-    </aside>
 
-    <!-- Main -->
-    <div class="main-content">
-      <div class="topbar">
-        <div class="topbar-breadcrumb">保险福利 / 参保规则 / 配置</div>
-        <div class="topbar-user">管理员</div>
-      </div>
-      <div class="content-area">
-        <!-- Page Header -->
-        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 28px;">
-          <button style="padding: 8px 16px; background: white; border: 1px solid var(--gray-200); border-radius: var(--radius-md); cursor: pointer; font-size: 13px; color: var(--gray-600); display: flex; align-items: center; gap: 6px;">
-            &larr; 返回
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">薪资档案</li>
+      <li class="sidebar-nav-item active"><span>保险福利</span></li>
+      <li class="sidebar-nav-sub">
+        <div class="sidebar-nav-item">保险台账</div>
+        <div class="sidebar-nav-item">参保规则</div>
+        <div class="sidebar-nav-item">二级户</div>
+        <div class="sidebar-nav-item">员工参保档案</div>
+        <div class="sidebar-nav-item active" style="color:var(--qy-color-primary)">全局字段配置</div>
+        <div class="sidebar-nav-item">保险福利核算</div>
+        <div class="sidebar-nav-item">保险分组</div>
+        <div class="sidebar-nav-item">险种配置</div>
+      </li>
+      <li class="sidebar-nav-item">异动申报</li>
+      <li class="sidebar-nav-item">报表</li>
+    </ul>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">保险福利 / 全局字段配置</div>
+      <div class="topbar-user">管理员</div>
+    </div>
+    <div class="content-area">
+      <div class="page-header">
+        <h1 class="page-title">全局字段配置</h1>
+        <div class="page-header-actions">
+          <button class="qy-btn qy-btn--primary qy-btn--sm" onclick="openAddDrawer()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M12 5v14M5 12h14"/></svg>
+            新增字段
           </button>
-          <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-900);">配置社保参保规则</h2>
+        </div>
+      </div>
+
+      <div class="table-card" id="mainGroup">
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div class="filter-input-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input class="filter-input" placeholder="搜索字段名称或编码..." id="searchInput" oninput="renderTable()">
+          </div>
+          <select class="filter-select" id="filter-category" onchange="renderTable()">
+            <option value="">全部分类</option>
+            <!-- Categories will be injected here -->
+          </select>
+          <select class="filter-select" id="filter-type" onchange="renderTable()">
+            <option value="">全部类型</option>
+            <option value="text">文本</option>
+            <option value="number">数值</option>
+            <option value="date">日期</option>
+            <option value="file">附件</option>
+            <option value="photo">照片</option>
+            <option value="select">下拉选择</option>
+          </select>
+          <select class="filter-select" id="filter-source" onchange="renderTable()">
+            <option value="">全部来源</option>
+            <option value="AUTO">员工档案</option>
+            <option value="MANUAL">手动填写</option>
+          </select>
+          <span class="filter-count">显示 <strong id="show-count">0</strong> / <strong id="total-count">0</strong> 个字段</span>
         </div>
 
-        <!-- Tab Navigation -->
-        <div style="display: flex; border-bottom: 2px solid var(--gray-200); margin-bottom: 24px;">
-          <div class="config-tab active" data-tab="basic" onclick="switchTab('basic')">基本信息</div>
-          <div class="config-tab" data-tab="insurance" onclick="switchTab('insurance')">参保险种</div>
-          <div class="config-tab" data-tab="rules" onclick="switchTab('rules')">规则配置</div>
-          <div class="config-tab new" data-tab="collection" onclick="switchTab('collection')">
-            <span style="background: var(--primary); color: white; padding: 1px 8px; border-radius: 4px; font-size: 10px; margin-right: 6px; font-weight: 600;">NEW</span>
-            字段采集配置
-          </div>
+        <!-- Batch bar -->
+        <div class="batch-bar" id="batchBar">
+          <input type="checkbox" id="batchCheckAll" onchange="toggleBatchAll(this.checked)" style="accent-color:var(--qy-color-primary);">
+          <span>已选 <span class="batch-count" id="batchCount">0</span> 项</span>
+          <button class="qy-btn--text danger" onclick="batchDeleteSelected()">批量删除</button>
+          <button class="qy-btn--text" onclick="clearBatch()" style="margin-left:auto;">取消选择</button>
         </div>
 
-        <style>
-          .config-tab {
-            padding: 12px 20px; cursor: pointer; font-size: 14px; color: var(--gray-500);
-            border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 150ms;
-            font-weight: 500;
-          }
-          .config-tab:hover { color: var(--gray-700); }
-          .config-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
-          .config-tab.new { color: var(--primary); }
-        </style>
-
-        <!-- Tab: Basic Info -->
-        <div class="tab-panel" id="panel-basic">
-          <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; margin-bottom: 20px;">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--gray-100);">基本信息</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-              <div>
-                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 规则名称</label>
-                <input type="text" value="二级户专属社保规则" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px;">
-              </div>
-              <div>
-                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 所属组织</label>
-                <input type="text" value="2046892568145866753" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
-              </div>
-              <div>
-                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 生效月份</label>
-                <input type="text" value="2026-05" style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px;">
-              </div>
-              <div>
-                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 规则编码</label>
-                <input type="text" value="EJH20260427" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
-              </div>
-              <div>
-                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 参保地区</label>
-                <input type="text" value="云南省 / 昭通市 / 巧家县" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
-              </div>
-              <div>
-                <label style="font-size: 13px; color: var(--gray-600); font-weight: 500; display: block; margin-bottom: 6px;"><span style="color: var(--error);">*</span> 负责人</label>
-                <input type="text" value="于佳" disabled style="width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); font-size: 14px; background: var(--gray-50); color: var(--gray-400);">
-              </div>
-            </div>
-          </div>
+        <!-- Table -->
+        <div class="table-container">
+          <table class="field-table">
+            <thead>
+              <tr>
+                <th style="width: 48px;"><input type="checkbox" id="checkAll" onchange="toggleCheckAll(this.checked)" style="accent-color:var(--qy-color-primary);"></th>
+                <th class="col-center" style="width: 60px;">排序</th>
+                <th style="width: 180px;">字段编码</th>
+                <th>字段名称</th>
+                <th style="width: 160px;">分类</th>
+                <th style="width: 100px;">类型</th>
+                <th style="width: 120px;">值来源</th>
+                <th>自动获取路径</th>
+                <th class="col-center" style="width: 80px;">引用</th>
+                <th class="qy-table__actions" style="width: 140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
         </div>
-
-        <!-- Tab: Insurance Types -->
-        <div class="tab-panel" id="panel-insurance" style="display: none;">
-          <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; margin-bottom: 20px;">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 16px;">参保险种</h3>
-            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-              <thead>
-                <tr style="border-bottom: 2px solid var(--gray-200);">
-                  <th style="text-align: left; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">险种名称</th>
-                  <th style="text-align: left; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">编码</th>
-                  <th style="text-align: center; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">单位比例</th>
-                  <th style="text-align: center; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">个人比例</th>
-                  <th style="text-align: center; padding: 10px 12px; color: var(--gray-500); font-weight: 500;">基数范围</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">养老保险</td><td style="padding: 10px 12px;">001</td><td style="text-align: center;">15%</td><td style="text-align: center;">8%</td><td style="text-align: center;">4357 - 21789</td></tr>
-                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">医疗保险</td><td style="padding: 10px 12px;">002</td><td style="text-align: center;">8%</td><td style="text-align: center;">2%</td><td style="text-align: center;">4357 - 21789</td></tr>
-                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">工伤保险</td><td style="padding: 10px 12px;">003</td><td style="text-align: center;">0.4%</td><td style="text-align: center;">0%</td><td style="text-align: center;">4357 - 21789</td></tr>
-                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">失业保险</td><td style="padding: 10px 12px;">004</td><td style="text-align: center;">0.7%</td><td style="text-align: center;">0.3%</td><td style="text-align: center;">4357 - 21789</td></tr>
-                <tr style="border-bottom: 1px solid var(--gray-100);"><td style="padding: 10px 12px;">生育保险</td><td style="padding: 10px 12px;">005</td><td style="text-align: center;">0.8%</td><td style="text-align: center;">0%</td><td style="text-align: center;">4357 - 21789</td></tr>
-                <tr><td style="padding: 10px 12px;">大病险种</td><td style="padding: 10px 12px;">007</td><td style="text-align: center;">固定240</td><td style="text-align: center;">固定100</td><td style="text-align: center;">4357 - 21789</td></tr>
-              </tbody>
-            </table>
-          </div>
+        
+        <div class="qy-empty" id="emptyState" style="display:none;">
+          <svg class="qy-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v4M12 16h.01"/></svg>
+          <div class="qy-empty__title">暂无字段配置</div>
+          <div class="qy-empty__description" id="emptyMsg">点击下方按钮开始配置全局字段，建立您的保险福利字段字典。</div>
+          <button class="qy-btn qy-btn--primary" onclick="openAddDrawer()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><path d="M12 5v14M5 12h14"/></svg>
+            新增字段
+          </button>
         </div>
-
-        <!-- Tab: Rules -->
-        <div class="tab-panel" id="panel-rules" style="display: none;">
-          <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; margin-bottom: 20px;">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--gray-800); margin-bottom: 16px;">规则配置</h3>
-            <div style="display: flex; flex-direction: column; gap: 16px;">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 13px; color: var(--gray-600); min-width: 140px;">新参保强制参保险种:</span>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox" checked> 养老保险</label>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox" checked> 医疗保险</label>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox"> 工伤保险</label>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox"> 失业保险</label>
-                <label style="display: flex; align-items: center; gap: 6px; font-size: 13px;"><input type="checkbox"> 生育保险</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab: Field Collection Config -->
-        <div class="tab-panel" id="panel-collection" style="display: none;">
-          <!-- Operation type buttons -->
-          <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-            <button class="op-btn active" data-op="add" onclick="switchOp('add')">增员</button>
-            <button class="op-btn" data-op="remove" onclick="switchOp('remove')">减员</button>
-            <button class="op-btn" data-op="adjust" onclick="switchOp('adjust')">调基</button>
-            <button class="op-btn" data-op="supplement" onclick="switchOp('supplement')">补缴</button>
-          </div>
-
-          <style>
-            .op-btn {
-              padding: 8px 20px; border: 1px solid var(--gray-200); border-radius: var(--radius-md);
-              background: white; color: var(--gray-600); font-size: 13px; cursor: pointer;
-              transition: all 150ms; font-weight: 500;
-            }
-            .op-btn:hover { border-color: var(--gray-300); color: var(--gray-800); }
-            .op-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-          </style>
-
-          <!-- Field list panel for ADD -->
-          <div class="op-panel" id="op-add">
-            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); overflow: hidden;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                <thead>
-                  <tr style="background: var(--gray-50); border-bottom: 2px solid var(--gray-200);">
-                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 60px;">排序</th>
-                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500;">字段名称</th>
-                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 100px;">字段类型</th>
-                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 120px;">值来源</th>
-                    <th style="text-align: center; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 70px;">必填</th>
-                    <th style="text-align: left; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 140px;">校验规则</th>
-                    <th style="text-align: center; padding: 12px 16px; color: var(--gray-500); font-weight: 500; width: 80px;">操作</th>
-                  </tr>
-                </thead>
-                <tbody id="field-table-body">
-                  <!-- Rows rendered by JS -->
-                </tbody>
-              </table>
-            </div>
-            <button onclick="openFieldPicker()" style="margin-top: 16px; width: 100%; padding: 12px; background: white; border: 1px dashed var(--primary); border-radius: var(--radius-md); color: var(--primary); font-size: 14px; cursor: pointer; font-weight: 500;">
-              + 添加字段
-            </button>
-          </div>
-
-          <!-- Empty panels for other ops -->
-          <div class="op-panel" id="op-remove" style="display: none;">
-            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 48px; text-align: center;">
-              <div style="font-size: 36px; margin-bottom: 12px; color: var(--gray-300);">&#128203;</div>
-              <div style="font-size: 14px; color: var(--gray-400);">减员操作暂未配置采集字段</div>
-              <button onclick="switchOp('add')" style="margin-top: 16px; padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-size: 13px;">前往增员配置</button>
-            </div>
-          </div>
-          <div class="op-panel" id="op-adjust" style="display: none;">
-            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 48px; text-align: center;">
-              <div style="font-size: 36px; margin-bottom: 12px; color: var(--gray-300);">&#128203;</div>
-              <div style="font-size: 14px; color: var(--gray-400);">调基操作暂未配置采集字段</div>
-            </div>
-          </div>
-          <div class="op-panel" id="op-supplement" style="display: none;">
-            <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 48px; text-align: center;">
-              <div style="font-size: 36px; margin-bottom: 12px; color: var(--gray-300);">&#128203;</div>
-              <div style="font-size: 14px; color: var(--gray-400);">补缴操作暂未配置采集字段</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </div>
-    // ========== Tab switching ==========
-    function switchTab(tabId) {
-      document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
-      document.querySelector(`.config-tab[data-tab="${tabId}"]`).classList.add('active');
-      document.getElementById(`panel-${tabId}`).style.display = '';
+</div>
+
+<!-- ===== Drawer: Add/Edit Field ===== -->
+<div class="qy-drawer qy-drawer--right" id="fieldDrawer">
+  <div class="qy-drawer__overlay" onclick="closeDrawer()"></div>
+  <div class="qy-drawer__container">
+    <div class="qy-drawer__header">
+      <span class="qy-drawer__title" id="drawerTitle">新增字段</span>
+      <button class="qy-drawer__close" onclick="closeDrawer()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="qy-drawer__body">
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label"><span class="req">*</span> 字段编码</label>
+          <input class="form-input" id="f-code" placeholder="如 contract_attachment">
+          <div class="form-hint" id="codeHint">英文下划线命名，创建后不可修改</div>
+          <div class="form-error" id="codeError">字段编码已存在</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="req">*</span> 字段名称</label>
+          <input class="form-input" id="f-name" placeholder="如 合同附件">
+          <div class="form-error" id="nameError">请输入字段名称</div>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label"><span class="req">*</span> 字段类型</label>
+          <select class="form-select" id="f-type" onchange="onTypeChange()">
+            <option value="text">文本</option>
+            <option value="number">数值</option>
+            <option value="date">日期</option>
+            <option value="file">附件</option>
+            <option value="photo">照片</option>
+            <option value="select">下拉选择</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="req">*</span> 值来源</label>
+          <select class="form-select" id="f-source" onchange="onSourceChange()">
+            <option value="MANUAL">手动填写</option>
+            <option value="AUTO">员工档案自动获取</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">字段分类</label>
+        <div class="category-selector">
+          <div class="category-tags" id="f-category-tags"></div>
+          <div class="category-input-wrap" id="f-category-wrap">
+            <input class="form-input" id="f-category-input" placeholder="搜索或输入后回车创建新分类" autocomplete="off" oninput="onCategoryInput()" onfocus="showCategoryDropdown()" onkeydown="onCategoryKeyDown(event)">
+            <svg style="position:absolute; right:8px; top:10px; color:var(--qy-text-muted); pointer-events:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            <div class="category-dropdown" id="f-category-dropdown"></div>
+          </div>
+        </div>
+        <div class="form-hint">支持多选，未找到的分类可直接输入后按回车创建</div>
+      </div>
+      <div class="form-group" id="grp-path" style="display:none;">
+        <label class="form-label">自动获取路径</label>
+        <input class="form-input" id="f-path" placeholder="如 employee.contract.startDate">
+        <div class="form-hint">员工档案中的字段路径，用于自动填充值</div>
+        <div class="form-error" id="pathError">自动获取字段需填写获取路径</div>
+      </div>
+      <div class="form-group" id="grp-options" style="display:none;">
+        <label class="form-label">选项配置</label>
+        <div class="options-builder" id="optionsBuilder">
+          <div id="optionList"></div>
+          <button class="add-option-btn" onclick="addOptionRow()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            添加选项
+          </button>
+        </div>
+        <div class="form-hint">下拉选择时的可选项，至少配置一项</div>
+        <div class="form-error" id="optionsError">下拉字段需至少配置一个选项</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">字段说明</label>
+        <textarea class="form-textarea" id="f-desc" placeholder="字段用途说明..."></textarea>
+      </div>
+    </div>
+    <div class="qy-drawer__footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取消</button>
+      <button class="qy-btn qy-btn--primary" id="saveBtn" onclick="saveField()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Delete Confirm ===== -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>确认删除</h3><button class="modal-close" onclick="closeDeleteModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body" style="text-align:center;">
+      <div class="confirm-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      </div>
+      <div class="confirm-text" id="deleteMsg">确定要删除该字段吗？</div>
+      <div class="confirm-sub" id="deleteSub">已被引用的字段不允许删除</div>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeDeleteModal()">取消</button>
+      <button class="qy-btn qy-btn--danger" id="confirmDeleteBtn" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Reference Detail ===== -->
+<div class="modal-overlay" id="refModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>引用详情</h3><button class="modal-close" onclick="closeRefModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:var(--qy-space-3);font-size:var(--qy-font-size-13);color:var(--qy-text-secondary);">字段「<strong id="refFieldName"></strong>」被以下参保规则引用：</div>
+      <table style="width:100%;font-size:var(--qy-font-size-13);border-collapse:collapse;">
+        <thead><tr style="border-bottom:1px solid var(--qy-border-light);"><th style="text-align:left;padding:var(--qy-space-2);color:var(--qy-text-muted);">规则名称</th><th style="text-align:left;padding:var(--qy-space-2);color:var(--qy-text-muted);">操作类型</th></tr></thead>
+        <tbody id="refTableBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeRefModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========== Data ==========
+let categories = [
+  { id: 1, name: '基础信息' },
+  { id: 2, name: '合同与用工' },
+  { id: 3, name: '社保公积金' },
+  { id: 4, name: '财务与银行' }
+];
+let nextCategoryId = 5;
+
+const fieldReferences = {
+  1: [{ rule: '云南省社保规则', op: '增员' }, { rule: '北京市社保规则', op: '增员' }],
+  2: [{ rule: '云南省社保规则', op: '增员' }],
+  4: [{ rule: '云南省社保规则', op: '增员' }],
+  6: [{ rule: '云南省社保规则', op: '增员' }, { rule: '上海市社保规则', op: '增员' }],
+};
+
+let fields = [
+  { id: 1, code: 'contract_attachment', name: '合同附件', type: 'file', source: 'MANUAL', path: '', options: [], desc: '劳动合同扫描件附件', categoryIds: [2] },
+  { id: 2, code: 'contract_start_date', name: '合同开始日期', type: 'date', source: 'AUTO', path: 'employee.contract.startDate', options: [], desc: '劳动合同生效日期', categoryIds: [2] },
+  { id: 3, code: 'contract_end_date', name: '合同结束日期', type: 'date', source: 'AUTO', path: 'employee.contract.endDate', options: [], desc: '劳动合同到期日期', categoryIds: [2] },
+  { id: 4, code: 'id_card_front', name: '身份证正面', type: 'photo', source: 'MANUAL', path: '', options: [], desc: '身份证正面照片', categoryIds: [1] },
+  { id: 5, code: 'id_card_back', name: '身份证反面', type: 'photo', source: 'MANUAL', path: '', options: [], desc: '身份证国徽面照片', categoryIds: [1] },
+  { id: 6, code: 'household_type', name: '户籍类型', type: 'select', source: 'AUTO', path: 'employee.household.type', options: [{label:'城镇户口',value:'urban'},{label:'农村户口',value:'rural'}], desc: '员工户籍性质分类', categoryIds: [1, 3] },
+  { id: 7, code: 'household_address', name: '户籍地址', type: 'text', source: 'AUTO', path: 'employee.household.address', options: [], desc: '员工户籍所在地详细地址', categoryIds: [1] },
+  { id: 8, code: 'social_security_card', name: '社保卡号', type: 'text', source: 'AUTO', path: 'employee.socialSecurity.cardNo', options: [], desc: '社会保障卡卡号', categoryIds: [3] },
+  { id: 9, code: 'bank_account', name: '银行账号', type: 'text', source: 'AUTO', path: 'employee.bankAccount.no', options: [], desc: '员工工资卡银行账号', categoryIds: [4] },
+  { id: 10, code: 'marriage_status', name: '婚姻状况', type: 'select', source: 'AUTO', path: 'employee.basic.marriageStatus', options: [{label:'未婚',value:'single'},{label:'已婚',value:'married'},{label:'离异',value:'divorced'},{label:'丧偶',value:'widowed'}], desc: '员工婚姻状态', categoryIds: [1] },
+  { id: 11, code: 'emergency_contact', name: '紧急联系人', type: 'text', source: 'AUTO', path: 'employee.emergency.name', options: [], desc: '紧急联系人姓名', categoryIds: [1] },
+  { id: 12, code: 'emergency_phone', name: '紧急联系电话', type: 'text', source: 'AUTO', path: 'employee.emergency.phone', options: [], desc: '紧急联系人电话号码', categoryIds: [1] },
+];
+let nextId = 13;
+let editingId = null;
+let deleteTargetId = null;
+let selectedIds = new Set();
+let dragId = null;
+let currentCategoryIds = [];
+
+const typeLabels = { text: '文本', number: '数值', date: '日期', file: '附件', photo: '照片', select: '下拉' };
+const typeTagClasses = { text: 'tag--blue', number: 'tag--purple', date: 'tag--green', file: 'tag--amber', photo: 'tag--pink', select: 'tag--cyan' };
+const sourceLabels = { AUTO: '员工档案', MANUAL: '手动填写' };
+const sourceTagClasses = { AUTO: 'tag--green', MANUAL: 'tag--amber' };
+
+// ========== Render ==========
+function renderCategoriesFilter() {
+  const select = document.getElementById('filter-category');
+  const currentVal = select.value;
+  select.innerHTML = '<option value="">全部分类</option>' + 
+    categories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  select.value = currentVal;
+}
+
+function renderTable() {
+  const keyword = document.getElementById('searchInput').value.toLowerCase();
+  const filterSource = document.getElementById('filter-source').value;
+  const filterType = document.getElementById('filter-type').value;
+  const filterCategory = document.getElementById('filter-category').value;
+
+  const filtered = fields.filter(f => {
+    if (keyword && !f.name.toLowerCase().includes(keyword) && !f.code.toLowerCase().includes(keyword)) return false;
+    if (filterSource && f.source !== filterSource) return false;
+    if (filterType && f.type !== filterType) return false;
+    if (filterCategory && (!f.categoryIds || !f.categoryIds.includes(parseInt(filterCategory)))) return false;
+    return true;
+  });
+
+  document.getElementById('show-count').textContent = filtered.length;
+  document.getElementById('total-count').textContent = fields.length;
+
+  const tbody = document.getElementById('table-body');
+  const empty = document.getElementById('emptyState');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    document.getElementById('emptyMsg').textContent = keyword ? '未找到符合搜索条件的字段，请尝试更换关键词。' : '点击下方按钮开始配置全局字段，建立您的保险福利字段字典。';
+    return;
+  }
+
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(f => {
+    const refs = fieldReferences[f.id] || [];
+    const isReferenced = refs.length > 0;
+    const checked = selectedIds.has(f.id);
+    return `<tr draggable="true" ondragstart="onDragStart(event,${f.id})" ondragover="onDragOver(event)" ondrop="onDrop(event,${f.id})" ondragend="onDragEnd(event)">
+      <td><input type="checkbox" ${checked?'checked':''} onchange="toggleSelect(${f.id},this.checked)" style="accent-color:var(--qy-color-primary);"></td>
+      <td class="col-center"><span class="drag-handle" title="拖拽排序">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+      </span></td>
+      <td><span class="code-badge">${esc(f.code)}</span></td>
+      <td style="font-weight:var(--qy-font-weight-medium);">${esc(f.name)}</td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          ${f.categoryIds && f.categoryIds.length > 0 
+            ? f.categoryIds.slice(0, 2).map(cid => {
+                const cat = categories.find(c => c.id === cid);
+                return cat ? `<span class="tag tag--gray">${esc(cat.name)}</span>` : '';
+              }).join('') + (f.categoryIds.length > 2 ? `<span class="tag tag--gray" title="更多">+${f.categoryIds.length - 2}</span>` : '')
+            : '<span style="color:var(--qy-text-disabled);font-size:var(--qy-font-size-12);">-</span>'
+          }
+        </div>
+      </td>
+      <td><span class="tag ${typeTagClasses[f.type]}">${typeLabels[f.type]}</span></td>
+      <td><span class="tag ${sourceTagClasses[f.source]}">${sourceLabels[f.source]}</span></td>
+      <td style="font-size:var(--qy-font-size-12);color:var(--qy-text-muted);font-family:var(--qy-font-mono);">${f.path || '<span style="color:var(--qy-text-disabled);">-</span>'}</td>
+      <td class="col-center">${isReferenced
+        ? `<span class="ref-badge" onclick="showReferences(${f.id})">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+             ${refs.length}
+           </span>`
+        : '<span style="color:var(--qy-text-disabled);font-size:var(--qy-font-size-12);">-</span>'
+      }</td>
+      <td class="qy-table__actions">
+        <button class="qy-btn-action qy-btn-action--text" onclick="openEditDrawer(${f.id})">编辑</button>
+        <button class="qy-btn-action qy-btn-action--text" onclick="duplicateField(${f.id})">复制</button>
+        <button class="qy-btn-action qy-btn-action--error" title="${isReferenced?'被引用的字段不可删除':''}" onclick="openDeleteModal(${f.id})" ${isReferenced?'disabled':''}>删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  updateBatchBar();
+}
+
+// ========== Selection ==========
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id);
+  else selectedIds.delete(id);
+  updateBatchBar();
+}
+
+function toggleCheckAll(checked) {
+  const filtered = getFilteredIds();
+  if (checked) filtered.forEach(id => selectedIds.add(id));
+  else selectedIds.clear();
+  renderTable();
+}
+
+function toggleBatchAll(checked) {
+  toggleCheckAll(checked);
+}
+
+function getFilteredIds() {
+  const keyword = document.getElementById('searchInput').value.toLowerCase();
+  const filterSource = document.getElementById('filter-source').value;
+  const filterType = document.getElementById('filter-type').value;
+  const filterCategory = document.getElementById('filter-category').value;
+  return fields.filter(f => {
+    if (keyword && !f.name.toLowerCase().includes(keyword) && !f.code.toLowerCase().includes(keyword)) return false;
+    if (filterSource && f.source !== filterSource) return false;
+    if (filterType && f.type !== filterType) return false;
+    if (filterCategory && (!f.categoryIds || !f.categoryIds.includes(parseInt(filterCategory)))) return false;
+    return true;
+  }).map(f => f.id);
+}
+
+function updateBatchBar() {
+  const bar = document.getElementById('batchBar');
+  const count = selectedIds.size;
+  document.getElementById('batchCount').textContent = count;
+  bar.classList.toggle('show', count > 0);
+}
+
+function clearBatch() {
+  selectedIds.clear();
+  renderTable();
+}
+
+// ========== Add/Edit Drawer ==========
+function openAddDrawer() {
+  editingId = null;
+  document.getElementById('drawerTitle').textContent = '新增字段';
+  document.getElementById('f-code').value = '';
+  document.getElementById('f-code').disabled = false;
+  document.getElementById('f-code').classList.remove('disabled');
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-type').value = 'text';
+  document.getElementById('f-source').value = 'MANUAL';
+  document.getElementById('f-path').value = '';
+  document.getElementById('f-desc').value = '';
+  currentCategoryIds = [];
+  document.getElementById('f-category-input').value = '';
+  renderCategoryTags();
+  
+  clearErrors();
+  onTypeChange();
+  onSourceChange();
+  renderOptionBuilder([]);
+  document.getElementById('fieldDrawer').classList.add('is-open');
+}
+
+function openEditDrawer(id) {
+  const f = fields.find(x => x.id === id);
+  if (!f) return;
+  editingId = id;
+  document.getElementById('drawerTitle').textContent = '编辑字段 - ' + f.name;
+  document.getElementById('f-code').value = f.code;
+  document.getElementById('f-code').disabled = true;
+  document.getElementById('f-code').classList.add('disabled');
+  document.getElementById('f-name').value = f.name;
+  document.getElementById('f-type').value = f.type;
+  document.getElementById('f-source').value = f.source;
+  document.getElementById('f-path').value = f.path || '';
+  document.getElementById('f-desc').value = f.desc || '';
+  currentCategoryIds = f.categoryIds ? [...f.categoryIds] : [];
+  document.getElementById('f-category-input').value = '';
+  renderCategoryTags();
+  
+  clearErrors();
+  onTypeChange();
+  onSourceChange();
+  renderOptionBuilder(f.options);
+  document.getElementById('fieldDrawer').classList.add('is-open');
+}
+
+function closeDrawer() {
+  document.getElementById('fieldDrawer').classList.remove('is-open');
+}
+
+function onTypeChange() {
+  const type = document.getElementById('f-type').value;
+  document.getElementById('grp-options').style.display = type === 'select' ? '' : 'none';
+}
+
+function onSourceChange() {
+  const source = document.getElementById('f-source').value;
+  document.getElementById('grp-path').style.display = source === 'AUTO' ? '' : 'none';
+}
+
+// ========== Category Multi-select ==========
+function renderCategoryTags() {
+  const container = document.getElementById('f-category-tags');
+  container.innerHTML = currentCategoryIds.map(cid => {
+    const cat = categories.find(c => c.id === cid);
+    if (!cat) return '';
+    return `<span class="category-tag">${esc(cat.name)}<span class="remove-cat" onclick="removeCategory(${cid})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span></span>`;
+  }).join('');
+}
+
+function showCategoryDropdown() {
+  const val = document.getElementById('f-category-input').value.trim().toLowerCase();
+  const dropdown = document.getElementById('f-category-dropdown');
+  const available = categories.filter(c => !currentCategoryIds.includes(c.id));
+  
+  let html = '';
+  
+  if (val) {
+    const filtered = available.filter(c => c.name.toLowerCase().includes(val));
+    html += filtered.map(c => `<div class="category-option" onclick="selectCategory(${c.id})">${esc(c.name)}</div>`).join('');
+    
+    // Check if exact match exists in ALL categories (including selected)
+    const exactMatch = categories.find(c => c.name.toLowerCase() === val);
+    if (!exactMatch) {
+      html += `<div class="category-option create-new" onclick="createAndSelectCategory('${esc(val)}')">创建分类 "${esc(val)}"</div>`;
     }
-
-    // ========== Operation switching ==========
-    function switchOp(opId) {
-      document.querySelectorAll('.op-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.op-panel').forEach(p => p.style.display = 'none');
-      document.querySelector(`.op-btn[data-op="${opId}"]`).classList.add('active');
-      document.getElementById(`op-${opId}`).style.display = '';
+  } else {
+    if (available.length > 0) {
+      html += available.map(c => `<div class="category-option" onclick="selectCategory(${c.id})">${esc(c.name)}</div>`).join('');
+    } else {
+      html += `<div class="category-option" style="color:var(--qy-text-muted);cursor:default;">无更多分类可选</div>`;
     }
+  }
+  
+  dropdown.innerHTML = html;
+  dropdown.classList.add('show');
+}
 
-    // ========== Field data (demo for ADD operation) ==========
-    let fields = [
-      { id: 1, sort: 1, dictId: 'contract_attachment', label: '合同附件', required: true, validation: '', placeholder: '' },
-      { id: 2, sort: 2, dictId: 'contract_start_date', label: '合同开始日期', required: true, validation: '', placeholder: '' },
-      { id: 3, sort: 3, dictId: 'id_card_front', label: '身份证正面', required: false, validation: '', placeholder: '' },
-      { id: 4, sort: 4, dictId: 'household_type', label: '户籍类型', required: true, validation: '', placeholder: '' },
-    ];
-    let nextId = 5;
+function hideCategoryDropdown() {
+  setTimeout(() => {
+    document.getElementById('f-category-dropdown').classList.remove('show');
+  }, 200); // delay to allow click event to register
+}
 
-    // ========== Field dictionary ==========
-    const fieldDict = {
-      contract_attachment:  { name: '合同附件',       type: 'file',   source: 'MANUAL' },
-      contract_start_date:  { name: '合同开始日期',   type: 'date',   source: 'AUTO',   path: 'employee.contract.startDate' },
-      contract_end_date:    { name: '合同结束日期',   type: 'date',   source: 'AUTO',   path: 'employee.contract.endDate' },
-      id_card_front:        { name: '身份证正面',     type: 'photo',  source: 'MANUAL' },
-      id_card_back:         { name: '身份证反面',     type: 'photo',  source: 'MANUAL' },
-      household_type:       { name: '户籍类型',       type: 'select', source: 'AUTO',   path: 'employee.household.type' },
-      household_address:    { name: '户籍地址',       type: 'text',   source: 'AUTO',   path: 'employee.household.address' },
-      social_security_card: { name: '社保卡号',       type: 'text',   source: 'AUTO',   path: 'employee.socialSecurity.cardNo' },
-      bank_account:         { name: '银行账号',       type: 'text',   source: 'AUTO',   path: 'employee.bankAccount.no' },
-      marriage_status:      { name: '婚姻状况',       type: 'select', source: 'AUTO',   path: 'employee.basic.marriageStatus' },
-      emergency_contact:    { name: '紧急联系人',     type: 'text',   source: 'AUTO',   path: 'employee.emergency.name' },
-      emergency_phone:      { name: '紧急联系电话',   type: 'text',   source: 'AUTO',   path: 'employee.emergency.phone' },
-    };
+function onCategoryInput() {
+  showCategoryDropdown();
+}
 
-    const typeLabels = { text: '文本', number: '数值', date: '日期', file: '附件', photo: '照片', select: '下拉' };
-    const sourceLabels = { AUTO: '员工档案', MANUAL: '手动填写' };
-    const typeColors = { text: '#3b82f6', number: '#8b5cf6', date: '#10b981', file: '#f59e0b', photo: '#ec4899', select: '#06b6d4' };
-
-    // ========== Render field table ==========
-    function renderFields() {
-      const tbody = document.getElementById('field-table-body');
-      if (!fields.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray-400);">未配置采集字段，点击下方"添加字段"开始配置</td></tr>';
-        return;
+function onCategoryKeyDown(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const val = e.target.value.trim();
+    if (!val) return;
+    
+    const exactMatch = categories.find(c => c.name.toLowerCase() === val.toLowerCase());
+    if (exactMatch) {
+      if (!currentCategoryIds.includes(exactMatch.id)) {
+        selectCategory(exactMatch.id);
+      } else {
+        e.target.value = '';
+        hideCategoryDropdown();
       }
-      fields.sort((a, b) => a.sort - b.sort);
-      tbody.innerHTML = fields.map((f) => {
-        const dict = fieldDict[f.dictId];
-        if (!dict) return '';
-        const bgColor = typeColors[dict.type] || '#64748b';
-        return '<tr style="border-bottom: 1px solid var(--gray-100); transition: background 150ms;" onmouseover="this.style.background=\'var(--gray-50)\'" onmouseout="this.style.background=\'\'">' +
-          '<td style="padding: 10px 16px;"><input type="number" value="' + f.sort + '" onchange="updateField(' + f.id + ',\'sort\',this.value)" style="width: 50px; padding: 4px 6px; border: 1px solid var(--gray-300); border-radius: 4px; font-size: 13px; text-align: center;"></td>' +
-          '<td style="padding: 10px 16px; font-weight: 500;">' + (f.label || dict.name) + '</td>' +
-          '<td style="padding: 10px 16px;"><span style="background:' + bgColor + '15; color:' + bgColor + '; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;">' + typeLabels[dict.type] + '</span></td>' +
-          '<td style="padding: 10px 16px; font-size: 12px; color: var(--gray-500);">' + sourceLabels[dict.source] + (dict.path ? '<br><span style="font-size:11px;color:var(--gray-400);font-family:monospace;">' + dict.path + '</span>' : '') + '</td>' +
-          '<td style="padding: 10px 16px; text-align: center;">' +
-            '<label style="cursor:pointer;position:relative;width:36px;height:20px;display:inline-block;">' +
-              '<input type="checkbox" ' + (f.required ? 'checked' : '') + ' onchange="updateField(' + f.id + ',\'required\',this.checked)" style="opacity:0;width:0;height:0;">' +
-              '<span style="position:absolute;inset:0;background:' + (f.required ? 'var(--primary)' : 'var(--gray-300)') + ';border-radius:10px;transition:200ms;" onclick="this.previousSibling.checked=!this.previousSibling.checked;this.previousSibling.dispatchEvent(new Event(\'change\'))">' +
-                '<span style="position:absolute;left:' + (f.required ? '18px' : '2px') + ';top:2px;width:16px;height:16px;background:white;border-radius:50%;transition:200ms;"></span>' +
-              '</span>' +
-            '</label>' +
-          '</td>' +
-          '<td style="padding: 10px 16px;">' +
-            (f.validation ? '<span style="font-size:12px;color:var(--gray-600);font-family:monospace;">' + f.validation + '</span>' : '<span style="color:var(--gray-300);font-size:12px;">-</span>') +
-            '<button onclick="editValidation(' + f.id + ')" style="margin-left:8px;background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;">编辑</button>' +
-          '</td>' +
-          '<td style="padding: 10px 16px; text-align: center;">' +
-            '<button onclick="removeField(' + f.id + ')" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:13px;">移除</button>' +
-          '</td>' +
-        '</tr>';
-      }).join('');
+    } else {
+      createAndSelectCategory(val);
     }
+  }
+}
 
-    function updateField(id, key, val) {
-      const f = fields.find(x => x.id === id);
-      if (!f) return;
-      if (key === 'sort') f.sort = parseInt(val) || 0;
-      if (key === 'required') f.required = val;
-      renderFields();
+function selectCategory(id) {
+  if (!currentCategoryIds.includes(id)) {
+    currentCategoryIds.push(id);
+    renderCategoryTags();
+  }
+  document.getElementById('f-category-input').value = '';
+  document.getElementById('f-category-input').focus();
+  showCategoryDropdown();
+}
+
+function createAndSelectCategory(name) {
+  const cleanName = name.trim();
+  if (!cleanName) return;
+  const newCat = { id: nextCategoryId++, name: cleanName };
+  categories.push(newCat);
+  currentCategoryIds.push(newCat.id);
+  renderCategoryTags();
+  renderCategoriesFilter(); // update the list filter too
+  document.getElementById('f-category-input').value = '';
+  document.getElementById('f-category-input').focus();
+  showCategoryDropdown();
+}
+
+function removeCategory(id) {
+  currentCategoryIds = currentCategoryIds.filter(cid => cid !== id);
+  renderCategoryTags();
+  document.getElementById('f-category-input').focus();
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('f-category-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('f-category-dropdown').classList.remove('show');
+  }
+});
+
+// ========== Options Builder ==========
+let optionRows = [];
+
+function renderOptionBuilder(options) {
+  optionRows = options.length ? [...options] : [{ label: '', value: '' }];
+  renderOptionRows();
+}
+
+function renderOptionRows() {
+  const container = document.getElementById('optionList');
+  if (!optionRows.length) {
+    optionRows = [{ label: '', value: '' }];
+  }
+  container.innerHTML = optionRows.map((opt, i) => `
+    <div class="option-row">
+      <input class="opt-input" placeholder="标签" value="${esc(opt.label)}" onchange="updateOption(${i},'label',this.value)">
+      <input class="opt-input" placeholder="值" value="${esc(opt.value)}" onchange="updateOption(${i},'value',this.value)">
+      <button class="option-remove" onclick="removeOption(${i})" title="移除">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function updateOption(idx, key, val) {
+  if (optionRows[idx]) optionRows[idx][key] = val;
+}
+
+function addOptionRow() {
+  optionRows.push({ label: '', value: '' });
+  renderOptionRows();
+}
+
+function removeOption(idx) {
+  if (optionRows.length <= 1) return;
+  optionRows.splice(idx, 1);
+  renderOptionRows();
+}
+
+// ========== Save ==========
+function clearErrors() {
+  document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.form-input').forEach(el => el.classList.remove('has-error'));
+  document.querySelectorAll('.form-textarea').forEach(el => el.classList.remove('has-error'));
+}
+
+function saveField() {
+  clearErrors();
+  const code = document.getElementById('f-code').value.trim();
+  const name = document.getElementById('f-name').value.trim();
+  const type = document.getElementById('f-type').value;
+  const source = document.getElementById('f-source').value;
+  const path = document.getElementById('f-path').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+
+  let valid = true;
+
+  if (!code) {
+    document.getElementById('codeError').classList.add('show');
+    document.getElementById('f-code').classList.add('has-error');
+    valid = false;
+  } else if (!editingId && fields.some(f => f.code === code)) {
+    document.getElementById('codeError').classList.add('show');
+    document.getElementById('f-code').classList.add('has-error');
+    valid = false;
+  }
+
+  if (!name) {
+    document.getElementById('nameError').classList.add('show');
+    document.getElementById('f-name').classList.add('has-error');
+    valid = false;
+  }
+
+  if (source === 'AUTO' && !path) {
+    document.getElementById('pathError').classList.add('show');
+    document.getElementById('f-path').classList.add('has-error');
+    valid = false;
+  }
+
+  let options = [];
+  if (type === 'select') {
+    options = optionRows.filter(o => o.label.trim() && o.value.trim());
+    if (!options.length) {
+      document.getElementById('optionsError').classList.add('show');
+      valid = false;
     }
+  }
 
-    function removeField(id) {
+  if (!valid) {
+    showToast('请检查必填项', 'warning');
+    return;
+  }
+
+  if (editingId) {
+    const f = fields.find(x => x.id === editingId);
+    if (f) { Object.assign(f, { code, name, type, source, path, options, desc, categoryIds: [...currentCategoryIds] }); }
+    showToast('字段已更新', 'success');
+  } else {
+    fields.push({ id: nextId++, code, name, type, source, path, options, desc, categoryIds: [...currentCategoryIds] });
+    showToast('字段已创建', 'success');
+  }
+
+  closeDrawer();
+  renderTable();
+}
+
+// ========== Duplicate ==========
+function duplicateField(id) {
+  const f = fields.find(x => x.id === id);
+  if (!f) return;
+  const newCode = f.code + '_copy';
+  if (fields.some(x => x.code === newCode)) {
+    showToast('复制失败：字段编码已存在', 'warning');
+    return;
+  }
+  fields.push({
+    id: nextId++,
+    code: newCode,
+    name: f.name + '（副本）',
+    type: f.type,
+    source: f.source,
+    path: f.path,
+    options: JSON.parse(JSON.stringify(f.options)),
+    desc: f.desc,
+    categoryIds: f.categoryIds ? [...f.categoryIds] : []
+  });
+  renderTable();
+  showToast('字段已复制', 'success');
+}
+
+// ========== Delete ==========
+function openDeleteModal(id) {
+  const f = fields.find(x => x.id === id);
+  if (!f) return;
+  const refs = fieldReferences[id] || [];
+  if (refs.length > 0) {
+    document.getElementById('deleteMsg').textContent = `字段「${f.name}」已被 ${refs.length} 个参保规则引用，无法删除`;
+    document.getElementById('deleteSub').textContent = '请先在相关规则中移除该字段';
+    document.getElementById('confirmDeleteBtn').disabled = true;
+  } else {
+    document.getElementById('deleteMsg').textContent = `确定要删除字段「${f.name}」吗？`;
+    document.getElementById('deleteSub').textContent = '此操作不可撤销';
+    document.getElementById('confirmDeleteBtn').disabled = false;
+  }
+  deleteTargetId = id;
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteTargetId = null;
+}
+
+function confirmDelete() {
+  if (deleteTargetId === null) return;
+  const refs = fieldReferences[deleteTargetId] || [];
+  if (refs.length > 0) {
+    showToast('被引用的字段不可删除', 'warning');
+    closeDeleteModal();
+    return;
+  }
+  fields = fields.filter(x => x.id !== deleteTargetId);
+  delete fieldReferences[deleteTargetId];
+  selectedIds.delete(deleteTargetId);
+  closeDeleteModal();
+  renderTable();
+  showToast('字段已删除', 'info');
+}
+
+// ========== Batch Delete ==========
+function batchDeleteSelected() {
+  if (selectedIds.size === 0) return;
+  const referenced = [];
+  const deletable = [];
+  selectedIds.forEach(id => {
+    const refs = fieldReferences[id] || [];
+    if (refs.length > 0) referenced.push(id);
+    else deletable.push(id);
+  });
+
+  if (deletable.length === 0) {
+    showToast('所选字段均被引用，无法删除', 'warning');
+    clearBatch();
+    return;
+  }
+
+  document.getElementById('deleteMsg').textContent = `确定要删除选中的 ${deletable.length} 个字段吗？`;
+  document.getElementById('deleteSub').textContent = referenced.length
+    ? `其中 ${referenced.length} 个字段被引用，将跳过`
+    : '此操作不可撤销';
+  document.getElementById('confirmDeleteBtn').disabled = false;
+  document.getElementById('confirmDeleteBtn').onclick = () => {
+    deletable.forEach(id => {
       fields = fields.filter(x => x.id !== id);
-      renderFields();
-    }
+      delete fieldReferences[id];
+    });
+    referenced.forEach(id => selectedIds.delete(id));
+    closeDeleteModal();
+    renderTable();
+    document.getElementById('confirmDeleteBtn').onclick = confirmDelete;
+    showToast(`已删除 ${deletable.length} 个字段`, 'info');
+  };
+  document.getElementById('deleteModal').classList.add('show');
+}
 
-    function editValidation(id) {
-      const f = fields.find(x => x.id === id);
-      if (!f) return;
-      const val = prompt('输入校验规则（正则表达式）：', f.validation || '');
-      if (val !== null) { f.validation = val; renderFields(); }
-    }
+// ========== Reference Detail ==========
+function showReferences(id) {
+  const f = fields.find(x => x.id === id);
+  if (!f) return;
+  const refs = fieldReferences[id] || [];
+  document.getElementById('refFieldName').textContent = f.name;
+  document.getElementById('refTableBody').innerHTML = refs.map(r =>
+    `<tr style="border-bottom:1px solid var(--qy-border-light);">
+      <td style="padding:var(--qy-space-2);">${esc(r.rule)}</td>
+      <td style="padding:var(--qy-space-2);"><span class="tag tag--blue">${esc(r.op)}</span></td>
+    </tr>`
+  ).join('');
+  document.getElementById('refModal').classList.add('show');
+}
 
-    // ========== Field picker modal ==========
-    function openFieldPicker() {
-      const existing = fields.map(f => f.dictId);
-      const available = Object.keys(fieldDict).filter(k => !existing.includes(k));
-      if (!available.length) { alert('所有字段已添加'); return; }
-      const html = available.map(k => {
-        const d = fieldDict[k];
-        return '<label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--gray-100);cursor:pointer;">' +
-          '<input type="checkbox" value="' + k + '" class="picker-cb">' +
-          '<span style="font-size:13px;font-weight:500;">' + d.name + '</span>' +
-          '<span style="font-size:11px;color:var(--gray-400);">(' + typeLabels[d.type] + ')</span>' +
-          '<span style="font-size:11px;color:' + (d.source === 'AUTO' ? '#10b981' : '#f59e0b') + ';">' + sourceLabels[d.source] + '</span>' +
-        '</label>';
-      }).join('');
-      const overlay = document.createElement('div');
-      overlay.id = 'picker-overlay';
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;display:flex;align-items:center;justify-content:center;';
-      overlay.innerHTML = '<div style="background:white;border-radius:12px;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,0.15);">' +
-        '<div style="padding:20px 24px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;">' +
-          '<h3 style="font-size:16px;font-weight:600;">选择字段</h3>' +
-          '<button onclick="closePicker()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);">&times;</button>' +
-        '</div>' +
-        '<div style="padding:16px 24px;" id="picker-list">' + html + '</div>' +
-        '<div style="padding:16px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:8px;">' +
-          '<button onclick="closePicker()" style="padding:8px 20px;background:white;border:1px solid var(--gray-300);border-radius:6px;cursor:pointer;">取消</button>' +
-          '<button onclick="confirmPicker()" style="padding:8px 20px;background:var(--primary);color:white;border:none;border-radius:6px;cursor:pointer;">确认添加</button>' +
-        '</div>' +
-      '</div>';
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) closePicker(); });
-      document.body.appendChild(overlay);
-    }
+function closeRefModal() {
+  document.getElementById('refModal').classList.remove('show');
+}
 
-    function closePicker() {
-      const el = document.getElementById('picker-overlay');
-      if (el) el.remove();
-    }
+// ========== Drag & Drop ==========
+function onDragStart(e, id) {
+  dragId = id;
+  e.target.closest('tr').classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
 
-    function confirmPicker() {
-      const cbs = document.querySelectorAll('.picker-cb:checked');
-      cbs.forEach(cb => {
-        const maxSort = fields.length ? Math.max(...fields.map(f => f.sort)) : 0;
-        fields.push({ id: nextId++, sort: maxSort + 1, dictId: cb.value, label: '', required: false, validation: '', placeholder: '' });
-      });
-      closePicker();
-      renderFields();
-    }
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
 
-    // ========== Init ==========
-    renderFields();
-  </script>
+function onDrop(e, targetId) {
+  e.preventDefault();
+  if (dragId === null || dragId === targetId) return;
+  const fromIdx = fields.findIndex(f => f.id === dragId);
+  const toIdx = fields.findIndex(f => f.id === targetId);
+  if (fromIdx < 0 || toIdx < 0) return;
+  const [moved] = fields.splice(fromIdx, 1);
+  fields.splice(toIdx, 0, moved);
+  dragId = null;
+  renderTable();
+}
+
+function onDragEnd(e) {
+  e.target.closest('tr').classList.remove('dragging');
+  dragId = null;
+}
+
+// ========== Toast ==========
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-10px)'; t.style.transition = 'all 250ms'; }, 2200);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ========== Utils ==========
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ========== Keyboard ==========
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeDrawer();
+    closeDeleteModal();
+    closeRefModal();
+  }
+});
+
+// Close modals on overlay click
+['deleteModal', 'refModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+
+// ========== Init ==========
+renderCategoriesFilter();
+renderTable();
+</script>
+
 </body>
 </html>
