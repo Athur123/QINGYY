@@ -462,73 +462,163 @@
                     </div>
                 </div>
 
-                <!-- Match Status Filter -->
-                <div class="filter-bar" id="matchFilterBar">
-                    <span class="filter-bar__label">匹配状态</span>
-                    <div class="filter-bar__group">
-                        <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleMatchFilter('all')">
-                            全部 <span class="filter-bar__count" id="matchCountAll">0</span>
-                        </div>
-                        <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleMatchFilter('matched')">
-                            已匹配 <span class="filter-bar__count" id="matchCountMatched">0</span>
-                        </div>
-                        <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleMatchFilter('pending')">
-                            待确认 <span class="filter-bar__count" id="matchCountPending">0</span>
-                        </div>
-                        <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleMatchFilter('diff')">
-                            差异 <span class="filter-bar__count" id="matchCountDiff">0</span>
-                        </div>
-                    </div>
-                    <div class="filter-bar__divider"></div>
-                    <span class="filter-bar__label">账单类型</span>
-                    <div class="filter-bar__group">
-                        <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleTypeFilter('all')">
-                            全部
-                        </div>
-                        <div class="filter-bar__item filter-bar__item--huijiao" data-type="huijiao" onclick="toggleTypeFilter('huijiao')">
-                            汇缴
-                        </div>
-                        <div class="filter-bar__item filter-bar__item--bujiao" data-type="bujiao" onclick="toggleTypeFilter('bujiao')">
-                            补缴
-                        </div>
-                        <div class="filter-bar__item filter-bar__item--tiaoji" data-type="tiaoji" onclick="toggleTypeFilter('tiaoji')">
-                            调基补差
-                        </div>
-                    </div>
-                </div>
+<!-- Bill Tabs -->
+<div class="bill-tabs" id="billTabs">
+    <div class="bill-tab bill-tab--system is-active" onclick="switchBillTab('system')">
+        &#128421; 系统侧账单 <span class="tab-count" id="systemTabCount">0</span>
+    </div>
+    <div class="bill-tab bill-tab--ledger" onclick="switchBillTab('ledger')">
+        &#128203; 台账侧账单 <span class="tab-count" id="ledgerTabCount">0</span>
+    </div>
+</div>
 
-                <!-- Data Table -->
-                <div id="unifiedTable">
-                    <div class="data-table">
-                        <table class="qy-table">
-                            <thead>
-                                <tr>
-                                    <th><input type="checkbox" onchange="toggleSelectAll()"></th>
-                                    <th>匹配状态</th>
-                                    <th>账单类型</th>
-                                    <th>姓名</th>
-                                    <th>身份证号</th>
-                                    <th>险种</th>
-                                    <th>应缴月份</th>
-                                    <th>费款所属期</th>
-                                    <th>系统金额</th>
-                                    <th>台账金额</th>
-                                    <th>差异</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="unifiedTableBody"></tbody>
-                        </table>
-                    </div>
-                    <div class="table-footer">
-                        <div class="table-footer__left">
-                            <button class="qy-btn qy-btn--secondary" id="selectAllBtn" onclick="toggleSelectAll()">全选</button>
-                            <button class="qy-btn qy-btn--primary" disabled id="batchConfirmBtn" onclick="batchConfirm()">确认所选</button>
-                            <button class="qy-btn qy-btn--secondary" disabled id="batchCancelBtn" onclick="batchCancel()">取消确认</button>
-                        </div>
-                        <div class="table-footer__right" id="tableFooterInfo">共 <strong>11</strong> 条差异 / 1页</div>
-                    </div>
-                </div>
+<!-- System Tab Panel -->
+<div class="bill-tab-panel is-active" id="panel-system">
+    <div class="summary-strip" id="systemSummaryStrip">
+        <div class="summary-chip"><span class="summary-chip__label">汇总</span><span class="summary-chip__value" id="sysTotalAmount">¥0.00</span></div>
+        <div class="summary-chip"><span class="summary-chip__label">已匹配</span><span class="summary-chip__value" id="sysMatched" style="color:#16A34A">0</span></div>
+        <div class="summary-chip"><span class="summary-chip__label">待确认</span><span class="summary-chip__value" id="sysPending" style="color:#CA8A04">0</span></div>
+        <div class="summary-chip"><span class="summary-chip__label">差异</span><span class="summary-chip__value" id="sysDiff" style="color:#DC2626">0</span></div>
+    </div>
+
+    <div class="filter-bar" id="systemFilterBar">
+        <span class="filter-bar__label">匹配状态</span>
+        <div class="filter-bar__group">
+            <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleSystemMatchFilter('all')">
+                全部 <span class="filter-bar__count" id="sysMatchCountAll">0</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleSystemMatchFilter('matched')">
+                已匹配 <span class="filter-bar__count" id="sysMatchCountMatched">0</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleSystemMatchFilter('pending')">
+                待确认 <span class="filter-bar__count" id="sysMatchCountPending">0</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleSystemMatchFilter('diff')">
+                差异 <span class="filter-bar__count" id="sysMatchCountDiff">0</span>
+            </div>
+        </div>
+        <div class="filter-bar__divider"></div>
+        <span class="filter-bar__label">账单类型</span>
+        <div class="filter-bar__group">
+            <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleSystemTypeFilter('all')">
+                全部
+            </div>
+            <div class="filter-bar__item filter-bar__item--huijiao" data-type="huijiao" onclick="toggleSystemTypeFilter('huijiao')">
+                汇缴
+            </div>
+            <div class="filter-bar__item filter-bar__item--bujiao" data-type="bujiao" onclick="toggleSystemTypeFilter('bujiao')">
+                补缴
+            </div>
+            <div class="filter-bar__item filter-bar__item--tiaoji" data-type="tiaoji" onclick="toggleSystemTypeFilter('tiaoji')">
+                调基补差
+            </div>
+        </div>
+    </div>
+
+    <div class="data-table">
+        <table class="qy-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" onchange="toggleSystemSelectAll()"></th>
+                    <th>匹配状态</th>
+                    <th>账单类型</th>
+                    <th>姓名</th>
+                    <th>身份证号</th>
+                    <th>险种</th>
+                    <th>应缴月份</th>
+                    <th>费款所属期</th>
+                    <th>系统金额</th>
+                    <th>台账金额</th>
+                    <th>差异</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="systemTableBody"></tbody>
+        </table>
+    </div>
+    <div class="table-footer">
+        <div class="table-footer__left">
+            <button class="qy-btn qy-btn--secondary" id="sysSelectAllBtn" onclick="toggleSystemSelectAll()">全选</button>
+            <button class="qy-btn qy-btn--primary" disabled id="sysBatchConfirmBtn" onclick="systemBatchConfirm()">确认所选</button>
+            <button class="qy-btn qy-btn--secondary" disabled id="sysBatchCancelBtn" onclick="systemBatchCancel()">取消确认</button>
+        </div>
+        <div class="table-footer__right" id="systemFooterInfo">共 <strong>0</strong> 条 / 1页</div>
+    </div>
+</div>
+
+<!-- Ledger Tab Panel -->
+<div class="bill-tab-panel" id="panel-ledger">
+    <div class="summary-strip" id="ledgerSummaryStrip">
+        <div class="summary-chip"><span class="summary-chip__label">汇总</span><span class="summary-chip__value" id="ledgerTotalAmount">¥0.00</span></div>
+        <div class="summary-chip"><span class="summary-chip__label">已匹配</span><span class="summary-chip__value" id="ledgerMatched" style="color:#16A34A">0</span></div>
+        <div class="summary-chip"><span class="summary-chip__label">待确认</span><span class="summary-chip__value" id="ledgerPending" style="color:#CA8A04">0</span></div>
+        <div class="summary-chip"><span class="summary-chip__label">差异</span><span class="summary-chip__value" id="ledgerDiff" style="color:#DC2626">0</span></div>
+    </div>
+
+    <div class="filter-bar" id="ledgerFilterBar">
+        <span class="filter-bar__label">匹配状态</span>
+        <div class="filter-bar__group">
+            <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleLedgerMatchFilter('all')">
+                全部 <span class="filter-bar__count" id="ledgerMatchCountAll">0</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleLedgerMatchFilter('matched')">
+                已匹配 <span class="filter-bar__count" id="ledgerMatchCountMatched">0</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
+                待确认 <span class="filter-bar__count" id="ledgerMatchCountPending">0</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleLedgerMatchFilter('diff')">
+                差异 <span class="filter-bar__count" id="ledgerMatchCountDiff">0</span>
+            </div>
+        </div>
+        <div class="filter-bar__divider"></div>
+        <span class="filter-bar__label">账单类型</span>
+        <div class="filter-bar__group">
+            <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleLedgerTypeFilter('all')">
+                全部
+            </div>
+            <div class="filter-bar__item filter-bar__item--huijiao" data-type="huijiao" onclick="toggleLedgerTypeFilter('huijiao')">
+                汇缴
+            </div>
+            <div class="filter-bar__item filter-bar__item--bujiao" data-type="bujiao" onclick="toggleLedgerTypeFilter('bujiao')">
+                补缴
+            </div>
+            <div class="filter-bar__item filter-bar__item--tiaoji" data-type="tiaoji" onclick="toggleLedgerTypeFilter('tiaoji')">
+                调基补差
+            </div>
+        </div>
+    </div>
+
+    <div class="data-table">
+        <table class="qy-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" onchange="toggleLedgerSelectAll()"></th>
+                    <th>匹配状态</th>
+                    <th>账单类型</th>
+                    <th>姓名</th>
+                    <th>身份证号</th>
+                    <th>险种</th>
+                    <th>应缴月份</th>
+                    <th>费款所属期</th>
+                    <th>台账金额</th>
+                    <th>系统金额</th>
+                    <th>差异</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="ledgerTableBody"></tbody>
+        </table>
+    </div>
+    <div class="table-footer">
+        <div class="table-footer__left">
+            <button class="qy-btn qy-btn--secondary" id="ledgerSelectAllBtn" onclick="toggleLedgerSelectAll()">全选</button>
+            <button class="qy-btn qy-btn--primary" disabled id="ledgerBatchConfirmBtn" onclick="ledgerBatchConfirm()">确认所选</button>
+            <button class="qy-btn qy-btn--secondary" disabled id="ledgerBatchCancelBtn" onclick="ledgerBatchCancel()">取消确认</button>
+        </div>
+        <div class="table-footer__right" id="ledgerFooterInfo">共 <strong>0</strong> 条 / 1页</div>
+    </div>
+</div>
             </div>
         </main>
     </div>
