@@ -1,9 +1,9 @@
 {
   "env": {
-    "QINGYANG_TENANT": "test",
+    "QINGYANG_TENANT": "zjhcrl",
     "QINGYANG_USERNAME": "admin",
-    "QINGYANG_PASSWORD": "123456",
-    "QINGYANG_LOGIN_URL": "http://192.168.10.168/#/login"
+    "QINGYANG_PASSWORD": "KzW&Va8S#HjTMoQ@E9zB",
+    "QINGYANG_LOGIN_URL": "https://qingyangyun.com.cn/#/login"
   },
   "permissions": {
     "allow": [
