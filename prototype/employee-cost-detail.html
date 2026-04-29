@@ -159,6 +159,34 @@
       border-top: 2px solid var(--qy-border-light);
       border-bottom: none;
     }
+
+    .fee-tag {
+      display: inline-block; padding: 1px 6px; border-radius: var(--qy-radius-sm);
+      font-size: 11px; font-weight: var(--qy-font-weight-medium);
+    }
+    .fee-tag--normal { background: var(--qy-primary-50); color: var(--qy-primary-600); }
+    .fee-tag--supplement { background: var(--qy-warning-50); color: var(--qy-warning-600); }
+    .fee-tag--adjustment { background: #F3E8FF; color: #7C3AED; }
+    .fee-tag--retroactive { background: #E0F2FE; color: #0284C7; }
+
+    .history-table { width: 100%; border-collapse: collapse; font-size: var(--qy-font-size-12); }
+    .history-table th, .history-table td {
+      padding: var(--qy-space-2) var(--qy-space-3); text-align: left;
+      border-bottom: 1px solid var(--qy-border-light);
+    }
+    .history-table th {
+      background: var(--qy-bg-secondary); font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-secondary); font-size: var(--qy-font-size-11);
+    }
+
+    .recalc-spinner {
+      display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite;
+      vertical-align: middle; margin-right: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .filter-active { border-color: var(--qy-primary-500) !important; box-shadow: 0 0 0 2px var(--qy-primary-100); }
   </style>
 </head>
 <body>
@@ -204,11 +232,11 @@
         <!-- Filter Bar -->
         <div class="filter-card">
           <label>月份</label>
-          <select><option>全部月份</option><option>2026-03</option><option>2026-04</option><option selected>2026-05</option></select>
+          <select id="filterMonth" onchange="filterTable()"><option value="">全部月份</option><option value="2026-03">2026-03</option><option value="2026-04">2026-04</option><option value="2026-05" selected>2026-05</option></select>
           <label>费用类型</label>
-          <select><option>全部类型</option><option>参保费用</option><option>补缴费用</option><option>补差补退费用</option></select>
+          <select id="filterType" onchange="filterTable()"><option value="">全部类型</option><option value="参保费用">参保费用</option><option value="补缴费用">补缴费用</option><option value="补差补退费用">补差补退费用</option></select>
           <label>归属项目</label>
-          <select><option>全部项目</option><option>人才产业园</option><option>北京项目</option><option>上海项目</option></select>
+          <select id="filterProject" onchange="filterTable()"><option value="">全部项目</option><option value="人才产业园">人才产业园</option><option value="北京项目">北京项目</option><option value="上海项目">上海项目</option></select>
         </div>
 
         <!-- Detail Table Card -->
@@ -216,11 +244,11 @@
           <div class="detail-card__header">
             <h3 class="detail-card__title">费用明细</h3>
             <div class="detail-card__actions">
-              <button class="qy-btn qy-btn--secondary qy-btn--sm">历史记录</button>
-              <button class="qy-btn qy-btn--primary qy-btn--sm">重新计算</button>
+              <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="openHistory()">历史记录</button>
+              <button class="qy-btn qy-btn--primary qy-btn--sm" id="recalcBtn" onclick="recalculate()">重新计算</button>
             </div>
           </div>
-          <table class="detail-table">
+          <table class="detail-table" id="detailTable">
             <thead>
               <tr>
                 <th rowspan="2">月份</th>
@@ -243,63 +271,133 @@
                 <th class="sub-header">实担</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- 养老 2026-05 上海 -->
-              <tr class="row-declare">
+            <tbody id="tableBody">
+              <!-- 2026-05 上海项目 养老（参保费用） -->
+              <tr class="row-declare" data-month="2026-05" data-type="参保费用" data-project="上海项目">
                 <td rowspan="2">2026-05</td>
                 <td rowspan="2">参保费用</td>
                 <td rowspan="2" style="font-weight:500">上海项目</td>
                 <td style="font-weight:500">养老</td>
-                <td>10000.00</td><td>1000</td><td>0.00</td><td>—</td>
-                <td>10000.00</td><td>1000</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>1000.00</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>1000.00</td><td>0.00</td><td>—</td>
                 <td rowspan="2">月度</td>
                 <td rowspan="2" style="font-weight:600">¥2,000.00</td>
               </tr>
-              <tr class="row-bear">
+              <tr class="row-bear" data-month="2026-05" data-type="参保费用" data-project="上海项目">
                 <td><span class="compound-label">承担</span></td>
-                <td>4000.00</td><td>—</td><td>—</td><td>400</td>
-                <td>10000.00</td><td>—</td><td>—</td><td>1600</td>
+                <td>4000.00</td><td>—</td><td>—</td><td>400.00</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>1600.00</td>
               </tr>
-              <!-- 医疗 2026-05 上海 -->
-              <tr class="row-declare">
+              <!-- 2026-05 上海项目 医疗 -->
+              <tr class="row-declare" data-month="2026-05" data-type="参保费用" data-project="上海项目">
                 <td rowspan="2">2026-05</td>
                 <td rowspan="2">参保费用</td>
                 <td rowspan="2" style="font-weight:500">上海项目</td>
                 <td style="font-weight:500">医疗</td>
-                <td>10000.00</td><td>200</td><td>0.00</td><td>—</td>
-                <td>10000.00</td><td>200</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>200.00</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>200.00</td><td>0.00</td><td>—</td>
                 <td rowspan="2">月度</td>
                 <td rowspan="2" style="font-weight:600">¥400.00</td>
               </tr>
-              <tr class="row-bear">
+              <tr class="row-bear" data-month="2026-05" data-type="参保费用" data-project="上海项目">
                 <td><span class="compound-label">承担</span></td>
-                <td>10000.00</td><td>—</td><td>—</td><td>200</td>
-                <td>10000.00</td><td>—</td><td>—</td><td>200</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>200.00</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>200.00</td>
               </tr>
-              <!-- 养老 2026-04 北京 补缴 -->
-              <tr class="row-declare">
+              <!-- 2026-05 上海项目 失业 -->
+              <tr class="row-declare" data-month="2026-05" data-type="参保费用" data-project="上海项目">
+                <td rowspan="2">2026-05</td>
+                <td rowspan="2">参保费用</td>
+                <td rowspan="2" style="font-weight:500">上海项目</td>
+                <td style="font-weight:500">失业</td>
+                <td>10000.00</td><td>50.00</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>50.00</td><td>0.00</td><td>—</td>
+                <td rowspan="2">月度</td>
+                <td rowspan="2" style="font-weight:600">¥100.00</td>
+              </tr>
+              <tr class="row-bear" data-month="2026-05" data-type="参保费用" data-project="上海项目">
+                <td><span class="compound-label">承担</span></td>
+                <td>10000.00</td><td>—</td><td>—</td><td>50.00</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>50.00</td>
+              </tr>
+              <!-- 2026-05 上海项目 工伤 -->
+              <tr class="row-declare" data-month="2026-05" data-type="参保费用" data-project="上海项目">
+                <td>2026-05</td>
+                <td>参保费用</td>
+                <td style="font-weight:500">上海项目</td>
+                <td style="font-weight:500">工伤</td>
+                <td>10000.00</td><td>30.00</td><td>0.00</td><td>—</td>
+                <td>—</td><td>—</td><td>—</td><td>—</td>
+                <td>月度</td>
+                <td style="font-weight:600">¥30.00</td>
+              </tr>
+              <!-- 2026-05 上海项目 生育 -->
+              <tr class="row-declare" data-month="2026-05" data-type="参保费用" data-project="上海项目">
+                <td>2026-05</td>
+                <td>参保费用</td>
+                <td style="font-weight:500">上海项目</td>
+                <td style="font-weight:500">生育</td>
+                <td>10000.00</td><td>80.00</td><td>0.00</td><td>—</td>
+                <td>—</td><td>—</td><td>—</td><td>—</td>
+                <td>月度</td>
+                <td style="font-weight:600">¥80.00</td>
+              </tr>
+              <!-- 2026-05 上海项目 公积金 -->
+              <tr class="row-declare" data-month="2026-05" data-type="参保费用" data-project="上海项目">
+                <td rowspan="2">2026-05</td>
+                <td rowspan="2">参保费用</td>
+                <td rowspan="2" style="font-weight:500">上海项目</td>
+                <td style="font-weight:500">公积金</td>
+                <td>10000.00</td><td>1200.00</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>1200.00</td><td>0.00</td><td>—</td>
+                <td rowspan="2">月度</td>
+                <td rowspan="2" style="font-weight:600">¥2,400.00</td>
+              </tr>
+              <tr class="row-bear" data-month="2026-05" data-type="参保费用" data-project="上海项目">
+                <td><span class="compound-label">承担</span></td>
+                <td>10000.00</td><td>—</td><td>—</td><td>1200.00</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>1200.00</td>
+              </tr>
+              <!-- 2026-04 北京项目 养老（补缴费用） -->
+              <tr class="row-declare" data-month="2026-04" data-type="补缴费用" data-project="北京项目">
                 <td rowspan="2">2026-04</td>
-                <td rowspan="2">补缴费用</td>
+                <td rowspan="2">补缴费用 <span class="fee-tag fee-tag--supplement">补缴</span></td>
                 <td rowspan="2" style="font-weight:500">北京项目</td>
                 <td style="font-weight:500">养老</td>
-                <td>10000.00</td><td>1000</td><td>50.00</td><td>—</td>
-                <td>10000.00</td><td>1000</td><td>25.00</td><td>—</td>
+                <td>10000.00</td><td>1000.00</td><td>50.00</td><td>—</td>
+                <td>10000.00</td><td>1000.00</td><td>25.00</td><td>—</td>
                 <td rowspan="2">月度</td>
                 <td rowspan="2" style="font-weight:600">¥2,175.00</td>
               </tr>
-              <tr class="row-bear">
+              <tr class="row-bear" data-month="2026-04" data-type="补缴费用" data-project="北京项目">
                 <td><span class="compound-label">承担</span></td>
-                <td>4000.00</td><td>—</td><td>—</td><td>400</td>
-                <td>10000.00</td><td>—</td><td>—</td><td>1600</td>
+                <td>4000.00</td><td>—</td><td>—</td><td>400.00</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>1600.00</td>
+              </tr>
+              <!-- 2026-03 人才产业园 养老（补差补退费用） -->
+              <tr class="row-declare" data-month="2026-03" data-type="补差补退费用" data-project="人才产业园">
+                <td rowspan="2">2026-03</td>
+                <td rowspan="2">补差费用 <span class="fee-tag fee-tag--adjustment">补差</span></td>
+                <td rowspan="2" style="font-weight:500">人才产业园</td>
+                <td style="font-weight:500">养老</td>
+                <td>10000.00</td><td>-50.00</td><td>0.00</td><td>—</td>
+                <td>10000.00</td><td>-50.00</td><td>0.00</td><td>—</td>
+                <td rowspan="2">月度补差</td>
+                <td rowspan="2" style="font-weight:600;color:var(--qy-danger-500)">-¥100.00</td>
+              </tr>
+              <tr class="row-bear" data-month="2026-03" data-type="补差补退费用" data-project="人才产业园">
+                <td><span class="compound-label">承担</span></td>
+                <td>4000.00</td><td>—</td><td>—</td><td>-20.00</td>
+                <td>10000.00</td><td>—</td><td>—</td><td>-80.00</td>
               </tr>
             </tbody>
             <tfoot>
               <tr>
                 <td colspan="4">合计</td>
-                <td>—</td><td>2,200</td><td>50.00</td><td>—</td>
-                <td>—</td><td>2,200</td><td>25.00</td><td>—</td>
+                <td>—</td><td>2,210.00</td><td>50.00</td><td>—</td>
+                <td>—</td><td>2,210.00</td><td>25.00</td><td>—</td>
                 <td>—</td>
-                <td>¥4,575.00</td>
+                <td>¥4,585.00</td>
               </tr>
             </tfoot>
           </table>
@@ -307,5 +405,116 @@
       </div>
     </div>
   </div>
+
+  <!-- History Modal -->
+  <div class="qy-modal" id="historyModal">
+    <div class="qy-modal__overlay" onclick="closeHistory()"></div>
+    <div class="qy-modal__container" style="max-width:800px">
+      <div class="qy-modal__header">
+        <h3 class="qy-modal__title">费用调整历史记录 — 丁霞</h3>
+        <button class="qy-modal__close" onclick="closeHistory()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5L5 15M5 5l10 10"/></svg>
+        </button>
+      </div>
+      <div class="qy-modal__body">
+        <table class="history-table">
+          <thead>
+            <tr><th>操作时间</th><th>触发类型</th><th>调整月份</th><th>原归属</th><th>新归属</th><th>涉及金额</th><th>操作人</th><th>状态</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-05-20 14:30</td>
+              <td><span class="fee-tag fee-tag--normal">调动</span></td>
+              <td>2026-04、2026-05</td>
+              <td>人才产业园</td>
+              <td>北京项目 → 上海项目</td>
+              <td>¥6,308.96</td>
+              <td>管理员</td>
+              <td><span class="qy-tag qy-tag--success">已完成</span></td>
+            </tr>
+            <tr>
+              <td>2026-04-15 10:20</td>
+              <td><span class="fee-tag fee-tag--supplement">补缴</span></td>
+              <td>2026-02</td>
+              <td>—</td>
+              <td>北京项目</td>
+              <td>¥2,180.00</td>
+              <td>管理员</td>
+              <td><span class="qy-tag qy-tag--success">已完成</span></td>
+            </tr>
+            <tr>
+              <td>2026-03-10 09:05</td>
+              <td><span class="fee-tag fee-tag--adjustment">补差</span></td>
+              <td>2026-03</td>
+              <td>人才产业园</td>
+              <td>人才产业园</td>
+              <td>-¥100.00</td>
+              <td>系统</td>
+              <td><span class="qy-tag qy-tag--success">已退费</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="qy-modal__footer">
+        <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="closeHistory()">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openHistory() { document.getElementById('historyModal').classList.add('is-open'); }
+    function closeHistory() { document.getElementById('historyModal').classList.remove('is-open'); }
+
+    function recalculate() {
+      const btn = document.getElementById('recalcBtn');
+      if (btn.disabled) return;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="recalc-spinner"></span>重新计算中...';
+
+      setTimeout(() => {
+        btn.innerHTML = '重新计算';
+        btn.disabled = false;
+        showToast('重新计算完成，费用明细已更新');
+      }, 2000);
+    }
+
+    function filterTable() {
+      const month = document.getElementById('filterMonth').value;
+      const type = document.getElementById('filterType').value;
+      const project = document.getElementById('filterProject').value;
+
+      const rows = document.querySelectorAll('#tableBody tr');
+      let visibleCount = 0;
+      rows.forEach(row => {
+        const rMonth = row.dataset.month || '';
+        const rType = row.dataset.type || '';
+        const rProject = row.dataset.project || '';
+
+        const matchMonth = !month || rMonth === month;
+        const matchType = !type || rType === type;
+        const matchProject = !project || rProject === project;
+
+        if (matchMonth && matchType && matchProject) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Highlight active filters
+      [document.getElementById('filterMonth'), document.getElementById('filterType'), document.getElementById('filterProject')].forEach(sel => {
+        sel.classList.toggle('filter-active', !!sel.value);
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--qy-success-500);color:white;padding:10px 24px;border-radius:var(--qy-radius-md);font-size:14px;z-index:10000;box-shadow:var(--qy-shadow-lg)';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+  </script>
 </body>
 </html>
