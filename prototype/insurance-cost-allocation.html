@@ -271,21 +271,21 @@
                 <td>人才产业园</td><td>上海项目</td><td>2026-05</td>
                 <td>¥6,308.96</td><td>¥3,154.48</td><td>¥9,463.44</td>
                 <td><span class="qy-tag qy-tag--success">待确认</span></td>
-                <td><button class="action-link">明细</button></td>
+                <td><button class="action-link" onclick="goToEmployeeDetail('dingxia')">明细</button></td>
               </tr>
               <tr>
                 <td>萧秀兰</td><td>172***1264</td><td>劳务派遣</td>
                 <td>人才产业园</td><td>上海项目</td><td>2026-05</td>
                 <td>¥3,292.00</td><td>¥1,646.00</td><td>¥4,938.00</td>
                 <td><span class="qy-tag qy-tag--success">待确认</span></td>
-                <td><button class="action-link">明细</button></td>
+                <td><button class="action-link" onclick="goToEmployeeDetail('xiaoxiulan')">明细</button></td>
               </tr>
               <tr>
                 <td>张伟</td><td>138***5678</td><td>正式员工</td>
                 <td>北京项目</td><td>北京项目</td><td>2026-05</td>
                 <td>¥5,200.00</td><td>¥2,600.00</td><td>¥7,800.00</td>
                 <td><span class="qy-tag qy-tag--warning">未归档</span></td>
-                <td><button class="action-link">明细</button></td>
+                <td><button class="action-link" onclick="goToEmployeeDetail('zhangwei')">明细</button></td>
               </tr>
             </tbody>
           </table>
@@ -324,7 +324,7 @@
               <!-- 场景一：调动 -->
               <tr id="row-0">
                 <td><input type="checkbox" class="row-check" onchange="updateBatchCount()"></td>
-                <td><strong>丁霞</strong></td><td>196***0821</td><td>退休返聘</td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('dingxia');return false" style="color:var(--qy-primary-500);text-decoration:none">丁霞</a></strong></td><td>196***0821</td><td>退休返聘</td>
                 <td><span class="trigger-tag trigger-tag--transfer">调动</span></td>
                 <td>3个月</td><td>¥9,463.44</td>
                 <td>
@@ -343,7 +343,7 @@
               <!-- 场景二：政策调整补差补退 -->
               <tr id="row-1">
                 <td><input type="checkbox" class="row-check" onchange="updateBatchCount()"></td>
-                <td><strong>萧秀兰</strong></td><td>172***1264</td><td>劳务派遣</td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('xiaoxiulan');return false" style="color:var(--qy-primary-500);text-decoration:none">萧秀兰</a></strong></td><td>172***1264</td><td>劳务派遣</td>
                 <td><span class="trigger-tag trigger-tag--policy">政策调整补差</span></td>
                 <td>2个月</td><td>¥4,938.00</td>
                 <td>
@@ -362,7 +362,7 @@
               <!-- 场景三：手动补缴 + 失败演示 -->
               <tr id="row-2">
                 <td><input type="checkbox" class="row-check" onchange="updateBatchCount()"></td>
-                <td><strong>赵建国</strong></td><td>159***4432</td><td>劳务派遣</td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('zhaojianguo');return false" style="color:var(--qy-primary-500);text-decoration:none">赵建国</a></strong></td><td>159***4432</td><td>劳务派遣</td>
                 <td><span class="trigger-tag trigger-tag--supplement">手动补缴</span></td>
                 <td>1个月</td><td>¥2,180.00</td>
                 <td>
@@ -388,28 +388,28 @@
             </thead>
             <tbody>
               <tr>
-                <td><strong>李明</strong></td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('liming');return false" style="color:var(--qy-primary-500);text-decoration:none">李明</a></strong></td>
                 <td><span class="trigger-tag trigger-tag--transfer">调动</span></td>
                 <td>2026-05-20 14:30</td><td>2个月</td><td>¥7,200.00</td>
                 <td><span class="qy-tag qy-tag--success">已重算</span></td>
               </tr>
               <tr><td colspan="6" style="padding:0"><div class="processed-detail" style="padding:4px 16px">人才产业园 → 上海项目 · 拆分为2笔账单</div></td></tr>
               <tr>
-                <td><strong>王芳</strong></td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('wangfang');return false" style="color:var(--qy-primary-500);text-decoration:none">王芳</a></strong></td>
                 <td><span class="trigger-tag trigger-tag--retroactive">追溯参保</span></td>
                 <td>2026-05-19 09:15</td><td>3个月</td><td>¥5,400.00</td>
                 <td><span class="qy-tag qy-tag--success">已重算</span></td>
               </tr>
               <tr><td colspan="6" style="padding:0"><div class="processed-detail" style="padding:4px 16px">B项目参保追溯至2026-01~03 · 费用归属B项目，标注原归属A项目</div></td></tr>
               <tr>
-                <td><strong>陈思</strong></td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('chensi');return false" style="color:var(--qy-primary-500);text-decoration:none">陈思</a></strong></td>
                 <td><span class="trigger-tag trigger-tag--policy">政策调整补差</span></td>
                 <td>2026-05-18 16:45</td><td>1个月</td><td>¥360.00</td>
                 <td><span class="qy-tag qy-tag--success">已重算</span></td>
               </tr>
               <tr><td colspan="6" style="padding:0"><div class="processed-detail" style="padding:4px 16px">2026年度基数调整，2026-01补差费用归属原归属方</div></td></tr>
               <tr class="row-error">
-                <td><strong>刘洋</strong></td>
+                <td><strong><a href="#" onclick="goToEmployeeDetail('liuyang');return false" style="color:var(--qy-primary-500);text-decoration:none">刘洋</a></strong></td>
                 <td><span class="trigger-tag trigger-tag--transfer">调动</span></td>
                 <td>2026-05-17 11:20</td><td>1个月</td><td>¥2,800.00</td>
                 <td><span class="qy-tag qy-tag--danger">重算失败</span></td>
@@ -499,6 +499,10 @@
         ]
       }
     ];
+
+    function goToEmployeeDetail(slug) {
+      window.location.href = 'employee-cost-detail.html?employee=' + slug;
+    }
 
     // Track which rows have been processed
     const processedRows = new Set();
@@ -646,8 +650,9 @@
         String(now.getHours()).padStart(2, '0') + ':' +
         String(now.getMinutes()).padStart(2, '0');
 
+      const slug = data.name === '丁霞' ? 'dingxia' : data.name === '萧秀兰' ? 'xiaoxiulan' : 'zhaojianguo';
       const tr1 = document.createElement('tr');
-      tr1.innerHTML = `<td><strong>${data.name}</strong></td>
+      tr1.innerHTML = `<td><strong><a href="#" onclick="goToEmployeeDetail('${slug}');return false" style="color:var(--qy-primary-500);text-decoration:none">${data.name}</a></strong></td>
         <td><span class="trigger-tag ${triggerClass}">${data.trigger}</span></td>
         <td>${timeStr}</td><td>${data.bills.length}个月</td><td>${data.summary.reduce((a, s) => a + parseFloat(s.amount.replace(/[¥,]/g, '')), 0).toFixed(2)}</td>
         <td><span class="qy-tag qy-tag--success">已重算</span></td>`;

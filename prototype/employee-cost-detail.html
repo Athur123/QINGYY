@@ -462,6 +462,106 @@
   </div>
 
   <script>
+    // Employee data store
+    const employees = {
+      dingxia: {
+        name: '丁霞', initial: '丁', gender: '女', type: '退休返聘', phone: '196****0821',
+        timeline: [
+          { month: '2026-03', project: '人才产业园' },
+          { month: '2026-04', project: '北京项目' },
+          { month: '2026-05~至今', project: '上海项目', current: true }
+        ],
+        history: [
+          { time: '2026-05-20 14:30', type: '调动', typeClass: 'fee-tag--normal', months: '2026-04、2026-05', oldEntity: '人才产业园', newEntity: '北京项目 → 上海项目', amount: '¥6,308.96', operator: '管理员', status: '已完成', statusClass: 'qy-tag--success' },
+          { time: '2026-04-15 10:20', type: '补缴', typeClass: 'fee-tag--supplement', months: '2026-02', oldEntity: '—', newEntity: '北京项目', amount: '¥2,180.00', operator: '管理员', status: '已完成', statusClass: 'qy-tag--success' },
+          { time: '2026-03-10 09:05', type: '补差', typeClass: 'fee-tag--adjustment', months: '2026-03', oldEntity: '人才产业园', newEntity: '人才产业园', amount: '-¥100.00', operator: '系统', status: '已退费', statusClass: 'qy-tag--success' }
+        ]
+      },
+      xiaoxiulan: {
+        name: '萧秀兰', initial: '萧', gender: '女', type: '劳务派遣', phone: '172****1264',
+        timeline: [
+          { month: '2026-03', project: '人才产业园' },
+          { month: '2026-04~至今', project: '上海项目', current: true }
+        ],
+        history: [
+          { time: '2026-05-18 16:45', type: '政策调整补差', typeClass: 'fee-tag--adjustment', months: '2026-03', oldEntity: '人才产业园', newEntity: '人才产业园', amount: '¥360.00', operator: '系统', status: '已处理', statusClass: 'qy-tag--success' },
+          { time: '2026-04-10 11:30', type: '调动', typeClass: 'fee-tag--normal', months: '2026-04', oldEntity: '人才产业园', newEntity: '上海项目', amount: '¥2,469.00', operator: '管理员', status: '已完成', statusClass: 'qy-tag--success' }
+        ]
+      },
+      zhaojianguo: {
+        name: '赵建国', initial: '赵', gender: '男', type: '劳务派遣', phone: '159****4432',
+        timeline: [
+          { month: '2026-02~03', project: '北京项目' },
+          { month: '2026-04~至今', project: '上海项目', current: true }
+        ],
+        history: [
+          { time: '2026-05-22 09:15', type: '手动补缴', typeClass: 'fee-tag--supplement', months: '2026-02', oldEntity: '—', newEntity: '北京项目', amount: '¥2,180.00', operator: '管理员', status: '已处理', statusClass: 'qy-tag--success' },
+          { time: '2026-04-01 14:00', type: '调动', typeClass: 'fee-tag--normal', months: '2026-04', oldEntity: '北京项目', newEntity: '上海项目', amount: '¥3,200.00', operator: '管理员', status: '已完成', statusClass: 'qy-tag--success' }
+        ]
+      },
+      zhangwei: {
+        name: '张伟', initial: '张', gender: '男', type: '正式员工', phone: '138****5678',
+        timeline: [
+          { month: '2026-01~至今', project: '北京项目', current: true }
+        ],
+        history: [
+          { time: '2026-03-05 10:00', type: '政策调整补差', typeClass: 'fee-tag--adjustment', months: '2026-01', oldEntity: '北京项目', newEntity: '北京项目', amount: '¥180.00', operator: '系统', status: '已处理', statusClass: 'qy-tag--success' }
+        ]
+      }
+    };
+
+    let currentEmployee = null;
+
+    function initPage() {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('employee') || 'dingxia';
+      currentEmployee = employees[slug] || employees['dingxia'];
+
+      // Update page title
+      document.title = '员工费用明细 — ' + currentEmployee.name + ' — 青阳云HRO';
+
+      // Update employee card
+      const avatar = document.querySelector('.employee-avatar');
+      avatar.textContent = currentEmployee.initial;
+      document.querySelector('.employee-name').textContent = currentEmployee.name;
+      document.querySelector('.employee-meta').textContent =
+        currentEmployee.gender + ' · ' + currentEmployee.type + ' · ' + currentEmployee.phone;
+
+      // Update timeline
+      const timelineEl = document.querySelector('.attribution-timeline');
+      timelineEl.innerHTML = '<span class="attribution-timeline-label">费用归属时间线:</span>';
+      currentEmployee.timeline.forEach((step, i) => {
+        if (i > 0) timelineEl.innerHTML += '<span class="attribution-arrow">→</span>';
+        const cls = step.current ? 'attribution-step is-current' : 'attribution-step';
+        timelineEl.innerHTML += `<span class="${cls}">${step.month} ${step.project}</span>`;
+      });
+
+      // Update history modal
+      const historyTitle = document.querySelector('#historyModal .qy-modal__title');
+      historyTitle.textContent = '费用调整历史记录 — ' + currentEmployee.name;
+
+      const historyBody = document.querySelector('#historyModal .qy-modal__body table tbody');
+      if (currentEmployee.history.length) {
+        historyBody.innerHTML = currentEmployee.history.map(h => `
+          <tr>
+            <td>${h.time}</td>
+            <td><span class="fee-tag ${h.typeClass}">${h.type}</span></td>
+            <td>${h.months}</td>
+            <td>${h.oldEntity}</td>
+            <td>${h.newEntity}</td>
+            <td>${h.amount}</td>
+            <td>${h.operator}</td>
+            <td><span class="qy-tag ${h.statusClass}">${h.status}</span></td>
+          </tr>
+        `).join('');
+      } else {
+        historyBody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--qy-text-muted);padding:20px">暂无调整记录</td></tr>';
+      }
+    }
+
+    // Run on load
+    initPage();
+
     function openHistory() { document.getElementById('historyModal').classList.add('is-open'); }
     function closeHistory() { document.getElementById('historyModal').classList.remove('is-open'); }
 
