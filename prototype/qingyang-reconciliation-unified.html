@@ -340,6 +340,28 @@
         .filter-bar__item--pending.is-active { background: #FEF3C7; }
         .filter-bar__item--diff { color: #991B1B; }
         .filter-bar__item--diff.is-active { background: #FEE2E2; }
+
+        /* ===== Bill Tabs ===== */
+        .bill-tabs { display: flex; gap: 0; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; }
+        .bill-tab { padding: 10px 24px; font-size: 14px; font-weight: 500; color: #64748B; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; user-select: none; }
+        .bill-tab:hover { color: #1E293B; }
+        .bill-tab.is-active { color: #2563EB; border-bottom-color: #2563EB; }
+        .bill-tab .tab-count { font-size: 11px; font-weight: 600; margin-left: 6px; padding: 1px 6px; border-radius: 10px; }
+        .bill-tab--system.is-active .tab-count { background: #DBEAFE; color: #1E40AF; }
+        .bill-tab--ledger.is-active .tab-count { background: #FEF3C7; color: #854D0E; }
+        .bill-tab:not(.is-active) .tab-count { background: #F1F5F9; color: #94A3B8; }
+
+        .bill-tab-panel { display: none; }
+        .bill-tab-panel.is-active { display: block; }
+
+        /* Summary strip per tab */
+        .summary-strip { display: flex; gap: 12px; margin-bottom: 16px; }
+        .summary-chip { padding: 8px 16px; background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 12px; }
+        .summary-chip__label { color: #64748B; }
+        .summary-chip__value { font-weight: 700; margin-left: 4px; }
+
+        /* Cross-reference link */
+        .cross-ref { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 3px; font-size: 10px; background: #F1F5F9; color: #64748B; }
     </style>
 </head>
 <body>
