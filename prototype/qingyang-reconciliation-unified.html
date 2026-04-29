@@ -815,6 +815,14 @@
         // Filter states
         let currentMatchFilter = 'all';
         let currentTypeFilter = 'all';
+
+        // Tab state
+        let currentBillTab = 'system';
+        let currentSystemMatchFilter = 'all';
+        let currentSystemTypeFilter = 'all';
+        let currentLedgerMatchFilter = 'all';
+        let currentLedgerTypeFilter = 'all';
+
         let currentDetailRecord = null;
         let currentPendingGroup = null;
 
@@ -866,6 +874,20 @@
         function formatMoney(v) {
             if (v === null || v === undefined) return '—';
             return '¥' + Number(v).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function switchBillTab(tab) {
+            currentBillTab = tab;
+            document.querySelectorAll('.bill-tab').forEach(t => t.classList.remove('is-active'));
+            document.querySelectorAll('.bill-tab-panel').forEach(p => p.classList.remove('is-active'));
+            if (tab === 'system') {
+                document.querySelector('.bill-tab--system').classList.add('is-active');
+                document.getElementById('panel-system').classList.add('is-active');
+            } else {
+                document.querySelector('.bill-tab--ledger').classList.add('is-active');
+                document.getElementById('panel-ledger').classList.add('is-active');
+            }
+            renderAllTables();
         }
 
         function maskIdCard(v) {
@@ -1041,26 +1063,42 @@
 
         // ========== 筛选与渲染 ==========
 
-        function toggleMatchFilter(filterType) {
-            currentMatchFilter = filterType;
-            document.querySelectorAll('.filter-bar__item[data-match]').forEach(item => {
+        // System tab filters
+        function toggleSystemMatchFilter(filterType) {
+            currentSystemMatchFilter = filterType;
+            document.querySelectorAll('#systemFilterBar .filter-bar__item[data-match]').forEach(item => {
                 item.classList.toggle('is-active', item.dataset.match === filterType);
             });
-            renderTable();
+            renderSystemTable();
         }
 
-        function toggleTypeFilter(type) {
-            currentTypeFilter = type;
-            document.querySelectorAll('.filter-bar__item[data-type]').forEach(item => {
+        function toggleSystemTypeFilter(type) {
+            currentSystemTypeFilter = type;
+            document.querySelectorAll('#systemFilterBar .filter-bar__item[data-type]').forEach(item => {
                 item.classList.toggle('is-active', item.dataset.type === type);
             });
-            renderTable();
+            renderSystemTable();
         }
 
-        function getAllDisplayRecords() {
-            const records = [];
-            const processedLedgerIds = new Set();
+        // Ledger tab filters
+        function toggleLedgerMatchFilter(filterType) {
+            currentLedgerMatchFilter = filterType;
+            document.querySelectorAll('#ledgerFilterBar .filter-bar__item[data-match]').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.match === filterType);
+            });
+            renderLedgerTable();
+        }
 
+        function toggleLedgerTypeFilter(type) {
+            currentLedgerTypeFilter = type;
+            document.querySelectorAll('#ledgerFilterBar .filter-bar__item[data-type]').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.type === type);
+            });
+            renderLedgerTable();
+        }
+
+        function getSystemDisplayRecords() {
+            const records = [];
             for (const sysRec of systemRecords) {
                 const ledRec = sysRec.matchedLedgerId
                     ? ledgerRecords.find(r => r.id === sysRec.matchedLedgerId)
@@ -1068,7 +1106,6 @@
 
                 records.push({
                     id: sysRec.id,
-                    side: 'system',
                     name: sysRec.name,
                     idCard: sysRec.idCard,
                     insuranceType: sysRec.insuranceType,
@@ -1078,86 +1115,203 @@
                     payableMonth: sysRec.payableMonth,
                     sysAmount: sysRec.amount,
                     ledgerAmount: ledRec ? ledRec.amount : null,
+                    matchedLedgerId: ledRec ? ledRec.id : null,
                     matchStatus: sysRec.matchStatus,
                     diffType: sysRec.diffType,
                     diffAmount: sysRec.diffAmount,
                     record: sysRec,
                     ledgerRecord: ledRec,
                 });
-
-                if (ledRec) processedLedgerIds.add(ledRec.id);
             }
-
-            for (const ledRec of ledgerRecords) {
-                if (!processedLedgerIds.has(ledRec.id)) {
-                    records.push({
-                        id: ledRec.id,
-                        side: 'ledger',
-                        name: ledRec.name,
-                        idCard: ledRec.idCard,
-                        insuranceType: ledRec.insuranceType,
-                        billingMonth: ledRec.billingMonth,
-                        feeType: ledRec.feeTypeInferred || '—',
-                        feePeriod: ledRec.feePeriod || null,
-                        payableMonth: null,
-                        sysAmount: null,
-                        ledgerAmount: ledRec.amount,
-                        matchStatus: ledRec.matchStatus,
-                        diffType: ledRec.diffType,
-                        diffAmount: ledRec.diffAmount,
-                        record: ledRec,
-                        ledgerRecord: ledRec,
-                    });
-                }
-            }
-
             return records;
         }
 
-        function getFilteredRecords() {
-            let records = getAllDisplayRecords();
+        function getLedgerDisplayRecords() {
+            const records = [];
+            for (const ledRec of ledgerRecords) {
+                const sysRec = ledRec.matchedSystemId
+                    ? systemRecords.find(r => r.id === ledRec.matchedSystemId)
+                    : null;
 
-            if (currentMatchFilter !== 'all') {
-                if (currentMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
-                else if (currentMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
-                else if (currentMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
+                records.push({
+                    id: ledRec.id,
+                    name: ledRec.name,
+                    idCard: ledRec.idCard,
+                    insuranceType: ledRec.insuranceType,
+                    billingMonth: ledRec.billingMonth,
+                    feeType: ledRec.feeTypeInferred || null,
+                    feePeriod: ledRec.feePeriod || null,
+                    payableMonth: null,
+                    sysAmount: sysRec ? sysRec.amount : null,
+                    ledgerAmount: ledRec.amount,
+                    matchedSystemId: sysRec ? sysRec.id : null,
+                    matchStatus: ledRec.matchStatus,
+                    diffType: ledRec.diffType,
+                    diffAmount: ledRec.diffAmount,
+                    record: ledRec,
+                    systemRecord: sysRec,
+                });
+            }
+            return records;
+        }
+
+        function getFilteredSystemRecords() {
+            let records = getSystemDisplayRecords();
+
+            if (currentSystemMatchFilter !== 'all') {
+                if (currentSystemMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
+                else if (currentSystemMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentSystemMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
             }
 
-            if (currentTypeFilter !== 'all') {
-                records = records.filter(r => r.feeType === currentTypeFilter);
+            if (currentSystemTypeFilter !== 'all') {
+                records = records.filter(r => r.feeType === currentSystemTypeFilter);
             }
 
             const nameVal = document.getElementById('filterName')?.value?.trim();
             if (nameVal) {
-                records = records.filter(r =>
-                    r.name.includes(nameVal) || r.idCard.includes(nameVal)
-                );
+                records = records.filter(r => r.name.includes(nameVal) || r.idCard.includes(nameVal));
             }
 
             return records;
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('unifiedTableBody');
+        function renderSystemTable() {
+            const tbody = document.getElementById('systemTableBody');
             if (!tbody) return;
-            const records = getFilteredRecords();
+            const records = getFilteredSystemRecords();
 
             tbody.innerHTML = records.map(r => {
                 const statusBadge = `<span class="status-badge ${getMatchStatusClass(r.matchStatus)}">${getMatchStatusLabel(r.matchStatus)}</span>`;
-                const typeBadge = r.feeType !== '—' ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '';
+                const typeBadge = r.feeType ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '—';
 
                 let diffStr = '—';
                 if (r.diffAmount !== null && r.diffAmount !== 0) {
                     diffStr = (r.diffAmount > 0 ? '+' : '') + formatMoney(r.diffAmount);
                 }
 
-                let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', '${r.side}')">详情</button>`;
+                let ledgerAmountCell = '—';
+                if (r.ledgerAmount !== null) {
+                    ledgerAmountCell = formatMoney(r.ledgerAmount);
+                    if (r.matchedLedgerId) {
+                        ledgerAmountCell += ` <span class="cross-ref">↔ ${r.matchedLedgerId}</span>`;
+                    }
+                }
+
+                let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'system')">详情</button>`;
                 if (r.matchStatus === MATCH_STATUS.PENDING) {
-                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', '${r.side}')">确认配对</button>`;
+                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'system')">确认配对</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF) {
-                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', '${r.side}')">详情</button>`;
+                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'system')">详情</button>`;
+                }
+
+                const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
+                    : r.matchStatus === MATCH_STATUS.PENDING ? 'row-pending'
+                    : r.matchStatus === MATCH_STATUS.DIFF ? 'row-diff' : '';
+
+                const payableMonthDisplay = r.feeType === 'huijiao' ? (r.payableMonth || '—') : '—';
+
+                return `<tr class="${rowClass}" data-id="${r.id}">
+                    <td><input type="checkbox" class="system-row-checkbox" data-id="${r.id}" onchange="updateSystemBatchButtons()"></td>
+                    <td>${statusBadge}</td>
+                    <td>${typeBadge}</td>
+                    <td><strong>${r.name}</strong></td>
+                    <td>${maskIdCard(r.idCard)}</td>
+                    <td>${r.insuranceType}</td>
+                    <td>${payableMonthDisplay}</td>
+                    <td>${r.feePeriod || '—'}</td>
+                    <td>${formatMoney(r.sysAmount)}</td>
+                    <td>${ledgerAmountCell}</td>
+                    <td style="color: ${r.diffAmount && r.diffAmount !== 0 ? '#DC2626' : 'inherit'}; font-weight: ${r.diffAmount && r.diffAmount !== 0 ? '600' : '400'}">${diffStr}</td>
+                    <td>${actionBtn}</td>
+                </tr>`;
+            }).join('');
+
+            document.getElementById('systemFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
+            updateSystemBatchButtons();
+            updateSystemSummary();
+            updateSystemMatchCounts(records);
+        }
+
+        function updateSystemSummary() {
+            const all = getSystemDisplayRecords();
+            const totalAmt = all.reduce((s, r) => s + r.sysAmount, 0);
+            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
+            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+
+            document.getElementById('sysTotalAmount').textContent = formatMoney(totalAmt);
+            document.getElementById('sysMatched').textContent = matchedCount;
+            document.getElementById('sysPending').textContent = pendingCount;
+            document.getElementById('sysDiff').textContent = diffCount;
+        }
+
+        function updateSystemMatchCounts(records) {
+            const all = records || getSystemDisplayRecords();
+            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
+            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+            const totalCount = all.length;
+
+            document.getElementById('sysMatchCountAll').textContent = totalCount;
+            document.getElementById('sysMatchCountMatched').textContent = matchedCount;
+            document.getElementById('sysMatchCountPending').textContent = pendingCount;
+            document.getElementById('sysMatchCountDiff').textContent = diffCount;
+            document.getElementById('systemTabCount').textContent = totalCount;
+        }
+
+        function getFilteredLedgerRecords() {
+            let records = getLedgerDisplayRecords();
+
+            if (currentLedgerMatchFilter !== 'all') {
+                if (currentLedgerMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
+                else if (currentLedgerMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentLedgerMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
+            }
+
+            if (currentLedgerTypeFilter !== 'all') {
+                records = records.filter(r => r.feeType === currentLedgerTypeFilter);
+            }
+
+            const nameVal = document.getElementById('filterName')?.value?.trim();
+            if (nameVal) {
+                records = records.filter(r => r.name.includes(nameVal) || r.idCard.includes(nameVal));
+            }
+
+            return records;
+        }
+
+        function renderLedgerTable() {
+            const tbody = document.getElementById('ledgerTableBody');
+            if (!tbody) return;
+            const records = getFilteredLedgerRecords();
+
+            tbody.innerHTML = records.map(r => {
+                const statusBadge = `<span class="status-badge ${getMatchStatusClass(r.matchStatus)}">${getMatchStatusLabel(r.matchStatus)}</span>`;
+                const typeBadge = r.feeType ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '—';
+
+                let diffStr = '—';
+                if (r.diffAmount !== null && r.diffAmount !== 0) {
+                    diffStr = (r.diffAmount > 0 ? '+' : '') + formatMoney(r.diffAmount);
+                }
+
+                let sysAmountCell = '—';
+                if (r.sysAmount !== null) {
+                    sysAmountCell = formatMoney(r.sysAmount);
+                    if (r.matchedSystemId) {
+                        sysAmountCell += ` <span class="cross-ref">↔ ${r.matchedSystemId}</span>`;
+                    }
+                }
+
+                let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
+                if (r.matchStatus === MATCH_STATUS.PENDING) {
+                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'ledger')">确认配对</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
+                    actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.DIFF) {
+                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
                 }
 
                 const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
@@ -1165,29 +1319,229 @@
                     : r.matchStatus === MATCH_STATUS.DIFF ? 'row-diff' : '';
 
                 return `<tr class="${rowClass}" data-id="${r.id}">
-                    <td><input type="checkbox" class="row-checkbox" data-id="${r.id}" data-side="${r.side}" onchange="updateBatchButtons()"></td>
+                    <td><input type="checkbox" class="ledger-row-checkbox" data-id="${r.id}" onchange="updateLedgerBatchButtons()"></td>
                     <td>${statusBadge}</td>
                     <td>${typeBadge}</td>
                     <td><strong>${r.name}</strong></td>
                     <td>${maskIdCard(r.idCard)}</td>
                     <td>${r.insuranceType}</td>
-                    <td>${r.payableMonth || '—'}</td>
+                    <td>${r.billingMonth || '—'}</td>
                     <td>${r.feePeriod || '—'}</td>
-                    <td>${r.sysAmount !== null ? formatMoney(r.sysAmount) : '—'}</td>
-                    <td>${r.ledgerAmount !== null ? formatMoney(r.ledgerAmount) : '—'}</td>
+                    <td>${formatMoney(r.ledgerAmount)}</td>
+                    <td>${sysAmountCell}</td>
                     <td style="color: ${r.diffAmount && r.diffAmount !== 0 ? '#DC2626' : 'inherit'}; font-weight: ${r.diffAmount && r.diffAmount !== 0 ? '600' : '400'}">${diffStr}</td>
                     <td>${actionBtn}</td>
                 </tr>`;
             }).join('');
 
-            document.getElementById('tableFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
-            updateBatchButtons();
+            document.getElementById('ledgerFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
+            updateLedgerBatchButtons();
+            updateLedgerSummary();
+            updateLedgerMatchCounts(records);
+        }
+
+        function updateLedgerSummary() {
+            const all = getLedgerDisplayRecords();
+            const totalAmt = all.reduce((s, r) => s + r.ledgerAmount, 0);
+            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
+            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+
+            document.getElementById('ledgerTotalAmount').textContent = formatMoney(totalAmt);
+            document.getElementById('ledgerMatched').textContent = matchedCount;
+            document.getElementById('ledgerPending').textContent = pendingCount;
+            document.getElementById('ledgerDiff').textContent = diffCount;
+        }
+
+        function updateLedgerMatchCounts(records) {
+            const all = records || getLedgerDisplayRecords();
+            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
+            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
+            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
+            const totalCount = all.length;
+
+            document.getElementById('ledgerMatchCountAll').textContent = totalCount;
+            document.getElementById('ledgerMatchCountMatched').textContent = matchedCount;
+            document.getElementById('ledgerMatchCountPending').textContent = pendingCount;
+            document.getElementById('ledgerMatchCountDiff').textContent = diffCount;
+            document.getElementById('ledgerTabCount').textContent = totalCount;
+        }
+
+        function renderAllTables() {
+            renderSystemTable();
+            renderLedgerTable();
+            updateStats();
+        }
+
+        // === System batch operations ===
+        function getSelectedSystemIds() {
+            return Array.from(document.querySelectorAll('#systemTableBody .system-row-checkbox:checked')).map(cb => cb.dataset.id);
+        }
+
+        function toggleSystemSelectAll() {
+            const checkboxes = document.querySelectorAll('#systemTableBody .system-row-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            const newChecked = !allChecked;
+            checkboxes.forEach(cb => cb.checked = newChecked);
+            updateSystemBatchButtons();
+        }
+
+        function updateSystemBatchButtons() {
+            const selectedIds = getSelectedSystemIds();
+            const hasSelection = selectedIds.length > 0;
+            const batchConfirmBtn = document.getElementById('sysBatchConfirmBtn');
+            const batchCancelBtn = document.getElementById('sysBatchCancelBtn');
+            if (batchConfirmBtn) batchConfirmBtn.disabled = !hasSelection;
+            if (batchCancelBtn) batchCancelBtn.disabled = !hasSelection;
+            const selectAllBtn = document.getElementById('sysSelectAllBtn');
+            if (selectAllBtn) {
+                const totalCount = document.querySelectorAll('#systemTableBody .system-row-checkbox').length;
+                selectAllBtn.textContent = selectedIds.length === totalCount ? '取消全选' : '全选';
+            }
+        }
+
+        function systemBatchConfirm() {
+            const selectedIds = getSelectedSystemIds();
+            if (selectedIds.length === 0) {
+                showToast('请先选择记录', 'warning');
+                return;
+            }
+
+            let confirmed = 0;
+            for (const id of selectedIds) {
+                const sysRec = systemRecords.find(r => r.id === id);
+                if (sysRec && sysRec.matchStatus === MATCH_STATUS.PENDING) {
+                    const group = matchingResults.pending.find(g =>
+                        g.systemRecords.some(r => r.id === id)
+                    );
+                    if (group && group.ledgerRecords.length > 0) {
+                        const idx = group.systemRecords.findIndex(r => r.id === id);
+                        const ledRec = group.ledgerRecords[idx] || group.ledgerRecords[0];
+                        if (confirmPendingPairing(id, ledRec.id)) {
+                            confirmed++;
+                        }
+                    }
+                }
+            }
+
+            renderAllTables();
+            if (confirmed > 0) {
+                showToast(`批量确认 ${confirmed} 条`, 'success');
+            } else {
+                showToast('所选记录中无可确认配对', 'warning');
+            }
+        }
+
+        function systemBatchCancel() {
+            const selectedIds = getSelectedSystemIds();
+            if (selectedIds.length === 0) {
+                showToast('请先选择记录', 'warning');
+                return;
+            }
+
+            let cancelled = 0;
+            for (const id of selectedIds) {
+                const sysRec = systemRecords.find(r => r.id === id);
+                if (sysRec && sysRec.matchStatus === MATCH_STATUS.MATCHED) {
+                    cancelMatch(id);
+                    cancelled++;
+                }
+            }
+
+            renderAllTables();
+            if (cancelled > 0) {
+                showToast(`批量取消 ${cancelled} 条`, 'success');
+            } else {
+                showToast('所选记录中无可取消匹配', 'warning');
+            }
+        }
+
+        // === Ledger batch operations ===
+        function getSelectedLedgerIds() {
+            return Array.from(document.querySelectorAll('#ledgerTableBody .ledger-row-checkbox:checked')).map(cb => cb.dataset.id);
+        }
+
+        function toggleLedgerSelectAll() {
+            const checkboxes = document.querySelectorAll('#ledgerTableBody .ledger-row-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            const newChecked = !allChecked;
+            checkboxes.forEach(cb => cb.checked = newChecked);
+            updateLedgerBatchButtons();
+        }
+
+        function updateLedgerBatchButtons() {
+            const selectedIds = getSelectedLedgerIds();
+            const hasSelection = selectedIds.length > 0;
+            const batchConfirmBtn = document.getElementById('ledgerBatchConfirmBtn');
+            const batchCancelBtn = document.getElementById('ledgerBatchCancelBtn');
+            if (batchConfirmBtn) batchConfirmBtn.disabled = !hasSelection;
+            if (batchCancelBtn) batchCancelBtn.disabled = !hasSelection;
+            const selectAllBtn = document.getElementById('ledgerSelectAllBtn');
+            if (selectAllBtn) {
+                const totalCount = document.querySelectorAll('#ledgerTableBody .ledger-row-checkbox').length;
+                selectAllBtn.textContent = selectedIds.length === totalCount ? '取消全选' : '全选';
+            }
+        }
+
+        function ledgerBatchConfirm() {
+            const selectedIds = getSelectedLedgerIds();
+            if (selectedIds.length === 0) {
+                showToast('请先选择记录', 'warning');
+                return;
+            }
+
+            let confirmed = 0;
+            for (const id of selectedIds) {
+                const ledRec = ledgerRecords.find(r => r.id === id);
+                if (ledRec && ledRec.matchStatus === MATCH_STATUS.PENDING) {
+                    const group = matchingResults.pending.find(g =>
+                        g.ledgerRecords.some(r => r.id === id)
+                    );
+                    if (group && group.systemRecords.length > 0) {
+                        const idx = group.ledgerRecords.findIndex(r => r.id === id);
+                        const sysRec = group.systemRecords[idx] || group.systemRecords[0];
+                        if (confirmPendingPairing(sysRec.id, id)) {
+                            confirmed++;
+                        }
+                    }
+                }
+            }
+
+            renderAllTables();
+            if (confirmed > 0) {
+                showToast(`批量确认 ${confirmed} 条`, 'success');
+            } else {
+                showToast('所选记录中无可确认配对', 'warning');
+            }
+        }
+
+        function ledgerBatchCancel() {
+            const selectedIds = getSelectedLedgerIds();
+            if (selectedIds.length === 0) {
+                showToast('请先选择记录', 'warning');
+                return;
+            }
+
+            let cancelled = 0;
+            for (const id of selectedIds) {
+                const ledRec = ledgerRecords.find(r => r.id === id);
+                if (ledRec && ledRec.matchStatus === MATCH_STATUS.MATCHED) {
+                    cancelMatch(id);
+                    cancelled++;
+                }
+            }
+
+            renderAllTables();
+            if (cancelled > 0) {
+                showToast(`批量取消 ${cancelled} 条`, 'success');
+            } else {
+                showToast('所选记录中无可取消匹配', 'warning');
+            }
         }
 
         function doCancelMatch(id) {
             cancelMatch(id);
-            renderTable();
-            updateStats();
+            renderAllTables();
             updateMatchCounts();
             showToast('已取消匹配', 'success');
         }
@@ -1218,16 +1572,7 @@
         }
 
         function updateMatchCounts() {
-            const all = getAllDisplayRecords();
-            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
-            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-            const totalCount = all.length;
-
-            document.getElementById('matchCountAll').textContent = totalCount;
-            document.getElementById('matchCountMatched').textContent = matchedCount;
-            document.getElementById('matchCountPending').textContent = pendingCount;
-            document.getElementById('matchCountDiff').textContent = diffCount;
+            // Tab panels have their own count updates via updateSystemMatchCounts / updateLedgerMatchCounts
         }
 
         // ========== 台账导入 ==========
@@ -1328,7 +1673,7 @@
             closeImportDialog();
             updateStats();
             updateMatchCounts();
-            renderTable();
+            renderAllTables();
             showToast(`导入成功：${successRows.length} 条记录`, 'success');
         }
 
@@ -1365,8 +1710,7 @@
             setTimeout(() => {
                 executeMatching();
                 document.getElementById('loadingOverlay').classList.remove('is-visible');
-                renderTable();
-                updateStats();
+                renderAllTables();
                 updateMatchCounts();
 
                 const { matched, pending, diffs } = matchingResults;
@@ -1575,8 +1919,7 @@
             }
 
             closePairingDrawer();
-            renderTable();
-            updateStats();
+            renderAllTables();
             updateMatchCounts();
             if (confirmed > 0) {
                 showToast(`已确认 ${confirmed} 对配对`, 'success');
@@ -1732,8 +2075,7 @@
                 markDiffHandled(currentDetailRecord.id);
             }
             closeDetailDrawer();
-            renderTable();
-            updateStats();
+            renderAllTables();
             updateMatchCounts();
             showToast('已标记为已处理', 'success');
         }
@@ -1772,8 +2114,7 @@
                 }
             });
 
-            renderTable();
-            updateStats();
+            renderAllTables();
             updateMatchCounts();
             showToast(`归档完成：共归档 ${systemRecords.filter(r => r.archived).length} 条记录`, 'success');
         }
@@ -1792,34 +2133,6 @@
         }
 
         let confirmCallback = null;
-
-        // ========== Batch Operations ==========
-
-        function getSelectedIds() {
-            return Array.from(document.querySelectorAll('#unifiedTableBody .row-checkbox:checked')).map(cb => cb.dataset.id);
-        }
-
-        function toggleSelectAll() {
-            const rowCheckboxes = document.querySelectorAll('#unifiedTableBody .row-checkbox');
-            const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
-            const newChecked = !allChecked;
-            rowCheckboxes.forEach(cb => cb.checked = newChecked);
-            updateBatchButtons();
-        }
-
-        function updateBatchButtons() {
-            const selectedIds = getSelectedIds();
-            const hasSelection = selectedIds.length > 0;
-            const batchConfirmBtn = document.getElementById('batchConfirmBtn');
-            const batchCancelBtn = document.getElementById('batchCancelBtn');
-            if (batchConfirmBtn) batchConfirmBtn.disabled = !hasSelection;
-            if (batchCancelBtn) batchCancelBtn.disabled = !hasSelection;
-            const selectAllBtn = document.getElementById('selectAllBtn');
-            if (selectAllBtn) {
-                const totalCount = document.querySelectorAll('#unifiedTableBody .row-checkbox').length;
-                selectAllBtn.textContent = selectedIds.length === totalCount ? '取消全选' : '全选';
-            }
-        }
 
         // ========== Toast ==========
 
@@ -1852,75 +2165,12 @@
             }
         });
 
-        // ========== Batch Operations ==========
-
-        function batchConfirm() {
-            const selectedIds = getSelectedIds();
-            if (selectedIds.length === 0) {
-                showToast('请先选择记录', 'warning');
-                return;
-            }
-
-            let confirmed = 0;
-            for (const id of selectedIds) {
-                const sysRec = systemRecords.find(r => r.id === id);
-                if (sysRec && sysRec.matchStatus === MATCH_STATUS.PENDING) {
-                    // Auto-pair with first available ledger record of same amount
-                    const group = matchingResults.pending.find(g =>
-                        g.systemRecords.some(r => r.id === id)
-                    );
-                    if (group && group.ledgerRecords.length > 0) {
-                        const idx = group.systemRecords.findIndex(r => r.id === id);
-                        const ledRec = group.ledgerRecords[idx] || group.ledgerRecords[0];
-                        if (confirmPendingPairing(id, ledRec.id)) {
-                            confirmed++;
-                        }
-                    }
-                }
-            }
-
-            renderTable();
-            updateStats();
-            updateMatchCounts();
-            if (confirmed > 0) {
-                showToast(`批量确认 ${confirmed} 条`, 'success');
-            } else {
-                showToast('所选记录中无可确认配对', 'warning');
-            }
-        }
-
-        function batchCancel() {
-            const selectedIds = getSelectedIds();
-            if (selectedIds.length === 0) {
-                showToast('请先选择记录', 'warning');
-                return;
-            }
-
-            let cancelled = 0;
-            for (const id of selectedIds) {
-                const sysRec = systemRecords.find(r => r.id === id);
-                if (sysRec && sysRec.matchStatus === MATCH_STATUS.MATCHED) {
-                    cancelMatch(id);
-                    cancelled++;
-                }
-            }
-
-            renderTable();
-            updateStats();
-            updateMatchCounts();
-            if (cancelled > 0) {
-                showToast(`批量取消 ${cancelled} 条`, 'success');
-            } else {
-                showToast('所选记录中无可取消匹配', 'warning');
-            }
-        }
-
         // ========== Init ==========
 
         document.addEventListener('DOMContentLoaded', () => {
             updateStats();
             updateMatchCounts();
-            renderTable();
+            renderAllTables();
         });
     </script>
 </body>
