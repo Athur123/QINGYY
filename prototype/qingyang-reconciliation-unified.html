@@ -141,15 +141,15 @@
         /* Column widths */
         .data-table .qy-table th:nth-child(1), .data-table .qy-table td:nth-child(1) { width: 40px; text-align: center; }
         .data-table .qy-table th:nth-child(2), .data-table .qy-table td:nth-child(2) { width: 72px; }
-        .data-table .qy-table th:nth-child(3), .data-table .qy-table td:nth-child(3) { width: 130px; }
-        .data-table .qy-table th:nth-child(4), .data-table .qy-table td:nth-child(4) { width: 100px; }
-        .data-table .qy-table th:nth-child(5), .data-table .qy-table td:nth-child(5) { width: 70px; }
-        .data-table .qy-table th:nth-child(6), .data-table .qy-table td:nth-child(6) { width: 72px; }
-        .data-table .qy-table th:nth-child(7), .data-table .qy-table td:nth-child(7) { width: 72px; }
-        .data-table .qy-table th:nth-child(8), .data-table .qy-table td:nth-child(8) { width: 100px; }
-        .data-table .qy-table th:nth-child(9), .data-table .qy-table td:nth-child(9) { width: 100px; }
+        .data-table .qy-table th:nth-child(3), .data-table .qy-table td:nth-child(3) { width: 80px; }
+        .data-table .qy-table th:nth-child(4), .data-table .qy-table td:nth-child(4) { width: 60px; }
+        .data-table .qy-table th:nth-child(5), .data-table .qy-table td:nth-child(5) { width: 130px; }
+        .data-table .qy-table th:nth-child(6), .data-table .qy-table td:nth-child(6) { width: 70px; }
+        .data-table .qy-table th:nth-child(7), .data-table .qy-table td:nth-child(7) { width: 80px; }
+        .data-table .qy-table th:nth-child(8), .data-table .qy-table td:nth-child(8) { width: 80px; }
+        .data-table .qy-table th:nth-child(9), .data-table .qy-table td:nth-child(9) { width: 80px; }
         .data-table .qy-table th:nth-child(10), .data-table .qy-table td:nth-child(10) { width: 80px; }
-        .data-table .qy-table th:nth-child(11), .data-table .qy-table td:nth-child(11) { width: 80px; }
+        .data-table .qy-table th:nth-child(11), .data-table .qy-table td:nth-child(11) { width: 70px; }
         .data-table .qy-table th:nth-child(12), .data-table .qy-table td:nth-child(12) { width: 70px; }
 
         /* Type Badge */
@@ -290,13 +290,14 @@
         .row-diff:hover td { background: #FEE2E2; }
 
         /* Pairing Drawer */
+        .pairing-drawer { width: 600px; }
         .pairing-section { margin-bottom: 16px; }
         .pairing-section__title { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--qy-border-light); }
         .pairing-recommendation { background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md); padding: 12px; margin-bottom: 12px; }
         .pairing-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--qy-border-light); }
         .pairing-row:last-child { border-bottom: none; }
         .pairing-row__check { width: 18px; height: 18px; accent-color: var(--qy-primary-500); }
-        .pairing-row__label { font-size: 12px; color: var(--qy-text-secondary); flex-shrink: 0; min-width: 120px; }
+        .pairing-row__label { font-size: 12px; color: var(--qy-text-secondary); flex-shrink: 0; min-width: 180px; }
         .pairing-row__arrow { color: var(--qy-text-muted); }
         .pairing-row__select { flex: 1; height: 32px; padding: 0 28px 0 10px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-sm); font-size: 12px; appearance: none; background: var(--qy-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; }
         .pairing-hint { font-size: 12px; color: var(--qy-text-muted); margin-top: 8px; padding: 8px; background: #EFF6FF; border-radius: var(--qy-radius-sm); }
@@ -487,6 +488,7 @@
                                     <th>身份证号</th>
                                     <th>险种</th>
                                     <th>应缴月份</th>
+                                    <th>费款所属期</th>
                                     <th>系统金额</th>
                                     <th>台账金额</th>
                                     <th>差异</th>
@@ -558,7 +560,7 @@
                     <div id="importPreviewErrors"></div>
                     <table class="qy-table import-preview__table" id="importPreviewTable">
                         <thead>
-                            <tr><th>姓名</th><th>身份证</th><th>险种</th><th>月份</th><th>金额</th><th>状态</th></tr>
+                            <tr><th>姓名</th><th>身份证</th><th>险种</th><th>月份</th><th>费款所属期</th><th>金额</th><th>状态</th></tr>
                         </thead>
                         <tbody id="importPreviewBody"></tbody>
                     </table>
@@ -593,7 +595,7 @@
 
     <!-- Pairing Drawer -->
     <div class="drawer-overlay" id="pairingDrawer" onclick="closePairingDrawer(event)">
-        <div class="drawer" style="width: 600px;">
+        <div class="drawer pairing-drawer">
             <div class="drawer__header">
                 <h3 class="drawer__title" id="pairingDrawerTitle">确认配对</h3>
                 <button class="drawer__close" onclick="closePairingDrawer()">
@@ -670,12 +672,12 @@
 
         // 系统侧费用记录
         let systemRecords = [
-            { id: 'S001', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', payableMonth: '2026-04', amountCompany: 1000, amountPersonal: 500, amount: 1500, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S002', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', payableMonth: null, amountCompany: 423.50, amountPersonal: 211.75, amount: 635.25, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S003', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', payableMonth: null, amountCompany: 256, amountPersonal: 128, amount: 384, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S004', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'tiaoji', payableMonth: null, amountCompany: 78, amountPersonal: 39, amount: 117, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S005', name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'bujiao', payableMonth: null, amountCompany: 400, amountPersonal: 200, amount: 600, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S006', name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', payableMonth: '2026-04', amountCompany: 120, amountPersonal: 30, amount: 150, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S001', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 1000, amountPersonal: 500, amount: 1500, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S002', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', feePeriod: '2025-12', payableMonth: null, amountCompany: 423.50, amountPersonal: 211.75, amount: 635.25, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S003', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', feePeriod: '2026-01', payableMonth: null, amountCompany: 256, amountPersonal: 128, amount: 384, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S004', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'tiaoji', feePeriod: '2026-02', payableMonth: null, amountCompany: 78, amountPersonal: 39, amount: 117, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S005', name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'bujiao', feePeriod: '2026-03', payableMonth: null, amountCompany: 400, amountPersonal: 200, amount: 600, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S006', name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 120, amountPersonal: 30, amount: 150, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
         ];
 
         // 台账侧记录（导入后填充）
@@ -726,7 +728,7 @@
         }
 
         function makeGroupKey(record) {
-            return `${normalizeIdCard(record.idCard)}|${normalizeInsuranceType(record.insuranceType)}|${record.billingMonth}`;
+            return `${normalizeIdCard(record.idCard)}|${normalizeInsuranceType(record.insuranceType)}|${record.billingMonth}|${record.feePeriod || ''}`;
         }
 
         function groupByKey(records, keyFn) {
@@ -838,13 +840,28 @@
                     } else if (sysForAmount.length === 1 && ledForAmount.length === 1) {
                         const sysRec = sysForAmount[0];
                         const ledRec = ledForAmount[0];
-                        sysRec.matchStatus = MATCH_STATUS.MATCHED;
-                        sysRec.matchedLedgerId = ledRec.id;
-                        ledRec.matchStatus = MATCH_STATUS.MATCHED;
-                        ledRec.matchedSystemId = sysRec.id;
-                        sysRec.payableMonth = ledRec.billingMonth;
-                        ledRec.feeTypeInferred = sysRec.feeType;
-                        matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
+
+                        // 汇缴费用自动匹配，补缴/调基补差强制进入待确认
+                        const isAutoMatchable = sysRec.feeType === BILL_TYPES.HUIJIAO;
+
+                        if (isAutoMatchable) {
+                            sysRec.matchStatus = MATCH_STATUS.MATCHED;
+                            sysRec.matchedLedgerId = ledRec.id;
+                            ledRec.matchStatus = MATCH_STATUS.MATCHED;
+                            ledRec.matchedSystemId = sysRec.id;
+                            sysRec.payableMonth = ledRec.billingMonth;
+                            ledRec.feeTypeInferred = sysRec.feeType;
+                            matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
+                        } else {
+                            // 补缴/调基补差 → 待确认
+                            sysRec.matchStatus = MATCH_STATUS.PENDING;
+                            ledRec.matchStatus = MATCH_STATUS.PENDING;
+                            matchingResults.pending.push({
+                                amount,
+                                systemRecords: sysForAmount,
+                                ledgerRecords: ledForAmount,
+                            });
+                        }
                     } else {
                         for (const r of sysForAmount) r.matchStatus = MATCH_STATUS.PENDING;
                         for (const r of ledForAmount) r.matchStatus = MATCH_STATUS.PENDING;
@@ -886,12 +903,13 @@
             if (sysRec) {
                 sysRec.matchStatus = MATCH_STATUS.UNMATCHED;
                 sysRec.matchedLedgerId = null;
-                sysRec.payableMonth = sysRec.feeType === 'huijiao' ? sysRec.billingMonth : null;
+                // feePeriod is already the original value, no need to restore
             }
             if (ledRec) {
                 ledRec.matchStatus = MATCH_STATUS.UNMATCHED;
                 ledRec.matchedSystemId = null;
                 ledRec.feeTypeInferred = null;
+                ledRec.feePeriod = null;
             }
             matchingResults.matched = matchingResults.matched.filter(
                 m => m.systemRecord.id !== recordId && m.ledgerRecord.id !== recordId
@@ -944,6 +962,8 @@
                     insuranceType: sysRec.insuranceType,
                     billingMonth: sysRec.billingMonth,
                     feeType: sysRec.feeType,
+                    feePeriod: sysRec.feePeriod || null,
+                    payableMonth: sysRec.payableMonth,
                     sysAmount: sysRec.amount,
                     ledgerAmount: ledRec ? ledRec.amount : null,
                     matchStatus: sysRec.matchStatus,
@@ -966,6 +986,8 @@
                         insuranceType: ledRec.insuranceType,
                         billingMonth: ledRec.billingMonth,
                         feeType: ledRec.feeTypeInferred || '—',
+                        feePeriod: ledRec.feePeriod || null,
+                        payableMonth: null,
                         sysAmount: null,
                         ledgerAmount: ledRec.amount,
                         matchStatus: ledRec.matchStatus,
@@ -1019,7 +1041,7 @@
 
                 let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', '${r.side}')">详情</button>`;
                 if (r.matchStatus === MATCH_STATUS.PENDING) {
-                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}')">确认配对</button>`;
+                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', '${r.side}')">确认配对</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF) {
@@ -1037,7 +1059,8 @@
                     <td><strong>${r.name}</strong></td>
                     <td>${maskIdCard(r.idCard)}</td>
                     <td>${r.insuranceType}</td>
-                    <td>${r.billingMonth}</td>
+                    <td>${r.payableMonth || '—'}</td>
+                    <td>${r.feePeriod || '—'}</td>
                     <td>${r.sysAmount !== null ? formatMoney(r.sysAmount) : '—'}</td>
                     <td>${r.ledgerAmount !== null ? formatMoney(r.ledgerAmount) : '—'}</td>
                     <td style="color: ${r.diffAmount && r.diffAmount !== 0 ? '#DC2626' : 'inherit'}; font-weight: ${r.diffAmount && r.diffAmount !== 0 ? '600' : '400'}">${diffStr}</td>
@@ -1121,13 +1144,13 @@
         function useMockImportData() {
             importFileData = {
                 successRows: [
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 1500 },
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 635.25 },
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 384 },
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', amount: 117 },
-                    { name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', amount: 450 },
-                    { name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', amount: 142.50 },
-                    { name: '赵六', idCard: '430108199304044567', insuranceType: '养老', billingMonth: '2026-04', amount: 823 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1500 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2025-12', amount: 635.25 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-01', amount: 384 },
+                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-02', amount: 117 },
+                    { name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-03', amount: 450 },
+                    { name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 142.50 },
+                    { name: '赵六', idCard: '430108199304044567', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 823 },
                 ],
                 errorRows: [],
             };
@@ -1154,8 +1177,8 @@
 
             const tbody = document.getElementById('importPreviewBody');
             tbody.innerHTML = successRows.slice(0, 10).map(r =>
-                `<tr><td>${r.name}</td><td>${maskIdCard(r.idCard)}</td><td>${r.insuranceType}</td><td>${r.billingMonth}</td><td>${formatMoney(r.amount)}</td><td style="color:#16A34A;">✅</td></tr>`
-            ).join('') + (successRows.length > 10 ? `<tr><td colspan="6">... 还有 ${successRows.length - 10} 条</td></tr>` : '');
+                `<tr><td>${r.name}</td><td>${maskIdCard(r.idCard)}</td><td>${r.insuranceType}</td><td>${r.billingMonth}</td><td>${r.feePeriod}</td><td>${formatMoney(r.amount)}</td><td style="color:#16A34A;">✅</td></tr>`
+            ).join('') + (successRows.length > 10 ? `<tr><td colspan="7">... 还有 ${successRows.length - 10} 条</td></tr>` : '');
         }
 
         function importNextStep() {
@@ -1171,6 +1194,7 @@
                 idCard: r.idCard,
                 insuranceType: r.insuranceType,
                 billingMonth: r.billingMonth,
+                feePeriod: r.feePeriod || null,
                 amount: r.amount,
                 feeType: null,
                 feeTypeInferred: null,
@@ -1242,56 +1266,98 @@
 
         let currentPairingGroup = null;
         let pairingSelections = {};
+        let pairingDirection = 'system'; // 'system' = system→ledger, 'ledger' = ledger→system
 
-        function openPairingDrawer(systemId) {
-            const sysRec = systemRecords.find(r => r.id === systemId);
-            if (!sysRec || sysRec.matchStatus !== MATCH_STATUS.PENDING) return;
+        function openPairingDrawer(recordId, side) {
+            if (!side) side = 'system';
 
-            const group = matchingResults.pending.find(g =>
-                g.systemRecords.some(r => r.id === systemId)
-            );
+            let group;
+            if (side === 'system') {
+                const sysRec = systemRecords.find(r => r.id === recordId);
+                if (!sysRec || sysRec.matchStatus !== MATCH_STATUS.PENDING) return;
+                group = matchingResults.pending.find(g =>
+                    g.systemRecords.some(r => r.id === recordId)
+                );
+            } else {
+                const ledRec = ledgerRecords.find(r => r.id === recordId);
+                if (!ledRec || ledRec.matchStatus !== MATCH_STATUS.PENDING) return;
+                group = matchingResults.pending.find(g =>
+                    g.ledgerRecords.some(r => r.id === recordId)
+                );
+            }
             if (!group) return;
 
             currentPairingGroup = group;
+            pairingDirection = side;
             pairingSelections = {};
-            group.systemRecords.forEach((sys, i) => {
-                if (group.ledgerRecords[i]) {
-                    pairingSelections[sys.id] = group.ledgerRecords[i].id;
-                }
-            });
+
+            if (side === 'system') {
+                group.systemRecords.forEach((sys, i) => {
+                    if (group.ledgerRecords[i]) {
+                        pairingSelections[sys.id] = group.ledgerRecords[i].id;
+                    }
+                });
+            } else {
+                group.ledgerRecords.forEach((led, i) => {
+                    if (group.systemRecords[i]) {
+                        pairingSelections[led.id] = group.systemRecords[i].id;
+                    }
+                });
+            }
 
             renderPairingDrawer();
             document.getElementById('pairingDrawer').classList.add('is-visible');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                const firstBtn = document.querySelector('#pairingDrawer .drawer__close');
+                if (firstBtn) firstBtn.focus();
+            }, 300);
         }
 
         function closePairingDrawer(event) {
             if (event && event.target !== event.currentTarget) return;
             document.getElementById('pairingDrawer').classList.remove('is-visible');
+            document.body.style.overflow = '';
             currentPairingGroup = null;
             pairingSelections = {};
+            pairingDirection = 'system';
+        }
+
+        function closeDetailDrawer(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('detailDrawer').classList.remove('is-visible');
+            document.body.style.overflow = '';
+            currentDetailRecord = null;
         }
 
         function renderPairingDrawer() {
             const group = currentPairingGroup;
             if (!group) return;
 
-            const firstSys = group.systemRecords[0];
             const body = document.getElementById('pairingDrawerBody');
+            const isSystemDir = pairingDirection === 'system';
+            const primaryRec = isSystemDir ? group.systemRecords[0] : group.ledgerRecords[0];
+            const primaryLabel = isSystemDir ? '系统侧' : '台账侧';
+            const targetLabel = isSystemDir ? '台账记录' : '系统明细';
 
             let html = `
                 <div class="drawer-section">
                     <div class="drawer-row">
                         <span class="drawer-row__label">员工</span>
-                        <span class="drawer-row__value">${firstSys.name}</span>
+                        <span class="drawer-row__value">${primaryRec.name}</span>
                     </div>
                     <div class="drawer-row">
                         <span class="drawer-row__label">险种</span>
-                        <span class="drawer-row__value">${firstSys.insuranceType}</span>
+                        <span class="drawer-row__value">${primaryRec.insuranceType}</span>
                     </div>
                     <div class="drawer-row">
                         <span class="drawer-row__label">应缴月份</span>
-                        <span class="drawer-row__value">${firstSys.billingMonth}</span>
+                        <span class="drawer-row__value">${primaryRec.payableMonth || '—'}</span>
                     </div>
+                    ${primaryRec.feePeriod ? `<div class="drawer-row">
+                        <span class="drawer-row__label">费款所属期</span>
+                        <span class="drawer-row__value">${primaryRec.feePeriod}</span>
+                    </div>` : ''}
                     <div class="drawer-row">
                         <span class="drawer-row__label">同金额待确认</span>
                         <span class="drawer-row__value">${formatMoney(group.amount)}（系统${group.systemRecords.length}笔 / 台账${group.ledgerRecords.length}笔）</span>
@@ -1299,22 +1365,35 @@
                 </div>
 
                 <div class="pairing-section">
-                    <div class="pairing-section__title">智能推荐配对</div>
+                    <div class="pairing-section__title">${isSystemDir ? '系统记录' : '台账记录'} → 选择${targetLabel}</div>
                     <div class="pairing-recommendation">
             `;
 
-            group.systemRecords.forEach((sys, i) => {
-                const led = group.ledgerRecords[i];
-                const isChecked = pairingSelections[sys.id] === led?.id;
+            const primaryRecords = isSystemDir ? group.systemRecords : group.ledgerRecords;
+            const targetRecords = isSystemDir ? group.ledgerRecords : group.systemRecords;
+
+            primaryRecords.forEach((primary, i) => {
+                const target = targetRecords[i];
+                const isChecked = pairingSelections[primary.id] === target?.id;
+
+                let label;
+                if (isSystemDir) {
+                    label = `${getBillTypeLabel(primary.feeType)} | ${primary.feePeriod || '—'} | ${formatMoney(primary.amount)}`;
+                } else {
+                    label = `${primary.billingMonth} | ${formatMoney(primary.amount)}`;
+                }
+
                 html += `
                     <div class="pairing-row">
-                        <input type="checkbox" class="pairing-row__check" ${isChecked ? 'checked' : ''} onchange="togglePairingCheck('${sys.id}')" id="pairCheck_${sys.id}">
-                        <span class="pairing-row__label">${getBillTypeLabel(sys.feeType)} ${formatMoney(sys.amount)}</span>
+                        <input type="checkbox" class="pairing-row__check" ${isChecked ? 'checked' : ''} onchange="togglePairingCheck('${primary.id}')" id="pairCheck_${primary.id}">
+                        <span class="pairing-row__label">${label}</span>
                         <span class="pairing-row__arrow">→</span>
-                        <select class="pairing-row__select" id="pairSelect_${sys.id}" onchange="updatePairingSelection('${sys.id}', this.value)">
-                            <option value="">-- 选择台账记录 --</option>
-                            ${group.ledgerRecords.map(l =>
-                                `<option value="${l.id}" ${pairingSelections[sys.id] === l.id ? 'selected' : ''}>${l.billingMonth} ${formatMoney(l.amount)}</option>`
+                        <select class="pairing-row__select" id="pairSelect_${primary.id}" onchange="updatePairingSelection('${primary.id}', this.value)">
+                            <option value="">-- 选择${targetLabel} --</option>
+                            ${targetRecords.map(t =>
+                                isSystemDir
+                                    ? `<option value="${t.id}" ${pairingSelections[primary.id] === t.id ? 'selected' : ''}>应缴月份 ${t.billingMonth} | ${formatMoney(t.amount)}</option>`
+                                    : `<option value="${t.id}" ${pairingSelections[primary.id] === t.id ? 'selected' : ''}>${getBillTypeLabel(t.feeType)} | ${t.feePeriod || '—'} | ${formatMoney(t.amount)}</option>`
                             ).join('')}
                         </select>
                     </div>
@@ -1328,7 +1407,8 @@
             `;
 
             body.innerHTML = html;
-            document.getElementById('pairingDrawerTitle').textContent = `确认配对 — ${firstSys.name} | ${firstSys.insuranceType} | ${firstSys.billingMonth}`;
+            document.getElementById('pairingDrawerTitle').textContent =
+                `确认配对 — ${primaryRec.name} | ${primaryRec.insuranceType} | ${primaryRec.billingMonth}`;
         }
 
         function togglePairingCheck(systemId) {
@@ -1358,17 +1438,27 @@
         }
 
         function confirmPairing() {
-            const selectedLedgerIds = Object.values(pairingSelections);
-            const uniqueLedgerIds = new Set(selectedLedgerIds);
-            if (uniqueLedgerIds.size < selectedLedgerIds.length) {
-                showToast('配对冲突：多条系统记录选择了同一条台账记录', 'error');
+            const selectedIds = Object.values(pairingSelections);
+            const uniqueIds = new Set(selectedIds);
+            if (uniqueIds.size < selectedIds.length) {
+                showToast('配对冲突：多条记录选择了同一个目标', 'error');
                 return;
             }
 
             let confirmed = 0;
-            for (const [sysId, ledId] of Object.entries(pairingSelections)) {
-                if (confirmPendingPairing(sysId, ledId)) {
-                    confirmed++;
+            if (pairingDirection === 'system') {
+                // System → Ledger: keys are system IDs, values are ledger IDs
+                for (const [sysId, ledId] of Object.entries(pairingSelections)) {
+                    if (confirmPendingPairing(sysId, ledId)) {
+                        confirmed++;
+                    }
+                }
+            } else {
+                // Ledger → System: keys are ledger IDs, values are system IDs
+                for (const [ledId, sysId] of Object.entries(pairingSelections)) {
+                    if (confirmPendingPairing(sysId, ledId)) {
+                        confirmed++;
+                    }
                 }
             }
 
@@ -1415,8 +1505,12 @@
                     </div>
                     <div class="drawer-row">
                         <span class="drawer-row__label">应缴月份</span>
-                        <span class="drawer-row__value">${displayRec.billingMonth}</span>
+                        <span class="drawer-row__value">${displayRec.payableMonth || '—'}</span>
                     </div>
+                    ${displayRec.feePeriod ? `<div class="drawer-row">
+                        <span class="drawer-row__label">费款所属期</span>
+                        <span class="drawer-row__value">${displayRec.feePeriod}</span>
+                    </div>` : ''}
                     ${displayRec.feeType ? `<div class="drawer-row">
                         <span class="drawer-row__label">账单类型</span>
                         <span class="drawer-row__value"><span class="type-badge type-badge--${displayRec.feeType}">${getBillTypeLabel(displayRec.feeType)}</span></span>
@@ -1512,6 +1606,11 @@
 
             document.getElementById('drawerTitle').textContent = `详情：${displayRec.name} | ${displayRec.insuranceType}`;
             document.getElementById('detailDrawer').classList.add('is-visible');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                const closeBtn = document.querySelector('#detailDrawer .drawer__close');
+                if (closeBtn) closeBtn.focus();
+            }, 300);
         }
 
         function handleDiffRemark() {
@@ -1623,6 +1722,85 @@
                 toast.classList.remove('is-visible');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        // ========== Keyboard Support ==========
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('importDialog').classList.contains('is-visible')) {
+                    closeImportDialog();
+                } else if (document.getElementById('confirmOverlay').classList.contains('is-visible')) {
+                    closeConfirm(false);
+                } else if (document.getElementById('pairingDrawer').classList.contains('is-visible')) {
+                    closePairingDrawer();
+                } else if (document.getElementById('detailDrawer').classList.contains('is-visible')) {
+                    closeDetailDrawer();
+                }
+            }
+        });
+
+        // ========== Batch Operations ==========
+
+        function batchConfirm() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                showToast('请先选择记录', 'warning');
+                return;
+            }
+
+            let confirmed = 0;
+            for (const id of selectedIds) {
+                const sysRec = systemRecords.find(r => r.id === id);
+                if (sysRec && sysRec.matchStatus === MATCH_STATUS.PENDING) {
+                    // Auto-pair with first available ledger record of same amount
+                    const group = matchingResults.pending.find(g =>
+                        g.systemRecords.some(r => r.id === id)
+                    );
+                    if (group && group.ledgerRecords.length > 0) {
+                        const idx = group.systemRecords.findIndex(r => r.id === id);
+                        const ledRec = group.ledgerRecords[idx] || group.ledgerRecords[0];
+                        if (confirmPendingPairing(id, ledRec.id)) {
+                            confirmed++;
+                        }
+                    }
+                }
+            }
+
+            renderTable();
+            updateStats();
+            updateMatchCounts();
+            if (confirmed > 0) {
+                showToast(`批量确认 ${confirmed} 条`, 'success');
+            } else {
+                showToast('所选记录中无可确认配对', 'warning');
+            }
+        }
+
+        function batchCancel() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                showToast('请先选择记录', 'warning');
+                return;
+            }
+
+            let cancelled = 0;
+            for (const id of selectedIds) {
+                const sysRec = systemRecords.find(r => r.id === id);
+                if (sysRec && sysRec.matchStatus === MATCH_STATUS.MATCHED) {
+                    cancelMatch(id);
+                    cancelled++;
+                }
+            }
+
+            renderTable();
+            updateStats();
+            updateMatchCounts();
+            if (cancelled > 0) {
+                showToast(`批量取消 ${cancelled} 条`, 'success');
+            } else {
+                showToast('所选记录中无可取消匹配', 'warning');
+            }
         }
 
         // ========== Init ==========
