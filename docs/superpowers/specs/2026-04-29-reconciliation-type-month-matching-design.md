@@ -864,3 +864,87 @@ Step 5: 归档后操作
 9. **应缴月份显示**：表格中应缴月份列不再仅限汇缴类型显示，所有费用类型在核对成功后均展示 `payableMonth` 字段。未匹配/待确认的补缴/调基补差仍显示 "—"。
 10. **取消核对清除应缴月份**：`cancelMatch` 函数新增 `sysRec.payableMonth = null`，确保取消核对后应缴月份恢复到未知状态。
 11. **详情抽屉确认核对**：差异详情抽屉中的"确认核对"按钮调用 `confirmFromDrawer()`，弹出台账选择器供用户手动选择匹配记录。
+12. **Tab 吸顶**：`.bill-tabs` 添加 `position: sticky; top: 0; background: #F8FAFC; z-index: 100`，向下滚动时 Tab 栏固定在页面顶部。
+13. **险种新增大额医疗**：`INSURANCE_TYPE_ALIAS` 新增 `'大额医疗': ['大额医疗', '大额医疗保险', '大病医疗']` 映射。
+
+### Demo 数据更新（2026-04-30）
+
+系统侧共 23 条记录，台账侧 26 条。新增补缴/调基补差演示场景：
+
+**系统侧新增记录：**
+
+| ID | 姓名 | 费用类型 | 险种 | 应缴月份 | 费款所属期 | 金额 | 台账对应 | 核对结果 |
+|----|------|---------|------|---------|-----------|------|---------|---------|
+| S019 | 陶欢欢 | 调基补差 | 养老 | — | 2026-02 | ¥123.31 | T006 | 待确认（金额一致） |
+| S020 | 杨红 | 补缴 | 医疗 | — | 2026-01 | ¥416.19 | T007 | 待确认（金额一致） |
+| S021 | 李芳 | 补缴 | 失业 | — | 2025-12 | ¥45.00 | 无 | 未匹配（台账无对应） |
+| S022 | 周敏 | 调基补差 | 养老 | — | 2026-01 | ¥1,050.00 | T008 | 待确认（金额一致） |
+| S023 | 周敏 | 调基补差 | 医疗 | — | 2026-01 | ¥450.00 | T009 | 待确认（金额一致） |
+
+**台账侧新增记录：**
+
+| ID | 姓名 | 险种 | 费款所属期 | 金额 | 系统对应 | 说明 |
+|----|------|------|-----------|------|---------|------|
+| T006 | 陶欢欢 | 养老 | 2026-02 | ¥123.31 | S019 | 匹配调基补差 |
+| T007 | 杨红 | 医疗 | 2026-01 | ¥416.19 | S020 | 匹配补缴 |
+| T008 | 周敏 | 养老 | 2026-01 | ¥1,050.00 | S022 | 匹配调基补差 |
+| T009 | 周敏 | 医疗 | 2026-01 | ¥450.00 | S023 | 匹配调基补差 |
+| T010 | 郑强 | 养老 | 2026-02 | ¥1,125.00 | 无 | 台账独有（差异） |
+| T011 | 郑强 | 医疗 | 2026-02 | ¥468.75 | 无 | 台账独有（差异） |
+
+**当前核对结果分布：**
+
+| 状态 | 系统侧 | 台账侧 |
+|------|--------|--------|
+| 已核对 | 9 条（陶欢欢5险种 + 李芳4险种） | 9 条（同上） |
+| 待确认 | 10 条（李芳/医疗 + 王磊5险种 + 陶欢欢调基 + 杨红补缴 + 周敏调基×2） | 10 条（同上） |
+| 未匹配 | 2 条（陈鸣补缴 + 李芳补缴） | 0 条（台账侧无未匹配，全部转为差异） |
+| 差异 | 2 条（杨红养老 + 赵六失业） | 7 条（杨红养老 + 赵六失业 + 杨红4险种台账独有 + 郑强2条） |
+
+### `forcePending` 标记机制
+
+原型中新增 `forcePending` 字段，用于演示"金额完全匹配但需要人工确认"的场景（如王磊 5 险种、李芳医疗）。
+
+**机制说明：**
+- 匹配算法中，若系统记录的 `forcePending === true`，跳过自动匹配逻辑，直接标记为 `PENDING`
+- 适用于：金额差异但需人工确认、金额一致但业务要求审核等场景
+- 仅存在于原型演示数据中，后端实现时可替换为业务规则字段（如 `requires_manual_review`）
+
+**匹配算法变更（`executeMatching`）：**
+
+1. **1:1 金额匹配分支**：增加 `forcePending` 判断，若为 true 则进入待确认而非自动匹配
+2. **系统独有分支**（sys > 0, led = 0）：`forcePending` 记录标记为 PENDING，并在 post-processing 中找到同组台账记录配对
+3. **台账独有分支**（sys = 0, led > 0）：若同组有 `forcePending` 系统记录，标记为 PENDING 而非 DIFF
+4. **Post-processing**：匹配算法执行完毕后，扫描 `forcePending && matchStatus === DIFF` 的记录，从 diffs 中移除并加入 pending
+
+**实现代码：**
+```javascript
+// 1:1 匹配分支中增加 forcePending 判断
+if (sysForAmount.length === 1 && ledForAmount.length === 1) {
+    const sysRec = sysForAmount[0];
+    const ledRec = ledForAmount[0];
+
+    if (sysRec.forcePending) {
+        sysRec.matchStatus = MATCH_STATUS.PENDING;
+        ledRec.matchStatus = MATCH_STATUS.PENDING;
+        ledRec.feeTypeInferred = sysRec.feeType;
+        matchingResults.pending.push({ amount, systemRecords: sysForAmount, ledgerRecords: ledForAmount });
+    } else {
+        // 原有自动匹配/补缴逻辑...
+    }
+}
+
+// Post-processing：修正 forcePending 但被分到 DIFF 分支的记录
+const forcePendingSys = systemRecords.filter(r => r.forcePending && r.matchStatus === MATCH_STATUS.DIFF);
+if (forcePendingSys.length > 0) {
+    matchingResults.diffs = matchingResults.diffs.filter(d =>
+        !(d.systemRecord && forcePendingSys.some(fp => fp.id === d.systemRecord.id))
+    );
+    // 按 groupKey 分组，找到同组台账记录一起标记为 PENDING
+    // ...
+}
+```
+
+### 取消核对后重新确认
+
+经浏览器实测验证，`cancelMatch` → 状态重置为 PENDING → 点击"确认核对" → 抽屉正常打开 的完整流程正常工作。此前 Playwright 测试中抽屉未打开是点击事件被遮罩层拦截导致的假阳性，非代码 bug。

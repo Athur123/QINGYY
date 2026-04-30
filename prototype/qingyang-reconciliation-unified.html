@@ -342,7 +342,7 @@
         .filter-bar__item--unmatched.is-active { background: #F1F5F9; }
 
         /* ===== Bill Tabs ===== */
-        .bill-tabs { display: flex; gap: 0; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; }
+        .bill-tabs { display: flex; gap: 0; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; position: sticky; top: 0; background: #F8FAFC; z-index: 100; padding-bottom: 2px; }
         .bill-tab { padding: 10px 24px; font-size: 14px; font-weight: 500; color: #64748B; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; user-select: none; }
         .bill-tab:hover { color: #1E293B; }
         .bill-tab.is-active { color: #2563EB; border-bottom-color: #2563EB; }
@@ -746,6 +746,7 @@
             '失业': ['失业', '失业保险', '失业保险金'],
             '工伤': ['工伤', '工伤保险', '工伤保险金'],
             '生育': ['生育', '生育保险', '生育保险金'],
+            '大额医疗': ['大额医疗', '大额医疗保险', '大病医疗'],
             '公积金': ['公积金', '住房公积金', '住房公积'],
         };
 
@@ -767,14 +768,23 @@
             { id: 'S009', name: '李芳', idCard: '500382**********10', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 840.00, amountPersonal: 210.00, amount: 1050.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
             { id: 'S010', name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 40.00, amountPersonal: 10.00, amount: 50.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
             { id: 'S011', name: '李芳', idCard: '500382**********10', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 24.00, amountPersonal: 6.00, amount: 30.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S012', name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 360.00, amountPersonal: 90.00, amount: 450.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S012', name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 360.00, amountPersonal: 90.00, amount: 450.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null, forcePending: true },
             { id: 'S013', name: '李芳', idCard: '500382**********10', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 55.00, amountPersonal: 13.75, amount: 68.75, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
             // 王磊 — 3险种精确匹配 + 2险种金额差异（系统金额 > 台账）→ 演示部分差异
-            { id: 'S014', name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 910.00, amountPersonal: 227.50, amount: 1137.50, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S015', name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 43.50, amountPersonal: 10.88, amount: 54.38, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S016', name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 391.50, amountPersonal: 97.88, amount: 489.38, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S017', name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 28.50, amountPersonal: 7.13, amount: 35.63, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S018', name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 58.00, amountPersonal: 14.50, amount: 72.50, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S014', name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 910.00, amountPersonal: 227.50, amount: 1137.50, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null, forcePending: true },
+            { id: 'S015', name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 43.50, amountPersonal: 10.88, amount: 54.38, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null, forcePending: true },
+            { id: 'S016', name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 391.50, amountPersonal: 97.88, amount: 489.38, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null, forcePending: true },
+            { id: 'S017', name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 28.50, amountPersonal: 7.13, amount: 35.63, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null, forcePending: true },
+            { id: 'S018', name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 58.00, amountPersonal: 14.50, amount: 72.50, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null, forcePending: true },
+            // 陶欢欢 — 养老调基补差（与台账匹配 → 待确认）
+            { id: 'S019', name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feeType: 'tiaoji', feePeriod: '2026-02', payableMonth: null, amountCompany: 98.65, amountPersonal: 24.66, amount: 123.31, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            // 杨红 — 医疗补缴（与台账匹配 → 待确认）
+            { id: 'S020', name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-01', feeType: 'bujiao', feePeriod: '2026-01', payableMonth: null, amountCompany: 332.95, amountPersonal: 83.24, amount: 416.19, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            // 李芳 — 失业补缴（台账无对应 → 未匹配）
+            { id: 'S021', name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2025-12', feeType: 'bujiao', feePeriod: '2025-12', payableMonth: null, amountCompany: 36.00, amountPersonal: 9.00, amount: 45.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            // 周敏 — 养老调基补差 + 医疗调基补差（台账有对应 → 待确认）
+            { id: 'S022', name: '周敏', idCard: '500382**********12', insuranceType: '养老', billingMonth: '2026-01', feeType: 'tiaoji', feePeriod: '2026-01', payableMonth: null, amountCompany: 840.00, amountPersonal: 210.00, amount: 1050.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S023', name: '周敏', idCard: '500382**********12', insuranceType: '医疗', billingMonth: '2026-01', feeType: 'tiaoji', feePeriod: '2026-01', payableMonth: null, amountCompany: 360.00, amountPersonal: 90.00, amount: 450.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
         ];
 
         // 台账侧记录（导入后填充）
@@ -940,8 +950,12 @@
 
                     if (sysForAmount.length > 0 && ledForAmount.length === 0) {
                         for (const r of sysForAmount) {
+                            // forcePending 记录即使金额不匹配也进入待确认
+                            if (r.forcePending) {
+                                r.matchStatus = MATCH_STATUS.PENDING;
+                            }
                             // 补缴/调基补差无台账匹配 → 未匹配（非差异）
-                            if (r.feeType === BILL_TYPES.BUJIAO || r.feeType === BILL_TYPES.TIAOJI) {
+                            else if (r.feeType === BILL_TYPES.BUJIAO || r.feeType === BILL_TYPES.TIAOJI) {
                                 r.matchStatus = MATCH_STATUS.UNMATCHED;
                             } else {
                                 r.matchStatus = MATCH_STATUS.DIFF;
@@ -949,44 +963,85 @@
                                 r.diffAmount = r.amount;
                             }
                         }
-                        for (const r of sysForAmount) {
+                        // forcePending 的系统记录需要找到对应金额的台账记录一起进入待确认
+                        const pendingSysRecs = sysForAmount.filter(r => r.forcePending);
+                        const normalRecs = sysForAmount.filter(r => !r.forcePending);
+                        if (pendingSysRecs.length > 0) {
+                            // 找到同组任意金额的台账记录配对
+                            const key = makeGroupKey(pendingSysRecs[0]);
+                            const ledGroup = ledGroups.get(key) ?? [];
+                            if (ledGroup.length > 0) {
+                                matchingResults.pending.push({
+                                    amount,
+                                    systemRecords: pendingSysRecs,
+                                    ledgerRecords: ledGroup,
+                                });
+                                for (const lr of ledGroup) {
+                                    lr.matchStatus = MATCH_STATUS.PENDING;
+                                }
+                            }
+                        }
+                        for (const r of normalRecs) {
                             if (r.matchStatus === MATCH_STATUS.DIFF) {
                                 matchingResults.diffs.push({ systemRecord: r, ledgerRecord: null });
                             }
                         }
                     } else if (sysForAmount.length === 0 && ledForAmount.length > 0) {
-                        for (const r of ledForAmount) {
-                            r.matchStatus = MATCH_STATUS.DIFF;
-                            r.diffType = DIFF_TYPE.LEDGER_MORE;
-                            r.diffAmount = -r.amount;
-                        }
-                        for (const r of ledForAmount) {
-                            matchingResults.diffs.push({ systemRecord: null, ledgerRecord: r });
+                        // 检查同组是否有 forcePending 的系统记录
+                        const allSysForGroup = sysGroups.get(makeGroupKey(ledForAmount[0])) ?? [];
+                        const hasForcePendingSys = allSysForGroup.some(r => r.forcePending);
+
+                        if (hasForcePendingSys) {
+                            for (const r of ledForAmount) {
+                                r.matchStatus = MATCH_STATUS.PENDING;
+                            }
+                            // 配对信息会在 systemRecords 分支的 pending push 中处理
+                        } else {
+                            for (const r of ledForAmount) {
+                                r.matchStatus = MATCH_STATUS.DIFF;
+                                r.diffType = DIFF_TYPE.LEDGER_MORE;
+                                r.diffAmount = -r.amount;
+                            }
+                            for (const r of ledForAmount) {
+                                matchingResults.diffs.push({ systemRecord: null, ledgerRecord: r });
+                            }
                         }
                     } else if (sysForAmount.length === 1 && ledForAmount.length === 1) {
                         const sysRec = sysForAmount[0];
                         const ledRec = ledForAmount[0];
 
-                        // 汇缴费用自动匹配，补缴/调基补差强制进入待确认
-                        const isAutoMatchable = sysRec.feeType === BILL_TYPES.HUIJIAO;
-
-                        if (isAutoMatchable) {
-                            sysRec.matchStatus = MATCH_STATUS.MATCHED;
-                            sysRec.matchedLedgerId = ledRec.id;
-                            ledRec.matchStatus = MATCH_STATUS.MATCHED;
-                            ledRec.matchedSystemId = sysRec.id;
-                            sysRec.payableMonth = ledRec.billingMonth;
-                            ledRec.feeTypeInferred = sysRec.feeType;
-                            matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
-                        } else {
-                            // 补缴/调基补差 → 待确认
+                        // 标记为 forcePending 的记录跳过自动匹配，进入待确认
+                        if (sysRec.forcePending) {
                             sysRec.matchStatus = MATCH_STATUS.PENDING;
                             ledRec.matchStatus = MATCH_STATUS.PENDING;
+                            ledRec.feeTypeInferred = sysRec.feeType;
                             matchingResults.pending.push({
                                 amount,
                                 systemRecords: sysForAmount,
                                 ledgerRecords: ledForAmount,
                             });
+                        } else {
+                            // 汇缴费用自动匹配，补缴/调基补差强制进入待确认
+                            const isAutoMatchable = sysRec.feeType === BILL_TYPES.HUIJIAO;
+
+                            if (isAutoMatchable) {
+                                sysRec.matchStatus = MATCH_STATUS.MATCHED;
+                                sysRec.matchedLedgerId = ledRec.id;
+                                ledRec.matchStatus = MATCH_STATUS.MATCHED;
+                                ledRec.matchedSystemId = sysRec.id;
+                                sysRec.payableMonth = ledRec.billingMonth;
+                                ledRec.feeTypeInferred = sysRec.feeType;
+                                matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
+                            } else {
+                                // 补缴/调基补差 → 待确认
+                                sysRec.matchStatus = MATCH_STATUS.PENDING;
+                                ledRec.matchStatus = MATCH_STATUS.PENDING;
+                                matchingResults.pending.push({
+                                    amount,
+                                    systemRecords: sysForAmount,
+                                    ledgerRecords: ledForAmount,
+                                });
+                            }
                         }
                     } else {
                         for (const r of sysForAmount) r.matchStatus = MATCH_STATUS.PENDING;
@@ -1007,6 +1062,36 @@
                     ledRec.diffType = DIFF_TYPE.LEDGER_MORE;
                     ledRec.diffAmount = -ledRec.amount;
                     matchingResults.diffs.push({ systemRecord: null, ledgerRecord: ledRec });
+                }
+            }
+
+            // forcePending 记录可能被分到差异分支，需要修正为待确认
+            const forcePendingSys = systemRecords.filter(r => r.forcePending && r.matchStatus === MATCH_STATUS.DIFF);
+            if (forcePendingSys.length > 0) {
+                // 从 diffs 中移除
+                matchingResults.diffs = matchingResults.diffs.filter(d =>
+                    !(d.systemRecord && forcePendingSys.some(fp => fp.id === d.systemRecord.id))
+                );
+
+                // 找到同组的台账记录，一起标记为待确认
+                const byGroupKey = groupByKey(forcePendingSys, makeGroupKey);
+                for (const [groupKey, sysRecs] of byGroupKey.entries()) {
+                    const ledGroup = groupByKey(ledgerRecords, makeGroupKey).get(groupKey) ?? [];
+                    if (ledGroup.length > 0) {
+                        for (const r of sysRecs) {
+                            r.matchStatus = MATCH_STATUS.PENDING;
+                            r.diffType = null;
+                            r.diffAmount = null;
+                        }
+                        for (const r of ledGroup) {
+                            r.matchStatus = MATCH_STATUS.PENDING;
+                        }
+                        matchingResults.pending.push({
+                            amount: sysRecs[0].amount,
+                            systemRecords: sysRecs,
+                            ledgerRecords: ledGroup,
+                        });
+                    }
                 }
             }
 
@@ -1712,6 +1797,14 @@
                     { name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 26.10, amountPersonal: 6.53, amount: 32.63 },
                     { name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 391.50, amountPersonal: 97.88, amount: 489.38 },
                     { name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 60.20, amountPersonal: 15.05, amount: 75.25 },
+                    // 补缴/调基补差台账数据（与系统侧对应记录匹配）
+                    { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feePeriod: '2026-02', amountCompany: 98.65, amountPersonal: 24.66, amount: 123.31 },  // 匹配S019调基补差
+                    { name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-01', feePeriod: '2026-01', amountCompany: 332.95, amountPersonal: 83.24, amount: 416.19 },  // 匹配S020补缴
+                    { name: '周敏', idCard: '500382**********12', insuranceType: '养老', billingMonth: '2026-01', feePeriod: '2026-01', amountCompany: 840.00, amountPersonal: 210.00, amount: 1050.00 },  // 匹配S022调基补差
+                    { name: '周敏', idCard: '500382**********12', insuranceType: '医疗', billingMonth: '2026-01', feePeriod: '2026-01', amountCompany: 360.00, amountPersonal: 90.00, amount: 450.00 },  // 匹配S023调基补差
+                    // 台账侧独有补缴/调基补差（系统侧无对应 → 差异）
+                    { name: '郑强', idCard: '500384**********13', insuranceType: '养老', billingMonth: '2026-02', feePeriod: '2026-02', amountCompany: 900.00, amountPersonal: 225.00, amount: 1125.00 },  // 台账补缴，系统无
+                    { name: '郑强', idCard: '500384**********13', insuranceType: '医疗', billingMonth: '2026-02', feePeriod: '2026-02', amountCompany: 375.00, amountPersonal: 93.75, amount: 468.75 },  // 台账调基补差，系统无
                 ],
                 errorRows: [],
             };
