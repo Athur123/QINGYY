@@ -239,11 +239,21 @@
         /* Import Dialog */
         .import-dialog { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1001; display: none; align-items: center; justify-content: center; }
         .import-dialog.is-visible { display: flex; }
-        .import-dialog__box { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 520px; max-width: 90%; box-shadow: var(--qy-shadow-lg); }
+        .import-dialog__box { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 720px; max-width: 90%; box-shadow: var(--qy-shadow-lg); }
         .import-dialog__header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
         .import-dialog__title { font-size: 16px; font-weight: 600; }
-        .import-dialog__body { padding: 20px; }
+        .import-dialog__body { padding: 20px; overflow-x: auto; }
         .import-dialog__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--qy-border-light); }
+        .import-preview__table { width: 100%; min-width: 600px; table-layout: fixed; }
+        .import-preview__table th,
+        .import-preview__table td { padding: 6px 8px; font-size: 12px; }
+        .import-preview__table th:nth-child(1) { width: 50px; }
+        .import-preview__table th:nth-child(2) { width: 120px; }
+        .import-preview__table th:nth-child(3) { width: 50px; }
+        .import-preview__table th:nth-child(4) { width: 70px; }
+        .import-preview__table th:nth-child(5) { width: 80px; }
+        .import-preview__table th:nth-child(6) { width: 70px; }
+        .import-preview__table th:nth-child(7) { width: 40px; text-align: center; }
 
         .form-group { margin-bottom: 16px; }
         .form-group__label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
@@ -742,14 +752,16 @@
             '公积金': ['公积金', '住房公积金', '住房公积'],
         };
 
-        // 系统侧费用记录
+        // 系统侧费用记录（基于重庆分202604真实台账数据）
         let systemRecords = [
-            { id: 'S001', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 1000, amountPersonal: 500, amount: 1500, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S002', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', feePeriod: '2025-12', payableMonth: null, amountCompany: 423.50, amountPersonal: 211.75, amount: 635.25, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S003', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'bujiao', feePeriod: '2026-01', payableMonth: null, amountCompany: 256, amountPersonal: 128, amount: 384, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S004', name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feeType: 'tiaoji', feePeriod: '2026-02', payableMonth: null, amountCompany: 78, amountPersonal: 39, amount: 117, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S005', name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'bujiao', feePeriod: '2026-03', payableMonth: null, amountCompany: 400, amountPersonal: 200, amount: 600, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
-            { id: 'S006', name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 120, amountPersonal: 30, amount: 150, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S001', name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 986.50, amountPersonal: 246.62, amount: 1233.12, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S002', name: '陶欢欢', idCard: '500382**********08', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 41.10, amountPersonal: 10.28, amount: 51.38, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S003', name: '陶欢欢', idCard: '500382**********08', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 24.66, amountPersonal: 6.17, amount: 30.83, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S004', name: '陶欢欢', idCard: '500382**********08', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 369.94, amountPersonal: 92.48, amount: 462.42, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S005', name: '陶欢欢', idCard: '500382**********08', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 56.85, amountPersonal: 14.21, amount: 71.06, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S006', name: '杨红', idCard: '500230**********09', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 840.00, amountPersonal: 210.00, amount: 1050.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S007', name: '赵六', idCard: '500230**********09', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', payableMonth: '2026-04', amountCompany: 40.00, amountPersonal: 10.00, amount: 50.00, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
+            { id: 'S008', name: '陈鸣', idCard: '500384**********14', insuranceType: '养老', billingMonth: '2026-03', feeType: 'bujiao', feePeriod: '2026-03', payableMonth: null, amountCompany: 950.78, amountPersonal: 237.70, amount: 1188.48, matchStatus: MATCH_STATUS.UNMATCHED, matchedLedgerId: null, diffType: null, diffAmount: null, remark: null },
         ];
 
         // 台账侧记录（导入后填充）
@@ -1653,13 +1665,29 @@
         function useMockImportData() {
             importFileData = {
                 successRows: [
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1500 },
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2025-12', amount: 635.25 },
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-01', amount: 384 },
-                    { name: '张三', idCard: '430105199001011234', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-02', amount: 117 },
-                    { name: '李四', idCard: '430106199102022345', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-03', amount: 450 },
-                    { name: '王五', idCard: '430107199203033456', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 142.50 },
-                    { name: '赵六', idCard: '430108199304044567', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 823 },
+                    // 陶欢欢 - 5险种汇缴（与系统侧S001-S005完全匹配）
+                    { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 986.50, amountPersonal: 246.62, amount: 1233.12 },
+                    { name: '陶欢欢', idCard: '500382**********08', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 41.10, amountPersonal: 10.28, amount: 51.38 },
+                    { name: '陶欢欢', idCard: '500382**********08', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 24.66, amountPersonal: 6.17, amount: 30.83 },
+                    { name: '陶欢欢', idCard: '500382**********08', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 369.94, amountPersonal: 92.48, amount: 462.42 },
+                    { name: '陶欢欢', idCard: '500382**********08', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 56.85, amountPersonal: 14.21, amount: 71.06 },
+                    // 杨红 - 养老（金额有差异：系统1050 vs 台账1056.96）
+                    { name: '杨红', idCard: '500230**********09', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 845.57, amountPersonal: 211.39, amount: 1056.96 },
+                    { name: '杨红', idCard: '500230**********09', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 41.10, amountPersonal: 10.28, amount: 51.38 },
+                    { name: '杨红', idCard: '500230**********09', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 24.66, amountPersonal: 6.17, amount: 30.83 },
+                    { name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 369.94, amountPersonal: 92.48, amount: 462.42 },
+                    { name: '杨红', idCard: '500230**********09', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 56.85, amountPersonal: 14.21, amount: 71.06 },
+                    // 其他员工台账数据（系统侧无对应记录 → 台账侧未匹配）
+                    { name: '李芳', idCard: '500382**********10', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 840.00, amountPersonal: 210.00, amount: 1050.00 },
+                    { name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 40.00, amountPersonal: 10.00, amount: 50.00 },
+                    { name: '李芳', idCard: '500382**********10', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 24.00, amountPersonal: 6.00, amount: 30.00 },
+                    { name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 360.00, amountPersonal: 90.00, amount: 450.00 },
+                    { name: '李芳', idCard: '500382**********10', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 55.00, amountPersonal: 13.75, amount: 68.75 },
+                    { name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 910.00, amountPersonal: 227.50, amount: 1137.50 },
+                    { name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 43.50, amountPersonal: 10.88, amount: 54.38 },
+                    { name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 26.10, amountPersonal: 6.53, amount: 32.63 },
+                    { name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 391.50, amountPersonal: 97.88, amount: 489.38 },
+                    { name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amountCompany: 60.20, amountPersonal: 15.05, amount: 75.25 },
                 ],
                 errorRows: [],
             };
@@ -1688,6 +1716,7 @@
             tbody.innerHTML = successRows.slice(0, 10).map(r =>
                 `<tr><td>${r.name}</td><td>${maskIdCard(r.idCard)}</td><td>${r.insuranceType}</td><td>${r.billingMonth}</td><td>${r.feePeriod}</td><td>${formatMoney(r.amount)}</td><td style="color:#16A34A;">✅</td></tr>`
             ).join('') + (successRows.length > 10 ? `<tr><td colspan="7">... 还有 ${successRows.length - 10} 条</td></tr>` : '');
+            document.getElementById('importPreviewCount').textContent = `显示前10条，共 ${successRows.length} 条`;
         }
 
         function importNextStep() {
@@ -1704,6 +1733,8 @@
                 insuranceType: r.insuranceType,
                 billingMonth: r.billingMonth,
                 feePeriod: r.feePeriod || null,
+                amountCompany: r.amountCompany ?? 0,
+                amountPersonal: r.amountPersonal ?? 0,
                 amount: r.amount,
                 feeType: null,
                 feeTypeInferred: null,
