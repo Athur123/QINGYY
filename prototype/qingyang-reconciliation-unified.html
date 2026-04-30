@@ -331,6 +331,16 @@
         .confirm-box__text { font-size: 14px; color: var(--qy-text-secondary); margin-bottom: 20px; line-height: 1.6; }
         .confirm-box__footer { display: flex; justify-content: flex-end; gap: 12px; }
 
+        /* Filter bar match status items */
+        .filter-bar__item--match-all { color: var(--qy-text-secondary); }
+        .filter-bar__item--match-all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .filter-bar__item--matched { color: #166534; }
+        .filter-bar__item--matched.is-active { background: #DCFCE7; }
+        .filter-bar__item--pending { color: #854D0E; }
+        .filter-bar__item--pending.is-active { background: #FEF3C7; }
+        .filter-bar__item--diff { color: #991B1B; }
+        .filter-bar__item--diff.is-active { background: #FEE2E2; }
+
         /* ===== Bill Tabs ===== */
         .bill-tabs { display: flex; gap: 0; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; }
         .bill-tab { padding: 10px 24px; font-size: 14px; font-weight: 500; color: #64748B; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; user-select: none; }
@@ -466,6 +476,22 @@
 <div class="bill-tab-panel is-active" id="panel-system">
 
     <div class="filter-bar" id="systemFilterBar">
+        <span class="filter-bar__label">匹配状态</span>
+        <div class="filter-bar__group">
+            <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleSystemMatchFilter('all')">
+                全部
+            </div>
+            <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleSystemMatchFilter('matched')">
+                已匹配
+            </div>
+            <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleSystemMatchFilter('pending')">
+                待确认
+            </div>
+            <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleSystemMatchFilter('diff')">
+                差异
+            </div>
+        </div>
+        <div class="filter-bar__divider"></div>
         <span class="filter-bar__label">账单类型</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleSystemTypeFilter('all')">
@@ -518,6 +544,22 @@
 <div class="bill-tab-panel" id="panel-ledger">
 
     <div class="filter-bar" id="ledgerFilterBar">
+        <span class="filter-bar__label">匹配状态</span>
+        <div class="filter-bar__group">
+            <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleLedgerMatchFilter('all')">
+                全部
+            </div>
+            <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleLedgerMatchFilter('matched')">
+                已匹配
+            </div>
+            <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
+                待确认
+            </div>
+            <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleLedgerMatchFilter('diff')">
+                差异
+            </div>
+        </div>
+        <div class="filter-bar__divider"></div>
         <span class="filter-bar__label">账单类型</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleLedgerTypeFilter('all')">
@@ -764,7 +806,9 @@
 
         // Tab state
         let currentBillTab = 'system';
+        let currentSystemMatchFilter = 'all';
         let currentSystemTypeFilter = 'all';
+        let currentLedgerMatchFilter = 'all';
         let currentLedgerTypeFilter = 'all';
 
         let currentDetailRecord = null;
@@ -1008,6 +1052,14 @@
         // ========== 筛选与渲染 ==========
 
         // System tab filters
+        function toggleSystemMatchFilter(filterType) {
+            currentSystemMatchFilter = filterType;
+            document.querySelectorAll('#systemFilterBar .filter-bar__item[data-match]').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.match === filterType);
+            });
+            renderSystemTable();
+        }
+
         function toggleSystemTypeFilter(type) {
             currentSystemTypeFilter = type;
             document.querySelectorAll('#systemFilterBar .filter-bar__item[data-type]').forEach(item => {
@@ -1017,6 +1069,14 @@
         }
 
         // Ledger tab filters
+        function toggleLedgerMatchFilter(filterType) {
+            currentLedgerMatchFilter = filterType;
+            document.querySelectorAll('#ledgerFilterBar .filter-bar__item[data-match]').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.match === filterType);
+            });
+            renderLedgerTable();
+        }
+
         function toggleLedgerTypeFilter(type) {
             currentLedgerTypeFilter = type;
             document.querySelectorAll('#ledgerFilterBar .filter-bar__item[data-type]').forEach(item => {
@@ -1085,6 +1145,12 @@
 
         function getFilteredSystemRecords() {
             let records = getSystemDisplayRecords();
+
+            if (currentSystemMatchFilter !== 'all') {
+                if (currentSystemMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
+                else if (currentSystemMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentSystemMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
+            }
 
             if (currentSystemTypeFilter !== 'all') {
                 records = records.filter(r => r.feeType === currentSystemTypeFilter);
@@ -1157,6 +1223,12 @@
 
         function getFilteredLedgerRecords() {
             let records = getLedgerDisplayRecords();
+
+            if (currentLedgerMatchFilter !== 'all') {
+                if (currentLedgerMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
+                else if (currentLedgerMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentLedgerMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
+            }
 
             if (currentLedgerTypeFilter !== 'all') {
                 records = records.filter(r => r.feeType === currentLedgerTypeFilter);
