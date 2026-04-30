@@ -454,7 +454,7 @@
             </div>
         </div>
         <div class="filter-bar__divider"></div>
-        <span class="filter-bar__label">账单类型</span>
+        <span class="filter-bar__label">费用类型</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleSystemTypeFilter('all')">
                 全部
@@ -477,7 +477,7 @@
                 <tr>
                     <th><input type="checkbox" onchange="toggleSystemSelectAll()"></th>
                     <th>核对状态</th>
-                    <th>账单类型</th>
+                    <th>费用类型</th>
                     <th>姓名</th>
                     <th>身份证号</th>
                     <th>险种</th>
@@ -522,7 +522,7 @@
             </div>
         </div>
         <div class="filter-bar__divider"></div>
-        <span class="filter-bar__label">账单类型</span>
+        <span class="filter-bar__label">费用类型</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleLedgerTypeFilter('all')">
                 全部
@@ -545,7 +545,7 @@
                 <tr>
                     <th><input type="checkbox" onchange="toggleLedgerSelectAll()"></th>
                     <th>核对状态</th>
-                    <th>账单类型</th>
+                    <th>费用类型</th>
                     <th>姓名</th>
                     <th>身份证号</th>
                     <th>险种</th>
@@ -1869,7 +1869,7 @@
                         <span class="drawer-row__value">${displayRec.feePeriod}</span>
                     </div>` : ''}
                     ${displayRec.feeType ? `<div class="drawer-row">
-                        <span class="drawer-row__label">账单类型</span>
+                        <span class="drawer-row__label">费用类型</span>
                         <span class="drawer-row__value"><span class="type-badge type-badge--${displayRec.feeType}">${getBillTypeLabel(displayRec.feeType)}</span></span>
                     </div>` : ''}
                     ${displayRec.feeTypeInferred ? `<div class="drawer-row">
