@@ -444,7 +444,7 @@
                 全部 <span class="filter-bar__count" id="sysFilterAllAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleSystemMatchFilter('matched')">
-                已匹配 <span class="filter-bar__count" id="sysFilterMatchedAmt">¥0.00</span>
+                已核对 <span class="filter-bar__count" id="sysFilterMatchedAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleSystemMatchFilter('pending')">
                 待确认 <span class="filter-bar__count" id="sysFilterPendingAmt">¥0.00</span>
@@ -512,7 +512,7 @@
                 全部 <span class="filter-bar__count" id="ledgerFilterAllAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleLedgerMatchFilter('matched')">
-                已匹配 <span class="filter-bar__count" id="ledgerFilterMatchedAmt">¥0.00</span>
+                已核对 <span class="filter-bar__count" id="ledgerFilterMatchedAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
                 待确认 <span class="filter-bar__count" id="ledgerFilterPendingAmt">¥0.00</span>
@@ -659,7 +659,7 @@
     <div class="drawer-overlay" id="pairingDrawer" onclick="closePairingDrawer(event)">
         <div class="drawer pairing-drawer">
             <div class="drawer__header">
-                <h3 class="drawer__title" id="pairingDrawerTitle">确认配对</h3>
+                <h3 class="drawer__title" id="pairingDrawerTitle">确认核对</h3>
                 <button class="drawer__close" onclick="closePairingDrawer()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -851,7 +851,7 @@
 
         function getMatchStatusLabel(status) {
             const labels = {
-                [MATCH_STATUS.MATCHED]: '已匹配',
+                [MATCH_STATUS.MATCHED]: '已核对',
                 [MATCH_STATUS.PENDING]: '待确认',
                 [MATCH_STATUS.DIFF]: '差异',
                 [MATCH_STATUS.UNMATCHED]: '未匹配',
@@ -1150,7 +1150,7 @@
 
                 let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'system')">详情</button>`;
                 if (r.matchStatus === MATCH_STATUS.PENDING) {
-                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'system')">确认配对</button>`;
+                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'system')">确认核对</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF) {
@@ -1229,7 +1229,7 @@
 
                 let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
                 if (r.matchStatus === MATCH_STATUS.PENDING) {
-                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'ledger')">确认配对</button>`;
+                    actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'ledger')">确认核对</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF) {
@@ -1351,7 +1351,7 @@
             if (confirmed > 0) {
                 showToast(`批量确认 ${confirmed} 条`, 'success');
             } else {
-                showToast('所选记录中无可确认配对', 'warning');
+                showToast('所选记录中无可确认核对', 'warning');
             }
         }
 
@@ -1434,7 +1434,7 @@
             if (confirmed > 0) {
                 showToast(`批量确认 ${confirmed} 条`, 'success');
             } else {
-                showToast('所选记录中无可确认配对', 'warning');
+                showToast('所选记录中无可确认核对', 'warning');
             }
         }
 
@@ -1616,11 +1616,11 @@
                 updateMatchCounts();
 
                 const { matched, pending, diffs } = matchingResults;
-                showToast(`对账完成：已匹配 ${matched.length} 条，待确认 ${pending.length} 条，差异 ${diffs.length} 条`, 'success');
+                showToast(`对账完成：已核对 ${matched.length} 条，待确认 ${pending.length} 条，差异 ${diffs.length} 条`, 'success');
             }, 800);
         }
 
-        // ========== 确认配对抽屉 ==========
+        // ========== 确认核对抽屉 ==========
 
         let currentPairingGroup = null;
         let pairingSelections = {};
@@ -1766,7 +1766,7 @@
 
             body.innerHTML = html;
             document.getElementById('pairingDrawerTitle').textContent =
-                `确认配对 — ${primaryRec.name} | ${primaryRec.insuranceType} | ${primaryRec.billingMonth}`;
+                `确认核对 — ${primaryRec.name} | ${primaryRec.insuranceType} | ${primaryRec.billingMonth}`;
         }
 
         function togglePairingCheck(systemId) {
