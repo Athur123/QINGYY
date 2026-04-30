@@ -1716,7 +1716,6 @@
             tbody.innerHTML = successRows.slice(0, 10).map(r =>
                 `<tr><td>${r.name}</td><td>${maskIdCard(r.idCard)}</td><td>${r.insuranceType}</td><td>${r.billingMonth}</td><td>${r.feePeriod}</td><td>${formatMoney(r.amount)}</td><td style="color:#16A34A;">✅</td></tr>`
             ).join('') + (successRows.length > 10 ? `<tr><td colspan="7">... 还有 ${successRows.length - 10} 条</td></tr>` : '');
-            document.getElementById('importPreviewCount').textContent = `显示前10条，共 ${successRows.length} 条`;
         }
 
         function importNextStep() {
