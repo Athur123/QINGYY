@@ -768,3 +768,56 @@ Step 5: 归档后操作
   - 原统一表格拆分为两个 Tab 面板，各 Tab 有独立筛选和数据
   - 已匹配记录两侧同时展示，带跨引用标记（系统侧显示 `↔ Txxx`，台账侧显示 `↔ Sxxx`）
   - 台账侧 Tab 的账单类型列：未匹配时显示 "—"，已匹配时显示推断类型
+
+## 前端实现细节
+
+> 以下记录原型实现层面的具体 CSS 类名、JS 函数和状态变量，供后续前端开发参考。
+
+### CSS 类名
+
+| 类名 | 用途 |
+|------|------|
+| `.bill-tabs` | Tab 栏容器，底部 2px 边框 |
+| `.bill-tab` | 单个 Tab 按钮，底部 2px 透明边框，`.is-active` 时边框变蓝 |
+| `.bill-tab .tab-count` | 记录数角标 |
+| `.bill-tab-panel` | 面板容器，`.is-active` 时显示 |
+| `.summary-strip` | Tab 内汇总摘要条 |
+| `.summary-chip` | 摘要芯片（汇总/已匹配/待确认/差异） |
+| `.cross-ref` | 跨引用标记（`↔ Txxx` / `↔ Sxxx`） |
+
+### JS 状态变量
+
+| 变量 | 说明 |
+|------|------|
+| `currentBillTab` | 当前激活的 Tab（'system' / 'ledger'） |
+| `currentSystemMatchFilter` | 系统侧匹配状态筛选 |
+| `currentSystemTypeFilter` | 系统侧账单类型筛选 |
+| `currentLedgerMatchFilter` | 台账侧匹配状态筛选 |
+| `currentLedgerTypeFilter` | 台账侧账单类型筛选 |
+
+### JS 函数
+
+| 函数 | 说明 |
+|------|------|
+| `switchBillTab(tab)` | 切换 Tab 激活状态 |
+| `getSystemDisplayRecords()` | 返回系统侧渲染数据（含关联 ledger 信息） |
+| `getLedgerDisplayRecords()` | 返回台账侧渲染数据（含关联 system 信息） |
+| `toggleSystemMatchFilter()` / `toggleSystemTypeFilter()` | 系统侧筛选切换 |
+| `toggleLedgerMatchFilter()` / `toggleLedgerTypeFilter()` | 台账侧筛选切换 |
+| `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` | 获取筛选后记录 |
+| `renderSystemTable()` / `renderLedgerTable()` | 渲染各自表格 |
+| `updateSystemSummary()` / `updateLedgerSummary()` | 更新各自摘要条 |
+| `updateSystemMatchCounts()` / `updateLedgerMatchCounts()` | 更新匹配计数 |
+| `renderAllTables()` | 同时渲染两侧表格 |
+| `filterRecords()` | 顶部搜索栏桩函数，调用 `renderAllTables()` |
+| `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()` / `systemBatchConfirm()` / `systemBatchCancel()` | 系统侧批量操作 |
+| `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 台账侧批量操作 |
+
+### 实施差异记录
+
+以下为实现过程中与初稿的细微差异：
+
+1. **页面副标题**：从「统一账单模式 — 汇缴/补缴/调基补差合并展示（PRD v5）」更新为「Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）」
+2. **全局统计卡片**：`#statsGrid` 保留不动，作为全局统计（各 Tab 还有独立的摘要条 `.summary-strip`）
+3. **`filterRecords` 函数**：顶部搜索按钮的原引用函数已删除，新增桩函数调用 `renderAllTables()`，后续可扩展为实际按月份/结算主体/姓名过滤
+4. **批量操作**：系统侧和台账侧各自独立的全选/确认/取消逻辑，互不影响
