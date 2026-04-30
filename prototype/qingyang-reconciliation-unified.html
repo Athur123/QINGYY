@@ -985,12 +985,12 @@
             const sysRec = systemRecords.find(r => r.id === recordId);
             const ledRec = ledgerRecords.find(r => r.id === recordId);
             if (sysRec) {
-                sysRec.matchStatus = MATCH_STATUS.UNMATCHED;
+                sysRec.matchStatus = MATCH_STATUS.PENDING;
                 sysRec.matchedLedgerId = null;
                 // feePeriod is already the original value, no need to restore
             }
             if (ledRec) {
-                ledRec.matchStatus = MATCH_STATUS.UNMATCHED;
+                ledRec.matchStatus = MATCH_STATUS.PENDING;
                 ledRec.matchedSystemId = null;
                 ledRec.feeTypeInferred = null;
                 ledRec.feePeriod = null;
@@ -1466,7 +1466,7 @@
             cancelMatch(id);
             renderAllTables();
             updateMatchCounts();
-            showToast('已取消匹配', 'success');
+            showToast('已取消核对，状态为待确认', 'success');
         }
 
         function updateStats() {
