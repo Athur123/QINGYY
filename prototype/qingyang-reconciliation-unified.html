@@ -266,6 +266,8 @@
         .status-badge--pending::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
         .status-badge--diff { background: #FEE2E2; color: #991B1B; }
         .status-badge--diff::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
+        .status-badge--unmatched { background: #F1F5F9; color: #475569; }
+        .status-badge--unmatched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
 
         /* Row color variants */
         .row-matched td { background: #F0FDF4; }
@@ -326,6 +328,8 @@
         .filter-bar__item--pending.is-active { background: #FEF3C7; }
         .filter-bar__item--diff { color: #991B1B; }
         .filter-bar__item--diff.is-active { background: #FEE2E2; }
+        .filter-bar__item--unmatched { color: #475569; }
+        .filter-bar__item--unmatched.is-active { background: #F1F5F9; }
 
         /* ===== Bill Tabs ===== */
         .bill-tabs { display: flex; gap: 0; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; }
@@ -449,6 +453,9 @@
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleSystemMatchFilter('pending')">
                 待确认 <span class="filter-bar__count" id="sysFilterPendingAmt">¥0.00</span>
             </div>
+            <div class="filter-bar__item filter-bar__item--unmatched" data-match="unmatched" onclick="toggleSystemMatchFilter('unmatched')">
+                未匹配 <span class="filter-bar__count" id="sysFilterUnmatchedAmt">¥0.00</span>
+            </div>
             <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleSystemMatchFilter('diff')">
                 差异 <span class="filter-bar__count" id="sysFilterDiffAmt">¥0.00</span>
             </div>
@@ -516,6 +523,9 @@
             </div>
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
                 待确认 <span class="filter-bar__count" id="ledgerFilterPendingAmt">¥0.00</span>
+            </div>
+            <div class="filter-bar__item filter-bar__item--unmatched" data-match="unmatched" onclick="toggleLedgerMatchFilter('unmatched')">
+                未匹配 <span class="filter-bar__count" id="ledgerFilterUnmatchedAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleLedgerMatchFilter('diff')">
                 差异 <span class="filter-bar__count" id="ledgerFilterDiffAmt">¥0.00</span>
@@ -864,7 +874,7 @@
                 [MATCH_STATUS.MATCHED]: 'status-badge--matched',
                 [MATCH_STATUS.PENDING]: 'status-badge--pending',
                 [MATCH_STATUS.DIFF]: 'status-badge--diff',
-                [MATCH_STATUS.UNMATCHED]: '',
+                [MATCH_STATUS.UNMATCHED]: 'status-badge--unmatched',
             };
             return classes[status] || '';
         }
@@ -905,12 +915,19 @@
 
                     if (sysForAmount.length > 0 && ledForAmount.length === 0) {
                         for (const r of sysForAmount) {
-                            r.matchStatus = MATCH_STATUS.DIFF;
-                            r.diffType = DIFF_TYPE.SYSTEM_MORE;
-                            r.diffAmount = r.amount;
+                            // 补缴/调基补差无台账匹配 → 未匹配（非差异）
+                            if (r.feeType === BILL_TYPES.BUJIAO || r.feeType === BILL_TYPES.TIAOJI) {
+                                r.matchStatus = MATCH_STATUS.UNMATCHED;
+                            } else {
+                                r.matchStatus = MATCH_STATUS.DIFF;
+                                r.diffType = DIFF_TYPE.SYSTEM_MORE;
+                                r.diffAmount = r.amount;
+                            }
                         }
                         for (const r of sysForAmount) {
-                            matchingResults.diffs.push({ systemRecord: r, ledgerRecord: null });
+                            if (r.matchStatus === MATCH_STATUS.DIFF) {
+                                matchingResults.diffs.push({ systemRecord: r, ledgerRecord: null });
+                            }
                         }
                     } else if (sysForAmount.length === 0 && ledForAmount.length > 0) {
                         for (const r of ledForAmount) {
@@ -1111,6 +1128,7 @@
             if (currentSystemMatchFilter !== 'all') {
                 if (currentSystemMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
                 else if (currentSystemMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentSystemMatchFilter === 'unmatched') records = records.filter(r => r.matchStatus === MATCH_STATUS.UNMATCHED);
                 else if (currentSystemMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
             }
 
@@ -1190,6 +1208,7 @@
             if (currentLedgerMatchFilter !== 'all') {
                 if (currentLedgerMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
                 else if (currentLedgerMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
+                else if (currentLedgerMatchFilter === 'unmatched') records = records.filter(r => r.matchStatus === MATCH_STATUS.UNMATCHED);
                 else if (currentLedgerMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
             }
 
@@ -1266,10 +1285,12 @@
             const allAmt = all.reduce((s, r) => s + r.sysAmount, 0);
             const matchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.sysAmount, 0);
             const pendingAmt = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.sysAmount, 0);
+            const unmatchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.UNMATCHED).reduce((s, r) => s + r.sysAmount, 0);
             const diffAmt = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + r.sysAmount, 0);
             document.getElementById('sysFilterAllAmt').textContent = formatMoney(allAmt);
             document.getElementById('sysFilterMatchedAmt').textContent = formatMoney(matchedAmt);
             document.getElementById('sysFilterPendingAmt').textContent = formatMoney(pendingAmt);
+            document.getElementById('sysFilterUnmatchedAmt').textContent = formatMoney(unmatchedAmt);
             document.getElementById('sysFilterDiffAmt').textContent = formatMoney(diffAmt);
         }
 
@@ -1278,10 +1299,12 @@
             const allAmt = all.reduce((s, r) => s + r.ledgerAmount, 0);
             const matchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.ledgerAmount, 0);
             const pendingAmt = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.ledgerAmount, 0);
+            const unmatchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.UNMATCHED).reduce((s, r) => s + r.ledgerAmount, 0);
             const diffAmt = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + r.ledgerAmount, 0);
             document.getElementById('ledgerFilterAllAmt').textContent = formatMoney(allAmt);
             document.getElementById('ledgerFilterMatchedAmt').textContent = formatMoney(matchedAmt);
             document.getElementById('ledgerFilterPendingAmt').textContent = formatMoney(pendingAmt);
+            document.getElementById('ledgerFilterUnmatchedAmt').textContent = formatMoney(unmatchedAmt);
             document.getElementById('ledgerFilterDiffAmt').textContent = formatMoney(diffAmt);
         }
 
