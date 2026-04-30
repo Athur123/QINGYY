@@ -121,7 +121,7 @@
         .filter-bar__dot { width: 8px; height: 8px; border-radius: 50%; }
         .filter-bar__dot--system { background: #EF4444; }
         .filter-bar__dot--ledger { background: #F59E0B; }
-        .filter-bar__count { font-weight: 600; }
+        .filter-bar__count { font-weight: 600; font-size: 11px; color: var(--qy-text-muted); }
 
         /* Data Table */
         .data-table { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow-x: auto; }
@@ -259,16 +259,6 @@
         .import-preview__table { font-size: 12px; }
 
         /* Matching Stats */
-        /* Stats bar */
-        .stats-bar { display: flex; align-items: center; gap: 20px; margin-bottom: 12px; padding: 6px 0; }
-        .stats-bar__item { font-size: 13px; color: var(--qy-text-secondary); }
-        .stats-bar__item strong { font-size: 15px; font-weight: 700; margin: 0 3px; }
-        .stats-bar__sub { font-size: 12px; color: var(--qy-text-muted); }
-        .stats-bar__item--total strong { color: var(--qy-text-primary); }
-        .stats-bar__item--matched strong { color: #16A34A; }
-        .stats-bar__item--pending strong { color: #CA8A04; }
-        .stats-bar__item--diff strong { color: #DC2626; }
-
         /* Match Status Badges */
         .status-badge--matched { background: #DCFCE7; color: #166534; }
         .status-badge--matched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
@@ -434,14 +424,6 @@
                     </div>
                 </div>
 
-                <!-- Summary Bar -->
-                <div class="stats-bar" id="statsBar">
-                    <span class="stats-bar__item stats-bar__item--total">总记录数 <strong id="statTotal">0</strong> <span class="stats-bar__sub" id="statTotalAmount">¥0.00</span></span>
-                    <span class="stats-bar__item stats-bar__item--matched">已匹配 <strong id="statMatched">0</strong> <span class="stats-bar__sub" id="statMatchedAmount">¥0.00</span></span>
-                    <span class="stats-bar__item stats-bar__item--pending">待确认 <strong id="statPending">0</strong> <span class="stats-bar__sub" id="statPendingAmount">¥0.00</span></span>
-                    <span class="stats-bar__item stats-bar__item--diff">差异 <strong id="statDiff">0</strong> <span class="stats-bar__sub" id="statDiffAmount">¥0.00</span></span>
-                </div>
-
 <!-- Bill Tabs -->
 <div class="bill-tabs" id="billTabs">
     <div class="bill-tab bill-tab--system is-active" onclick="switchBillTab('system')">
@@ -459,16 +441,16 @@
         <span class="filter-bar__label">匹配状态</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleSystemMatchFilter('all')">
-                全部
+                全部 <span class="filter-bar__count" id="sysFilterAllAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleSystemMatchFilter('matched')">
-                已匹配
+                已匹配 <span class="filter-bar__count" id="sysFilterMatchedAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleSystemMatchFilter('pending')">
-                待确认
+                待确认 <span class="filter-bar__count" id="sysFilterPendingAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleSystemMatchFilter('diff')">
-                差异
+                差异 <span class="filter-bar__count" id="sysFilterDiffAmt">¥0.00</span>
             </div>
         </div>
         <div class="filter-bar__divider"></div>
@@ -527,16 +509,16 @@
         <span class="filter-bar__label">匹配状态</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleLedgerMatchFilter('all')">
-                全部
+                全部 <span class="filter-bar__count" id="ledgerFilterAllAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleLedgerMatchFilter('matched')">
-                已匹配
+                已匹配 <span class="filter-bar__count" id="ledgerFilterMatchedAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
-                待确认
+                待确认 <span class="filter-bar__count" id="ledgerFilterPendingAmt">¥0.00</span>
             </div>
             <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleLedgerMatchFilter('diff')">
-                差异
+                差异 <span class="filter-bar__count" id="ledgerFilterDiffAmt">¥0.00</span>
             </div>
         </div>
         <div class="filter-bar__divider"></div>
@@ -1199,6 +1181,7 @@
 
             document.getElementById('systemFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
             updateSystemBatchButtons();
+            updateSystemFilterAmounts();
         }
 
         function getFilteredLedgerRecords() {
@@ -1275,6 +1258,31 @@
 
             document.getElementById('ledgerFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
             updateLedgerBatchButtons();
+            updateLedgerFilterAmounts();
+        }
+
+        function updateSystemFilterAmounts() {
+            const all = getSystemDisplayRecords();
+            const allAmt = all.reduce((s, r) => s + r.sysAmount, 0);
+            const matchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.sysAmount, 0);
+            const pendingAmt = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.sysAmount, 0);
+            const diffAmt = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + r.sysAmount, 0);
+            document.getElementById('sysFilterAllAmt').textContent = formatMoney(allAmt);
+            document.getElementById('sysFilterMatchedAmt').textContent = formatMoney(matchedAmt);
+            document.getElementById('sysFilterPendingAmt').textContent = formatMoney(pendingAmt);
+            document.getElementById('sysFilterDiffAmt').textContent = formatMoney(diffAmt);
+        }
+
+        function updateLedgerFilterAmounts() {
+            const all = getLedgerDisplayRecords();
+            const allAmt = all.reduce((s, r) => s + r.ledgerAmount, 0);
+            const matchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.ledgerAmount, 0);
+            const pendingAmt = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.ledgerAmount, 0);
+            const diffAmt = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + r.ledgerAmount, 0);
+            document.getElementById('ledgerFilterAllAmt').textContent = formatMoney(allAmt);
+            document.getElementById('ledgerFilterMatchedAmt').textContent = formatMoney(matchedAmt);
+            document.getElementById('ledgerFilterPendingAmt').textContent = formatMoney(pendingAmt);
+            document.getElementById('ledgerFilterDiffAmt').textContent = formatMoney(diffAmt);
         }
 
         function filterRecords() {
@@ -1462,32 +1470,11 @@
         }
 
         function updateStats() {
-            const matchedCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
-            const pendingCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-
-            const ledgerOnly = ledgerRecords.filter(r => !systemRecords.some(s => s.matchedLedgerId === r.id));
-            const totalCount = systemRecords.length + ledgerOnly.length;
-
-            const matchedAmount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.amount, 0);
-            const pendingAmount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.amount, 0);
-            const diffAmt = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + Math.abs(r.diffAmount || 0), 0);
-            diffAmt + ledgerOnly.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + Math.abs(r.diffAmount || 0), 0);
-
-            const totalAmt = systemRecords.reduce((s, r) => s + r.amount, 0) + ledgerRecords.reduce((s, r) => s + r.amount, 0);
-
-            document.getElementById('statTotal').textContent = totalCount;
-            document.getElementById('statTotalAmount').textContent = formatMoney(totalAmt);
-            document.getElementById('statMatched').textContent = matchedCount;
-            document.getElementById('statMatchedAmount').textContent = formatMoney(matchedAmount);
-            document.getElementById('statPending').textContent = pendingCount;
-            document.getElementById('statPendingAmount').textContent = formatMoney(pendingAmount);
-            document.getElementById('statDiff').textContent = diffCount + ledgerOnly.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-            document.getElementById('statDiffAmount').textContent = formatMoney(diffAmt);
+            // 统计卡片已移除，保留空函数兼容旧调用
         }
 
         function updateMatchCounts() {
-            // 各 Tab 不再维护独立的匹配计数，由全局 #statsBar 统一展示
+            // 各 Tab 不再维护独立的匹配计数
         }
 
         // ========== 台账导入 ==========
