@@ -331,16 +331,6 @@
         .confirm-box__text { font-size: 14px; color: var(--qy-text-secondary); margin-bottom: 20px; line-height: 1.6; }
         .confirm-box__footer { display: flex; justify-content: flex-end; gap: 12px; }
 
-        /* Filter bar match status items */
-        .filter-bar__item--match-all { color: var(--qy-text-secondary); }
-        .filter-bar__item--match-all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
-        .filter-bar__item--matched { color: #166534; }
-        .filter-bar__item--matched.is-active { background: #DCFCE7; }
-        .filter-bar__item--pending { color: #854D0E; }
-        .filter-bar__item--pending.is-active { background: #FEF3C7; }
-        .filter-bar__item--diff { color: #991B1B; }
-        .filter-bar__item--diff.is-active { background: #FEE2E2; }
-
         /* ===== Bill Tabs ===== */
         .bill-tabs { display: flex; gap: 0; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; }
         .bill-tab { padding: 10px 24px; font-size: 14px; font-weight: 500; color: #64748B; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; user-select: none; }
@@ -474,30 +464,8 @@
 
 <!-- System Tab Panel -->
 <div class="bill-tab-panel is-active" id="panel-system">
-    <div class="summary-strip" id="systemSummaryStrip">
-        <div class="summary-chip"><span class="summary-chip__label">汇总</span><span class="summary-chip__value" id="sysTotalAmount">¥0.00</span></div>
-        <div class="summary-chip"><span class="summary-chip__label">已匹配</span><span class="summary-chip__value" id="sysMatched" style="color:#16A34A">0</span></div>
-        <div class="summary-chip"><span class="summary-chip__label">待确认</span><span class="summary-chip__value" id="sysPending" style="color:#CA8A04">0</span></div>
-        <div class="summary-chip"><span class="summary-chip__label">差异</span><span class="summary-chip__value" id="sysDiff" style="color:#DC2626">0</span></div>
-    </div>
 
     <div class="filter-bar" id="systemFilterBar">
-        <span class="filter-bar__label">匹配状态</span>
-        <div class="filter-bar__group">
-            <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleSystemMatchFilter('all')">
-                全部 <span class="filter-bar__count" id="sysMatchCountAll">0</span>
-            </div>
-            <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleSystemMatchFilter('matched')">
-                已匹配 <span class="filter-bar__count" id="sysMatchCountMatched">0</span>
-            </div>
-            <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleSystemMatchFilter('pending')">
-                待确认 <span class="filter-bar__count" id="sysMatchCountPending">0</span>
-            </div>
-            <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleSystemMatchFilter('diff')">
-                差异 <span class="filter-bar__count" id="sysMatchCountDiff">0</span>
-            </div>
-        </div>
-        <div class="filter-bar__divider"></div>
         <span class="filter-bar__label">账单类型</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleSystemTypeFilter('all')">
@@ -548,30 +516,8 @@
 
 <!-- Ledger Tab Panel -->
 <div class="bill-tab-panel" id="panel-ledger">
-    <div class="summary-strip" id="ledgerSummaryStrip">
-        <div class="summary-chip"><span class="summary-chip__label">汇总</span><span class="summary-chip__value" id="ledgerTotalAmount">¥0.00</span></div>
-        <div class="summary-chip"><span class="summary-chip__label">已匹配</span><span class="summary-chip__value" id="ledgerMatched" style="color:#16A34A">0</span></div>
-        <div class="summary-chip"><span class="summary-chip__label">待确认</span><span class="summary-chip__value" id="ledgerPending" style="color:#CA8A04">0</span></div>
-        <div class="summary-chip"><span class="summary-chip__label">差异</span><span class="summary-chip__value" id="ledgerDiff" style="color:#DC2626">0</span></div>
-    </div>
 
     <div class="filter-bar" id="ledgerFilterBar">
-        <span class="filter-bar__label">匹配状态</span>
-        <div class="filter-bar__group">
-            <div class="filter-bar__item filter-bar__item--match-all is-active" data-match="all" onclick="toggleLedgerMatchFilter('all')">
-                全部 <span class="filter-bar__count" id="ledgerMatchCountAll">0</span>
-            </div>
-            <div class="filter-bar__item filter-bar__item--matched" data-match="matched" onclick="toggleLedgerMatchFilter('matched')">
-                已匹配 <span class="filter-bar__count" id="ledgerMatchCountMatched">0</span>
-            </div>
-            <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
-                待确认 <span class="filter-bar__count" id="ledgerMatchCountPending">0</span>
-            </div>
-            <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleLedgerMatchFilter('diff')">
-                差异 <span class="filter-bar__count" id="ledgerMatchCountDiff">0</span>
-            </div>
-        </div>
-        <div class="filter-bar__divider"></div>
         <span class="filter-bar__label">账单类型</span>
         <div class="filter-bar__group">
             <div class="filter-bar__item filter-bar__item--type-all is-active" data-type="all" onclick="toggleLedgerTypeFilter('all')">
@@ -818,9 +764,7 @@
 
         // Tab state
         let currentBillTab = 'system';
-        let currentSystemMatchFilter = 'all';
         let currentSystemTypeFilter = 'all';
-        let currentLedgerMatchFilter = 'all';
         let currentLedgerTypeFilter = 'all';
 
         let currentDetailRecord = null;
@@ -1064,14 +1008,6 @@
         // ========== 筛选与渲染 ==========
 
         // System tab filters
-        function toggleSystemMatchFilter(filterType) {
-            currentSystemMatchFilter = filterType;
-            document.querySelectorAll('#systemFilterBar .filter-bar__item[data-match]').forEach(item => {
-                item.classList.toggle('is-active', item.dataset.match === filterType);
-            });
-            renderSystemTable();
-        }
-
         function toggleSystemTypeFilter(type) {
             currentSystemTypeFilter = type;
             document.querySelectorAll('#systemFilterBar .filter-bar__item[data-type]').forEach(item => {
@@ -1081,14 +1017,6 @@
         }
 
         // Ledger tab filters
-        function toggleLedgerMatchFilter(filterType) {
-            currentLedgerMatchFilter = filterType;
-            document.querySelectorAll('#ledgerFilterBar .filter-bar__item[data-match]').forEach(item => {
-                item.classList.toggle('is-active', item.dataset.match === filterType);
-            });
-            renderLedgerTable();
-        }
-
         function toggleLedgerTypeFilter(type) {
             currentLedgerTypeFilter = type;
             document.querySelectorAll('#ledgerFilterBar .filter-bar__item[data-type]').forEach(item => {
@@ -1158,12 +1086,6 @@
         function getFilteredSystemRecords() {
             let records = getSystemDisplayRecords();
 
-            if (currentSystemMatchFilter !== 'all') {
-                if (currentSystemMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
-                else if (currentSystemMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
-                else if (currentSystemMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
-            }
-
             if (currentSystemTypeFilter !== 'all') {
                 records = records.filter(r => r.feeType === currentSystemTypeFilter);
             }
@@ -1231,45 +1153,10 @@
 
             document.getElementById('systemFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
             updateSystemBatchButtons();
-            updateSystemSummary();
-            updateSystemMatchCounts(records);
-        }
-
-        function updateSystemSummary() {
-            const all = getSystemDisplayRecords();
-            const totalAmt = all.reduce((s, r) => s + r.sysAmount, 0);
-            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
-            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-
-            document.getElementById('sysTotalAmount').textContent = formatMoney(totalAmt);
-            document.getElementById('sysMatched').textContent = matchedCount;
-            document.getElementById('sysPending').textContent = pendingCount;
-            document.getElementById('sysDiff').textContent = diffCount;
-        }
-
-        function updateSystemMatchCounts(records) {
-            const all = records || getSystemDisplayRecords();
-            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
-            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-            const totalCount = all.length;
-
-            document.getElementById('sysMatchCountAll').textContent = totalCount;
-            document.getElementById('sysMatchCountMatched').textContent = matchedCount;
-            document.getElementById('sysMatchCountPending').textContent = pendingCount;
-            document.getElementById('sysMatchCountDiff').textContent = diffCount;
-            document.getElementById('systemTabCount').textContent = totalCount;
         }
 
         function getFilteredLedgerRecords() {
             let records = getLedgerDisplayRecords();
-
-            if (currentLedgerMatchFilter !== 'all') {
-                if (currentLedgerMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
-                else if (currentLedgerMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
-                else if (currentLedgerMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
-            }
 
             if (currentLedgerTypeFilter !== 'all') {
                 records = records.filter(r => r.feeType === currentLedgerTypeFilter);
@@ -1336,35 +1223,6 @@
 
             document.getElementById('ledgerFooterInfo').innerHTML = `共 <strong>${records.length}</strong> 条 / 1页`;
             updateLedgerBatchButtons();
-            updateLedgerSummary();
-            updateLedgerMatchCounts(records);
-        }
-
-        function updateLedgerSummary() {
-            const all = getLedgerDisplayRecords();
-            const totalAmt = all.reduce((s, r) => s + r.ledgerAmount, 0);
-            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
-            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-
-            document.getElementById('ledgerTotalAmount').textContent = formatMoney(totalAmt);
-            document.getElementById('ledgerMatched').textContent = matchedCount;
-            document.getElementById('ledgerPending').textContent = pendingCount;
-            document.getElementById('ledgerDiff').textContent = diffCount;
-        }
-
-        function updateLedgerMatchCounts(records) {
-            const all = records || getLedgerDisplayRecords();
-            const matchedCount = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).length;
-            const pendingCount = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).length;
-            const totalCount = all.length;
-
-            document.getElementById('ledgerMatchCountAll').textContent = totalCount;
-            document.getElementById('ledgerMatchCountMatched').textContent = matchedCount;
-            document.getElementById('ledgerMatchCountPending').textContent = pendingCount;
-            document.getElementById('ledgerMatchCountDiff').textContent = diffCount;
-            document.getElementById('ledgerTabCount').textContent = totalCount;
         }
 
         function filterRecords() {
