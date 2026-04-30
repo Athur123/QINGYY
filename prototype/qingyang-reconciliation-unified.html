@@ -1004,7 +1004,7 @@
             if (sysRec) {
                 sysRec.matchStatus = MATCH_STATUS.PENDING;
                 sysRec.matchedLedgerId = null;
-                // feePeriod is already the original value, no need to restore
+                sysRec.payableMonth = null;
             }
             if (ledRec) {
                 ledRec.matchStatus = MATCH_STATUS.PENDING;
@@ -1026,6 +1026,112 @@
             if (ledRec && ledRec.matchStatus === MATCH_STATUS.DIFF) {
                 ledRec.remark = '已处理';
             }
+        }
+
+        // ========== 从详情抽屉确认核对（台账选择器） ==========
+
+        function confirmFromDrawer() {
+            if (!currentDetailRecord) return;
+
+            const rec = currentDetailRecord;
+            // 找出可匹配的台账候选：同身份证 + 同险种
+            let candidates;
+            if (systemRecords.some(r => r.id === rec.id)) {
+                // 系统侧记录 → 找台账候选
+                candidates = ledgerRecords.filter(l =>
+                    l.idCard === rec.idCard && l.insuranceType === rec.insuranceType
+                );
+            } else {
+                // 台账侧记录 → 找系统候选
+                candidates = systemRecords.filter(s =>
+                    s.idCard === rec.idCard && s.insuranceType === rec.insuranceType
+                );
+            }
+
+            if (candidates.length === 0) {
+                showToast('无匹配的候选记录（需相同身份证 + 同险种）', 'warning');
+                return;
+            }
+
+            renderConfirmSelector(rec, candidates);
+        }
+
+        function renderConfirmSelector(sourceRec, candidates) {
+            const isSystemSource = systemRecords.some(r => r.id === sourceRec.id);
+            const sourceLabel = isSystemSource ? '系统侧' : '台账侧';
+            const targetLabel = isSystemSource ? '台账侧' : '系统侧';
+
+            const body = document.getElementById('drawerBody');
+            let html = `
+                <div class="drawer-section">
+                    <div class="drawer-section__title">源记录</div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">员工</span>
+                        <span class="drawer-row__value">${sourceRec.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value">${sourceRec.insuranceType}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">金额</span>
+                        <span class="drawer-row__value">${formatMoney(sourceRec.amount)}</span>
+                    </div>
+                </div>
+
+                <div class="drawer-section">
+                    <div class="drawer-section__title">选择 ${targetLabel} 记录进行匹配</div>
+                    <div style="margin-bottom:12px;">
+                        ${candidates.map(c => `
+                            <label style="display:flex;align-items:center;padding:10px;border:1px solid var(--qy-border-light);border-radius:8px;margin-bottom:8px;cursor:pointer;gap:12px;">
+                                <input type="radio" name="confirmSelect" value="${c.id}" style="flex-shrink:0;">
+                                <div style="flex:1;">
+                                    <div style="font-weight:600;">${c.name} | ${c.insuranceType}</div>
+                                    <div style="font-size:12px;color:var(--qy-text-secondary);">
+                                        金额: ${formatMoney(c.amount)}
+                                        ${c.billingMonth ? ' | 应缴月份: ' + c.billingMonth : ''}
+                                        ${c.feeType ? ' | 类型: ' + getBillTypeLabel(c.feeType) : ''}
+                                        ${c.feeTypeInferred ? ' | 推断类型: ' + getBillTypeLabel(c.feeTypeInferred) : ''}
+                                    </div>
+                                </div>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            body.innerHTML = html;
+            document.getElementById('drawerTitle').textContent = `确认核对 — ${sourceRec.name} | ${sourceRec.insuranceType}`;
+
+            // 替换 footer 按钮
+            const footer = document.querySelector('#detailDrawer .drawer__footer');
+            footer.innerHTML = `
+                <button class="qy-btn qy-btn--secondary" onclick="showNewDetail('${sourceRec.id}', '${isSystemSource ? 'system' : 'ledger'}')">返回</button>
+                <button class="qy-btn qy-btn--primary" id="confirmDrawerMatchBtn">确认匹配</button>
+            `;
+
+            document.getElementById('confirmDrawerMatchBtn').addEventListener('click', () => {
+                const selected = document.querySelector('input[name="confirmSelect"]:checked');
+                if (!selected) {
+                    showToast('请先选择一条记录', 'warning');
+                    return;
+                }
+                const targetId = selected.value;
+                let confirmed = false;
+                if (isSystemSource) {
+                    confirmed = confirmPendingPairing(sourceRec.id, targetId);
+                } else {
+                    confirmed = confirmPendingPairing(targetId, sourceRec.id);
+                }
+                if (confirmed) {
+                    showToast('确认核对成功', 'success');
+                    closeDetailDrawer();
+                    renderAllTables();
+                    updateMatchCounts();
+                } else {
+                    showToast('匹配失败，请检查记录状态', 'error');
+                }
+            });
         }
 
         // ========== 筛选与渲染 ==========
@@ -1179,7 +1285,7 @@
                     : r.matchStatus === MATCH_STATUS.PENDING ? 'row-pending'
                     : r.matchStatus === MATCH_STATUS.DIFF ? 'row-diff' : '';
 
-                const payableMonthDisplay = r.feeType === 'huijiao' ? (r.payableMonth || '—') : '—';
+                const payableMonthDisplay = r.payableMonth || '—';
 
                 return `<tr class="${rowClass}" data-id="${r.id}">
                     <td><input type="checkbox" class="system-row-checkbox" data-id="${r.id}" onchange="updateSystemBatchButtons()"></td>

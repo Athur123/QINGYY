@@ -813,6 +813,8 @@ Step 5: 归档后操作
 | `filterRecords()` | 顶部搜索栏桩函数，调用 `renderAllTables()` |
 | `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()` / `systemBatchConfirm()` / `systemBatchCancel()` | 系统侧批量操作 |
 | `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 台账侧批量操作 |
+| `confirmFromDrawer()` | 从详情抽屉确认核对，弹出台账选择器供用户手动匹配 |
+| `renderConfirmSelector()` | 渲染台账/系统侧选择器 UI |
 
 ### 实施差异记录
 
@@ -826,3 +828,6 @@ Step 5: 归档后操作
 6. **`filterRecords` 函数**：顶部搜索按钮的原引用函数已删除，新增桩函数调用 `renderAllTables()`，后续可扩展为实际按月份/结算主体/姓名过滤
 7. **批量操作**：系统侧和台账侧各自独立的全选/确认/取消逻辑，互不影响
 8. **未匹配状态**：补缴/调基补差费用在台账侧无匹配时，核对状态为"未匹配"而非"差异"。因为此类费用可能对应其他应缴月份的台账，当前月份未匹配属于正常状态，可在后续月份继续匹配。而台账侧费用必须在当前账单月份完全匹配，否则说明系统侧费用计算可能存在错误。
+9. **应缴月份显示**：表格中应缴月份列不再仅限汇缴类型显示，所有费用类型在核对成功后均展示 `payableMonth` 字段。未匹配/待确认的补缴/调基补差仍显示 "—"。
+10. **取消核对清除应缴月份**：`cancelMatch` 函数新增 `sysRec.payableMonth = null`，确保取消核对后应缴月份恢复到未知状态。
+11. **详情抽屉确认核对**：差异详情抽屉中的"确认核对"按钮调用 `confirmFromDrawer()`，弹出台账选择器供用户手动选择匹配记录。
