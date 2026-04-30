@@ -387,6 +387,7 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 ┌───────────────────────────────────────────────────────────────────────┐
 │  🖥 系统侧账单 [6]                                                     │
 ├───────────────────────────────────────────────────────────────────────┤
+│  匹配状态：[全部] [已匹配] [待确认] [差异]                             │
 │  账单类型：[全部] [汇缴] [补缴] [调基补差]                             │
 ├───────────────────────────────────────────────────────────────────────┤
 │  ☐ | 状态    | 类型   | 姓名 | 身份证         | 险种 | 应缴月   | 费款期 | 系统金额  | 台账金额         | 差异    | 操作      │
@@ -422,6 +423,7 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 ┌───────────────────────────────────────────────────────────────────────┐
 │  📋 台账侧账单 [7]                                                     │
 ├───────────────────────────────────────────────────────────────────────┤
+│  匹配状态：[全部] [已匹配] [待确认] [差异]                             │
 │  账单类型：[全部] [汇缴] [补缴] [调基补差]                             │
 ├───────────────────────────────────────────────────────────────────────┤
 │  ☐ | 状态    | 类型   | 姓名 | 身份证         | 险种 | 应缴月   | 费款期 | 台账金额  | 系统金额         | 差异    | 操作      │
@@ -786,7 +788,9 @@ Step 5: 归档后操作
 | 变量 | 说明 |
 |------|------|
 | `currentBillTab` | 当前激活的 Tab（'system' / 'ledger'） |
+| `currentSystemMatchFilter` | 系统侧匹配状态筛选 |
 | `currentSystemTypeFilter` | 系统侧账单类型筛选 |
+| `currentLedgerMatchFilter` | 台账侧匹配状态筛选 |
 | `currentLedgerTypeFilter` | 台账侧账单类型筛选 |
 
 ### JS 函数
@@ -796,7 +800,8 @@ Step 5: 归档后操作
 | `switchBillTab(tab)` | 切换 Tab 激活状态 |
 | `getSystemDisplayRecords()` | 返回系统侧渲染数据（含关联 ledger 信息） |
 | `getLedgerDisplayRecords()` | 返回台账侧渲染数据（含关联 system 信息） |
-| `toggleSystemTypeFilter()` / `toggleLedgerTypeFilter()` | 账单类型筛选切换 |
+| `toggleSystemMatchFilter()` / `toggleSystemTypeFilter()` | 系统侧匹配状态/账单类型筛选切换 |
+| `toggleLedgerMatchFilter()` / `toggleLedgerTypeFilter()` | 台账侧匹配状态/账单类型筛选切换 |
 | `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` | 获取筛选后记录 |
 | `renderSystemTable()` / `renderLedgerTable()` | 渲染各自表格 |
 | `renderAllTables()` | 同时渲染两侧表格 |
@@ -811,6 +816,6 @@ Step 5: 归档后操作
 1. **页面副标题**：从「统一账单模式 — 汇缴/补缴/调基补差合并展示（PRD v5）」更新为「Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）」
 2. **全局统计卡片**：`#statsGrid` 保留不动，作为全局统计（各 Tab 不再有独立的摘要条）
 3. **摘要条已移除**：系统侧和台账侧的 `.summary-strip` 已完全移除（不再显示汇总金额、已匹配/待确认/差异计数）
-4. **匹配状态筛选已移除**：系统侧和台账侧不再提供「全部/已匹配/待确认/差异」的匹配状态切换，仅保留账单类型筛选
+4. **筛选栏**：系统侧和台账侧提供「匹配状态」（全部/已匹配/待确认/差异）+「账单类型」（全部/汇缴/补缴/调基补差）两组筛选
 4. **`filterRecords` 函数**：顶部搜索按钮的原引用函数已删除，新增桩函数调用 `renderAllTables()`，后续可扩展为实际按月份/结算主体/姓名过滤
 5. **批量操作**：系统侧和台账侧各自独立的全选/确认/取消逻辑，互不影响
