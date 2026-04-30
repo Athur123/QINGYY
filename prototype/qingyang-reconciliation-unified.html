@@ -403,7 +403,7 @@
             <div class="qy-page">
                 <div class="qy-page__header">
                     <h1 class="qy-page__title">社保对账复核</h1>
-                    <p class="qy-page__subtitle">统一账单模式 — 汇缴/补缴/调基补差合并展示（PRD v5）</p>
+                    <p class="qy-page__subtitle">Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）</p>
                 </div>
 
                 <!-- Toolbar -->
@@ -1365,6 +1365,11 @@
             document.getElementById('ledgerMatchCountPending').textContent = pendingCount;
             document.getElementById('ledgerMatchCountDiff').textContent = diffCount;
             document.getElementById('ledgerTabCount').textContent = totalCount;
+        }
+
+        function filterRecords() {
+            // 顶部搜索栏：按月份/结算主体/姓名筛选，当前直接刷新 Tab 表格
+            renderAllTables();
         }
 
         function renderAllTables() {

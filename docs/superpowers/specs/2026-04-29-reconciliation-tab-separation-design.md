@@ -105,12 +105,17 @@
 - HTML：替换 `#unifiedTable` 为 `.bill-tabs` + 两个 `.bill-tab-panel`
 - CSS：新增 `.bill-tabs`、`.bill-tab`、`.bill-tab-panel`、`.summary-strip` 样式
 - JS：
-  - 新增 `currentSystemMatchFilter`、`currentSystemTypeFilter`、`currentLedgerMatchFilter`、`currentLedgerTypeFilter` 状态变量
+  - 新增 `currentBillTab`、`currentSystemMatchFilter`、`currentSystemTypeFilter`、`currentLedgerMatchFilter`、`currentLedgerTypeFilter` 状态变量
   - 新增 `getSystemDisplayRecords()`、`getLedgerDisplayRecords()`
-  - 新增 `switchBillTab(tab)`、`toggleSystemMatchFilter()`、`toggleSystemTypeFilter()`、`toggleLedgerMatchFilter()`、`toggleLedgerTypeFilter()`
-  - 修改 `renderTable()` → `renderSystemTable()` + `renderLedgerTable()`
-  - 修改 `renderPairingDrawer()` 兼容从两侧打开
-  - 修改 `doCancelMatch()`、`confirmPendingPairing()` 等数据变更后触发 `renderAllTables()`
+  - 新增 `switchBillTab()`、`toggleSystemMatchFilter()`、`toggleSystemTypeFilter()`、`toggleLedgerMatchFilter()`、`toggleLedgerTypeFilter()`
+  - 新增 `getFilteredSystemRecords()`、`renderSystemTable()`、`updateSystemSummary()`、`updateSystemMatchCounts()`
+  - 新增 `getFilteredLedgerRecords()`、`renderLedgerTable()`、`updateLedgerSummary()`、`updateLedgerMatchCounts()`
+  - 新增 `renderAllTables()`、`filterRecords()`（搜索桩函数，调用 renderAllTables）
+  - 新增 `getSelectedSystemIds()`、`toggleSystemSelectAll()`、`updateSystemBatchButtons()`、`systemBatchConfirm()`、`systemBatchCancel()`
+  - 新增 `getSelectedLedgerIds()`、`toggleLedgerSelectAll()`、`updateLedgerBatchButtons()`、`ledgerBatchConfirm()`、`ledgerBatchCancel()`
+  - 修改 `updateMatchCounts()` → 保留为空函数（兼容旧调用）
+  - 修改 `doCancelMatch()`、`confirmPairing()`、`handleDiffRemark()`、`doArchive()`、`importNextStep()`、`startReconciliation()` 中调用 `renderAllTables()`
+  - 删除：`toggleMatchFilter`、`toggleTypeFilter`、`getAllDisplayRecords`、`getFilteredRecords`、`renderTable`、`getSelectedIds`、`toggleSelectAll`、`updateBatchButtons`、`batchConfirm`、`batchCancel`
 
 ## 测试场景
 
@@ -120,3 +125,12 @@
 4. 李四补缴差异 → 两侧均显示为差异行，系统侧差异 `+¥600`，台账侧差异 `-¥450`
 5. 台账侧「确认配对」→ 打开抽屉选择系统记录，确认后两侧同步更新
 6. 切换 Tab 后筛选状态各自独立保留
+
+## 实施差异记录
+
+以下为实现过程中与设计初稿的细微差异，已验证通过：
+
+1. **页面副标题**：从「统一账单模式 — 汇缴/补缴/调基补差合并展示（PRD v5）」更新为「Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）」
+2. **全局统计卡片**：`#statsGrid` 保留不动，作为全局统计（各 Tab 还有独立的摘要条 `.summary-strip`）
+3. **`filterRecords` 函数**：顶部搜索按钮的原引用函数已删除，新增桩函数调用 `renderAllTables()`，后续可扩展为实际按月份/结算主体/姓名过滤
+4. **批量操作**：系统侧和台账侧各自独立的全选/确认/取消逻辑，互不影响
