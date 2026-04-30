@@ -1656,7 +1656,11 @@
         }
 
         function updateMatchCounts() {
-            // 各 Tab 不再维护独立的匹配计数
+            // 更新 Tab 上的记录数
+            const sysCount = systemRecords.length;
+            const ledCount = ledgerRecords.length;
+            document.getElementById('systemTabCount').textContent = sysCount;
+            document.getElementById('ledgerTabCount').textContent = ledCount;
         }
 
         // ========== 台账导入 ==========
