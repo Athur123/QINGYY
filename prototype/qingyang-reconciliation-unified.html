@@ -534,9 +534,6 @@
             <div class="filter-bar__item filter-bar__item--pending" data-match="pending" onclick="toggleLedgerMatchFilter('pending')">
                 待确认 <span class="filter-bar__count" id="ledgerFilterPendingAmt">¥0.00</span>
             </div>
-            <div class="filter-bar__item filter-bar__item--unmatched" data-match="unmatched" onclick="toggleLedgerMatchFilter('unmatched')">
-                未匹配 <span class="filter-bar__count" id="ledgerFilterUnmatchedAmt">¥0.00</span>
-            </div>
             <div class="filter-bar__item filter-bar__item--diff" data-match="diff" onclick="toggleLedgerMatchFilter('diff')">
                 差异 <span class="filter-bar__count" id="ledgerFilterDiffAmt">¥0.00</span>
             </div>
@@ -987,6 +984,16 @@
                 }
             }
 
+            // 台账侧不允许"未匹配"——无系统对应的台账记录一律标记为差异
+            for (const ledRec of ledgerRecords) {
+                if (ledRec.matchStatus === MATCH_STATUS.UNMATCHED) {
+                    ledRec.matchStatus = MATCH_STATUS.DIFF;
+                    ledRec.diffType = DIFF_TYPE.LEDGER_MORE;
+                    ledRec.diffAmount = -ledRec.amount;
+                    matchingResults.diffs.push({ systemRecord: null, ledgerRecord: ledRec });
+                }
+            }
+
             matchingResults.executed = true;
             return matchingResults;
         }
@@ -1347,7 +1354,6 @@
             if (currentLedgerMatchFilter !== 'all') {
                 if (currentLedgerMatchFilter === 'matched') records = records.filter(r => r.matchStatus === MATCH_STATUS.MATCHED);
                 else if (currentLedgerMatchFilter === 'pending') records = records.filter(r => r.matchStatus === MATCH_STATUS.PENDING);
-                else if (currentLedgerMatchFilter === 'unmatched') records = records.filter(r => r.matchStatus === MATCH_STATUS.UNMATCHED);
                 else if (currentLedgerMatchFilter === 'diff') records = records.filter(r => r.matchStatus === MATCH_STATUS.DIFF);
             }
 
@@ -1438,12 +1444,10 @@
             const allAmt = all.reduce((s, r) => s + r.ledgerAmount, 0);
             const matchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.MATCHED).reduce((s, r) => s + r.ledgerAmount, 0);
             const pendingAmt = all.filter(r => r.matchStatus === MATCH_STATUS.PENDING).reduce((s, r) => s + r.ledgerAmount, 0);
-            const unmatchedAmt = all.filter(r => r.matchStatus === MATCH_STATUS.UNMATCHED).reduce((s, r) => s + r.ledgerAmount, 0);
             const diffAmt = all.filter(r => r.matchStatus === MATCH_STATUS.DIFF).reduce((s, r) => s + r.ledgerAmount, 0);
             document.getElementById('ledgerFilterAllAmt').textContent = formatMoney(allAmt);
             document.getElementById('ledgerFilterMatchedAmt').textContent = formatMoney(matchedAmt);
             document.getElementById('ledgerFilterPendingAmt').textContent = formatMoney(pendingAmt);
-            document.getElementById('ledgerFilterUnmatchedAmt').textContent = formatMoney(unmatchedAmt);
             document.getElementById('ledgerFilterDiffAmt').textContent = formatMoney(diffAmt);
         }
 
