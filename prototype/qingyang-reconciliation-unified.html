@@ -1000,7 +1000,14 @@
 
         function cancelMatch(recordId) {
             const sysRec = systemRecords.find(r => r.id === recordId);
-            const ledRec = ledgerRecords.find(r => r.id === recordId);
+            // Find the matched pair to get the correct ledger/system ID
+            const matchedEntry = matchingResults.matched.find(m =>
+                m.systemRecord.id === recordId || m.ledgerRecord.id === recordId
+            );
+            const ledRec = matchedEntry
+                ? (sysRec ? matchedEntry.ledgerRecord : matchedEntry.systemRecord)
+                : ledgerRecords.find(r => r.id === recordId);
+
             if (sysRec) {
                 sysRec.matchStatus = MATCH_STATUS.PENDING;
                 sysRec.matchedLedgerId = null;
@@ -1015,6 +1022,20 @@
             matchingResults.matched = matchingResults.matched.filter(
                 m => m.systemRecord.id !== recordId && m.ledgerRecord.id !== recordId
             );
+
+            // Add back to pending group so openPairingDrawer can find it
+            if (sysRec && ledRec) {
+                const existingGroup = matchingResults.pending.find(g =>
+                    g.systemRecords.some(r => r.id === sysRec.id)
+                );
+                if (!existingGroup) {
+                    matchingResults.pending.push({
+                        amount: sysRec.amount,
+                        systemRecords: [sysRec],
+                        ledgerRecords: [ledRec],
+                    });
+                }
+            }
         }
 
         function markDiffHandled(recordId) {
