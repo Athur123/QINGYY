@@ -819,22 +819,63 @@ Step 5: 归档后操作
 | `.bill-tab-panel` | 面板容器，`.is-active` 时显示 |
 | `.cross-ref` | 跨引用标记（`↔ Txxx` / `↔ Sxxx`） |
 | `.filter-bar__count` | 筛选按钮内的金额显示 |
+| `.qy-btn--success` | 绿色成功按钮（批量归档按钮） |
+| `.qy-btn[disabled]` | 禁用按钮样式（opacity 0.5, cursor not-allowed） |
+| `.summary-cell` | 汇总单元格容器，flex column 布局，gap 2px |
+| `.summary-cell__count` | 笔数文本，600 字重，13px |
+| `.summary-cell__amount` | 金额文本，11px，灰色 |
+| `.summary-cell__count--diff` | 差异笔数（红色） |
+| `.summary-cell__amount--diff` | 差异金额（红色，500 字重） |
+| `.summary-cell__count--pending` | 待确认笔数（橙色 #D97706） |
+| `.summary-cell__amount--pending` | 待确认金额（深橙色 #B45309，500 字重） |
+| `.summary-cell--empty` | 空值居中显示 |
+| `.summary-cell__text` | 空值文本（灰色） |
+| `.row-all-matched` | 已对账无差异行（浅绿色背景 #F0FDF4） |
+| `.row-has-diff` | 已对账有差异行（浅黄色背景 #FFFBEB） |
+| `.row-archived` | 已归档行（灰色背景 #F1F5F9，opacity 0.7） |
+| `.rule-name` | 规则名称（加粗） |
+| `.rule-month` | 规则月份（13px） |
+| `.import-dialog` | 导入对话框（modal overlay） |
+| `.drop-zone` | 拖拽上传区域 |
+| `.loading-overlay` | 批量对账 loading 遮罩层 |
+| `.toast` | Toast 通知（info/success/warning/error） |
 
 ### JS 状态变量
 
 | 变量 | 说明 |
 |------|------|
-| `currentBillTab` | 当前激活的 Tab（'system' / 'ledger'） |
-| `currentSystemMatchFilter` | 系统侧核对状态筛选 |
-| `currentSystemTypeFilter` | 系统侧费用类型筛选 |
-| `currentLedgerMatchFilter` | 台账侧核对状态筛选 |
-| `currentLedgerTypeFilter` | 台账侧费用类型筛选 |
+| `DEMO_RULES` | 规则列表数组，每项含 ruleName、region、insuranceType、month 及统计字段 |
+| `SYSTEM_RECORDS_ALL` | 所有规则对应的系统侧明细数据 |
+| `MOCK_LEDGER_DATA` | 模拟台账数据（全量） |
+| `filteredRules` | 筛选后的规则列表 |
+| `selectedRules` | Set，勾选的规则名称集合 |
+| `ledgerRecordsByRule` | Map，ruleName → 该规则的台账记录数组 |
+| `ruleImportStatus` | Map，ruleName → 'imported' / 'reconciled' / 'archived' |
+| `currentBillTab` | 明细页当前激活的 Tab（'system' / 'ledger'） |
+| `currentSystemMatchFilter` | 明细页系统侧核对状态筛选 |
+| `currentSystemTypeFilter` | 明细页系统侧费用类型筛选 |
+| `currentLedgerMatchFilter` | 明细页台账侧核对状态筛选 |
+| `currentLedgerTypeFilter` | 明细页台账侧费用类型筛选 |
 
 ### JS 函数
 
 | 函数 | 说明 |
 |------|------|
-| `switchBillTab(tab)` | 切换 Tab 激活状态 |
+| `renderSummaryTable()` | 渲染汇总表格，含行状态颜色和 checkbox |
+| `toggleSelectAll()` | 全选/取消全选（排除未导入和已归档规则） |
+| `toggleRuleSelection(checkbox)` | 单行选择切换 |
+| `updateBatchButton()` | 根据选中状态更新批量对账按钮 enabled/disabled |
+| `updateBatchArchiveButton()` | 根据选中规则的可归档性更新批量归档按钮 enabled/disabled |
+| `batchReconcile()` | 批量对账入口，遍历选中规则调用匹配引擎 |
+| `batchArchive()` | 批量归档入口，校验差异后标记 archived |
+| `executeMatchingForRule(rule)` | 单规则匹配引擎，返回统计数 |
+| `applyFilters()` | 汇总页筛选（月份/地区） |
+| `openImportDialog()` / `closeImportDialog()` | 打开/关闭导入对话框 |
+| `showImportPreview()` | 展示按规则拆分的预览表格 |
+| `importNextStep()` | 处理导入确认，写入 ledgerRecordsByRule 并刷新表格 |
+| `toast(message, type)` | Toast 通知提示 |
+| `navigateToDetail(ruleName, month)` | 跳转到明细页 |
+| `switchBillTab(tab)` | 切换明细页 Tab 激活状态 |
 | `getSystemDisplayRecords()` | 返回系统侧渲染数据（含关联 ledger 信息） |
 | `getLedgerDisplayRecords()` | 返回台账侧渲染数据（含关联 system 信息） |
 | `toggleSystemMatchFilter()` / `toggleSystemTypeFilter()` | 系统侧核对状态/费用类型筛选切换 |
@@ -844,8 +885,8 @@ Step 5: 归档后操作
 | `updateSystemFilterAmounts()` / `updateLedgerFilterAmounts()` | 更新筛选按钮内的金额显示 |
 | `renderAllTables()` | 同时渲染两侧表格 |
 | `filterRecords()` | 顶部搜索栏桩函数，调用 `renderAllTables()` |
-| `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()` / `systemBatchConfirm()` / `systemBatchCancel()` | 系统侧批量操作 |
-| `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 台账侧批量操作 |
+| `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()` / `systemBatchConfirm()` / `systemBatchCancel()` | 明细页系统侧批量操作 |
+| `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 明细页台账侧批量操作 |
 | `confirmFromDrawer()` | 从详情抽屉确认核对，弹出台账选择器供用户手动匹配 |
 | `renderConfirmSelector()` | 渲染台账/系统侧选择器 UI |
 
@@ -866,6 +907,13 @@ Step 5: 归档后操作
 11. **详情抽屉确认核对**：差异详情抽屉中的"确认核对"按钮调用 `confirmFromDrawer()`，弹出台账选择器供用户手动选择匹配记录。
 12. **Tab 吸顶**：`.bill-tabs` 添加 `position: sticky; top: 0; background: #F8FAFC; z-index: 100`，向下滚动时 Tab 栏固定在页面顶部。
 13. **险种新增大额医疗**：`INSURANCE_TYPE_ALIAS` 新增 `'大额医疗': ['大额医疗', '大额医疗保险', '大病医疗']` 映射。
+14. **汇总页列顺序**：台账侧总计列从末尾移至"系统侧差异"列之后，列顺序为 checkbox → 规则名称 → 月份 → 系统侧已核对 → 系统侧差异 → 台账侧总计 → 台账侧已核对 → 台账侧差异 → 台账侧待确认 → 操作。
+15. **汇总页操作按钮合并**：刷新、批量导出、批量对账、批量归档、导入台账全部集中在 filter-bar 右侧同一位置。
+16. **汇总页信息栏**：显示"共 N 条规则，已导入 M 条，已归档 K 条"三项统计。
+17. **汇总页行背景色**：已对账无差异 → #F0FDF4（绿），已对账有差异 → #FFFBEB（黄），已归档 → #F1F5F9 + opacity 0.7（灰）。
+18. **台账侧待确认列**：待确认笔数橙色（#D97706），待确认金额深橙色（#B45309，加粗）。
+19. **批量归档条件**：仅 reconciled 状态且系统侧差异=0、台账侧差异=0 的规则可归档。
+20. **DEMO_RULES 扩展字段**：新增 ledgerPending、ledgerPendingAmount、ledgerTotal、ledgerTotalAmount 四个统计字段。
 
 ### Demo 数据更新（2026-04-30）
 
@@ -966,45 +1014,49 @@ if (forcePendingSys.length > 0) {
 
 **页面布局**:
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  < 返回  │  对账复核 — 规则汇总                                    │
-├──────────────────────────────────────────────────────────────────┤
-│  [月份▼ 全部] [地区▼ 全部] [结算方案▼ 全部] [险种类型▼ 全部]        │
-│                                                [批量导出] [刷新]  │
-├──────────────────────────────────────────────────────────────────┤
-│  共 N 条规则                                                       │
-├────────────┬────────┬──────────┬──────────┬──────────┬──────────┤
-│ 规则名称   │ 月份   │ 系统侧   │ 系统侧   │ 台账侧   │ 台账侧   │ 操作      │
-│            │        │ 已核对   │ 差异     │ 已核对   │ 差异     │          │
-├────────────┼────────┼──────────┼──────────┼──────────┼──────────┤
-│ 北京养老   │ 2026-04│ 5笔      │ 2笔      │ 5笔      │ 2笔      │ [进入核对]│
-│            │        │ ¥4,932.50│ ¥156.40  │ ¥4,932.50│          │          │
-├────────────┼────────┼──────────┼──────────┼──────────┼──────────┤
-│ 北京失业   │ 2026-04│ 12笔     │ —        │ 12笔     │ —        │ [进入核对]│
-│            │        │ ¥840.00  │          │ ¥840.00  │          │          │
-└────────────┴────────┴──────────┴──────────┴──────────┴──────────┘
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│  < 返回  │  对账复核 — 规则汇总                                                    │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│  [月份▼ 全部] [地区▼ 全部]                        [刷新][批量导出][批量对账][批量归档][导入台账] │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│  共 N 条规则，已导入 M 条，已归档 K 条                                              │
+├──────┬────────────┬────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────┤
+│ ☐    │ 规则名称   │ 月份   │ 系统侧   │ 系统侧   │ 台账侧   │ 台账侧   │ 台账侧   │ 台账侧   │ 操作      │
+│      │            │        │ 已核对   │ 差异     │ 总计     │ 已核对   │ 差异     │ 待确认   │          │
+├──────┼────────────┼────────┼──────────┼──────────┼──────────┼──────────┼──────────┼──────────┤
+│ ☐    │ 社保规则A  │ 2026-04│ 2笔      │ 1笔      │ 4笔      │ 2笔      │ 1笔      │ 1笔      │ [进入核对]│
+│      │            │        │ ¥3,420.62│ ¥1,050.00│ ¥4,477.58│ ¥3,420.62│ ¥1,056.96│ ¥1,137.50│          │
+├──────┼────────────┼────────┼──────────┼──────────┼──────────┼──────────┼──────────┼──────────┤
+│ ☐    │ 社保规则B  │ 2026-04│ 12笔     │ —        │ 12笔     │ 12笔     │ —        │ —        │ [进入核对]│
+│      │            │        │ ¥840.00  │          │ ¥840.00  │ ¥840.00  │          │          │          │
+└──────┴────────────┴────────┴──────────┴──────────┴──────────┴──────────┴──────────┘
 ```
 
 **字段说明**:
 
 | 字段 | 说明 |
 |------|------|
+| ☐ | 复选框（用于批量操作），未导入台账的规则行 disabled，已归档规则行 disabled |
 | 规则名称 | 如 "社保规则A"、"社保规则B"，不含月份 |
 | 月份 | 账单月份，如 "2026-04" |
-| 系统侧已核对 | 两行：笔数 / 已匹配金额合计（单元格内换行展示） |
-| 系统侧差异 | 两行：笔数 / 差异金额合计；无差异显示 "—" |
+| 系统侧已核对 | 两行：笔数 / 已匹配金额合计（单元格内 flex column 展示） |
+| 系统侧差异 | 两行：笔数 / 差异金额合计；无差异显示 "—"，有差异时金额标红 |
+| 台账侧总计 | 两行：总笔数 / 总金额（单元格内 flex column 展示） |
 | 台账侧已核对 | 两行：笔数 / 已匹配金额合计 |
-| 台账侧差异 | 两行：笔数 / 差异金额；无差异显示 "—" |
+| 台账侧差异 | 两行：笔数 / 差异金额；无差异显示 "—"，有差异时金额标红 |
+| 台账侧待确认 | 两行：待确认笔数 / 待确认金额；无待确认显示 "—"，有待确认时橙色显示 |
 | 操作 | `[进入核对]` 链接，跳转到明细页 |
 
 **筛选器**: 顶部两个下拉筛选器（月份、地区）。
 
+**操作按钮**: 合并于 filter-bar 右侧，从左到右依次为：刷新、批量导出、批量对账、批量归档、导入台账。
+
 **跳转**: 点击 `[进入核对]` 跳转到 `qingyang-reconciliation-unified.html?ruleName=社保规则A&month=2026-04`。
 
 **样式约定**:
-- 单元格内两行内容：第一行笔数，第二行金额
-- 有差异的行，差异金额标红
-- 无差异的行，整行背景淡绿
+- 单元格内两行内容：第一行笔数，第二行金额，通过 flex column 布局
+- 行背景色：已对账无差异 → 浅绿色（`#F0FDF4`），已对账有差异 → 浅黄色（`#FFFBEB`），已归档 → 灰色（`#F1F5F9`，opacity 0.7）
+- 金额颜色：已匹配金额绿色，差异金额红色，待确认金额橙色
 
 ### 明细核对页面变更
 
@@ -1050,17 +1102,34 @@ if (forcePendingSys.length > 0) {
 ### 数据结构
 
 ```javascript
+// DEMO_RULES 每条规则包含的字段：
+{
+    ruleName: '社保规则A',      // 规则名称
+    region: '重庆',             // 地区
+    insuranceType: '养老',      // 险种
+    month: '2026-04',           // 账单月份
+    // 对账后填充的统计字段：
+    systemMatched: 0,           // 系统侧已核对笔数
+    systemMatchedAmount: 0,     // 系统侧已核对金额合计
+    systemDiff: 0,              // 系统侧差异笔数
+    systemDiffAmount: 0,        // 系统侧差异金额合计
+    ledgerMatched: 0,           // 台账侧已核对笔数
+    ledgerMatchedAmount: 0,     // 台账侧已核对金额合计
+    ledgerDiff: 0,              // 台账侧差异笔数
+    ledgerDiffAmount: 0,        // 台账侧差异金额合计
+    ledgerPending: 0,           // 台账侧待确认笔数
+    ledgerPendingAmount: 0,     // 台账侧待确认金额合计
+    ledgerTotal: 0,             // 台账侧总笔数
+    ledgerTotalAmount: 0,       // 台账侧总金额合计
+}
+
 // 所有规则对应的系统侧明细（跨规则）
 const SYSTEM_RECORDS_ALL = [
     {
-        id: 'S001',
-        name: '陶欢欢',
-        idCard: '500382**********08',
-        insuranceType: '养老',
-        billingMonth: '2026-04',
-        feeType: 'huijiao',
-        feePeriod: '2026-04',
-        amount: 1233.12
+        id: 'S001', name: '陶欢欢', idCard: '500382**********08',
+        insuranceType: '养老', billingMonth: '2026-04',
+        feeType: 'huijiao', feePeriod: '2026-04', amount: 1233.12,
+        forcePending: false   // 可选，强制标记为待确认
     },
     // ... 覆盖所有规则
 ];
@@ -1068,19 +1137,16 @@ const SYSTEM_RECORDS_ALL = [
 // 台账数据（导入后存入）
 const MOCK_LEDGER_DATA = [
     {
-        name: '陶欢欢',
-        idCard: '500382**********08',
-        insuranceType: '养老',
-        billingMonth: '2026-04',
-        feePeriod: '2026-04',
-        amount: 1233.12
+        name: '陶欢欢', idCard: '500382**********08',
+        insuranceType: '养老', billingMonth: '2026-04',
+        feePeriod: '2026-04', amount: 1233.12
     },
     // ... 覆盖所有规则
 ];
 
 // 运行时状态
 let ledgerRecordsByRule = {};   // ruleName → [ledger records]
-let ruleImportStatus = {};      // ruleName → 'imported' | 'reconciled'
+let ruleImportStatus = {};      // ruleName → 'imported' | 'reconciled' | 'archived'
 let selectedRules = new Set();  // 勾选的规则名称集合
 ```
 
@@ -1135,10 +1201,17 @@ batchReconcile()
   ├─ 遍历 selectedRules
   │   │
   │   ├─ executeMatchingForRule(rule)
-  │   │   ├─ 从 SYSTEM_RECORDS_ALL 筛选该规则的系统侧记录
+  │   │   ├─ 从 SYSTEM_RECORDS_ALL 筛选该规则的系统侧记录（按 insuranceType + billingMonth 匹配）
   │   │   ├─ 从 ledgerRecordsByRule[ruleName] 获取台账记录
   │   │   ├─ makeGroupKey() 分组（idCard + insuranceType + billingMonth + feePeriod）
   │   │   ├─ 组内按金额精确匹配 → MATCHED / PENDING / DIFF / UNMATCHED
+  │   │   │   - forcePending 记录直接标记 PENDING
+  │   │   │   - 补缴/调基补差无台账 → UNMATCHED
+  │   │   │   - 汇缴无台账 → DIFF (system_more)
+  │   │   │   - 台账无系统 → DIFF (ledger_more)
+  │   │   │   - 1:1 金额一致 → MATCHED
+  │   │   │   - 1:1 金额不一致 → DIFF (amount_mismatch)
+  │   │   │   - 多笔同金额 → PENDING
   │   │   └─ 返回 { systemMatched, systemMatchedAmount, systemDiff, systemDiffAmount,
   │   │             ledgerMatched, ledgerMatchedAmount, ledgerDiff, ledgerDiffAmount,
   │   │             ledgerPending, ledgerPendingAmount, ledgerTotal, ledgerTotalAmount }
@@ -1203,41 +1276,51 @@ batchArchive()
 
 | 元素 | 变更 |
 |------|------|
-| 表头 | 新增 checkbox 列 |
+| 表头 | 新增 checkbox 列；列顺序：checkbox → 规则名称 → 月份 → 系统侧已核对 → 系统侧差异 → **台账侧总计** → 台账侧已核对 → 台账侧差异 → 台账侧待确认 → 操作 |
 | 行背景色 | 已对账无差异 → 浅绿色（`#F0FDF4`） |
 | | 已对账有差异 → 浅黄色（`#FFFBEB`） |
 | | 已归档 → 灰色（`#F1F5F9`，opacity 0.7） |
-| 金额单元格 | 已对账后显示颜色编码（匹配=绿色，差异=橙色） |
-| 台账侧待确认列 | 新增：待确认笔数 + 待确认金额（单单元格两行） |
-| 台账侧总计列 | 新增：总笔数 + 总金额（单单元格两行） |
-| 导入对话框 | 上传区 + 预览表格 + 确认按钮 |
-| Loading 覆盖层 | 批量对账执行期间显示进度提示 |
-| 信息栏 | 新增"已归档 N 条"计数 |
-| 按钮 | 新增"批量归档"（绿色），按需 enabled/disabled |
+| 金额单元格 | 已匹配金额绿色，差异金额红色，待确认金额橙色 |
+| 台账侧待确认列 | 新增：待确认笔数 + 待确认金额（单单元格 flex column 两行） |
+| 台账侧总计列 | 新增：总笔数 + 总金额（单单元格 flex column 两行），位于"系统侧差异"列之后 |
+| 操作按钮 | 合并于 filter-bar 右侧：刷新、批量导出、批量对账、批量归档（绿色）、导入台账 |
+| 导入对话框 | 上传区（拖拽/点击）+ 预览表格 + 确认按钮 |
+| Loading 覆盖层 | 批量对账执行期间显示"正在批量对账..." |
+| 信息栏 | 显示"共 N 条规则，已导入 M 条，已归档 K 条" |
 
 ### 新增函数
 
 | 函数 | 用途 |
 |------|------|
-| `openImportDialog()` | 打开导入对话框 |
-| `showImportPreview(ledgerData)` | 展示按规则拆分的预览表格 |
-| `importNextStep()` | 处理导入确认，写入数据并刷新表格 |
-| `executeMatchingForRule(rule)` | 单规则匹配引擎，返回统计数 |
-| `batchReconcile()` | 批量对账入口，遍历选中规则调用匹配 |
-| `batchArchive()` | 批量归档入口，校验差异后标记 archived |
-| `updateBatchArchiveButton()` | 根据选中规则的可归档性更新按钮 enabled/disabled |
-| `toggleSelectAll()` | 全选/取消全选（排除已归档） |
-| `toggleRuleSelection(ruleName)` | 单行选择切换 |
-| `updateBatchReconcileButton()` | 根据选中状态更新按钮 enabled/disabled |
+| `openImportDialog()` | 打开导入对话框，重置到第一步 |
+| `closeImportDialog(event)` | 关闭导入对话框（点击遮罩或关闭按钮） |
+| `handleFileSelect(event)` | 文件选择处理，触发预览 |
+| `showImportPreview()` | 展示按规则拆分的预览表格（MOCK_LEDGER_DATA 按 insuranceType + billingMonth 分组） |
+| `importNextStep()` | 第一步→第二步切换或确认导入，写入 ledgerRecordsByRule 并标记 imported |
+| `executeMatchingForRule(rule)` | 单规则匹配引擎，返回 12 个统计字段 |
+| `batchReconcile()` | 批量对账入口，遍历选中规则调用匹配，更新 DEMO_RULES 和 ruleImportStatus |
+| `batchArchive()` | 批量归档入口，筛选 reconciled + 零差异规则，标记 archived |
+| `updateBatchArchiveButton()` | 检查所有选中规则是否为 reconciled 且 sysDiff=0 + ledDiff=0 |
+| `updateBatchButton()` | 选中数 > 0 则启用批量对账按钮，同时调用 updateBatchArchiveButton |
+| `toggleSelectAll()` | 全选/取消全选，排除未导入和已归档规则 |
+| `toggleRuleSelection(checkbox)` | 单行选择切换，更新 selectedRules |
+| `applyFilters()` | 汇总页筛选（月份/地区），重置选择 |
+| `renderSummaryTable()` | 渲染汇总表格，含行状态颜色、checkbox 状态、统计数字 |
+| `navigateToDetail(ruleName, month)` | 跳转到明细页 URL 参数 |
+| `toast(message, type)` | Toast 通知（info/success/warning/error），2s 自动消失 |
+| `formatAmount(amount)` | 金额格式化：¥1,234.56 |
 
 ### 验证流程
 
-1. 打开汇总页 → 点击"导入台账" → 上传模拟文件 → 确认导入
-2. 表格行 checkbox 变为可勾选状态
-3. 勾选已导入的规则 → 点击"批量对账"
-4. 表格刷新显示对账结果（匹配数、差异数、金额）
-5. 未导入的规则 checkbox 不可勾选，无法参与对账
-6. 筛选月份/地区后，导入和对账仍正常工作
-7. 勾选对账无差异的规则 → "批量归档"按钮变为可点击
-8. 点击"批量归档" → 规则行变灰，checkbox 禁用，信息栏显示归档计数
-9. 已归档规则不参与全选，不可再次归档
+1. 打开汇总页 → 页面显示 6 条规则，信息栏显示"共 6 条规则，已导入 0 条，已归档 0 条"
+2. 点击"导入台账" → 上传模拟文件 → 预览表格展示按规则拆分结果 → 确认导入
+3. 信息栏更新"已导入 6 条"，表格行 checkbox 变为可勾选状态
+4. 勾选已导入的规则 → "批量对账"按钮变为可点击
+5. 点击"批量对账" → loading 覆盖层显示 → 完成后表格刷新显示对账结果（匹配数、差异数、金额、待确认、总计）
+6. 未导入的规则 checkbox 不可勾选，无法参与对账
+7. 筛选月份/地区后，导入和对账仍正常工作
+8. 勾选对账无差异的规则 → "批量归档"按钮变为可点击
+9. 点击"批量归档" → 规则行变灰（#F1F5F9，opacity 0.7），checkbox 禁用，信息栏显示归档计数
+10. 已归档规则不参与全选，不可再次归档
+11. 有差异的行显示浅黄色背景（#FFFBEB），无差异的已对账行显示浅绿色背景（#F0FDF4）
+12. 台账侧总计列位于"系统侧差异"列之后，显示该规则台账总笔数和总金额
