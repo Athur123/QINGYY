@@ -55,10 +55,7 @@
         .filter-bar__label { font-size: 12px; color: var(--qy-text-muted); font-weight: 500; white-space: nowrap; }
 
         /* Summary Table */
-        .summary-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .summary-toolbar__info { font-size: 13px; color: var(--qy-text-secondary); }
-        .summary-toolbar__count { font-weight: 600; color: var(--qy-text-primary); }
-        .summary-toolbar__actions { display: flex; gap: 8px; }
+        /* Info line */
 
         .summary-table-wrapper { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow-x: auto; }
         .summary-table { width: 100%; min-width: 960px; border-collapse: collapse; font-size: 13px; }
@@ -193,21 +190,13 @@
                     <div class="filter-bar__group">
                         <button class="qy-btn qy-btn--secondary" onclick="applyFilters()">刷新</button>
                         <button class="qy-btn qy-btn--secondary" onclick="toast('批量导出功能开发中', 'info')">批量导出</button>
+                        <button class="qy-btn qy-btn--primary" id="batchReconcileBtn" onclick="batchReconcile()" disabled>批量对账</button>
+                        <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">导入台账</button>
                     </div>
                 </div>
 
-                <!-- Toolbar -->
-                <div class="summary-toolbar">
-                    <div class="summary-toolbar__info">共 <span class="summary-toolbar__count" id="totalRules">0</span> 条规则，已导入 <span class="summary-toolbar__count" id="importedCount">0</span> 条</div>
-                    <div class="summary-toolbar__actions">
-                        <button class="qy-btn qy-btn--primary" id="batchReconcileBtn" onclick="batchReconcile()" disabled>
-                            &#9654; 批量对账
-                        </button>
-                        <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">
-                            &#128229; 导入台账
-                        </button>
-                    </div>
-                </div>
+                <!-- Info Bar -->
+                <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
 
                 <!-- Summary Table -->
                 <div class="summary-table-wrapper">
