@@ -654,9 +654,14 @@
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
-                    + '<td style="padding: 10px 16px;"><button class="action-link" onclick="event.stopPropagation();batchReconcileByBatch(\'' + batch.batchId + '\')">'
+                    + '<td style="padding: 10px 16px;">'
+                        + '<button class="action-link" onclick="event.stopPropagation();batchReconcileByBatch(\'' + batch.batchId + '\')">'
                         + '对账 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-                    + '</button></td>'
+                        + '</button>'
+                        + '<button class="action-link" onclick="event.stopPropagation();navigateToBatchDetail(\'' + batch.batchId + '\')">'
+                        + '台账 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
+                        + '</button>'
+                    + '</td>'
                 + '</tr>';
 
                 // Sub-rows (rules within batch)
@@ -743,6 +748,15 @@
 
         function navigateToDetail(ruleName, month) {
             window.location.href = 'qingyang-reconciliation-unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
+        }
+
+        // Navigate to batch detail page (first rule in batch)
+        function navigateToBatchDetail(batchId) {
+            var batch = ledgerBatches.find(function(b) { return b.batchId === batchId; });
+            if (!batch || batch.ruleNames.length === 0) return;
+            var firstRule = DEMO_RULES.find(function(r) { return r.ruleName === batch.ruleNames[0]; });
+            if (!firstRule) return;
+            navigateToDetail(firstRule.ruleName, firstRule.month);
         }
 
         // Batch-level reconcile: reconcile all imported rules within a batch
