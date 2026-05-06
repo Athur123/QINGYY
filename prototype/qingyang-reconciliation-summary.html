@@ -78,6 +78,8 @@
         .summary-cell__amount { font-size: 11px; color: var(--qy-text-muted); }
         .summary-cell__count--diff { color: var(--qy-error-500); }
         .summary-cell__amount--diff { color: var(--qy-error-600); font-weight: 500; }
+        .summary-cell__count--pending { color: #D97706; }
+        .summary-cell__amount--pending { color: #B45309; font-weight: 500; }
         .summary-cell--empty { align-items: center; }
         .summary-cell--empty .summary-cell__text { color: var(--qy-text-muted); font-size: 12px; }
 
@@ -214,6 +216,8 @@
                                 <th style="width: 120px;">系统侧差异</th>
                                 <th style="width: 130px;">台账侧已核对</th>
                                 <th style="width: 120px;">台账侧差异</th>
+                                <th style="width: 120px;">台账侧待确认</th>
+                                <th style="width: 120px;">台账侧总计</th>
                                 <th style="width: 100px;">操作</th>
                             </tr>
                         </thead>
@@ -273,12 +277,12 @@
         // ========== Demo Data ==========
 
         const DEMO_RULES = [
-            { ruleName: '社保规则A', region: '重庆', insuranceType: '养老', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
-            { ruleName: '社保规则B', region: '重庆', insuranceType: '医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
-            { ruleName: '社保规则C', region: '重庆', insuranceType: '失业', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
-            { ruleName: '社保规则D', region: '重庆', insuranceType: '工伤', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
-            { ruleName: '社保规则E', region: '重庆', insuranceType: '大额医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
-            { ruleName: '社保规则F', region: '重庆', insuranceType: '养老', month: '2026-03', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+            { ruleName: '社保规则A', region: '重庆', insuranceType: '养老', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则B', region: '重庆', insuranceType: '医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则C', region: '重庆', insuranceType: '失业', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则D', region: '重庆', insuranceType: '工伤', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则E', region: '重庆', insuranceType: '大额医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则F', region: '重庆', insuranceType: '养老', month: '2026-03', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
         ];
 
         // System-side records for all rules (matching detail page data)
@@ -367,7 +371,7 @@
             const ledRecs = ledgerRecordsByRule[rule.ruleName] || [];
 
             let matched = 0, pending = 0, diff = 0, unmatched = 0;
-            let sysMatchedAmount = 0, sysDiffAmount = 0, ledMatchedAmount = 0, ledDiffAmount = 0;
+            let sysMatchedAmount = 0, sysDiffAmount = 0, ledMatchedAmount = 0, ledDiffAmount = 0, ledPendingAmount = 0;
 
             // Group by key
             const sysByKey = {};
@@ -402,19 +406,21 @@
                 } else if (sRecs.length === 1 && lRecs.length === 1) {
                     const sr = sRecs[0], lr = lRecs[0];
                     if (sr.forcePending) {
-                        pending++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
+                        pending++; ledPendingAmount += lr.amount;
+                        sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
                     } else if (sr.feeType === 'huijiao' && Math.abs(sr.amount - lr.amount) < 0.01) {
                         matched++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
                     } else if (Math.abs(sr.amount - lr.amount) >= 0.01) {
                         diff++; sysDiffAmount += sr.amount; ledDiffAmount += lr.amount;
                     } else {
-                        pending++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
+                        pending++; ledPendingAmount += lr.amount;
+                        sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
                     }
                 } else {
                     // Multiple records on either side -> pending
                     pending += Math.max(sRecs.length, lRecs.length);
                     sRecs.forEach(function(r) { sysMatchedAmount += r.amount; });
-                    lRecs.forEach(function(r) { ledMatchedAmount += r.amount; });
+                    lRecs.forEach(function(r) { ledPendingAmount += r.amount; ledMatchedAmount += r.amount; });
                 }
             });
 
@@ -426,7 +432,11 @@
                 ledgerMatched: matched,
                 ledgerMatchedAmount: ledMatchedAmount,
                 ledgerDiff: diff,
-                ledgerDiffAmount: ledDiffAmount
+                ledgerDiffAmount: ledDiffAmount,
+                ledgerPending: pending,
+                ledgerPendingAmount: ledPendingAmount,
+                ledgerTotal: ledRecs.length,
+                ledgerTotalAmount: ledRecs.reduce(function(s, r) { return s + r.amount; }, 0)
             };
         }
 
@@ -450,7 +460,7 @@
             document.getElementById('archivedCount').textContent = archivedCount;
 
             if (filteredRules.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#94A3B8;">暂无匹配的规则数据</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:32px;color:#94A3B8;">暂无匹配的规则数据</td></tr>';
                 return;
             }
 
@@ -494,6 +504,22 @@
                         + (hasReconciledData && rule.ledgerDiff > 0
                             ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.ledgerDiff + '笔</span>'
                                 + '<span class="summary-cell__amount summary-cell__amount--diff">' + (rule.ledgerDiffAmount > 0 ? formatAmount(rule.ledgerDiffAmount) : '—') + '</span>'
+                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                        )
+                    + '</div></td>'
+                    // Ledger pending
+                    + '<td><div class="summary-cell">'
+                        + (hasReconciledData && rule.ledgerPending > 0
+                            ? '<span class="summary-cell__count summary-cell__count--pending">' + rule.ledgerPending + '笔</span>'
+                                + '<span class="summary-cell__amount summary-cell__amount--pending">' + (rule.ledgerPendingAmount > 0 ? formatAmount(rule.ledgerPendingAmount) : '—') + '</span>'
+                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                        )
+                    + '</div></td>'
+                    // Ledger total
+                    + '<td><div class="summary-cell">'
+                        + (hasReconciledData
+                            ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
+                                + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
@@ -755,6 +781,10 @@
                     rule.ledgerMatchedAmount = result.ledgerMatchedAmount;
                     rule.ledgerDiff = result.ledgerDiff;
                     rule.ledgerDiffAmount = result.ledgerDiffAmount;
+                    rule.ledgerPending = result.ledgerPending;
+                    rule.ledgerPendingAmount = result.ledgerPendingAmount;
+                    rule.ledgerTotal = result.ledgerTotal;
+                    rule.ledgerTotalAmount = result.ledgerTotalAmount;
 
                     ruleImportStatus[ruleName] = 'reconciled';
 
