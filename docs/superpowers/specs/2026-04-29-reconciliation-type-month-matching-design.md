@@ -1156,6 +1156,48 @@ batchReconcile()
 - 仅返回统计数，不返回逐条配对明细
 - `forcePending` 机制保留（同详情页）
 
+### 批量归档
+
+**触发入口：** filter-bar 中的"批量归档"按钮（绿色 `--success` 样式）。
+
+**启用条件（全部满足）：**
+
+- 至少选中一条规则
+- 所有选中规则的状态为 `'reconciled'`（已完成对账）
+- 所有选中规则的系统侧差异为 0 且台账侧差异为 0
+
+否则按钮 disabled。
+
+**归档逻辑：**
+
+- 状态变更：`ruleImportStatus[ruleName] = 'archived'`
+- 行样式：灰色背景（`#F1F5F9`）+ 透明度 0.7
+- Checkbox 禁用（不可再被选中）
+- 对账数据保留显示（不隐藏）
+- 从"全选"范围中排除
+- 信息栏"已归档 N 条"计数更新
+
+**批量归档流程：**
+
+```
+batchArchive()
+  │
+  ├─ 检查 selectedRules 非空
+  │
+  ├─ 筛选可归档规则（reconciled + sysDiff=0 + ledDiff=0）
+  │   │
+  │   ├─ 无可归档规则 → toast "选中的规则中存在差异或未完成对账，无法归档"
+  │   └─ 有可归档规则 → 继续
+  │
+  ├─ 标记 ruleImportStatus[name] = 'archived'
+  │
+  ├─ 清空 selectedRules，取消全选 checkbox
+  │
+  ├─ 刷新表格 + 更新按钮状态
+  │
+  └─ toast "批量归档完成：N 条规则"
+```
+
 ### UI 变更
 
 | 元素 | 变更 |
@@ -1163,9 +1205,12 @@ batchReconcile()
 | 表头 | 新增 checkbox 列 |
 | 行背景色 | 已对账无差异 → 浅绿色（`#F0FDF4`） |
 | | 已对账有差异 → 浅黄色（`#FFFBEB`） |
+| | 已归档 → 灰色（`#F1F5F9`，opacity 0.7） |
 | 金额单元格 | 已对账后显示颜色编码（匹配=绿色，差异=橙色） |
 | 导入对话框 | 上传区 + 预览表格 + 确认按钮 |
 | Loading 覆盖层 | 批量对账执行期间显示进度提示 |
+| 信息栏 | 新增"已归档 N 条"计数 |
+| 按钮 | 新增"批量归档"（绿色），按需 enabled/disabled |
 
 ### 新增函数
 
@@ -1176,7 +1221,9 @@ batchReconcile()
 | `importNextStep()` | 处理导入确认，写入数据并刷新表格 |
 | `executeMatchingForRule(rule)` | 单规则匹配引擎，返回统计数 |
 | `batchReconcile()` | 批量对账入口，遍历选中规则调用匹配 |
-| `toggleSelectAll()` | 全选/取消全选 |
+| `batchArchive()` | 批量归档入口，校验差异后标记 archived |
+| `updateBatchArchiveButton()` | 根据选中规则的可归档性更新按钮 enabled/disabled |
+| `toggleSelectAll()` | 全选/取消全选（排除已归档） |
 | `toggleRuleSelection(ruleName)` | 单行选择切换 |
 | `updateBatchReconcileButton()` | 根据选中状态更新按钮 enabled/disabled |
 
@@ -1188,3 +1235,6 @@ batchReconcile()
 4. 表格刷新显示对账结果（匹配数、差异数、金额）
 5. 未导入的规则 checkbox 不可勾选，无法参与对账
 6. 筛选月份/地区后，导入和对账仍正常工作
+7. 勾选对账无差异的规则 → "批量归档"按钮变为可点击
+8. 点击"批量归档" → 规则行变灰，checkbox 禁用，信息栏显示归档计数
+9. 已归档规则不参与全选，不可再次归档
