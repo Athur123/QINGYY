@@ -895,7 +895,7 @@ Step 5: 归档后操作
 以下为实现过程中与初稿的细微差异：
 
 1. **页面副标题**：从「统一账单模式 — 汇缴/补缴/调基补差合并展示（PRD v5）」更新为「Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）」
-2. **统计卡片已移除**：全局统计卡片（网格和单行条）均已移除，不再占用页面垂直空间
+2. **统计卡片改为饼图**：汇总统计卡片从7个独立卡片改为一行2个环形饼图（系统侧/台账侧），各含 Canvas 饼图 + 图例。系统侧饼图显示已核对/差异/未核对比例；台账侧饼图显示已核对/待核对/差异比例
 3. **金额整合到筛选按钮**：统计金额整合到核对状态筛选按钮中显示（如「全部 ¥3386.25」「已核对 ¥1500.00」），两侧各自独立
 4. **摘要条已移除**：系统侧和台账侧的 `.summary-strip` 已完全移除
 5. **筛选栏**：系统侧和台账侧提供「核对状态」（全部/已核对/待确认/未匹配/差异，带金额）+「费用类型」（全部/汇缴/补缴/调基补差）两组筛选
@@ -1312,7 +1312,8 @@ batchArchive()
 | `navigateToDetail(ruleName, month)` | 跳转到明细页 URL 参数 |
 | `toast(message, type)` | Toast 通知（info/success/warning/error），2s 自动消失 |
 | `formatAmount(amount)` | 金额格式化：¥1,234.56 |
-| `updateStatCards()` | 计算并更新 7 个汇总统计卡片，在 renderSummaryTable() 末尾调用 |
+| `drawPieChart(canvasId, segments)` | Canvas 绘制环形饼图，支持空状态 |
+| `updateStatCards()` | 计算数据并绘制两个饼图（系统侧/台账侧），在 renderSummaryTable() 末尾调用 |
 
 ### 验证流程
 
@@ -1336,40 +1337,56 @@ batchArchive()
 
 **触发时机：** 汇总页 info-bar 下方、summary-table 上方始终显示。
 
-**布局：** 一行排开 8 个元素（7 个统计卡片 + 1 个分隔线），支持横向滚动。
+**布局：** 左右两个区域，中间以竖线分隔，各区域包含一个环形饼图 + 图例说明。
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│  [系统侧总金额]  [系统侧已核对]  [系统侧差异]  │  [台账侧总金额]  [台账侧已核对]  [台账侧待核对]  [台账侧差异] │
-│  ¥7,575.43       —              —            │    —              —              —              —          │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  系统侧账单                              │  台账侧账单                     │
+│  ╭────╮                                 │  ────╮                        │
+│  │ ●  │ 已核对  ¥6,475.43  (绿色)        │  │ ●  │ 已核对  ¥6,475.18      │
+│  │ ●  │ 差异    ¥1,100.00  (红色)        │  │ ●  │ 待核对  ¥3,427.62      │
+│  │¥7k │ 未核对  —         (灰色)         │  │●●  │ 差异    ¥1,210.23      │
+│  ────╯                                 │  ╰────╯                        │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
-**7 个指标及计算逻辑：**
+**两个饼图的内容：**
 
-| 指标 | ID | 计算方式 | 颜色 |
-|------|----|---------|------|
-| 系统侧总金额 | statSystemTotal | filteredRules 范围内 SYSTEM_RECORDS_ALL 记录金额之和 | 默认 |
-| 系统侧已核对 | statSystemMatched | 已对账/已归档规则的 systemMatchedAmount 之和 | 绿色 #16a34a |
-| 系统侧差异 | statSystemDiff | 已对账/已归档规则的 systemDiffAmount 之和 | 红色 #DC2626 |
-| 台账侧总金额 | statLedgerTotal | 已对账/已归档规则用 ledgerTotalAmount，仅导入用 ledgerRecordsByRule 累加 | 默认 |
-| 台账侧已核对 | statLedgerMatched | 已对账/已归档规则的 ledgerMatchedAmount 之和 | 绿色 #16a34a |
-| 台账侧待核对 | statLedgerPending | 已对账/已归档规则的 ledgerPendingAmount 之和 | 橙色 #D97706 |
-| 台账侧差异 | statLedgerDiff | 已对账/已归档规则的 ledgerDiffAmount 之和 | 红色 #DC2626 |
+| 图 | 分类 | 计算方式 | 颜色 |
+|----|------|---------|------|
+| 系统侧 | 已核对 | 已对账/已归档规则的 systemMatchedAmount 之和 | 绿色 #16a34a |
+| | 差异 | 已对账/已归档规则的 systemDiffAmount 之和 | 红色 #DC2626 |
+| | 未核对 | 系统侧总金额 - 已核对 - 差异 | 灰色 #E2E8F0 |
+| 台账侧 | 已核对 | 已对账/已归档规则的 ledgerMatchedAmount 之和 | 绿色 #16a34a |
+| | 待核对 | 已对账/已归档规则的 ledgerPendingAmount 之和 | 橙色 #D97706 |
+| | 差异 | 已对账/已归档规则的 ledgerDiffAmount 之和 | 红色 #DC2626 |
+
+**图表说明：**
+- 使用 Canvas 2D API 绘制环形饼图（donut chart），中心显示总金额
+- 初始状态：系统侧展示全额未核对（灰色环），台账侧显示"暂无数据"虚线圆
+- 对账后：按金额比例切分饼图，图例显示各类别金额
+- 空状态：饼图为虚线圆 + "暂无数据"文字
 
 **CSS 类名：**
 
 | 类名 | 用途 |
 |------|------|
-| `.stat-cards` | 卡片容器，flex 布局，横向滚动 |
-| `.stat-card` | 单个卡片，flex column，背景色 var(--qy-bg-tertiary) |
-| `.stat-card__label` | 指标名称（11px，灰色） |
-| `.stat-card__value` | 指标值（18px，加粗） |
-| `.stat-card__value--matched` | 已核对颜色（绿色） |
-| `.stat-card__value--diff` | 差异颜色（红色） |
-| `.stat-card__value--pending` | 待核对颜色（橙色） |
-| `.stat-card-divider` | 系统侧与台账侧之间的竖线分隔 |
+| `.stat-cards` | 容器，flex 布局，左右分隔 |
+| `.stat-group` | 单个图表区域，flex column |
+| `.stat-group__title` | 标题（13px，加粗） |
+| `.stat-chart-wrap` | 饼图+图例容器，flex row |
+| `.stat-legend` | 图例列表，flex column |
+| `.stat-legend__item` | 图例行，水平排列 |
+| `.stat-legend__dot` | 颜色圆点（10px 圆形） |
+| `.stat-legend__label` | 类别名称（12px，灰色） |
+| `.stat-legend__amount` | 金额值（加粗） |
+| `.stat-group__divider` | 两侧之间的竖线分隔 |
+
+**JS 函数：**
+
+| 函数 | 用途 |
+|------|------|
+| `drawPieChart(canvasId, segments)` | 绘制环形饼图，支持空状态显示 |
+| `updateStatCards()` | 计算数据并调用 drawPieChart 更新两个图表 |
 
 **更新时机：** `updateStatCards()` 在 `renderSummaryTable()` 末尾调用，因此每次表格刷新（初始加载、筛选、导入、对账、归档）时自动更新。
-
-**空值处理：** 金额为 0 或未计算时显示"—"。
