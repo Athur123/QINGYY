@@ -498,22 +498,22 @@
                 if (status === 'archived') archived++;
 
                 if (status === 'reconciled' || status === 'archived') {
-                    sysMatched += rule.systemMatched || 0;
-                    sysDiff += rule.systemDiff || 0;
-                    ledMatched += rule.ledgerMatched || 0;
-                    ledPending += rule.ledgerPending || 0;
-                    ledDiff += rule.ledgerDiff || 0;
+                    sysMatched += rule.systemMatchedAmount || 0;
+                    sysDiff += rule.systemDiffAmount || 0;
+                    ledMatched += rule.ledgerMatchedAmount || 0;
+                    ledPending += rule.ledgerPendingAmount || 0;
+                    ledDiff += rule.ledgerDiffAmount || 0;
                 }
             });
 
             document.getElementById('dashImported').textContent = imported + '/' + total;
             document.getElementById('dashReconciled').textContent = reconciled + '/' + total;
             document.getElementById('dashArchived').textContent = archived + '/' + total;
-            document.getElementById('dashSysMatched').textContent = sysMatched > 0 ? sysMatched + '笔' : '—';
-            document.getElementById('dashSysDiff').textContent = sysDiff > 0 ? sysDiff + '笔' : '—';
-            document.getElementById('dashLedMatched').textContent = ledMatched > 0 ? ledMatched + '笔' : '—';
-            document.getElementById('dashLedPending').textContent = ledPending > 0 ? ledPending + '笔' : '—';
-            document.getElementById('dashLedDiff').textContent = ledDiff > 0 ? ledDiff + '笔' : '—';
+            document.getElementById('dashSysMatched').textContent = sysMatched > 0 ? formatAmount(sysMatched) : '—';
+            document.getElementById('dashSysDiff').textContent = sysDiff > 0 ? formatAmount(sysDiff) : '—';
+            document.getElementById('dashLedMatched').textContent = ledMatched > 0 ? formatAmount(ledMatched) : '—';
+            document.getElementById('dashLedPending').textContent = ledPending > 0 ? formatAmount(ledPending) : '—';
+            document.getElementById('dashLedDiff').textContent = ledDiff > 0 ? formatAmount(ledDiff) : '—';
         }
 
         // ========== Render ==========
