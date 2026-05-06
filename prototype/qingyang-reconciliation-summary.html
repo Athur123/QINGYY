@@ -57,17 +57,16 @@
         .filter-bar__label { font-size: 12px; color: var(--qy-text-muted); font-weight: 500; white-space: nowrap; }
 
         /* Stat Cards — 2 pie charts: 系统侧 / 台账侧 */
-        .stat-cards { display: flex; gap: 24px; padding: 20px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 16px; }
-        .stat-group { flex: 1; display: flex; flex-direction: column; align-items: center; }
-        .stat-group__title { font-size: 13px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 12px; align-self: flex-start; }
-        .stat-chart-wrap { display: flex; align-items: center; gap: 20px; width: 100%; }
+        .stat-cards { display: flex; gap: 16px; padding: 12px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 16px; align-items: center; }
+        .stat-group { flex: 1; display: flex; align-items: center; gap: 12px; }
+        .stat-group__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); white-space: nowrap; }
+        .stat-chart-wrap { display: flex; align-items: center; gap: 12px; }
         .stat-chart-wrap canvas { flex-shrink: 0; }
-        .stat-legend { display: flex; flex-direction: column; gap: 8px; }
-        .stat-legend__item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-        .stat-legend__dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-        .stat-legend__label { color: var(--qy-text-secondary); min-width: 40px; }
+        .stat-legend { display: flex; flex-direction: column; gap: 3px; }
+        .stat-legend__item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+        .stat-legend__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .stat-legend__label { color: var(--qy-text-secondary); min-width: 32px; }
         .stat-legend__amount { font-weight: 600; color: var(--qy-text-primary); }
-        .stat-legend__empty { color: var(--qy-text-muted); font-style: italic; }
         .stat-group__divider { width: 1px; background: var(--qy-border-light); align-self: stretch; }
 
         /* Summary Table */
@@ -224,7 +223,7 @@
                     <div class="stat-group">
                         <div class="stat-group__title">系统侧账单</div>
                         <div class="stat-chart-wrap">
-                            <canvas id="chartSystem" width="140" height="140"></canvas>
+                            <canvas id="chartSystem" width="100" height="100"></canvas>
                             <div class="stat-legend" id="legendSystem">
                                 <div class="stat-legend__item">
                                     <span class="stat-legend__dot" style="background:#16a34a"></span>
@@ -249,7 +248,7 @@
                     <div class="stat-group">
                         <div class="stat-group__title">台账侧账单</div>
                         <div class="stat-chart-wrap">
-                            <canvas id="chartLedger" width="140" height="140"></canvas>
+                            <canvas id="chartLedger" width="100" height="100"></canvas>
                             <div class="stat-legend" id="legendLedger">
                                 <div class="stat-legend__item">
                                     <span class="stat-legend__dot" style="background:#16a34a"></span>
@@ -564,14 +563,14 @@
             var canvas = document.getElementById(canvasId);
             var ctx = canvas.getContext('2d');
             var dpr = window.devicePixelRatio || 1;
-            var size = 140;
+            var size = parseInt(canvas.getAttribute('width')) || 100;
             canvas.width = size * dpr;
             canvas.height = size * dpr;
             canvas.style.width = size + 'px';
             canvas.style.height = size + 'px';
             ctx.scale(dpr, dpr);
 
-            var cx = size / 2, cy = size / 2, radius = 60;
+            var cx = size / 2, cy = size / 2, radius = size * 0.42;
             ctx.clearRect(0, 0, size, size);
 
             var total = segments.reduce(function(s, seg) { return s + seg.value; }, 0);
@@ -585,7 +584,7 @@
                 ctx.stroke();
                 ctx.setLineDash([]);
                 ctx.fillStyle = '#CBD5E1';
-                ctx.font = '12px "Plus Jakarta Sans", sans-serif';
+                ctx.font = Math.round(size * 0.1) + 'px "Plus Jakarta Sans", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText('暂无数据', cx, cy);
@@ -613,7 +612,7 @@
 
             // Center text — total
             ctx.fillStyle = '#1E293B';
-            ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
+            ctx.font = 'bold ' + Math.round(size * 0.1) + 'px "Plus Jakarta Sans", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(formatAmount(total), cx, cy);
