@@ -118,7 +118,7 @@
         .summary-table th:first-child,
         .summary-table td:first-child { width: 48px; text-align: center; padding: 10px 8px; }
 
-        /* Batch rows */
+        /* Group rows (region + insurance subject) */
         .batch-row td { background: var(--qy-bg-tertiary); font-weight: 600; cursor: pointer; }
         .batch-row:hover td { background: #E8EDF3; }
         .batch-expand__icon { display: inline-block; transition: transform 0.2s; font-size: 12px; color: var(--qy-text-secondary); }
@@ -126,7 +126,7 @@
         .batch-row__name { font-weight: 600; font-size: 13px; }
         .batch-row__meta { font-size: 11px; color: var(--qy-text-muted); font-weight: 400; }
 
-        /* Sub-rows (rules within a batch) */
+        /* Sub-rows (rules within a group) */
         .sub-row td { padding: 0; background: var(--qy-bg-primary); }
         .sub-row .summary-cell { padding: 8px 16px; min-height: 44px; }
         .sub-row .rule-name { font-size: 12px; font-weight: 500; padding-left: 16px; }
@@ -235,7 +235,7 @@
                 </div>
 
                 <!-- Info Bar -->
-                <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，<span class="summary-toolbar__count" id="batchCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 个批次，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条，已归档 <span class="summary-toolbar__count" id="archivedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
+                <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，<span class="summary-toolbar__count" id="batchCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 个参保主体，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条，已归档 <span class="summary-toolbar__count" id="archivedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
 
                 <!-- Dashboard Strip -->
                 <div class="dashboard-strip" id="dashboardStrip">
@@ -269,7 +269,7 @@
                         <thead>
                             <tr>
                                 <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
-                                <th style="width: 200px;">批次名称 / 导入时间</th>
+                                <th style="width: 240px;">地区 / 参保主体</th>
                                 <th style="width: 80px;">规则数</th>
                                 <th style="width: 80px;">记录数</th>
                                 <th style="width: 120px;">台账侧总计</th>
@@ -278,7 +278,7 @@
                                 <th style="width: 120px;">台账侧已核对</th>
                                 <th style="width: 120px;">台账侧差异</th>
                                 <th style="width: 120px;">台账侧待确认</th>
-                                <th style="width: 100px;">操作</th>
+                                <th style="width: 80px;">操作</th>
                             </tr>
                         </thead>
                         <tbody id="summaryTableBody"></tbody>
@@ -414,10 +414,9 @@
         let ledgerRecordsByRule = {};
         let ruleImportStatus = {}; // ruleName -> 'imported' | 'reconciled' | 'archived'
 
-        // Batch state: each import = one batch
-        let ledgerBatches = []; // [{batchId, fileName, importDate, ruleNames: [], stats: {...}}]
-        let batchCounter = 0;
-        let expandedBatches = new Set(); // track which batches are expanded
+        // Subject group state: group by region + insuranceSubject
+        let subjectGroups = []; // [{groupId, region, insuranceSubject, ruleNames: [], ...stats}]
+        let expandedGroups = new Set(); // track which groups are expanded
 
         // ========== Match engine (simplified from detail page) ==========
 
@@ -505,11 +504,30 @@
             };
         }
 
+        // ========== Subject Grouping ==========
+
+        function buildSubjectGroups() {
+            var map = {};
+            filteredRules.forEach(function(rule) {
+                var key = rule.region + '|' + rule.insuranceSubject;
+                if (!map[key]) {
+                    map[key] = {
+                        groupId: key,
+                        region: rule.region,
+                        insuranceSubject: rule.insuranceSubject,
+                        ruleNames: []
+                    };
+                }
+                map[key].ruleNames.push(rule.ruleName);
+            });
+            subjectGroups = Object.values(map);
+        }
+
         // ========== Dashboard ==========
 
         function updateDashboard() {
             var total = filteredRules.length;
-            var totalBatches = ledgerBatches.length;
+            var totalGroups = subjectGroups.length;
             var imported = 0, reconciled = 0, archived = 0;
             var sysMatched = 0, sysDiff = 0;
             var ledMatched = 0, ledPending = 0, ledDiff = 0;
@@ -547,8 +565,10 @@
 
         function renderSummaryTable() {
             const tbody = document.getElementById('summaryTableBody');
+            buildSubjectGroups();
+
             document.getElementById('totalRules').textContent = filteredRules.length;
-            document.getElementById('batchCount').textContent = ledgerBatches.length;
+            document.getElementById('batchCount').textContent = subjectGroups.length;
 
             // Count imported and archived rules
             let importedCount = 0, archivedCount = 0;
@@ -559,8 +579,8 @@
             document.getElementById('importedCount').textContent = importedCount;
             document.getElementById('archivedCount').textContent = archivedCount;
 
-            if (ledgerBatches.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:32px;color:#94A3B8;">暂无批次数据，请先导入台账</td></tr>';
+            if (filteredRules.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#94A3B8;">暂无数据，请调整筛选条件</td></tr>';
                 updateBatchButton();
                 updateDashboard();
                 return;
@@ -568,105 +588,97 @@
 
             var html = '';
 
-            ledgerBatches.forEach(function(batch) {
-                var isExpanded = expandedBatches.has(batch.batchId);
-                var chevron = isExpanded ? '&#9654;' : '&#9654;';
+            subjectGroups.forEach(function(group) {
+                var isExpanded = expandedGroups.has(group.groupId);
+                var chevron = '&#9654;';
                 var chevronClass = isExpanded ? 'is-expanded' : '';
 
-                // Calculate batch-level aggregated stats from sub-rules
-                var batchSysMatched = 0, batchSysDiff = 0, batchLedMatched = 0, batchLedDiff = 0, batchLedPending = 0, batchLedTotal = 0, batchTotalRecs = 0;
-                var batchReconciledCount = 0, batchDiffCount = 0;
+                // Calculate group-level aggregated stats from sub-rules
+                var grpSysMatched = 0, grpSysDiff = 0, grpLedMatched = 0, grpLedDiff = 0, grpLedPending = 0, grpLedTotal = 0, grpTotalRecs = 0;
+                var grpReconciledCount = 0, grpDiffCount = 0;
 
-                batch.ruleNames.forEach(function(ruleName) {
+                group.ruleNames.forEach(function(ruleName) {
                     var rule = DEMO_RULES.find(function(r) { return r.ruleName === ruleName; });
                     if (!rule) return;
                     var status = ruleImportStatus[ruleName];
                     if (status === 'reconciled' || status === 'archived') {
-                        batchSysMatched += rule.systemMatchedAmount || 0;
-                        batchSysDiff += rule.systemDiffAmount || 0;
-                        batchLedMatched += rule.ledgerMatchedAmount || 0;
-                        batchLedDiff += rule.ledgerDiffAmount || 0;
-                        batchLedPending += rule.ledgerPendingAmount || 0;
-                        batchLedTotal += rule.ledgerTotalAmount || 0;
-                        batchReconciledCount++;
-                        if (rule.systemDiff > 0 || rule.ledgerDiff > 0) batchDiffCount++;
+                        grpSysMatched += rule.systemMatchedAmount || 0;
+                        grpSysDiff += rule.systemDiffAmount || 0;
+                        grpLedMatched += rule.ledgerMatchedAmount || 0;
+                        grpLedDiff += rule.ledgerDiffAmount || 0;
+                        grpLedPending += rule.ledgerPendingAmount || 0;
+                        grpLedTotal += rule.ledgerTotalAmount || 0;
+                        grpReconciledCount++;
+                        if (rule.systemDiff > 0 || rule.ledgerDiff > 0) grpDiffCount++;
                     } else if (status === 'imported') {
                         var recs = ledgerRecordsByRule[ruleName] || [];
-                        batchLedTotal += recs.reduce(function(s, r) { return s + r.amount; }, 0);
-                        batchTotalRecs += recs.length;
+                        grpLedTotal += recs.reduce(function(s, r) { return s + r.amount; }, 0);
+                        grpTotalRecs += recs.length;
                     }
-                    // For reconciled rules, also count records
                     if (status === 'reconciled' || status === 'archived') {
-                        batchTotalRecs += rule.ledgerTotal || 0;
+                        grpTotalRecs += rule.ledgerTotal || 0;
                     }
                 });
 
-                batch.reconciledCount = batchReconciledCount;
-                batch.diffCount = batchDiffCount;
-
-                // Batch row
-                var allSelected = batch.ruleNames.every(function(rn) { return selectedRules.has(rn); });
-                var someSelected = batch.ruleNames.some(function(rn) { return selectedRules.has(rn); });
+                // Group row
+                var allSelected = group.ruleNames.every(function(rn) { return selectedRules.has(rn); });
+                var someSelected = group.ruleNames.some(function(rn) { return selectedRules.has(rn); });
                 var checkboxState = allSelected ? 'checked' : '';
 
-                html += '<tr class="batch-row" data-batch="' + batch.batchId + '">'
-                    + '<td><input type="checkbox" data-batch="' + batch.batchId + '" ' + checkboxState + ' onclick="event.stopPropagation();toggleBatchCheckbox(this)"></td>'
-                    + '<td style="cursor:pointer;" onclick="toggleBatchExpand(\'' + batch.batchId + '\')">'
+                html += '<tr class="batch-row" data-group="' + group.groupId + '">'
+                    + '<td><input type="checkbox" data-group="' + group.groupId + '" ' + checkboxState + ' onclick="event.stopPropagation();toggleGroupCheckbox(this)"></td>'
+                    + '<td colspan="2" style="cursor:pointer;" onclick="toggleGroupExpand(\'' + group.groupId + '\')">'
                         + '<span class="batch-expand__icon ' + chevronClass + '">' + chevron + '</span> '
-                        + '<span class="batch-row__name">' + batch.fileName + '</span><br>'
-                        + '<span class="batch-row__meta">' + batch.importDate + ' · ' + batch.ruleNames.length + '条规则 · ' + (batch.insuranceSubject || '—') + '</span>'
+                        + '<span class="batch-row__name">' + group.region + ' — ' + group.insuranceSubject + '</span><br>'
+                        + '<span class="batch-row__meta">' + group.ruleNames.length + '条规则</span>'
                     + '</td>'
-                    + '<td style="padding: 10px 16px;">' + batch.ruleNames.length + '</td>'
-                    + '<td style="padding: 10px 16px;">' + batchTotalRecs + '</td>'
+                    + '<td style="padding: 10px 16px;">' + grpTotalRecs + '</td>'
                     + '<td><div class="summary-cell">'
-                        + (batchLedTotal > 0
-                            ? '<span class="summary-cell__count">' + batchTotalRecs + '笔</span><span class="summary-cell__amount">' + formatAmount(batchLedTotal) + '</span>'
+                        + (grpLedTotal > 0
+                            ? '<span class="summary-cell__count">' + grpTotalRecs + '笔</span><span class="summary-cell__amount">' + formatAmount(grpLedTotal) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
                     + '<td><div class="summary-cell">'
-                        + (batchSysMatched > 0
-                            ? '<span class="summary-cell__count" style="color:#16a34a;">' + formatAmount(batchSysMatched) + '</span>'
+                        + (grpSysMatched > 0
+                            ? '<span class="summary-cell__count" style="color:#16a34a;">' + formatAmount(grpSysMatched) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
                     + '<td><div class="summary-cell">'
-                        + (batchSysDiff > 0
-                            ? '<span class="summary-cell__count summary-cell__count--diff">' + formatAmount(batchSysDiff) + '</span>'
+                        + (grpSysDiff > 0
+                            ? '<span class="summary-cell__count summary-cell__count--diff">' + formatAmount(grpSysDiff) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
                     + '<td><div class="summary-cell">'
-                        + (batchLedMatched > 0
-                            ? '<span class="summary-cell__count" style="color:#16a34a;">' + formatAmount(batchLedMatched) + '</span>'
+                        + (grpLedMatched > 0
+                            ? '<span class="summary-cell__count" style="color:#16a34a;">' + formatAmount(grpLedMatched) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
                     + '<td><div class="summary-cell">'
-                        + (batchLedDiff > 0
-                            ? '<span class="summary-cell__count summary-cell__count--diff">' + formatAmount(batchLedDiff) + '</span>'
+                        + (grpLedDiff > 0
+                            ? '<span class="summary-cell__count summary-cell__count--diff">' + formatAmount(grpLedDiff) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
                     + '<td><div class="summary-cell">'
-                        + (batchLedPending > 0
-                            ? '<span class="summary-cell__count summary-cell__count--pending">' + formatAmount(batchLedPending) + '</span>'
+                        + (grpLedPending > 0
+                            ? '<span class="summary-cell__count summary-cell__count--pending">' + formatAmount(grpLedPending) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
                     + '<td style="padding: 10px 16px;">'
-                        + '<button class="action-link" onclick="event.stopPropagation();batchReconcileByBatch(\'' + batch.batchId + '\')">'
+                        + '<button class="action-link" onclick="event.stopPropagation();groupReconcile(\'' + group.groupId + '\')">'
                         + '对账 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-                        + '</button>'
-                        + '<button class="action-link" onclick="event.stopPropagation();navigateToBatchDetail(\'' + batch.batchId + '\')">'
-                        + '台账 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
                         + '</button>'
                     + '</td>'
                 + '</tr>';
 
-                // Sub-rows (rules within batch)
+                // Sub-rows (rules within group)
                 if (isExpanded) {
-                    batch.ruleNames.forEach(function(ruleName) {
+                    group.ruleNames.forEach(function(ruleName) {
                         var rule = DEMO_RULES.find(function(r) { return r.ruleName === ruleName; });
                         if (!rule) return;
 
@@ -682,6 +694,14 @@
                             + '<td></td>'
                             + '<td colspan="2" style="padding: 8px 16px;"><span class="rule-name" style="padding-left:16px;">' + rule.ruleName + '</span></td>'
                             + '<td style="padding: 8px 16px;">' + rule.month + '</td>'
+                            // Ledger total
+                            + '<td><div class="summary-cell">'
+                                + (hasReconciledData
+                                    ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
+                                        + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
+                                    : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                                )
+                            + '</div></td>'
                             // System matched
                             + '<td><div class="summary-cell">'
                                 + '<span class="summary-cell__count">' + (hasReconciledData ? rule.systemMatched + '笔' : '—') + '</span>'
@@ -692,14 +712,6 @@
                                 + (hasReconciledData && rule.systemDiff > 0
                                     ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.systemDiff + '笔</span>'
                                         + '<span class="summary-cell__amount summary-cell__amount--diff">' + formatAmount(rule.systemDiffAmount) + '</span>'
-                                    : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
-                                )
-                            + '</div></td>'
-                            // Ledger total
-                            + '<td><div class="summary-cell">'
-                                + (hasReconciledData
-                                    ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
-                                        + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
                                     : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                                 )
                             + '</div></td>'
@@ -737,11 +749,11 @@
             updateDashboard();
         }
 
-        function toggleBatchExpand(batchId) {
-            if (expandedBatches.has(batchId)) {
-                expandedBatches.delete(batchId);
+        function toggleGroupExpand(groupId) {
+            if (expandedGroups.has(groupId)) {
+                expandedGroups.delete(groupId);
             } else {
-                expandedBatches.add(batchId);
+                expandedGroups.add(groupId);
             }
             renderSummaryTable();
         }
@@ -750,30 +762,21 @@
             window.location.href = 'qingyang-reconciliation-unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
         }
 
-        // Navigate to batch detail page (first rule in batch)
-        function navigateToBatchDetail(batchId) {
-            var batch = ledgerBatches.find(function(b) { return b.batchId === batchId; });
-            if (!batch || batch.ruleNames.length === 0) return;
-            var firstRule = DEMO_RULES.find(function(r) { return r.ruleName === batch.ruleNames[0]; });
-            if (!firstRule) return;
-            navigateToDetail(firstRule.ruleName, firstRule.month);
-        }
+        // Group-level reconcile: reconcile all imported rules within a group
+        function groupReconcile(groupId) {
+            var group = subjectGroups.find(function(g) { return g.groupId === groupId; });
+            if (!group) return;
 
-        // Batch-level reconcile: reconcile all imported rules within a batch
-        function batchReconcileByBatch(batchId) {
-            var batch = ledgerBatches.find(function(b) { return b.batchId === batchId; });
-            if (!batch) return;
-
-            // Select all imported rules in this batch
+            // Select all imported rules in this group
             selectedRules.clear();
-            batch.ruleNames.forEach(function(ruleName) {
+            group.ruleNames.forEach(function(ruleName) {
                 if (ruleImportStatus[ruleName] === 'imported') {
                     selectedRules.add(ruleName);
                 }
             });
 
             if (selectedRules.size === 0) {
-                toast('该批次中没有可对账的规则', 'warning');
+                toast('该分组中没有可对账的规则', 'warning');
                 return;
             }
 
@@ -786,8 +789,8 @@
             var checked = document.getElementById('selectAll').checked;
             selectedRules.clear();
             if (checked) {
-                ledgerBatches.forEach(function(batch) {
-                    batch.ruleNames.forEach(function(ruleName) {
+                subjectGroups.forEach(function(group) {
+                    group.ruleNames.forEach(function(ruleName) {
                         if (ruleImportStatus[ruleName] && ruleImportStatus[ruleName] !== 'archived') {
                             selectedRules.add(ruleName);
                         }
@@ -797,19 +800,19 @@
             renderSummaryTable();
         }
 
-        function toggleBatchCheckbox(checkbox) {
-            var batchId = checkbox.getAttribute('data-batch');
-            var batch = ledgerBatches.find(function(b) { return b.batchId === batchId; });
-            if (!batch) return;
+        function toggleGroupCheckbox(checkbox) {
+            var groupId = checkbox.getAttribute('data-group');
+            var group = subjectGroups.find(function(g) { return g.groupId === groupId; });
+            if (!group) return;
 
             if (checkbox.checked) {
-                batch.ruleNames.forEach(function(ruleName) {
+                group.ruleNames.forEach(function(ruleName) {
                     if (ruleImportStatus[ruleName] && ruleImportStatus[ruleName] !== 'archived') {
                         selectedRules.add(ruleName);
                     }
                 });
             } else {
-                batch.ruleNames.forEach(function(ruleName) {
+                group.ruleNames.forEach(function(ruleName) {
                     selectedRules.delete(ruleName);
                 });
             }
@@ -875,16 +878,6 @@
                 ruleImportStatus[rule.ruleName] = 'archived';
             });
 
-            // Update batch stats: mark batches where all rules are archived
-            ledgerBatches.forEach(function(batch) {
-                var allArchived = batch.ruleNames.every(function(rn) {
-                    return ruleImportStatus[rn] === 'archived';
-                });
-                if (allArchived) {
-                    batch.isArchived = true;
-                }
-            });
-
             selectedRules.clear();
             document.getElementById('selectAll').checked = false;
             renderSummaryTable();
@@ -914,8 +907,9 @@
             selectedRules = newSelected;
 
             // Filter batches to only show those with rules matching current filter
-            // (batches remain but stats recalculate)
+            // (groups rebuild from filteredRules)
 
+            buildSubjectGroups();
             renderSummaryTable();
             toast('筛选完成，共 ' + filteredRules.length + ' 条规则', 'info');
         }
@@ -1012,38 +1006,14 @@
                 ruleImportStatus[name] = 'imported';
             });
 
-            // Create batch entry
-            batchCounter++;
-            var ruleNames = Object.keys(byRule);
-            var now = new Date();
-            var importDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
-            // Calculate batch-level stats
-            var batchTotalAmount = 0, batchTotalRecords = 0;
-            ruleNames.forEach(function(name) {
-                var recs = byRule[name] || [];
-                batchTotalRecords += recs.length;
-                batchTotalAmount += recs.reduce(function(s, r) { return s + r.amount; }, 0);
-            });
-
-            var newBatch = {
-                batchId: 'BATCH-' + String(batchCounter).padStart(3, '0'),
-                fileName: '台账导入_' + importDate.replace(/[-: ]/g, '') + '.xlsx',
-                importDate: importDate,
-                ruleNames: ruleNames,
-                totalRecords: batchTotalRecords,
-                totalAmount: batchTotalAmount,
-                reconciledCount: 0,
-                diffCount: 0,
-                insuranceSubject: MOCK_LEDGER_DATA[0] ? MOCK_LEDGER_DATA[0].insuranceSubject : ''
-            };
-            ledgerBatches.push(newBatch);
-            expandedBatches.add(newBatch.batchId); // auto-expand new batch
+            // Auto-expand all groups
+            buildSubjectGroups();
+            subjectGroups.forEach(function(g) { expandedGroups.add(g.groupId); });
 
             // Reset reconciled status for re-reconciled rules
             selectedRules.forEach(function(name) {
                 if (byRule[name]) {
-                    // will be reconcined in next batch call
+                    // will be reconciled in next batch call
                 }
             });
 
@@ -1094,16 +1064,6 @@
                     rule.ledgerTotalAmount = result.ledgerTotalAmount;
 
                     ruleImportStatus[ruleName] = 'reconciled';
-
-                    // Update batch stats
-                    ledgerBatches.forEach(function(batch) {
-                        if (batch.ruleNames.indexOf(ruleName) !== -1) {
-                            batch.reconciledCount = (batch.reconciledCount || 0) + 1;
-                            if (result.systemDiff > 0 || result.ledgerDiff > 0) {
-                                batch.diffCount = (batch.diffCount || 0) + 1;
-                            }
-                        }
-                    });
 
                     totalMatched += result.systemMatched;
                     totalPending += 0; // simplified
