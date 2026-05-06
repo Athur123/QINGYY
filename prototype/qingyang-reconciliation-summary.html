@@ -375,36 +375,36 @@
             { id: 'S019', name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feeType: 'tiaoji', feePeriod: '2026-02', amount: 123.31 },
         ];
 
-        // Mock ledger data — full file covering all rules
+        // Mock ledger data — full file covering all rules (one batch = one 参保主体)
         const MOCK_LEDGER_DATA = [
             // 社保规则A — 养老 2026-04
-            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1233.12 },
-            { name: '杨红', idCard: '500230**********09', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1056.96 },
-            { name: '李芳', idCard: '500382**********10', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1050.00 },
-            { name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1137.50 },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1233.12, insuranceSubject: '某科技有限公司' },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1056.96, insuranceSubject: '某科技有限公司' },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1050.00, insuranceSubject: '某科技有限公司' },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1137.50, insuranceSubject: '某科技有限公司' },
             // 社保规则B — 医疗 2026-04
-            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 462.42 },
-            { name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 450.00 },
-            { name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 489.38 },
-            { name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-01', feePeriod: '2026-01', amount: 416.19 },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 462.42, insuranceSubject: '某科技有限公司' },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 450.00, insuranceSubject: '某科技有限公司' },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 489.38, insuranceSubject: '某科技有限公司' },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-01', feePeriod: '2026-01', amount: 416.19, insuranceSubject: '某科技有限公司' },
             // 社保规则C — 失业 2026-04
-            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 51.38 },
-            { name: '杨红', idCard: '500230**********09', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 51.38 },
-            { name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 50.00 },
-            { name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 54.38 },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 51.38, insuranceSubject: '另一家公司' },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 51.38, insuranceSubject: '另一家公司' },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 50.00, insuranceSubject: '另一家公司' },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 54.38, insuranceSubject: '另一家公司' },
             // 社保规则D — 工伤 2026-04
-            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.83 },
-            { name: '李芳', idCard: '500382**********10', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.00 },
-            { name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 32.63 },
-            { name: '杨红', idCard: '500230**********09', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.83 },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.83, insuranceSubject: '另一家公司' },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.00, insuranceSubject: '另一家公司' },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 32.63, insuranceSubject: '另一家公司' },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.83, insuranceSubject: '另一家公司' },
             // 社保规则E — 大额医疗 2026-04
-            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 71.06 },
-            { name: '李芳', idCard: '500382**********10', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 68.75 },
-            { name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 75.25 },
-            { name: '杨红', idCard: '500230**********09', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 71.06 },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 71.06, insuranceSubject: '某科技有限公司' },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 68.75, insuranceSubject: '某科技有限公司' },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 75.25, insuranceSubject: '某科技有限公司' },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 71.06, insuranceSubject: '某科技有限公司' },
             // 社保规则F — 养老 2026-03 (补缴)
-            { name: '陈鸣', idCard: '500384**********14', insuranceType: '养老', billingMonth: '2026-03', feePeriod: '2026-03', amount: 1188.48 },
-            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feePeriod: '2026-02', amount: 123.31 },
+            { name: '陈鸣', idCard: '500384**********14', insuranceType: '养老', billingMonth: '2026-03', feePeriod: '2026-03', amount: 1188.48, insuranceSubject: '第三家公司' },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feePeriod: '2026-02', amount: 123.31, insuranceSubject: '某科技有限公司' },
         ];
 
         let filteredRules = [...DEMO_RULES];
@@ -614,7 +614,7 @@
                     + '<td style="cursor:pointer;" onclick="toggleBatchExpand(\'' + batch.batchId + '\')">'
                         + '<span class="batch-expand__icon ' + chevronClass + '">' + chevron + '</span> '
                         + '<span class="batch-row__name">' + batch.fileName + '</span><br>'
-                        + '<span class="batch-row__meta">' + batch.importDate + ' · ' + batch.ruleNames.length + '条规则</span>'
+                        + '<span class="batch-row__meta">' + batch.importDate + ' · ' + batch.ruleNames.length + '条规则 · ' + (batch.insuranceSubject || '—') + '</span>'
                     + '</td>'
                     + '<td style="padding: 10px 16px;">' + batch.ruleNames.length + '</td>'
                     + '<td style="padding: 10px 16px;">' + batchTotalRecs + '</td>'
@@ -675,7 +675,7 @@
 
                         html += '<tr class="sub-row ' + subRowClass + '">'
                             + '<td></td>'
-                            + '<td colspan="2" style="padding: 8px 16px;"><span class="rule-name" style="padding-left:16px;">' + rule.ruleName + '</span><br><span style="font-size:11px;color:var(--qy-text-muted);padding-left:16px;">' + rule.insuranceSubject + '</span></td>'
+                            + '<td colspan="2" style="padding: 8px 16px;"><span class="rule-name" style="padding-left:16px;">' + rule.ruleName + '</span></td>'
                             + '<td style="padding: 8px 16px;">' + rule.month + '</td>'
                             // System matched
                             + '<td><div class="summary-cell">'
@@ -1020,7 +1020,8 @@
                 totalRecords: batchTotalRecords,
                 totalAmount: batchTotalAmount,
                 reconciledCount: 0,
-                diffCount: 0
+                diffCount: 0,
+                insuranceSubject: MOCK_LEDGER_DATA[0] ? MOCK_LEDGER_DATA[0].insuranceSubject : ''
             };
             ledgerBatches.push(newBatch);
             expandedBatches.add(newBatch.batchId); // auto-expand new batch
