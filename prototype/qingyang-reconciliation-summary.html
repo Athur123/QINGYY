@@ -211,13 +211,14 @@
                             <tr>
                                 <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                                 <th style="width: 120px;">规则名称</th>
+                                <th style="width: 140px;">参保主体</th>
                                 <th style="width: 80px;">月份</th>
                                 <th style="width: 130px;">系统侧已核对</th>
                                 <th style="width: 120px;">系统侧差异</th>
+                                <th style="width: 120px;">台账侧总计</th>
                                 <th style="width: 130px;">台账侧已核对</th>
                                 <th style="width: 120px;">台账侧差异</th>
                                 <th style="width: 120px;">台账侧待确认</th>
-                                <th style="width: 120px;">台账侧总计</th>
                                 <th style="width: 100px;">操作</th>
                             </tr>
                         </thead>
@@ -277,12 +278,12 @@
         // ========== Demo Data ==========
 
         const DEMO_RULES = [
-            { ruleName: '社保规则A', region: '重庆', insuranceType: '养老', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
-            { ruleName: '社保规则B', region: '重庆', insuranceType: '医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
-            { ruleName: '社保规则C', region: '重庆', insuranceType: '失业', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
-            { ruleName: '社保规则D', region: '重庆', insuranceType: '工伤', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
-            { ruleName: '社保规则E', region: '重庆', insuranceType: '大额医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
-            { ruleName: '社保规则F', region: '重庆', insuranceType: '养老', month: '2026-03', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则A', region: '重庆', insuranceType: '养老', insuranceSubject: '某科技有限公司', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则B', region: '重庆', insuranceType: '医疗', insuranceSubject: '某科技有限公司', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则C', region: '重庆', insuranceType: '失业', insuranceSubject: '另一家公司', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则D', region: '重庆', insuranceType: '工伤', insuranceSubject: '另一家公司', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则E', region: '重庆', insuranceType: '大额医疗', insuranceSubject: '某科技有限公司', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
+            { ruleName: '社保规则F', region: '重庆', insuranceType: '养老', insuranceSubject: '第三家公司', month: '2026-03', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0, ledgerPending: 0, ledgerPendingAmount: 0, ledgerTotal: 0, ledgerTotalAmount: 0 },
         ];
 
         // System-side records for all rules (matching detail page data)
@@ -460,7 +461,7 @@
             document.getElementById('archivedCount').textContent = archivedCount;
 
             if (filteredRules.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:32px;color:#94A3B8;">暂无匹配的规则数据</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:32px;color:#94A3B8;">暂无匹配的规则数据</td></tr>';
                 return;
             }
 
@@ -480,6 +481,7 @@
                 return '<tr class="' + rowClass + '">'
                     + '<td><input type="checkbox" data-rule="' + rule.ruleName + '" ' + checkboxDisabled + ' ' + checked + ' onchange="toggleRuleSelection(this)"></td>'
                     + '<td class="rule-name" style="padding: 10px 16px;">' + rule.ruleName + '</td>'
+                    + '<td style="padding: 10px 16px; font-size: 12px; color: var(--qy-text-secondary);">' + rule.insuranceSubject + '</td>'
                     + '<td class="rule-month" style="padding: 10px 16px;">' + rule.month + '</td>'
                     // System matched
                     + '<td><div class="summary-cell">'
@@ -491,6 +493,14 @@
                         + (hasReconciledData && rule.systemDiff > 0
                             ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.systemDiff + '笔</span>'
                                 + '<span class="summary-cell__amount summary-cell__amount--diff">' + formatAmount(rule.systemDiffAmount) + '</span>'
+                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                        )
+                    + '</div></td>'
+                    // Ledger total
+                    + '<td><div class="summary-cell">'
+                        + (hasReconciledData
+                            ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
+                                + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
@@ -512,14 +522,6 @@
                         + (hasReconciledData && rule.ledgerPending > 0
                             ? '<span class="summary-cell__count summary-cell__count--pending">' + rule.ledgerPending + '笔</span>'
                                 + '<span class="summary-cell__amount summary-cell__amount--pending">' + (rule.ledgerPendingAmount > 0 ? formatAmount(rule.ledgerPendingAmount) : '—') + '</span>'
-                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
-                        )
-                    + '</div></td>'
-                    // Ledger total
-                    + '<td><div class="summary-cell">'
-                        + (hasReconciledData
-                            ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
-                                + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
