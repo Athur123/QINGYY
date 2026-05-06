@@ -1312,6 +1312,7 @@ batchArchive()
 | `navigateToDetail(ruleName, month)` | 跳转到明细页 URL 参数 |
 | `toast(message, type)` | Toast 通知（info/success/warning/error），2s 自动消失 |
 | `formatAmount(amount)` | 金额格式化：¥1,234.56 |
+| `updateStatCards()` | 计算并更新 7 个汇总统计卡片，在 renderSummaryTable() 末尾调用 |
 
 ### 验证流程
 
@@ -1327,3 +1328,48 @@ batchArchive()
 10. 已归档规则不参与全选，不可再次归档
 11. 有差异的行显示浅黄色背景（#FFFBEB），无差异的已对账行显示浅绿色背景（#F0FDF4）
 12. 台账侧总计列位于"系统侧差异"列之后，显示该规则台账总笔数和总金额
+13. 初始状态仅"系统侧总金额"有值（从 SYSTEM_RECORDS_ALL 计算），其余卡片显示"—"
+14. 导入台账后台账侧总金额卡片有值，批量对账后全部 7 个卡片有值
+15. 筛选月份/地区后卡片数值相应更新
+
+### 汇总统计卡片（2026-05-06）
+
+**触发时机：** 汇总页 info-bar 下方、summary-table 上方始终显示。
+
+**布局：** 一行排开 8 个元素（7 个统计卡片 + 1 个分隔线），支持横向滚动。
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│  [系统侧总金额]  [系统侧已核对]  [系统侧差异]  │  [台账侧总金额]  [台账侧已核对]  [台账侧待核对]  [台账侧差异] │
+│  ¥7,575.43       —              —            │    —              —              —              —          │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**7 个指标及计算逻辑：**
+
+| 指标 | ID | 计算方式 | 颜色 |
+|------|----|---------|------|
+| 系统侧总金额 | statSystemTotal | filteredRules 范围内 SYSTEM_RECORDS_ALL 记录金额之和 | 默认 |
+| 系统侧已核对 | statSystemMatched | 已对账/已归档规则的 systemMatchedAmount 之和 | 绿色 #16a34a |
+| 系统侧差异 | statSystemDiff | 已对账/已归档规则的 systemDiffAmount 之和 | 红色 #DC2626 |
+| 台账侧总金额 | statLedgerTotal | 已对账/已归档规则用 ledgerTotalAmount，仅导入用 ledgerRecordsByRule 累加 | 默认 |
+| 台账侧已核对 | statLedgerMatched | 已对账/已归档规则的 ledgerMatchedAmount 之和 | 绿色 #16a34a |
+| 台账侧待核对 | statLedgerPending | 已对账/已归档规则的 ledgerPendingAmount 之和 | 橙色 #D97706 |
+| 台账侧差异 | statLedgerDiff | 已对账/已归档规则的 ledgerDiffAmount 之和 | 红色 #DC2626 |
+
+**CSS 类名：**
+
+| 类名 | 用途 |
+|------|------|
+| `.stat-cards` | 卡片容器，flex 布局，横向滚动 |
+| `.stat-card` | 单个卡片，flex column，背景色 var(--qy-bg-tertiary) |
+| `.stat-card__label` | 指标名称（11px，灰色） |
+| `.stat-card__value` | 指标值（18px，加粗） |
+| `.stat-card__value--matched` | 已核对颜色（绿色） |
+| `.stat-card__value--diff` | 差异颜色（红色） |
+| `.stat-card__value--pending` | 待核对颜色（橙色） |
+| `.stat-card-divider` | 系统侧与台账侧之间的竖线分隔 |
+
+**更新时机：** `updateStatCards()` 在 `renderSummaryTable()` 末尾调用，因此每次表格刷新（初始加载、筛选、导入、对账、归档）时自动更新。
+
+**空值处理：** 金额为 0 或未计算时显示"—"。
