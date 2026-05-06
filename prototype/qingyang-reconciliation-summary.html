@@ -56,6 +56,22 @@
         .filter-bar__group { display: flex; align-items: center; gap: 8px; }
         .filter-bar__label { font-size: 12px; color: var(--qy-text-muted); font-weight: 500; white-space: nowrap; }
 
+        /* Dashboard Strip */
+        .dashboard-strip { display: flex; align-items: center; gap: 20px; padding: 8px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 12px; font-size: 12px; color: var(--qy-text-secondary); flex-wrap: wrap; }
+        .dashboard-strip__section { display: flex; align-items: center; gap: 12px; }
+        .dashboard-strip__sep { width: 1px; height: 20px; background: var(--qy-border-light); flex-shrink: 0; }
+        .dashboard-strip__item { display: flex; align-items: center; gap: 4px; }
+        .dashboard-strip__dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .dashboard-strip__dot--green { background: #16a34a; }
+        .dashboard-strip__dot--red { background: #DC2626; }
+        .dashboard-strip__dot--orange { background: #D97706; }
+        .dashboard-strip__dot--gray { background: #CBD5E1; }
+        .dashboard-strip__label { white-space: nowrap; }
+        .dashboard-strip__value { font-weight: 600; color: var(--qy-text-primary); white-space: nowrap; }
+        .dashboard-strip__value--green { color: #16a34a; }
+        .dashboard-strip__value--red { color: #DC2626; }
+        .dashboard-strip__value--orange { color: #D97706; }
+
         /* Summary Table */
         /* Info line */
 
@@ -203,6 +219,32 @@
 
                 <!-- Info Bar -->
                 <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条，已归档 <span class="summary-toolbar__count" id="archivedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
+
+                <!-- Dashboard Strip -->
+                <div class="dashboard-strip" id="dashboardStrip">
+                    <!-- 进度 -->
+                    <div class="dashboard-strip__section">
+                        <span class="dashboard-strip__label" style="font-weight:600;color:var(--qy-text-primary);">进度</span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__value" id="dashImported">0/0</span><span class="dashboard-strip__label">已导入</span></span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__value dashboard-strip__value--green" id="dashReconciled">0/0</span><span class="dashboard-strip__label">已对账</span></span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__value" id="dashArchived">0/0</span><span class="dashboard-strip__label">已归档</span></span>
+                    </div>
+                    <div class="dashboard-strip__sep"></div>
+                    <!-- 系统侧 -->
+                    <div class="dashboard-strip__section">
+                        <span class="dashboard-strip__label" style="font-weight:600;color:var(--qy-text-primary);">系统侧</span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__dot dashboard-strip__dot--green"></span><span class="dashboard-strip__label">已核对</span><span class="dashboard-strip__value dashboard-strip__value--green" id="dashSysMatched">—</span></span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__dot dashboard-strip__dot--red"></span><span class="dashboard-strip__label">差异</span><span class="dashboard-strip__value dashboard-strip__value--red" id="dashSysDiff">—</span></span>
+                    </div>
+                    <div class="dashboard-strip__sep"></div>
+                    <!-- 台账侧 -->
+                    <div class="dashboard-strip__section">
+                        <span class="dashboard-strip__label" style="font-weight:600;color:var(--qy-text-primary);">台账侧</span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__dot dashboard-strip__dot--green"></span><span class="dashboard-strip__label">已核对</span><span class="dashboard-strip__value dashboard-strip__value--green" id="dashLedMatched">—</span></span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__dot dashboard-strip__dot--orange"></span><span class="dashboard-strip__label">待核对</span><span class="dashboard-strip__value dashboard-strip__value--orange" id="dashLedPending">—</span></span>
+                        <span class="dashboard-strip__item"><span class="dashboard-strip__dot dashboard-strip__dot--red"></span><span class="dashboard-strip__label">差异</span><span class="dashboard-strip__value dashboard-strip__value--red" id="dashLedDiff">—</span></span>
+                    </div>
+                </div>
 
                 <!-- Summary Table -->
                 <div class="summary-table-wrapper">
@@ -441,6 +483,39 @@
             };
         }
 
+        // ========== Dashboard ==========
+
+        function updateDashboard() {
+            var total = filteredRules.length;
+            var imported = 0, reconciled = 0, archived = 0;
+            var sysMatched = 0, sysDiff = 0;
+            var ledMatched = 0, ledPending = 0, ledDiff = 0;
+
+            filteredRules.forEach(function(rule) {
+                var status = ruleImportStatus[rule.ruleName];
+                if (status) imported++;
+                if (status === 'reconciled') reconciled++;
+                if (status === 'archived') archived++;
+
+                if (status === 'reconciled' || status === 'archived') {
+                    sysMatched += rule.systemMatched || 0;
+                    sysDiff += rule.systemDiff || 0;
+                    ledMatched += rule.ledgerMatched || 0;
+                    ledPending += rule.ledgerPending || 0;
+                    ledDiff += rule.ledgerDiff || 0;
+                }
+            });
+
+            document.getElementById('dashImported').textContent = imported + '/' + total;
+            document.getElementById('dashReconciled').textContent = reconciled + '/' + total;
+            document.getElementById('dashArchived').textContent = archived + '/' + total;
+            document.getElementById('dashSysMatched').textContent = sysMatched > 0 ? sysMatched + '笔' : '—';
+            document.getElementById('dashSysDiff').textContent = sysDiff > 0 ? sysDiff + '笔' : '—';
+            document.getElementById('dashLedMatched').textContent = ledMatched > 0 ? ledMatched + '笔' : '—';
+            document.getElementById('dashLedPending').textContent = ledPending > 0 ? ledPending + '笔' : '—';
+            document.getElementById('dashLedDiff').textContent = ledDiff > 0 ? ledDiff + '笔' : '—';
+        }
+
         // ========== Render ==========
 
         function formatAmount(amount) {
@@ -533,6 +608,7 @@
             }).join('');
 
             updateBatchButton();
+            updateDashboard();
         }
 
         function navigateToDetail(ruleName, month) {
