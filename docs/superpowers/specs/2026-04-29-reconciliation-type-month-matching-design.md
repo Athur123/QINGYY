@@ -948,3 +948,244 @@ if (forcePendingSys.length > 0) {
 ### 取消核对后重新确认
 
 经浏览器实测验证，`cancelMatch` → 状态重置为 PENDING → 点击"确认核对" → 抽屉正常打开 的完整流程正常工作。此前 Playwright 测试中抽屉未打开是点击事件被遮罩层拦截导致的假阳性，非代码 bug。
+
+## 两层页面结构（2026-05-06）
+
+### 概述
+
+将对账复核拆分为两层结构：
+
+1. **汇总列表页** (`qingyang-reconciliation-summary.html`) — 按参保规则维度展示核对概览
+2. **明细核对页** (`qingyang-reconciliation-unified.html`) — 单个参保规则的系统/台账账单逐笔核对（即现有页面）
+
+用户从汇总列表选择规则，点击进入明细页进行逐笔核对操作。
+
+### 汇总列表页面
+
+**文件**: `prototype/qingyang-reconciliation-summary.html`
+
+**页面布局**:
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  < 返回  │  对账复核 — 规则汇总                                    │
+├──────────────────────────────────────────────────────────────────┤
+│  [月份▼ 全部] [地区▼ 全部] [结算方案▼ 全部] [险种类型▼ 全部]        │
+│                                                [批量导出] [刷新]  │
+├──────────────────────────────────────────────────────────────────┤
+│  共 N 条规则                                                       │
+├────────────┬────────┬──────────┬──────────┬──────────┬──────────┤
+│ 规则名称   │ 月份   │ 系统侧   │ 系统侧   │ 台账侧   │ 台账侧   │ 操作      │
+│            │        │ 已核对   │ 差异     │ 已核对   │ 差异     │          │
+├────────────┼────────┼──────────┼──────────┼──────────┼──────────┤
+│ 北京养老   │ 2026-04│ 5笔      │ 2笔      │ 5笔      │ 2笔      │ [进入核对]│
+│            │        │ ¥4,932.50│ ¥156.40  │ ¥4,932.50│          │          │
+├────────────┼────────┼──────────┼──────────┼──────────┼──────────┤
+│ 北京失业   │ 2026-04│ 12笔     │ —        │ 12笔     │ —        │ [进入核对]│
+│            │        │ ¥840.00  │          │ ¥840.00  │          │          │
+└────────────┴────────┴──────────┴──────────┴──────────┴──────────┘
+```
+
+**字段说明**:
+
+| 字段 | 说明 |
+|------|------|
+| 规则名称 | 如 "社保规则A"、"社保规则B"，不含月份 |
+| 月份 | 账单月份，如 "2026-04" |
+| 系统侧已核对 | 两行：笔数 / 已匹配金额合计（单元格内换行展示） |
+| 系统侧差异 | 两行：笔数 / 差异金额合计；无差异显示 "—" |
+| 台账侧已核对 | 两行：笔数 / 已匹配金额合计 |
+| 台账侧差异 | 两行：笔数 / 差异金额；无差异显示 "—" |
+| 操作 | `[进入核对]` 链接，跳转到明细页 |
+
+**筛选器**: 顶部两个下拉筛选器（月份、地区）。
+
+**跳转**: 点击 `[进入核对]` 跳转到 `qingyang-reconciliation-unified.html?ruleName=社保规则A&month=2026-04`。
+
+**样式约定**:
+- 单元格内两行内容：第一行笔数，第二行金额
+- 有差异的行，差异金额标红
+- 无差异的行，整行背景淡绿
+
+### 明细核对页面变更
+
+**文件**: `prototype/qingyang-reconciliation-unified.html`（现有文件）
+
+**变更**:
+1. **移除顶部规则/月份筛选器** — 从汇总列表进入，无需再按参保规则或月份筛选
+2. **保留系统侧/台账侧 Tab 切换** — Tab 级别的筛选（账期、客户等）保留
+3. **保留所有明细操作** — 导入、配对抽屉、差异分析、归档等全部保留
+4. **面包屑导航** — 页面标题前增加返回链接，如 "← 对账复核 / 北京养老 2026-04"
+
+### 数据流
+
+```
+汇总列表页
+  │
+  ├─ 数据来源：基于现有 systemRecords 按规则(地区+险种)分组聚合
+  ├─ 分组 key: region + insuranceType
+  ├─ 聚合维度：billingMonth
+  │
+  ├─ 点击"进入核对" → 明细页 (?ruleName=社保规则A&month=2026-04)
+  │
+  ▼
+明细核对页
+  │
+  ├─ 根据 URL 参数过滤 systemRecords
+  ├─ 保留 Tab 切换（系统侧/台账侧）
+  ├─ 保留导入、配对、差异分析、归档等全部功能
+  └─ 页面标题显示当前规则名称和月份
+```
+
+---
+
+## 汇总页批量导入与对账（2026-05-06）
+
+### 功能概述
+
+在汇总列表页（`qingyang-reconciliation-summary.html`）新增两项能力：
+
+1. **批量导入台账** — 上传一份总台账 Excel，自动按规则拆分到各规则
+2. **批量对账** — 勾选已导入台账的规则，批量执行对账匹配（复用详情页的"开始对账"逻辑）
+
+### 数据结构
+
+```javascript
+// 所有规则对应的系统侧明细（跨规则）
+const SYSTEM_RECORDS_ALL = [
+    {
+        id: 'S001',
+        name: '陶欢欢',
+        idCard: '500382**********08',
+        insuranceType: '养老',
+        billingMonth: '2026-04',
+        feeType: 'huijiao',
+        feePeriod: '2026-04',
+        amount: 1233.12
+    },
+    // ... 覆盖所有规则
+];
+
+// 台账数据（导入后存入）
+const MOCK_LEDGER_DATA = [
+    {
+        name: '陶欢欢',
+        idCard: '500382**********08',
+        insuranceType: '养老',
+        billingMonth: '2026-04',
+        feePeriod: '2026-04',
+        amount: 1233.12
+    },
+    // ... 覆盖所有规则
+];
+
+// 运行时状态
+let ledgerRecordsByRule = {};   // ruleName → [ledger records]
+let ruleImportStatus = {};      // ruleName → 'imported' | 'reconciled'
+let selectedRules = new Set();  // 勾选的规则名称集合
+```
+
+### 批量导入台账
+
+**触发入口：** 汇总页 filter-bar 右侧"导入台账"按钮（primary 样式）。
+
+**导入对话框：** 复用详情页的 `.import-dialog` / `.drop-zone` 样式模式，包含两步：
+
+1. **上传区域** — 拖拽/点击上传，模拟一份总台账 Excel 文件
+2. **预览表格** — 展示导入数据按规则拆分的结果：
+
+   | 规则名称 | 月份 | 导入记录数 | 总金额 |
+   |---------|------|-----------|--------|
+   | 社保规则A | 2026-04 | 5 | ¥6,165.60 |
+   | 社保规则B | 2026-04 | 3 | ¥3,699.36 |
+
+**自动拆分逻辑：**
+
+- 台账记录按 `insuranceType + billingMonth` 与 `DEMO_RULES` 中的规则匹配
+- 匹配成功的记录归入对应规则的 `ledgerRecordsByRule[ruleName]` 数组
+- 预览表格按规则分组展示：规则名称、月份、记录数合计、金额合计
+- 点击"确认导入"后：
+  - 将台账数据写入 `ledgerRecordsByRule`
+  - 设置 `ruleImportStatus[ruleName] = 'imported'`
+  - 刷新表格，对应行显示"已导入"标签
+  - 该行 checkbox 变为可勾选状态
+
+### 批量对账
+
+**触发入口：** filter-bar 或 toolbar 中的"批量对账"按钮。
+
+**启用条件：**
+
+- 至少选中一条规则
+- 所有选中规则均已导入台账（`ruleImportStatus[ruleName] === 'imported'` 或 `'reconciled'`）
+- 否则按钮 disabled
+
+**行选择机制：**
+
+- 汇总表头增加全选 checkbox
+- 每行增加 checkbox，`data-rule-name` 标识规则
+- 未导入台账的规则行，checkbox 为 disabled 状态
+
+**执行流程：**
+
+```
+batchReconcile()
+  │
+  ├─ 显示 loading 覆盖层
+  │
+  ├─ 遍历 selectedRules
+  │   │
+  │   ├─ executeMatchingForRule(rule)
+  │   │   ├─ 从 SYSTEM_RECORDS_ALL 筛选该规则的系统侧记录
+  │   │   ├─ 从 ledgerRecordsByRule[ruleName] 获取台账记录
+  │   │   ├─ makeGroupKey() 分组（idCard + insuranceType + billingMonth + feePeriod）
+  │   │   ├─ 组内按金额精确匹配 → MATCHED / PENDING / DIFF / UNMATCHED
+  │   │   └─ 返回 { systemMatched, systemMatchedAmount, systemDiff, systemDiffAmount,
+  │   │             ledgerMatched, ledgerMatchedAmount, ledgerDiff, ledgerDiffAmount }
+  │   │
+  │   ├─ 更新 DEMO_RULES 对应行的统计数字
+  │   └─ 设置 ruleImportStatus[ruleName] = 'reconciled'
+  │
+  ├─ 刷新表格（颜色编码：已匹配绿色、差异橙色）
+  │
+  └─ toast "批量对账完成"
+```
+
+**匹配引擎（`executeMatchingForRule`）：**
+
+- 从详情页的匹配算法简化而来，核心逻辑一致
+- 仅返回统计数，不返回逐条配对明细
+- `forcePending` 机制保留（同详情页）
+
+### UI 变更
+
+| 元素 | 变更 |
+|------|------|
+| 表头 | 新增 checkbox 列、状态标签列 |
+| 行状态 | 已对账 → "已对账"绿色标签 |
+| | 已导入未对账 → "已导入"蓝色标签 |
+| | 未导入 → "—" |
+| 金额单元格 | 已对账后显示颜色编码（匹配=绿色，差异=橙色） |
+| 导入对话框 | 上传区 + 预览表格 + 确认按钮 |
+| Loading 覆盖层 | 批量对账执行期间显示进度提示 |
+
+### 新增函数
+
+| 函数 | 用途 |
+|------|------|
+| `openImportDialog()` | 打开导入对话框 |
+| `showImportPreview(ledgerData)` | 展示按规则拆分的预览表格 |
+| `importNextStep()` | 处理导入确认，写入数据并刷新表格 |
+| `executeMatchingForRule(rule)` | 单规则匹配引擎，返回统计数 |
+| `batchReconcile()` | 批量对账入口，遍历选中规则调用匹配 |
+| `toggleSelectAll()` | 全选/取消全选 |
+| `toggleRuleSelection(ruleName)` | 单行选择切换 |
+| `updateBatchReconcileButton()` | 根据选中状态更新按钮 enabled/disabled |
+
+### 验证流程
+
+1. 打开汇总页 → 点击"导入台账" → 上传模拟文件 → 确认导入
+2. 表格行显示"已导入"标签，checkbox 可勾选
+3. 勾选已导入的规则 → 点击"批量对账"
+4. 表格刷新显示对账结果（匹配数、差异数、金额）
+5. 未导入的规则 checkbox 不可勾选，无法参与对账
+6. 筛选月份/地区后，导入和对账仍正常工作
