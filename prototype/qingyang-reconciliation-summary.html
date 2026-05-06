@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对账复核 — 规则汇总 - 青阳云 HRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .qy-layout { display: flex; width: 100%; height: 100vh; max-width: none; overflow: hidden; }
+        .qy-sidebar { width: 160px; height: 100%; background: var(--qy-bg-primary); border-right: 1px solid var(--qy-border-light); flex-shrink: 0; overflow-y: auto; }
+        .qy-main { flex: 1; min-width: 0; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+        .qy-page { flex: 1; width: 100%; padding: 20px 24px; overflow-y: auto; }
+        .qy-sidebar__logo { padding: 20px 16px; border-bottom: 1px solid var(--qy-border-light); }
+        .qy-sidebar__logo h1 { font-size: 16px; font-weight: 700; color: var(--qy-primary-500); }
+        .qy-sidebar__logo span { font-size: 11px; color: var(--qy-text-muted); }
+        .qy-sidebar__nav { padding: 12px 8px; }
+        .qy-sidebar__group { margin-bottom: 16px; }
+        .qy-sidebar__title { font-size: 10px; font-weight: 600; color: var(--qy-text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 8px; margin-bottom: 4px; }
+        .qy-sidebar__item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--qy-radius-md); color: var(--qy-text-secondary); text-decoration: none; font-size: 13px; cursor: pointer; }
+        .qy-sidebar__item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .qy-sidebar__item.is-active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 500; }
+        .qy-header { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 52px; background: var(--qy-bg-primary); border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .qy-header__nav { display: flex; gap: 4px; }
+        .qy-header__tab { padding: 8px 16px; border: none; background: none; font-size: 13px; color: var(--qy-text-secondary); cursor: pointer; border-radius: var(--qy-radius-md); }
+        .qy-header__tab.is-active { background: var(--qy-primary-50); color: var(--qy-primary-600); font-weight: 500; }
+        .qy-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border: none; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--qy-transition-fast); white-space: nowrap; }
+        .qy-btn--primary { background: var(--qy-primary-500); color: white; }
+        .qy-btn--primary:hover { background: var(--qy-primary-600); }
+        .qy-btn--secondary { background: var(--qy-bg-primary); color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium); }
+        .qy-btn--secondary:hover { background: var(--qy-bg-secondary); }
+        .qy-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .qy-select { height: 32px; padding: 0 32px 0 12px; border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); background: var(--qy-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; font-size: 13px; cursor: pointer; }
+        .qy-page__header { margin-bottom: 20px; }
+        .qy-page__title { font-size: 20px; font-weight: 700; color: var(--qy-text-primary); margin-bottom: 4px; }
+        .qy-page__subtitle { font-size: 13px; color: var(--qy-text-secondary); }
+
+        /* Filter Bar */
+        .filter-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-bar__group { display: flex; align-items: center; gap: 8px; }
+        .filter-bar__label { font-size: 12px; color: var(--qy-text-muted); font-weight: 500; white-space: nowrap; }
+
+        /* Summary Table */
+        .summary-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .summary-toolbar__info { font-size: 13px; color: var(--qy-text-secondary); }
+        .summary-toolbar__count { font-weight: 600; color: var(--qy-text-primary); }
+        .summary-toolbar__actions { display: flex; gap: 8px; }
+
+        .summary-table-wrapper { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow-x: auto; }
+        .summary-table { width: 100%; min-width: 960px; border-collapse: collapse; font-size: 13px; }
+        .summary-table th { text-align: left; padding: 10px 16px; background: var(--qy-bg-tertiary); font-size: 12px; font-weight: 600; color: var(--qy-text-secondary); border-bottom: 1px solid var(--qy-border-light); white-space: nowrap; }
+        .summary-table td { padding: 0; border-bottom: 1px solid var(--qy-border-light); }
+        .summary-table tbody tr:last-child td { border-bottom: none; }
+        .summary-table tbody tr:hover td { background: var(--qy-bg-secondary); }
+
+        /* Row variants */
+        .summary-table tbody tr.row-has-diff td { background: #FEF2F2; }
+        .summary-table tbody tr.row-has-diff:hover td { background: #FEE2E2; }
+        .summary-table tbody tr.row-all-matched td { background: #F0FDF4; }
+        .summary-table tbody tr.row-all-matched:hover td { background: #DCFCE7; }
+
+        /* Cell multi-line */
+        .summary-cell { display: flex; flex-direction: column; padding: 10px 16px; gap: 2px; min-height: 52px; justify-content: center; }
+        .summary-cell__count { font-weight: 600; font-size: 13px; }
+        .summary-cell__amount { font-size: 11px; color: var(--qy-text-muted); }
+        .summary-cell__count--diff { color: var(--qy-error-500); }
+        .summary-cell__amount--diff { color: var(--qy-error-600); font-weight: 500; }
+        .summary-cell--empty { align-items: center; }
+        .summary-cell--empty .summary-cell__text { color: var(--qy-text-muted); font-size: 12px; }
+
+        /* Rule name */
+        .rule-name { font-weight: 600; }
+        .rule-month { font-size: 13px; white-space: nowrap; }
+
+        /* Status tag */
+        .status-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--qy-radius-sm); font-size: 11px; font-weight: 500; }
+        .status-tag--imported { background: #DBEAFE; color: #1E40AF; }
+        .status-tag--Reconciled { background: #DCFCE7; color: #166534; }
+
+        /* Action link */
+        .action-link { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); white-space: nowrap; }
+        .action-link:hover { background: var(--qy-primary-50); }
+        .action-link svg { flex-shrink: 0; }
+
+        /* Checkbox */
+        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--qy-primary-500); }
+        .summary-table th:first-child,
+        .summary-table td:first-child { width: 48px; text-align: center; padding: 10px 8px; }
+
+        /* Toast */
+        .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+        .toast { padding: 10px 20px; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; box-shadow: var(--qy-shadow-lg); opacity: 0; transform: translateY(10px); pointer-events: auto; white-space: nowrap; }
+        .toast.is-visible { opacity: 1; transform: translateY(0); }
+        .toast--info { background: var(--qy-primary-500); color: white; }
+        .toast--success { background: #16A34A; color: white; }
+        .toast--warning { background: #D97706; color: white; }
+        .toast--error { background: #DC2626; color: white; }
+
+        /* Loading overlay */
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .loading-overlay.is-visible { display: flex; }
+        .loading-spinner { text-align: center; }
+        .loading-spinner__icon { font-size: 32px; animation: spin 1s linear infinite; }
+        .loading-spinner__text { font-size: 14px; color: var(--qy-text-secondary); margin-top: 12px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Import Dialog */
+        .import-dialog { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1001; display: none; align-items: center; justify-content: center; }
+        .import-dialog.is-visible { display: flex; }
+        .import-dialog__box { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 720px; max-width: 90%; box-shadow: var(--qy-shadow-lg); }
+        .import-dialog__header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
+        .import-dialog__title { font-size: 16px; font-weight: 600; }
+        .import-dialog__body { padding: 20px; overflow-x: auto; }
+        .import-dialog__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--qy-border-light); }
+        .import-preview__table { width: 100%; min-width: 500px; table-layout: fixed; font-size: 12px; }
+        .import-preview__table th, .import-preview__table td { padding: 6px 8px; }
+
+        .drop-zone { border: 2px dashed var(--qy-border-medium); border-radius: var(--qy-radius-md); padding: 32px; text-align: center; cursor: pointer; transition: border-color var(--qy-transition-fast); }
+        .drop-zone:hover, .drop-zone.is-dragover { border-color: var(--qy-primary-400); background: var(--qy-primary-50); }
+        .drop-zone__text { font-size: 14px; color: var(--qy-text-secondary); }
+        .drop-zone__hint { font-size: 12px; color: var(--qy-text-muted); margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <div class="qy-layout">
+        <!-- Sidebar -->
+        <aside class="qy-sidebar">
+            <div class="qy-sidebar__logo">
+                <h1>青阳云</h1>
+                <span>HRO管理系统</span>
+            </div>
+            <nav class="qy-sidebar__nav">
+                <div class="qy-sidebar__group">
+                    <div class="qy-sidebar__title">智能薪酬</div>
+                    <a class="qy-sidebar__item">&#128203; 员工参保档案</a>
+                    <a class="qy-sidebar__item is-active">&#128269; 对账复核</a>
+                    <a class="qy-sidebar__item">&#129512; 社保方案计算</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="qy-main">
+            <header class="qy-header">
+                <nav class="qy-header__nav">
+                    <button class="qy-header__tab">核心人事</button>
+                    <button class="qy-header__tab is-active">智能薪酬</button>
+                    <button class="qy-header__tab">假勤管理</button>
+                    <button class="qy-header__tab">审批中心</button>
+                </nav>
+                <button class="qy-btn qy-btn--text" style="height: 32px;">管理员</button>
+            </header>
+
+            <div class="qy-page">
+                <div class="qy-page__header">
+                    <h1 class="qy-page__title">对账复核 — 规则汇总</h1>
+                    <p class="qy-page__subtitle">按参保规则维度展示核对概览，导入台账后批量对账</p>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <div class="filter-bar__group">
+                        <span class="filter-bar__label">月份</span>
+                        <select class="qy-select" id="filterMonth" style="width: 130px;">
+                            <option value="2026-04">2026-04</option>
+                            <option value="2026-03">2026-03</option>
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <div class="filter-bar__group">
+                        <span class="filter-bar__label">地区</span>
+                        <select class="qy-select" id="filterRegion" style="width: 130px;">
+                            <option value="">全部</option>
+                            <option value="北京">北京</option>
+                            <option value="上海">上海</option>
+                            <option value="重庆">重庆</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;"></div>
+                    <div class="filter-bar__group">
+                        <button class="qy-btn qy-btn--secondary" onclick="applyFilters()">刷新</button>
+                        <button class="qy-btn qy-btn--secondary" onclick="toast('批量导出功能开发中', 'info')">批量导出</button>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="summary-toolbar">
+                    <div class="summary-toolbar__info">共 <span class="summary-toolbar__count" id="totalRules">0</span> 条规则，已导入 <span class="summary-toolbar__count" id="importedCount">0</span> 条</div>
+                    <div class="summary-toolbar__actions">
+                        <button class="qy-btn qy-btn--primary" id="batchReconcileBtn" onclick="batchReconcile()" disabled>
+                            &#9654; 批量对账
+                        </button>
+                        <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">
+                            &#128229; 导入台账
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Table -->
+                <div class="summary-table-wrapper">
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                <th style="width: 120px;">规则名称</th>
+                                <th style="width: 80px;">月份</th>
+                                <th style="width: 80px;">状态</th>
+                                <th style="width: 130px;">系统侧已核对</th>
+                                <th style="width: 120px;">系统侧差异</th>
+                                <th style="width: 130px;">台账侧已核对</th>
+                                <th style="width: 120px;">台账侧差异</th>
+                                <th style="width: 100px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Import Dialog -->
+    <div class="import-dialog" id="importDialog" onclick="closeImportDialog(event)">
+        <div class="import-dialog__box" onclick="event.stopPropagation()">
+            <div class="import-dialog__header">
+                <h3 class="import-dialog__title">导入台账</h3>
+                <button class="drawer__close" onclick="closeImportDialog()" style="width:32px;height:32px;border:none;background:none;font-size:20px;color:var(--qy-text-muted);cursor:pointer;border-radius:var(--qy-radius-md);display:flex;align-items:center;justify-content:center;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="import-dialog__body" id="importDialogBody">
+                <div id="importStep1">
+                    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <div class="drop-zone__text">&#128193; 拖拽文件到此处，或点击选择台账文件</div>
+                        <div class="drop-zone__hint">支持格式：.xlsx, .xls（演示模式：点击即使用模拟数据）</div>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+                    </div>
+                </div>
+                <div id="importStep2" style="display:none;">
+                    <p style="font-size:13px;margin-bottom:12px;" id="importPreviewSummary"></p>
+                    <table class="import-preview__table">
+                        <thead>
+                            <tr><th>规则名称</th><th>月份</th><th>记录数</th><th>金额合计</th></tr>
+                        </thead>
+                        <tbody id="importPreviewBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="import-dialog__footer" id="importDialogFooter">
+                <button class="qy-btn qy-btn--secondary" onclick="closeImportDialog()">取消</button>
+                <button class="qy-btn qy-btn--primary" id="importNextBtn" onclick="importNextStep()">下一步</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="loading-spinner__icon">&#8987;</div>
+            <div class="loading-spinner__text" id="loadingText">正在批量对账...</div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ========== Demo Data ==========
+
+        const DEMO_RULES = [
+            { ruleName: '社保规则A', region: '重庆', insuranceType: '养老', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+            { ruleName: '社保规则B', region: '重庆', insuranceType: '医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+            { ruleName: '社保规则C', region: '重庆', insuranceType: '失业', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+            { ruleName: '社保规则D', region: '重庆', insuranceType: '工伤', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+            { ruleName: '社保规则E', region: '重庆', insuranceType: '大额医疗', month: '2026-04', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+            { ruleName: '社保规则F', region: '重庆', insuranceType: '养老', month: '2026-03', systemMatched: 0, systemMatchedAmount: 0, systemDiff: 0, systemDiffAmount: 0, ledgerMatched: 0, ledgerMatchedAmount: 0, ledgerDiff: 0, ledgerDiffAmount: 0 },
+        ];
+
+        // System-side records for all rules (matching detail page data)
+        const SYSTEM_RECORDS_ALL = [
+            // 社保规则A — 重庆养老 2026-04
+            { id: 'S001', name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 1233.12 },
+            { id: 'S006', name: '杨红', idCard: '500230**********09', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 1050.00 },
+            { id: 'S009', name: '李芳', idCard: '500382**********10', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 1050.00 },
+            { id: 'S014', name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 1137.50, forcePending: true },
+            // 社保规则B — 重庆医疗 2026-04
+            { id: 'S004', name: '陶欢欢', idCard: '500382**********08', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 462.42 },
+            { id: 'S012', name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 450.00, forcePending: true },
+            { id: 'S016', name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 489.38, forcePending: true },
+            { id: 'S020', name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-01', feeType: 'bujiao', feePeriod: '2026-01', amount: 416.19 },
+            // 社保规则C — 重庆失业 2026-04
+            { id: 'S002', name: '陶欢欢', idCard: '500382**********08', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 51.38 },
+            { id: 'S007', name: '赵六', idCard: '500230**********09', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 50.00 },
+            { id: 'S010', name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 50.00 },
+            { id: 'S015', name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 54.38, forcePending: true },
+            // 社保规则D — 重庆工伤 2026-04
+            { id: 'S003', name: '陶欢欢', idCard: '500382**********08', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 30.83 },
+            { id: 'S011', name: '李芳', idCard: '500382**********10', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 30.00 },
+            { id: 'S017', name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 35.63, forcePending: true },
+            // 社保规则E — 重庆大额医疗 2026-04
+            { id: 'S005', name: '陶欢欢', idCard: '500382**********08', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 71.06 },
+            { id: 'S013', name: '李芳', idCard: '500382**********10', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 68.75 },
+            { id: 'S018', name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feeType: 'huijiao', feePeriod: '2026-04', amount: 72.50, forcePending: true },
+            // 社保规则F — 重庆养老 2026-03 (补缴)
+            { id: 'S008', name: '陈鸣', idCard: '500384**********14', insuranceType: '养老', billingMonth: '2026-03', feeType: 'bujiao', feePeriod: '2026-03', amount: 1188.48 },
+            { id: 'S019', name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feeType: 'tiaoji', feePeriod: '2026-02', amount: 123.31 },
+        ];
+
+        // Mock ledger data — full file covering all rules
+        const MOCK_LEDGER_DATA = [
+            // 社保规则A — 养老 2026-04
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1233.12 },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1056.96 },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1050.00 },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '养老', billingMonth: '2026-04', feePeriod: '2026-04', amount: 1137.50 },
+            // 社保规则B — 医疗 2026-04
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 462.42 },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 450.00 },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 489.38 },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '医疗', billingMonth: '2026-01', feePeriod: '2026-01', amount: 416.19 },
+            // 社保规则C — 失业 2026-04
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 51.38 },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 51.38 },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 50.00 },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '失业', billingMonth: '2026-04', feePeriod: '2026-04', amount: 54.38 },
+            // 社保规则D — 工伤 2026-04
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.83 },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.00 },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 32.63 },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '工伤', billingMonth: '2026-04', feePeriod: '2026-04', amount: 30.83 },
+            // 社保规则E — 大额医疗 2026-04
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 71.06 },
+            { name: '李芳', idCard: '500382**********10', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 68.75 },
+            { name: '王磊', idCard: '500384**********11', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 75.25 },
+            { name: '杨红', idCard: '500230**********09', insuranceType: '大额医疗', billingMonth: '2026-04', feePeriod: '2026-04', amount: 71.06 },
+            // 社保规则F — 养老 2026-03 (补缴)
+            { name: '陈鸣', idCard: '500384**********14', insuranceType: '养老', billingMonth: '2026-03', feePeriod: '2026-03', amount: 1188.48 },
+            { name: '陶欢欢', idCard: '500382**********08', insuranceType: '养老', billingMonth: '2026-02', feePeriod: '2026-02', amount: 123.31 },
+        ];
+
+        let filteredRules = [...DEMO_RULES];
+        let selectedRules = new Set();
+
+        // Import state: ruleName -> [{id, name, idCard, insuranceType, billingMonth, feePeriod, amount}]
+        let ledgerRecordsByRule = {};
+        let ruleImportStatus = {}; // ruleName -> 'imported' | 'reconciled'
+
+        // ========== Match engine (simplified from detail page) ==========
+
+        function normalizeIdCard(idCard) {
+            return (idCard || '').replace(/\s/g, '').toUpperCase().trim();
+        }
+
+        function makeGroupKey(record) {
+            return normalizeIdCard(record.idCard) + '|' + (record.insuranceType || '') + '|' + record.billingMonth + '|' + (record.feePeriod || '');
+        }
+
+        function executeMatchingForRule(rule) {
+            const sysRecs = SYSTEM_RECORDS_ALL.filter(function(r) {
+                return r.insuranceType === rule.insuranceType && r.billingMonth === rule.month;
+            });
+            const ledRecs = ledgerRecordsByRule[rule.ruleName] || [];
+
+            let matched = 0, pending = 0, diff = 0, unmatched = 0;
+            let sysMatchedAmount = 0, sysDiffAmount = 0, ledMatchedAmount = 0, ledDiffAmount = 0;
+
+            // Group by key
+            const sysByKey = {};
+            const ledByKey = {};
+            sysRecs.forEach(function(r) {
+                const k = makeGroupKey(r);
+                if (!sysByKey[k]) sysByKey[k] = [];
+                sysByKey[k].push(r);
+            });
+            ledRecs.forEach(function(r) {
+                const k = makeGroupKey(r);
+                if (!ledByKey[k]) ledByKey[k] = [];
+                ledByKey[k].push(r);
+            });
+
+            const allKeys = {};
+            Object.keys(sysByKey).forEach(function(k) { allKeys[k] = true; });
+            Object.keys(ledByKey).forEach(function(k) { allKeys[k] = true; });
+
+            Object.keys(allKeys).forEach(function(key) {
+                const sRecs = sysByKey[key] || [];
+                const lRecs = ledByKey[key] || [];
+
+                if (sRecs.length > 0 && lRecs.length === 0) {
+                    sRecs.forEach(function(r) {
+                        if (r.forcePending) { pending++; }
+                        else if (r.feeType === 'bujiao' || r.feeType === 'tiaoji') { unmatched++; }
+                        else { diff++; sysDiffAmount += r.amount; }
+                    });
+                } else if (sRecs.length === 0 && lRecs.length > 0) {
+                    lRecs.forEach(function(r) { diff++; ledDiffAmount += r.amount; });
+                } else if (sRecs.length === 1 && lRecs.length === 1) {
+                    const sr = sRecs[0], lr = lRecs[0];
+                    if (sr.forcePending) {
+                        pending++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
+                    } else if (sr.feeType === 'huijiao' && Math.abs(sr.amount - lr.amount) < 0.01) {
+                        matched++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
+                    } else if (Math.abs(sr.amount - lr.amount) >= 0.01) {
+                        diff++; sysDiffAmount += sr.amount; ledDiffAmount += lr.amount;
+                    } else {
+                        pending++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
+                    }
+                } else {
+                    // Multiple records on either side -> pending
+                    pending += Math.max(sRecs.length, lRecs.length);
+                    sRecs.forEach(function(r) { sysMatchedAmount += r.amount; });
+                    lRecs.forEach(function(r) { ledMatchedAmount += r.amount; });
+                }
+            });
+
+            return {
+                systemMatched: matched,
+                systemMatchedAmount: sysMatchedAmount,
+                systemDiff: diff,
+                systemDiffAmount: sysDiffAmount,
+                ledgerMatched: matched,
+                ledgerMatchedAmount: ledMatchedAmount,
+                ledgerDiff: diff,
+                ledgerDiffAmount: ledDiffAmount
+            };
+        }
+
+        // ========== Render ==========
+
+        function formatAmount(amount) {
+            return '¥' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function renderSummaryTable() {
+            const tbody = document.getElementById('summaryTableBody');
+            document.getElementById('totalRules').textContent = filteredRules.length;
+
+            // Count imported rules
+            let importedCount = 0;
+            filteredRules.forEach(function(r) { if (ruleImportStatus[r.ruleName]) importedCount++; });
+            document.getElementById('importedCount').textContent = importedCount;
+
+            if (filteredRules.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#94A3B8;">暂无匹配的规则数据</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredRules.map(function(rule) {
+                const isImported = !!ruleImportStatus[rule.ruleName];
+                const isReconciled = ruleImportStatus[rule.ruleName] === 'reconciled';
+                const rowClass = isReconciled
+                    ? (rule.systemDiff > 0 || rule.ledgerDiff > 0 ? 'row-has-diff' : 'row-all-matched')
+                    : '';
+
+                // Status tag
+                var statusTag = '';
+                if (isReconciled) {
+                    statusTag = '<span class="status-tag status-tag--reconciled">&#10003; 已对账</span>';
+                } else if (isImported) {
+                    statusTag = '<span class="status-tag status-tag--imported">&#128229; 已导入</span>';
+                } else {
+                    statusTag = '<span style="color:#94A3B8;font-size:12px;">—</span>';
+                }
+
+                // Checkbox: only enabled if imported
+                var checkboxDisabled = !isImported ? 'disabled' : '';
+                var checked = selectedRules.has(rule.ruleName) ? 'checked' : '';
+
+                return '<tr class="' + rowClass + '">'
+                    + '<td><input type="checkbox" data-rule="' + rule.ruleName + '" ' + checkboxDisabled + ' ' + checked + ' onchange="toggleRuleSelection(this)"></td>'
+                    + '<td class="rule-name" style="padding: 10px 16px;">' + rule.ruleName + '</td>'
+                    + '<td class="rule-month" style="padding: 10px 16px;">' + rule.month + '</td>'
+                    + '<td style="padding: 10px 16px;">' + statusTag + '</td>'
+                    // System matched
+                    + '<td><div class="summary-cell">'
+                        + '<span class="summary-cell__count">' + (isReconciled ? rule.systemMatched + '笔' : '—') + '</span>'
+                        + '<span class="summary-cell__amount">' + (isReconciled && rule.systemMatched > 0 ? formatAmount(rule.systemMatchedAmount) : '—') + '</span>'
+                    + '</div></td>'
+                    // System diff
+                    + '<td><div class="summary-cell">'
+                        + (isReconciled && rule.systemDiff > 0
+                            ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.systemDiff + '笔</span>'
+                                + '<span class="summary-cell__amount summary-cell__amount--diff">' + formatAmount(rule.systemDiffAmount) + '</span>'
+                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                        )
+                    + '</div></td>'
+                    // Ledger matched
+                    + '<td><div class="summary-cell">'
+                        + '<span class="summary-cell__count">' + (isReconciled ? rule.ledgerMatched + '笔' : '—') + '</span>'
+                        + '<span class="summary-cell__amount">' + (isReconciled && rule.ledgerMatched > 0 ? formatAmount(rule.ledgerMatchedAmount) : '—') + '</span>'
+                    + '</div></td>'
+                    // Ledger diff
+                    + '<td><div class="summary-cell">'
+                        + (isReconciled && rule.ledgerDiff > 0
+                            ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.ledgerDiff + '笔</span>'
+                                + '<span class="summary-cell__amount summary-cell__amount--diff">' + (rule.ledgerDiffAmount > 0 ? formatAmount(rule.ledgerDiffAmount) : '—') + '</span>'
+                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                        )
+                    + '</div></td>'
+                    // Action
+                    + '<td style="padding: 10px 16px;"><button class="action-link" onclick="navigateToDetail(\'' + rule.ruleName + '\',\'' + rule.month + '\')">'
+                        + '进入核对 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
+                    + '</button></td>'
+                + '</tr>';
+            }).join('');
+
+            updateBatchButton();
+        }
+
+        function navigateToDetail(ruleName, month) {
+            window.location.href = 'qingyang-reconciliation-unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
+        }
+
+        // ========== Selection ==========
+
+        function toggleSelectAll() {
+            var checked = document.getElementById('selectAll').checked;
+            selectedRules.clear();
+            filteredRules.forEach(function(rule) {
+                if (ruleImportStatus[rule.ruleName]) {
+                    if (checked) selectedRules.add(rule.ruleName);
+                }
+            });
+            renderSummaryTable();
+        }
+
+        function toggleRuleSelection(checkbox) {
+            var ruleName = checkbox.getAttribute('data-rule');
+            if (checkbox.checked) {
+                selectedRules.add(ruleName);
+            } else {
+                selectedRules.delete(ruleName);
+            }
+            updateBatchButton();
+        }
+
+        function updateBatchButton() {
+            var btn = document.getElementById('batchReconcileBtn');
+            btn.disabled = selectedRules.size === 0;
+        }
+
+        // ========== Filters ==========
+
+        function applyFilters() {
+            var month = document.getElementById('filterMonth').value;
+            var region = document.getElementById('filterRegion').value;
+
+            filteredRules = DEMO_RULES.filter(function(rule) {
+                if (month && rule.month !== month) return false;
+                if (region && rule.region !== region) return false;
+                return true;
+            });
+
+            // Reset selection that's no longer visible
+            var visibleNames = {};
+            filteredRules.forEach(function(r) { visibleNames[r.ruleName] = true; });
+            var newSelected = new Set();
+            selectedRules.forEach(function(name) { if (visibleNames[name]) newSelected.add(name); });
+            selectedRules = newSelected;
+
+            renderSummaryTable();
+            toast('筛选完成，共 ' + filteredRules.length + ' 条规则', 'info');
+        }
+
+        // ========== Import ==========
+
+        let importStep = 1;
+
+        function openImportDialog() {
+            importStep = 1;
+            document.getElementById('importStep1').style.display = 'block';
+            document.getElementById('importStep2').style.display = 'none';
+            document.getElementById('importNextBtn').textContent = '下一步';
+            document.getElementById('importDialog').classList.add('is-visible');
+        }
+
+        function closeImportDialog(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('importDialog').classList.remove('is-visible');
+        }
+
+        function handleFileSelect(event) {
+            var file = event.target.files[0];
+            if (file) showImportPreview();
+        }
+
+        function showImportPreview() {
+            importStep = 2;
+            document.getElementById('importStep1').style.display = 'none';
+            document.getElementById('importStep2').style.display = 'block';
+            document.getElementById('importNextBtn').textContent = '确认导入';
+
+            // Group mock data by rule
+            var byRule = {};
+            MOCK_LEDGER_DATA.forEach(function(r) {
+                // Find matching rule
+                var matchedRule = null;
+                DEMO_RULES.forEach(function(rule) {
+                    if (rule.insuranceType === r.insuranceType && rule.month === r.billingMonth) {
+                        matchedRule = rule.ruleName;
+                    }
+                });
+                if (!matchedRule) matchedRule = r.insuranceType + '-' + r.billingMonth;
+
+                if (!byRule[matchedRule]) byRule[matchedRule] = { count: 0, amount: 0, month: r.billingMonth };
+                byRule[matchedRule].count++;
+                byRule[matchedRule].amount += r.amount;
+            });
+
+            var ruleNames = Object.keys(byRule);
+            document.getElementById('importPreviewSummary').textContent =
+                '导入结果：成功 ' + MOCK_LEDGER_DATA.length + ' 条，覆盖 ' + ruleNames.length + ' 条规则';
+
+            var tbody = document.getElementById('importPreviewBody');
+            tbody.innerHTML = ruleNames.map(function(name) {
+                var info = byRule[name];
+                return '<tr><td>' + name + '</td><td>' + info.month + '</td><td>' + info.count + '笔</td><td>¥' + info.amount.toFixed(2) + '</td></tr>';
+            }).join('');
+        }
+
+        function importNextStep() {
+            if (importStep === 1) {
+                showImportPreview();
+                return;
+            }
+
+            // Import: populate ledgerRecordsByRule for each rule
+            var byRule = {};
+            MOCK_LEDGER_DATA.forEach(function(r, i) {
+                var matchedRule = null;
+                DEMO_RULES.forEach(function(rule) {
+                    if (rule.insuranceType === r.insuranceType && rule.month === r.billingMonth) {
+                        matchedRule = rule.ruleName;
+                    }
+                });
+                if (!matchedRule) matchedRule = r.insuranceType + '-' + r.billingMonth;
+
+                if (!byRule[matchedRule]) byRule[matchedRule] = [];
+                byRule[matchedRule].push({
+                    id: 'T' + String(i + 1).padStart(3, '0'),
+                    name: r.name,
+                    idCard: r.idCard,
+                    insuranceType: r.insuranceType,
+                    billingMonth: r.billingMonth,
+                    feePeriod: r.feePeriod || null,
+                    amount: r.amount
+                });
+            });
+
+            ledgerRecordsByRule = byRule;
+
+            // Mark rules as imported
+            Object.keys(byRule).forEach(function(name) {
+                ruleImportStatus[name] = 'imported';
+            });
+
+            // Reset reconciled status for re-reconciled rules
+            selectedRules.forEach(function(name) {
+                if (byRule[name]) {
+                    // will be reconcined in next batch call
+                }
+            });
+
+            closeImportDialog();
+            renderSummaryTable();
+            toast('导入成功：' + MOCK_LEDGER_DATA.length + ' 条记录，覆盖 ' + Object.keys(byRule).length + ' 条规则', 'success');
+        }
+
+        // ========== Batch Reconcile ==========
+
+        function batchReconcile() {
+            if (selectedRules.size === 0) {
+                toast('请先选择要对账的规则', 'warning');
+                return;
+            }
+
+            // Verify all selected have imported ledger
+            var allImported = true;
+            selectedRules.forEach(function(name) {
+                if (!ledgerRecordsByRule[name]) allImported = false;
+            });
+            if (!allImported) {
+                toast('部分选中的规则尚未导入台账', 'warning');
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('is-visible');
+
+            setTimeout(function() {
+                var totalMatched = 0, totalPending = 0, totalDiff = 0;
+
+                selectedRules.forEach(function(ruleName) {
+                    var rule = DEMO_RULES.find(function(r) { return r.ruleName === ruleName; });
+                    if (!rule) return;
+
+                    var result = executeMatchingForRule(rule);
+                    rule.systemMatched = result.systemMatched;
+                    rule.systemMatchedAmount = result.systemMatchedAmount;
+                    rule.systemDiff = result.systemDiff;
+                    rule.systemDiffAmount = result.systemDiffAmount;
+                    rule.ledgerMatched = result.ledgerMatched;
+                    rule.ledgerMatchedAmount = result.ledgerMatchedAmount;
+                    rule.ledgerDiff = result.ledgerDiff;
+                    rule.ledgerDiffAmount = result.ledgerDiffAmount;
+
+                    ruleImportStatus[ruleName] = 'reconciled';
+
+                    totalMatched += result.systemMatched;
+                    totalPending += 0; // simplified
+                    totalDiff += result.systemDiff;
+                });
+
+                document.getElementById('loadingOverlay').classList.remove('is-visible');
+                selectedRules.clear();
+                document.getElementById('selectAll').checked = false;
+                renderSummaryTable();
+
+                toast('批量对账完成：已核对 ' + totalMatched + ' 条，差异 ' + totalDiff + ' 条', 'success');
+            }, 600);
+        }
+
+        // ========== Toast ==========
+
+        function toast(message, type) {
+            var container = document.getElementById('toastContainer');
+            var el = document.createElement('div');
+            el.className = 'toast toast--' + (type || 'info');
+            el.textContent = message;
+            container.appendChild(el);
+            requestAnimationFrame(function() { el.classList.add('is-visible'); });
+            setTimeout(function() {
+                el.classList.remove('is-visible');
+                setTimeout(function() { el.remove(); }, 300);
+            }, 2000);
+        }
+
+        // ========== Init ==========
+
+        // Drag and drop
+        document.addEventListener('DOMContentLoaded', function() {
+            var dropZone = document.getElementById('dropZone');
+            if (dropZone) {
+                dropZone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    dropZone.classList.add('is-dragover');
+                });
+                dropZone.addEventListener('dragleave', function() {
+                    dropZone.classList.remove('is-dragover');
+                });
+                dropZone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    dropZone.classList.remove('is-dragover');
+                    showImportPreview();
+                });
+            }
+        });
+
+        renderSummaryTable();
+    </script>
+</body>
+</html>
