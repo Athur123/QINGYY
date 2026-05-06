@@ -1140,7 +1140,8 @@ batchReconcile()
   │   │   ├─ makeGroupKey() 分组（idCard + insuranceType + billingMonth + feePeriod）
   │   │   ├─ 组内按金额精确匹配 → MATCHED / PENDING / DIFF / UNMATCHED
   │   │   └─ 返回 { systemMatched, systemMatchedAmount, systemDiff, systemDiffAmount,
-  │   │             ledgerMatched, ledgerMatchedAmount, ledgerDiff, ledgerDiffAmount }
+  │   │             ledgerMatched, ledgerMatchedAmount, ledgerDiff, ledgerDiffAmount,
+  │   │             ledgerPending, ledgerPendingAmount, ledgerTotal, ledgerTotalAmount }
   │   │
   │   ├─ 更新 DEMO_RULES 对应行的统计数字
   │   └─ 设置 ruleImportStatus[ruleName] = 'reconciled'
@@ -1207,6 +1208,8 @@ batchArchive()
 | | 已对账有差异 → 浅黄色（`#FFFBEB`） |
 | | 已归档 → 灰色（`#F1F5F9`，opacity 0.7） |
 | 金额单元格 | 已对账后显示颜色编码（匹配=绿色，差异=橙色） |
+| 台账侧待确认列 | 新增：待确认笔数 + 待确认金额（单单元格两行） |
+| 台账侧总计列 | 新增：总笔数 + 总金额（单单元格两行） |
 | 导入对话框 | 上传区 + 预览表格 + 确认按钮 |
 | Loading 覆盖层 | 批量对账执行期间显示进度提示 |
 | 信息栏 | 新增"已归档 N 条"计数 |
