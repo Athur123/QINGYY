@@ -41,6 +41,8 @@
         .qy-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; border: none; border-radius: var(--qy-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all var(--qy-transition-fast); white-space: nowrap; }
         .qy-btn--primary { background: var(--qy-primary-500); color: white; }
         .qy-btn--primary:hover { background: var(--qy-primary-600); }
+        .qy-btn--success { background: #16a34a; color: white; }
+        .qy-btn--success:hover { background: #15803d; }
         .qy-btn--secondary { background: var(--qy-bg-primary); color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium); }
         .qy-btn--secondary:hover { background: var(--qy-bg-secondary); }
         .qy-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
@@ -86,6 +88,7 @@
         /* Row state colors */
         .row-all-matched { background: #F0FDF4; }
         .row-has-diff { background: #FFFBEB; }
+        .row-archived { background: #F1F5F9; opacity: 0.7; }
 
         /* Action link */
         .action-link { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); white-space: nowrap; }
@@ -191,12 +194,13 @@
                         <button class="qy-btn qy-btn--secondary" onclick="applyFilters()">刷新</button>
                         <button class="qy-btn qy-btn--secondary" onclick="toast('批量导出功能开发中', 'info')">批量导出</button>
                         <button class="qy-btn qy-btn--primary" id="batchReconcileBtn" onclick="batchReconcile()" disabled>批量对账</button>
+                        <button class="qy-btn qy-btn--success" id="batchArchiveBtn" onclick="batchArchive()" disabled>批量归档</button>
                         <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">导入台账</button>
                     </div>
                 </div>
 
                 <!-- Info Bar -->
-                <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
+                <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条，已归档 <span class="summary-toolbar__count" id="archivedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
 
                 <!-- Summary Table -->
                 <div class="summary-table-wrapper">
@@ -436,10 +440,14 @@
             const tbody = document.getElementById('summaryTableBody');
             document.getElementById('totalRules').textContent = filteredRules.length;
 
-            // Count imported rules
-            let importedCount = 0;
-            filteredRules.forEach(function(r) { if (ruleImportStatus[r.ruleName]) importedCount++; });
+            // Count imported and archived rules
+            let importedCount = 0, archivedCount = 0;
+            filteredRules.forEach(function(r) {
+                if (ruleImportStatus[r.ruleName]) importedCount++;
+                if (ruleImportStatus[r.ruleName] === 'archived') archivedCount++;
+            });
             document.getElementById('importedCount').textContent = importedCount;
+            document.getElementById('archivedCount').textContent = archivedCount;
 
             if (filteredRules.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#94A3B8;">暂无匹配的规则数据</td></tr>';
@@ -449,12 +457,14 @@
             tbody.innerHTML = filteredRules.map(function(rule) {
                 const isImported = !!ruleImportStatus[rule.ruleName];
                 const isReconciled = ruleImportStatus[rule.ruleName] === 'reconciled';
-                const rowClass = isReconciled
-                    ? (rule.systemDiff > 0 || rule.ledgerDiff > 0 ? 'row-has-diff' : 'row-all-matched')
+                const isArchived = ruleImportStatus[rule.ruleName] === 'archived';
+                const hasReconciledData = isReconciled || isArchived;
+                const rowClass = isArchived ? 'row-archived'
+                    : isReconciled ? (rule.systemDiff > 0 || rule.ledgerDiff > 0 ? 'row-has-diff' : 'row-all-matched')
                     : '';
 
-                // Checkbox: only enabled if imported
-                var checkboxDisabled = !isImported ? 'disabled' : '';
+                // Checkbox: only enabled if imported and not archived
+                var checkboxDisabled = (!isImported || isArchived) ? 'disabled' : '';
                 var checked = selectedRules.has(rule.ruleName) ? 'checked' : '';
 
                 return '<tr class="' + rowClass + '">'
@@ -463,12 +473,12 @@
                     + '<td class="rule-month" style="padding: 10px 16px;">' + rule.month + '</td>'
                     // System matched
                     + '<td><div class="summary-cell">'
-                        + '<span class="summary-cell__count">' + (isReconciled ? rule.systemMatched + '笔' : '—') + '</span>'
-                        + '<span class="summary-cell__amount">' + (isReconciled && rule.systemMatched > 0 ? formatAmount(rule.systemMatchedAmount) : '—') + '</span>'
+                        + '<span class="summary-cell__count">' + (hasReconciledData ? rule.systemMatched + '笔' : '—') + '</span>'
+                        + '<span class="summary-cell__amount">' + (hasReconciledData && rule.systemMatched > 0 ? formatAmount(rule.systemMatchedAmount) : '—') + '</span>'
                     + '</div></td>'
                     // System diff
                     + '<td><div class="summary-cell">'
-                        + (isReconciled && rule.systemDiff > 0
+                        + (hasReconciledData && rule.systemDiff > 0
                             ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.systemDiff + '笔</span>'
                                 + '<span class="summary-cell__amount summary-cell__amount--diff">' + formatAmount(rule.systemDiffAmount) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
@@ -476,12 +486,12 @@
                     + '</div></td>'
                     // Ledger matched
                     + '<td><div class="summary-cell">'
-                        + '<span class="summary-cell__count">' + (isReconciled ? rule.ledgerMatched + '笔' : '—') + '</span>'
-                        + '<span class="summary-cell__amount">' + (isReconciled && rule.ledgerMatched > 0 ? formatAmount(rule.ledgerMatchedAmount) : '—') + '</span>'
+                        + '<span class="summary-cell__count">' + (hasReconciledData ? rule.ledgerMatched + '笔' : '—') + '</span>'
+                        + '<span class="summary-cell__amount">' + (hasReconciledData && rule.ledgerMatched > 0 ? formatAmount(rule.ledgerMatchedAmount) : '—') + '</span>'
                     + '</div></td>'
                     // Ledger diff
                     + '<td><div class="summary-cell">'
-                        + (isReconciled && rule.ledgerDiff > 0
+                        + (hasReconciledData && rule.ledgerDiff > 0
                             ? '<span class="summary-cell__count summary-cell__count--diff">' + rule.ledgerDiff + '笔</span>'
                                 + '<span class="summary-cell__amount summary-cell__amount--diff">' + (rule.ledgerDiffAmount > 0 ? formatAmount(rule.ledgerDiffAmount) : '—') + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
@@ -507,7 +517,7 @@
             var checked = document.getElementById('selectAll').checked;
             selectedRules.clear();
             filteredRules.forEach(function(rule) {
-                if (ruleImportStatus[rule.ruleName]) {
+                if (ruleImportStatus[rule.ruleName] && ruleImportStatus[rule.ruleName] !== 'archived') {
                     if (checked) selectedRules.add(rule.ruleName);
                 }
             });
@@ -527,6 +537,59 @@
         function updateBatchButton() {
             var btn = document.getElementById('batchReconcileBtn');
             btn.disabled = selectedRules.size === 0;
+            updateBatchArchiveButton();
+        }
+
+        function updateBatchArchiveButton() {
+            var btn = document.getElementById('batchArchiveBtn');
+            if (selectedRules.size === 0) {
+                btn.disabled = true;
+                return;
+            }
+            // All selected rules must be reconciled with zero diffs on both sides
+            var allClean = true;
+            selectedRules.forEach(function(ruleName) {
+                if (ruleImportStatus[ruleName] !== 'reconciled') { allClean = false; return; }
+                var rule = DEMO_RULES.find(function(r) { return r.ruleName === ruleName; });
+                if (!rule || rule.systemDiff > 0 || rule.ledgerDiff > 0) { allClean = false; return; }
+            });
+            btn.disabled = !allClean;
+        }
+
+        // ========== Batch Archive ==========
+
+        function batchArchive() {
+            if (selectedRules.size === 0) {
+                toast('请先选择要归档的规则', 'warning');
+                return;
+            }
+
+            var archivableRules = [];
+            selectedRules.forEach(function(ruleName) {
+                if (ruleImportStatus[ruleName] === 'reconciled') {
+                    var rule = DEMO_RULES.find(function(r) { return r.ruleName === ruleName; });
+                    if (rule && rule.systemDiff === 0 && rule.ledgerDiff === 0) {
+                        archivableRules.push(rule);
+                    }
+                }
+            });
+
+            if (archivableRules.length === 0) {
+                toast('选中的规则中存在差异或未完成对账，无法归档', 'warning');
+                return;
+            }
+
+            archivableRules.forEach(function(rule) {
+                ruleImportStatus[rule.ruleName] = 'archived';
+            });
+
+            selectedRules.clear();
+            document.getElementById('selectAll').checked = false;
+            renderSummaryTable();
+            updateBatchButton();
+            updateBatchArchiveButton();
+
+            toast('批量归档完成：' + archivableRules.length + ' 条规则', 'success');
         }
 
         // ========== Filters ==========
