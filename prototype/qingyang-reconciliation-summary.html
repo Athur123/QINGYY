@@ -86,10 +86,9 @@
         .rule-name { font-weight: 600; }
         .rule-month { font-size: 13px; white-space: nowrap; }
 
-        /* Status tag */
-        .status-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--qy-radius-sm); font-size: 11px; font-weight: 500; }
-        .status-tag--imported { background: #DBEAFE; color: #1E40AF; }
-        .status-tag--Reconciled { background: #DCFCE7; color: #166534; }
+        /* Row state colors */
+        .row-all-matched { background: #F0FDF4; }
+        .row-has-diff { background: #FFFBEB; }
 
         /* Action link */
         .action-link { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); white-space: nowrap; }
@@ -218,7 +217,6 @@
                                 <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                                 <th style="width: 120px;">规则名称</th>
                                 <th style="width: 80px;">月份</th>
-                                <th style="width: 80px;">状态</th>
                                 <th style="width: 130px;">系统侧已核对</th>
                                 <th style="width: 120px;">系统侧差异</th>
                                 <th style="width: 130px;">台账侧已核对</th>
@@ -466,16 +464,6 @@
                     ? (rule.systemDiff > 0 || rule.ledgerDiff > 0 ? 'row-has-diff' : 'row-all-matched')
                     : '';
 
-                // Status tag
-                var statusTag = '';
-                if (isReconciled) {
-                    statusTag = '<span class="status-tag status-tag--reconciled">&#10003; 已对账</span>';
-                } else if (isImported) {
-                    statusTag = '<span class="status-tag status-tag--imported">&#128229; 已导入</span>';
-                } else {
-                    statusTag = '<span style="color:#94A3B8;font-size:12px;">—</span>';
-                }
-
                 // Checkbox: only enabled if imported
                 var checkboxDisabled = !isImported ? 'disabled' : '';
                 var checked = selectedRules.has(rule.ruleName) ? 'checked' : '';
@@ -484,7 +472,6 @@
                     + '<td><input type="checkbox" data-rule="' + rule.ruleName + '" ' + checkboxDisabled + ' ' + checked + ' onchange="toggleRuleSelection(this)"></td>'
                     + '<td class="rule-name" style="padding: 10px 16px;">' + rule.ruleName + '</td>'
                     + '<td class="rule-month" style="padding: 10px 16px;">' + rule.month + '</td>'
-                    + '<td style="padding: 10px 16px;">' + statusTag + '</td>'
                     // System matched
                     + '<td><div class="summary-cell">'
                         + '<span class="summary-cell__count">' + (isReconciled ? rule.systemMatched + '笔' : '—') + '</span>'
