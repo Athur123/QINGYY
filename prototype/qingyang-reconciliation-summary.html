@@ -271,7 +271,7 @@
                                 <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                                 <th style="width: 240px;">地区 / 参保主体</th>
                                 <th style="width: 80px;">规则数</th>
-                                <th style="width: 80px;">记录数</th>
+                                <th style="width: 100px;">账单月份</th>
                                 <th style="width: 120px;">台账侧总计</th>
                                 <th style="width: 120px;">系统侧已核对</th>
                                 <th style="width: 120px;">系统侧差异</th>
@@ -580,7 +580,7 @@
             document.getElementById('archivedCount').textContent = archivedCount;
 
             if (filteredRules.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:#94A3B8;">暂无数据，请调整筛选条件</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:32px;color:#94A3B8;">暂无数据，请调整筛选条件</td></tr>';
                 updateBatchButton();
                 updateDashboard();
                 return;
@@ -594,12 +594,15 @@
                 var chevronClass = isExpanded ? 'is-expanded' : '';
 
                 // Calculate group-level aggregated stats from sub-rules
-                var grpSysMatched = 0, grpSysDiff = 0, grpLedMatched = 0, grpLedDiff = 0, grpLedPending = 0, grpLedTotal = 0, grpTotalRecs = 0;
+                var grpSysMatched = 0, grpSysDiff = 0, grpLedMatched = 0, grpLedDiff = 0, grpLedPending = 0, grpLedTotal = 0;
                 var grpReconciledCount = 0, grpDiffCount = 0;
+                var grpMonths = [];
 
                 group.ruleNames.forEach(function(ruleName) {
                     var rule = DEMO_RULES.find(function(r) { return r.ruleName === ruleName; });
                     if (!rule) return;
+                    // Collect unique months
+                    if (grpMonths.indexOf(rule.month) === -1) grpMonths.push(rule.month);
                     var status = ruleImportStatus[ruleName];
                     if (status === 'reconciled' || status === 'archived') {
                         grpSysMatched += rule.systemMatchedAmount || 0;
@@ -613,12 +616,12 @@
                     } else if (status === 'imported') {
                         var recs = ledgerRecordsByRule[ruleName] || [];
                         grpLedTotal += recs.reduce(function(s, r) { return s + r.amount; }, 0);
-                        grpTotalRecs += recs.length;
-                    }
-                    if (status === 'reconciled' || status === 'archived') {
-                        grpTotalRecs += rule.ledgerTotal || 0;
                     }
                 });
+
+                // Sort months for display
+                grpMonths.sort();
+                var grpMonthsText = grpMonths.join('、');
 
                 // Group row
                 var allSelected = group.ruleNames.every(function(rn) { return selectedRules.has(rn); });
@@ -632,7 +635,7 @@
                         + '<span class="batch-row__name">' + group.region + ' — ' + group.insuranceSubject + '</span><br>'
                         + '<span class="batch-row__meta">' + group.ruleNames.length + '条规则</span>'
                     + '</td>'
-                    + '<td style="padding: 10px 16px;">' + grpTotalRecs + '</td>'
+                    + '<td style="padding: 10px 16px;">' + grpMonthsText + '</td>'
                     + '<td><div class="summary-cell">'
                         + (grpLedTotal > 0
                             ? '<span class="summary-cell__count">' + grpTotalRecs + '笔</span><span class="summary-cell__amount">' + formatAmount(grpLedTotal) + '</span>'
