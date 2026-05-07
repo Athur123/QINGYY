@@ -66,6 +66,8 @@
         .qy-btn--primary:hover { background: var(--qy-primary-600); }
         .qy-btn--secondary { background: var(--qy-bg-primary); color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium); }
         .qy-btn--secondary:hover { background: var(--qy-bg-secondary); }
+        .qy-btn--danger { background: var(--qy-error-500, #EF4444); color: white; }
+        .qy-btn--danger:hover { background: #B91C1C; }
         .qy-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
         .qy-btn svg { flex-shrink: 0; }
 
@@ -362,6 +364,21 @@
 
         /* Cross-reference link */
         .cross-ref { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 3px; font-size: 10px; background: #F1F5F9; color: #64748B; }
+
+        /* Force Match Dialog */
+        .force-match-dialog { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+        .force-match-dialog.is-visible { display: flex; }
+        .force-match-dialog__box { background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg); width: 480px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .force-match-dialog__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); }
+        .force-match-dialog__title { font-size: 16px; font-weight: 600; }
+        .force-match-dialog__body { padding: 20px; }
+        .force-match-dialog__warning { font-size: 13px; color: var(--qy-error-500, #EF4444); background: #FEF2F2; padding: 10px 14px; border-radius: var(--qy-radius-sm); margin-bottom: 12px; }
+        .force-match-dialog__rules { font-size: 12px; color: var(--qy-text-secondary); padding-left: 20px; margin-bottom: 16px; }
+        .force-match-dialog__rules li { margin-bottom: 4px; }
+        .force-match-dialog__list { font-size: 12px; color: var(--qy-text-primary); max-height: 200px; overflow-y: auto; border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-sm); padding: 8px 12px; }
+        .force-match-dialog__item { padding: 4px 0; border-bottom: 1px solid var(--qy-border-light); display: flex; justify-content: space-between; }
+        .force-match-dialog__item:last-child { border-bottom: none; }
+        .force-match-dialog__footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--qy-border-light); }
     </style>
 </head>
 <body>
@@ -510,6 +527,7 @@
             <button class="qy-btn qy-btn--secondary" id="sysSelectAllBtn" onclick="toggleSystemSelectAll()">全选</button>
             <button class="qy-btn qy-btn--primary" disabled id="sysBatchConfirmBtn" onclick="systemBatchConfirm()">确认所选</button>
             <button class="qy-btn qy-btn--secondary" disabled id="sysBatchCancelBtn" onclick="systemBatchCancel()">取消确认</button>
+            <button class="qy-btn qy-btn--danger" disabled id="sysBatchForceMatchBtn" onclick="systemBatchForceMatch()">强制核对</button>
         </div>
         <div class="table-footer__right" id="systemFooterInfo">共 <strong>0</strong> 条 / 1页</div>
     </div>
@@ -1118,14 +1136,38 @@
         }
 
         function cancelMatch(recordId) {
-            const sysRec = systemRecords.find(r => r.id === recordId);
-            // Find the matched pair to get the correct ledger/system ID
-            const matchedEntry = matchingResults.matched.find(m =>
-                m.systemRecord.id === recordId || m.ledgerRecord.id === recordId
-            );
-            const ledRec = matchedEntry
+            var sysRec = systemRecords.find(function(r) { return r.id === recordId; });
+
+            // Handle forced match cancel (no ledger record)
+            if (sysRec && sysRec.forceMatched) {
+                sysRec.matchStatus = sysRec._originalMatchStatus || MATCH_STATUS.DIFF;
+                sysRec.diffType = sysRec._originalDiffType || null;
+                sysRec.diffAmount = sysRec._originalDiffAmount || null;
+                sysRec.payableMonth = sysRec._originalPayableMonth !== undefined ? sysRec._originalPayableMonth : sysRec.billingMonth;
+                sysRec.matchedLedgerId = null;
+                sysRec.forceMatched = false;
+                delete sysRec._originalMatchStatus;
+                delete sysRec._originalDiffType;
+                delete sysRec._originalDiffAmount;
+                delete sysRec._originalPayableMonth;
+
+                matchingResults.matched = matchingResults.matched.filter(function(m) {
+                    return m.systemRecord.id !== recordId;
+                });
+                // Only push to diffs if restored status is DIFF
+                if (sysRec.matchStatus === MATCH_STATUS.DIFF) {
+                    matchingResults.diffs.push({ systemRecord: sysRec, ledgerRecord: null });
+                }
+                return;
+            }
+
+            // Original cancel logic for normal pairs
+            var matchedEntry = matchingResults.matched.find(function(m) {
+                return m.systemRecord.id === recordId || (m.ledgerRecord && m.ledgerRecord.id === recordId);
+            });
+            var ledRec = matchedEntry
                 ? (sysRec ? matchedEntry.ledgerRecord : matchedEntry.systemRecord)
-                : ledgerRecords.find(r => r.id === recordId);
+                : ledgerRecords.find(function(r) { return r.id === recordId; });
 
             if (sysRec) {
                 sysRec.matchStatus = MATCH_STATUS.PENDING;
@@ -1138,15 +1180,15 @@
                 ledRec.feeTypeInferred = null;
                 ledRec.feePeriod = null;
             }
-            matchingResults.matched = matchingResults.matched.filter(
-                m => m.systemRecord.id !== recordId && m.ledgerRecord.id !== recordId
-            );
+            matchingResults.matched = matchingResults.matched.filter(function(m) {
+                return m.systemRecord.id !== recordId && (!m.ledgerRecord || m.ledgerRecord.id !== recordId);
+            });
 
             // Add back to pending group so openPairingDrawer can find it
             if (sysRec && ledRec) {
-                const existingGroup = matchingResults.pending.find(g =>
-                    g.systemRecords.some(r => r.id === sysRec.id)
-                );
+                var existingGroup = matchingResults.pending.find(function(g) {
+                    return g.systemRecords.some(function(r) { return r.id === sysRec.id; });
+                });
                 if (!existingGroup) {
                     matchingResults.pending.push({
                         amount: sysRec.amount,
@@ -1417,8 +1459,8 @@
                     actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'system')">确认核对</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
-                } else if (r.matchStatus === MATCH_STATUS.DIFF) {
-                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'system')">详情</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.DIFF || r.matchStatus === MATCH_STATUS.UNMATCHED) {
+                    actionBtn = `<button class="btn-action" onclick="showForceMatchConfirm(['${r.id}'])">强制核对</button>`;
                 }
 
                 const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
@@ -1496,8 +1538,8 @@
                     actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'ledger')">确认核对</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
-                } else if (r.matchStatus === MATCH_STATUS.DIFF) {
-                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.DIFF || r.matchStatus === MATCH_STATUS.UNMATCHED) {
+                    actionBtn = `<button class="btn-action" onclick="showForceMatchConfirm(['${r.id}'])">强制核对</button>`;
                 }
 
                 const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
@@ -1580,8 +1622,14 @@
             const hasSelection = selectedIds.length > 0;
             const batchConfirmBtn = document.getElementById('sysBatchConfirmBtn');
             const batchCancelBtn = document.getElementById('sysBatchCancelBtn');
+            const batchForceMatchBtn = document.getElementById('sysBatchForceMatchBtn');
             if (batchConfirmBtn) batchConfirmBtn.disabled = !hasSelection;
             if (batchCancelBtn) batchCancelBtn.disabled = !hasSelection;
+            const hasForceMatchable = selectedIds.some(id => {
+                const rec = systemRecords.find(r => r.id === id);
+                return rec && (rec.matchStatus === MATCH_STATUS.DIFF || rec.matchStatus === MATCH_STATUS.UNMATCHED);
+            });
+            if (batchForceMatchBtn) batchForceMatchBtn.disabled = !hasForceMatchable;
             const selectAllBtn = document.getElementById('sysSelectAllBtn');
             if (selectAllBtn) {
                 const totalCount = document.querySelectorAll('#systemTableBody .system-row-checkbox').length;
@@ -1733,6 +1781,80 @@
             renderAllTables();
             updateMatchCounts();
             showToast('已取消核对，状态为待确认', 'success');
+        }
+
+        function forceMatch(recordIds) {
+            let forced = 0;
+            for (const id of recordIds) {
+                const sysRec = systemRecords.find(r => r.id === id);
+                if (!sysRec) continue;
+                if (sysRec.matchStatus !== MATCH_STATUS.DIFF && sysRec.matchStatus !== MATCH_STATUS.UNMATCHED) continue;
+
+                sysRec._originalMatchStatus = sysRec._originalMatchStatus || sysRec.matchStatus;
+                sysRec._originalDiffType = sysRec._originalDiffType || sysRec.diffType;
+                sysRec._originalDiffAmount = sysRec._originalDiffAmount || sysRec.diffAmount;
+                sysRec._originalPayableMonth = sysRec._originalPayableMonth !== undefined ? sysRec._originalPayableMonth : sysRec.payableMonth;
+
+                sysRec.matchStatus = MATCH_STATUS.MATCHED;
+                sysRec.matchedLedgerId = null;
+                sysRec.payableMonth = sysRec.billingMonth;
+                sysRec.forceMatched = true;
+
+                matchingResults.matched.push({ systemRecord: sysRec, ledgerRecord: null });
+                matchingResults.diffs = matchingResults.diffs.filter(d =>
+                    !(d.systemRecord && d.systemRecord.id === id)
+                );
+
+                forced++;
+            }
+            return forced;
+        }
+
+        // --- Force Match Confirmation Dialog ---
+        let pendingForceMatchIds = [];
+
+        function showForceMatchConfirm(recordIds) {
+            pendingForceMatchIds = recordIds;
+            const listEl = document.getElementById('forceMatchRecordList');
+            if (!listEl) return;
+            const records = recordIds
+                .map(function(id) { return systemRecords.find(function(r) { return r.id === id; }); })
+                .filter(Boolean);
+            listEl.innerHTML = records.map(function(r) {
+                return '<div class="force-match-dialog__item"><span>' + r.name + ' (' + maskIdCard(r.idCard) + ')</span><span>' + r.insuranceType + ' · ' + r.billingMonth + ' · ' + formatMoney(r.amount) + '</span></div>';
+            }).join('');
+            document.getElementById('forceMatchDialog').classList.add('is-visible');
+        }
+
+        function closeForceMatchDialog(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('forceMatchDialog').classList.remove('is-visible');
+            pendingForceMatchIds = [];
+        }
+
+        function executeForceMatch() {
+            const ids = pendingForceMatchIds.slice();
+            closeForceMatchDialog();
+            const forced = forceMatch(ids);
+            renderAllTables();
+            updateMatchCounts();
+            if (forced > 0) {
+                showToast('强制核对 ' + forced + ' 条', 'success');
+            } else {
+                showToast('所选记录中无强制核对项', 'warning');
+            }
+            pendingForceMatchIds = [];
+        }
+
+        function systemBatchForceMatch() {
+            const selectedIds = getSelectedSystemIds();
+            if (selectedIds.length === 0) { showToast('请先选择记录', 'warning'); return; }
+            const forceMatchable = selectedIds.filter(function(id) {
+                const rec = systemRecords.find(function(r) { return r.id === id; });
+                return rec && (rec.matchStatus === MATCH_STATUS.DIFF || rec.matchStatus === MATCH_STATUS.UNMATCHED);
+            });
+            if (forceMatchable.length === 0) { showToast('所选记录中无差异/未匹配项', 'warning'); return; }
+            showForceMatchConfirm(forceMatchable);
         }
 
         function updateStats() {
@@ -2370,6 +2492,8 @@
                     closePairingDrawer();
                 } else if (document.getElementById('detailDrawer').classList.contains('is-visible')) {
                     closeDetailDrawer();
+                } else if (document.getElementById('forceMatchDialog').classList.contains('is-visible')) {
+                    closeForceMatchDialog();
                 }
             }
         });
@@ -2419,5 +2543,29 @@
             renderAllTables();
         });
     </script>
+    <!-- Force Match Confirm Dialog -->
+    <div class="force-match-dialog" id="forceMatchDialog" onclick="closeForceMatchDialog(event)">
+        <div class="force-match-dialog__box" onclick="event.stopPropagation()">
+            <div class="force-match-dialog__header">
+                <h3 class="force-match-dialog__title">强制核对确认</h3>
+                <button class="drawer__close" onclick="closeForceMatchDialog()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="force-match-dialog__body">
+                <p class="force-match-dialog__warning">强制核对将把所选记录直接标记为"已核对"，无需台账匹配。</p>
+                <ul class="force-match-dialog__rules">
+                    <li>台账侧差异将保持不变</li>
+                    <li>应缴月份将使用账单月份</li>
+                    <li>取消核对后可恢复原始状态</li>
+                </ul>
+                <div class="force-match-dialog__list" id="forceMatchRecordList"></div>
+            </div>
+            <div class="force-match-dialog__footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closeForceMatchDialog()">取消</button>
+                <button class="qy-btn qy-btn--danger" id="forceMatchConfirmBtn" onclick="executeForceMatch()">确认强制核对</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
