@@ -124,7 +124,6 @@
         .batch-expand__icon { display: inline-block; transition: transform 0.2s; font-size: 12px; color: var(--qy-text-secondary); }
         .batch-expand__icon.is-expanded { transform: rotate(90deg); }
         .batch-row__name { font-weight: 600; font-size: 13px; }
-        .batch-row__meta { font-size: 11px; color: var(--qy-text-muted); font-weight: 400; }
 
         /* Sub-rows (rules within a group) */
         .sub-row td { padding: 0; background: var(--qy-bg-primary); }
@@ -270,7 +269,7 @@
                             <tr>
                                 <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
                                 <th style="width: 240px;">地区 / 参保主体</th>
-                                <th style="width: 80px;">规则数</th>
+                                <th style="width: 100px;">参保规则</th>
                                 <th style="width: 100px;">账单月份</th>
                                 <th style="width: 120px;">台账侧总计</th>
                                 <th style="width: 120px;">系统侧已核对</th>
@@ -638,11 +637,11 @@
 
                 html += '<tr class="batch-row" data-group="' + group.groupId + '">'
                     + '<td><input type="checkbox" data-group="' + group.groupId + '" ' + checkboxState + ' onclick="event.stopPropagation();toggleGroupCheckbox(this)"></td>'
-                    + '<td colspan="2" style="cursor:pointer;" onclick="toggleGroupExpand(\'' + group.groupId + '\')">'
+                    + '<td style="cursor:pointer;" onclick="toggleGroupExpand(\'' + group.groupId + '\')">'
                         + '<span class="batch-expand__icon ' + chevronClass + '">' + chevron + '</span> '
-                        + '<span class="batch-row__name">' + group.region + ' — ' + group.insuranceSubject + '</span><br>'
-                        + '<span class="batch-row__meta">' + group.ruleNames.length + '条规则</span>'
+                        + '<span class="batch-row__name">' + group.region + ' — ' + group.insuranceSubject + '</span>'
                     + '</td>'
+                    + '<td style="padding: 10px 16px; color: var(--qy-text-secondary); font-size: 13px;">' + group.ruleNames.length + '条</td>'
                     + '<td style="padding: 10px 16px;">' + grpMonthsText + '</td>'
                     + '<td><div class="summary-cell">'
                         + (grpLedTotal > 0
