@@ -299,6 +299,12 @@
             </div>
             <div class="import-dialog__body" id="importDialogBody">
                 <div id="importStep1">
+                    <div class="import-month-selector" style="margin-bottom:16px;">
+                        <label style="font-size:13px;font-weight:600;color:var(--qy-text-primary);display:block;margin-bottom:6px;">台账月份</label>
+                        <select id="importMonthSelect" style="width:100%;padding:8px 12px;border:1px solid var(--qy-border-light);border-radius:var(--qy-radius-sm);font-size:13px;background:var(--qy-bg-primary);color:var(--qy-text-primary);">
+                            <option value="">— 请选择台账月份 —</option>
+                        </select>
+                    </div>
                     <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
                         <div class="drop-zone__text">&#128193; 拖拽文件到此处，或点击选择台账文件</div>
                         <div class="drop-zone__hint">支持格式：.xlsx, .xls（演示模式：点击即使用模拟数据）</div>
@@ -594,7 +600,7 @@
                 var chevronClass = isExpanded ? 'is-expanded' : '';
 
                 // Calculate group-level aggregated stats from sub-rules
-                var grpSysMatched = 0, grpSysDiff = 0, grpLedMatched = 0, grpLedDiff = 0, grpLedPending = 0, grpLedTotal = 0;
+                var grpSysMatched = 0, grpSysDiff = 0, grpLedMatched = 0, grpLedDiff = 0, grpLedPending = 0, grpLedTotal = 0, grpLedCount = 0;
                 var grpReconciledCount = 0, grpDiffCount = 0;
                 var grpMonths = [];
 
@@ -611,11 +617,13 @@
                         grpLedDiff += rule.ledgerDiffAmount || 0;
                         grpLedPending += rule.ledgerPendingAmount || 0;
                         grpLedTotal += rule.ledgerTotalAmount || 0;
+                        grpLedCount += rule.ledgerTotal || 0;
                         grpReconciledCount++;
                         if (rule.systemDiff > 0 || rule.ledgerDiff > 0) grpDiffCount++;
                     } else if (status === 'imported') {
                         var recs = ledgerRecordsByRule[ruleName] || [];
                         grpLedTotal += recs.reduce(function(s, r) { return s + r.amount; }, 0);
+                        grpLedCount += recs.length;
                     }
                 });
 
@@ -638,7 +646,7 @@
                     + '<td style="padding: 10px 16px;">' + grpMonthsText + '</td>'
                     + '<td><div class="summary-cell">'
                         + (grpLedTotal > 0
-                            ? '<span class="summary-cell__count">' + grpTotalRecs + '笔</span><span class="summary-cell__amount">' + formatAmount(grpLedTotal) + '</span>'
+                            ? '<span class="summary-cell__count">' + grpLedCount + '笔</span><span class="summary-cell__amount">' + formatAmount(grpLedTotal) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
@@ -926,6 +934,20 @@
             document.getElementById('importStep1').style.display = 'block';
             document.getElementById('importStep2').style.display = 'none';
             document.getElementById('importNextBtn').textContent = '下一步';
+
+            // Populate month dropdown from filtered rules
+            var months = [];
+            filteredRules.forEach(function(r) {
+                if (months.indexOf(r.month) === -1) months.push(r.month);
+            });
+            months.sort().reverse();
+            var sel = document.getElementById('importMonthSelect');
+            sel.innerHTML = '<option value="">— 请选择台账月份 —</option>';
+            months.forEach(function(m) {
+                sel.innerHTML += '<option value="' + m + '">' + m + '</option>';
+            });
+            sel.value = '';
+
             document.getElementById('importDialog').classList.add('is-visible');
         }
 
@@ -936,22 +958,32 @@
 
         function handleFileSelect(event) {
             var file = event.target.files[0];
-            if (file) showImportPreview();
+            if (!file) return;
+            if (!document.getElementById('importMonthSelect').value) {
+                toast('请先选择台账月份', 'warning');
+                return;
+            }
+            showImportPreview();
         }
 
         function showImportPreview() {
+            var selectedMonth = document.getElementById('importMonthSelect').value;
             importStep = 2;
             document.getElementById('importStep1').style.display = 'none';
             document.getElementById('importStep2').style.display = 'block';
             document.getElementById('importNextBtn').textContent = '确认导入';
 
+            // Filter mock data by selected month
+            var filteredData = MOCK_LEDGER_DATA.filter(function(r) {
+                return r.billingMonth === selectedMonth;
+            });
+
             // Group mock data by rule
             var byRule = {};
-            MOCK_LEDGER_DATA.forEach(function(r) {
-                // Find matching rule
+            filteredData.forEach(function(r) {
                 var matchedRule = null;
                 DEMO_RULES.forEach(function(rule) {
-                    if (rule.insuranceType === r.insuranceType && rule.month === r.billingMonth) {
+                    if (rule.insuranceType === r.insuranceType && rule.month === selectedMonth) {
                         matchedRule = rule.ruleName;
                     }
                 });
@@ -964,7 +996,7 @@
 
             var ruleNames = Object.keys(byRule);
             document.getElementById('importPreviewSummary').textContent =
-                '导入结果：成功 ' + MOCK_LEDGER_DATA.length + ' 条，覆盖 ' + ruleNames.length + ' 条规则';
+                '导入结果：成功 ' + filteredData.length + ' 条，覆盖 ' + ruleNames.length + ' 条规则';
 
             var tbody = document.getElementById('importPreviewBody');
             tbody.innerHTML = ruleNames.map(function(name) {
@@ -975,24 +1007,33 @@
 
         function importNextStep() {
             if (importStep === 1) {
+                if (!document.getElementById('importMonthSelect').value) {
+                    toast('请先选择台账月份', 'warning');
+                    return;
+                }
                 showImportPreview();
                 return;
             }
 
             // Import: populate ledgerRecordsByRule for each rule
+            var selectedMonth = document.getElementById('importMonthSelect').value;
+            var filteredData = MOCK_LEDGER_DATA.filter(function(r) {
+                return r.billingMonth === selectedMonth;
+            });
             var byRule = {};
-            MOCK_LEDGER_DATA.forEach(function(r, i) {
+            filteredData.forEach(function(r, i) {
                 var matchedRule = null;
                 DEMO_RULES.forEach(function(rule) {
-                    if (rule.insuranceType === r.insuranceType && rule.month === r.billingMonth) {
+                    if (rule.insuranceType === r.insuranceType && rule.month === selectedMonth) {
                         matchedRule = rule.ruleName;
                     }
                 });
                 if (!matchedRule) matchedRule = r.insuranceType + '-' + r.billingMonth;
 
                 if (!byRule[matchedRule]) byRule[matchedRule] = [];
+                var idx = filteredData.indexOf(r);
                 byRule[matchedRule].push({
-                    id: 'T' + String(i + 1).padStart(3, '0'),
+                    id: 'T' + String(idx + 1).padStart(3, '0'),
                     name: r.name,
                     idCard: r.idCard,
                     insuranceType: r.insuranceType,
