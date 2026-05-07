@@ -895,6 +895,7 @@ Step 5: 归档后操作
 | `renderAllTables()` | 同时渲染两侧表格 |
 | `filterRecords()` | 顶部搜索栏桩函数，调用 `renderAllTables()` |
 | `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()` / `systemBatchConfirm()` / `systemBatchCancel()` | 明细页系统侧批量操作 |
+| `forceMatch(recordIds)` / `showForceMatchConfirm(recordIds)` / `systemBatchForceMatch()` | 明细页系统侧强制核对（单行/批量），将 DIFF/UNMATCHED 记录标记为 MATCHED |
 | `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 明细页台账侧批量操作 |
 | `confirmFromDrawer()` | 从详情抽屉确认核对，弹出台账选择器供用户手动匹配 |
 | `renderConfirmSelector()` | 渲染台账/系统侧选择器 UI |
@@ -933,6 +934,7 @@ Step 5: 归档后操作
 29. **操作列按钮移除箭头图标**：分组行"详情"、"对账"及子行"详情"按钮移除末尾 SVG 箭头图标，改为纯文本链接。`.action-link svg` 样式规则同步移除。
 
 30. **未导入台账允许直接对账**：明细页"开始对账"按钮、汇总页"批量对账"按钮、分组行"对账"链接均移除台账导入校验。系统侧账单基于员工异动申报已预计算，无台账时对账结果全部标记为差异（汇缴 → 差异/system_more，补缴/调基补差 → 未匹配）。`startReconciliation` 改为校验系统记录数而非台账记录数；`batchReconcile` 和 `groupReconcile` 移除 ledger 导入前置检查，选择逻辑放宽至所有未归档规则。
+31. **强制核对：无台账时系统侧账单直接标记已核对**：DIFF 和 UNMATCHED 状态的系统侧记录支持"强制核对"，跳过金额匹配流程直接标记为 MATCHED。触发方式：（1）单行操作列"强制核对"按钮；（2）底部批量操作栏"强制核对"按钮。操作前弹出确认对话框展示记录列表和应缴月份信息。强制核对后：`matchStatus` → MATCHED，`payableMonth` = 当前账单应付月份（billingMonth），`matchedLedgerId` = null。台账侧差异记录保留（ledger_more），不删除。支持取消操作，取消后恢复原 DIFF/UNMATCHED 状态。新增函数 `forceMatch(recordIds)` / `showForceMatchConfirm(recordIds)` / `systemBatchForceMatch()`。
 
 ### Demo 数据更新（2026-04-30）
 
