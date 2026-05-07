@@ -111,7 +111,6 @@
         /* Action link */
         .action-link { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border: none; background: none; color: var(--qy-primary-500); font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--qy-radius-sm); white-space: nowrap; }
         .action-link:hover { background: var(--qy-primary-50); }
-        .action-link svg { flex-shrink: 0; }
 
         /* Checkbox */
         input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--qy-primary-500); }
@@ -682,9 +681,11 @@
                         )
                     + '</div></td>'
                     + '<td style="padding: 10px 16px;">'
+                        + '<button class="action-link" onclick="event.stopPropagation();groupDetail(\'' + group.groupId + '\')">'
+                        + '详情</button>'
+                        + '<span style="margin:0 4px;color:var(--qy-border-light);">|</span>'
                         + '<button class="action-link" onclick="event.stopPropagation();groupReconcile(\'' + group.groupId + '\')">'
-                        + '对账 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-                        + '</button>'
+                        + '对账</button>'
                     + '</td>'
                 + '</tr>';
 
@@ -749,8 +750,7 @@
                                 )
                             + '</div></td>'
                             + '<td style="padding: 8px 16px;"><button class="action-link" onclick="navigateToDetail(\'' + rule.ruleName + '\',\'' + rule.month + '\')">'
-                                + '详情 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-                            + '</button></td>'
+                                + '详情</button></td>'
                         + '</tr>';
                     });
                 }
@@ -772,6 +772,10 @@
 
         function navigateToDetail(ruleName, month) {
             window.location.href = 'qingyang-reconciliation-unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
+        }
+
+        function groupDetail(groupId) {
+            window.location.href = 'qingyang-reconciliation-unified.html?groupId=' + encodeURIComponent(groupId);
         }
 
         // Group-level reconcile: reconcile all imported rules within a group
