@@ -895,7 +895,7 @@ Step 5: 归档后操作
 | `renderAllTables()` | 同时渲染两侧表格 |
 | `filterRecords()` | 顶部搜索栏桩函数，调用 `renderAllTables()` |
 | `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()` / `systemBatchConfirm()` / `systemBatchCancel()` | 明细页系统侧批量操作 |
-| `forceMatch(recordIds)` / `showForceMatchConfirm(recordIds)` / `closeForceMatchDialog()` / `executeForceMatch()` / `systemBatchForceMatch()` | 明细页系统侧/台账侧强制核对（单行/批量），将 DIFF/UNMATCHED 记录标记为 MATCHED，含确认对话框和取消恢复 |
+| `forceMatch(recordIds)` / `showForceMatchConfirm(recordIds)` / `closeForceMatchDialog()` / `executeForceMatch()` / `systemBatchForceMatch()` | 明细页系统侧强制核对（单行/批量），仅系统侧 DIFF/UNMATCHED 记录可用，台账侧不允许强制核对 |
 | `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 明细页台账侧批量操作 |
 | `confirmFromDrawer()` | 从详情抽屉确认核对，弹出台账选择器供用户手动匹配 |
 | `renderConfirmSelector()` | 渲染台账/系统侧选择器 UI |
@@ -934,10 +934,10 @@ Step 5: 归档后操作
 29. **操作列按钮移除箭头图标**：分组行"详情"、"对账"及子行"详情"按钮移除末尾 SVG 箭头图标，改为纯文本链接。`.action-link svg` 样式规则同步移除。
 
 30. **未导入台账允许直接对账**：明细页"开始对账"按钮、汇总页"批量对账"按钮、分组行"对账"链接均移除台账导入校验。系统侧账单基于员工异动申报已预计算，无台账时对账结果全部标记为差异（汇缴 → 差异/system_more，补缴/调基补差 → 未匹配）。`startReconciliation` 改为校验系统记录数而非台账记录数；`batchReconcile` 和 `groupReconcile` 移除 ledger 导入前置检查，选择逻辑放宽至所有未归档规则。
-31. **强制核对：DIFF/UNMATCHED 记录直接标记已核对**：DIFF 和 UNMATCHED 状态的系统侧和台账侧记录支持"强制核对"，跳过金额匹配流程直接标记为 MATCHED。
+31. **强制核对：DIFF/UNMATCHED 记录直接标记已核对**：DIFF 和 UNMATCHED 状态的**系统侧**记录支持"强制核对"，跳过金额匹配流程直接标记为 MATCHED。**台账侧账单不允许强制核对，必须有对应的系统侧账单明细进行匹配核对。**
 
     **触发方式：**
-    - （1）系统侧/台账侧行操作列"强制核对"按钮（DIFF/UNMATCHED 行显示，替代原有的"详情"按钮）
+    - （1）系统侧行操作列"强制核对"按钮（DIFF/UNMATCHED 行显示，替代原有的"详情"按钮）
     - （2）系统侧底部批量操作栏"强制核对"按钮（红色 danger 样式），仅当选中记录包含 DIFF/UNMATCHED 时启用
 
     **确认对话框：** 操作前弹出模态对话框，展示待强制核对的记录列表（姓名、身份证号、险种、账单月份、金额）、警告提示（直接标记为已核对，无需台账匹配）和三条规则说明（台账侧差异保持不变、应缴月份使用账单月份、取消后可恢复原状态）。支持点击遮罩层关闭和 Escape 键关闭。
@@ -961,7 +961,7 @@ Step 5: 归档后操作
     - `systemBatchForceMatch()` — 批量入口：获取选中 ID，过滤出 DIFF/UNMATCHED，打开确认对话框
     - `cancelMatch(recordId)` — 更新：增加 forceMatched 分支，ledgerRecord 空值安全检查
     - `updateSystemBatchButtons()` — 更新：增加 sysBatchForceMatchBtn 启用/禁用逻辑
-    - `renderSystemTable()` / `renderLedgerTable()` — 更新：DIFF/UNMATCHED 行操作按钮改为"强制核对"
+    - `renderSystemTable()` — 更新：DIFF/UNMATCHED 行操作按钮改为"强制核对"（仅系统侧）
 
     **新增 CSS：** `.qy-btn--danger`（红色按钮）、`.force-match-dialog*`（对话框全套样式）
 

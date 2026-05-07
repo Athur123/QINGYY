@@ -1539,7 +1539,7 @@
                 } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF || r.matchStatus === MATCH_STATUS.UNMATCHED) {
-                    actionBtn = `<button class="btn-action" onclick="showForceMatchConfirm(['${r.id}'])">强制核对</button>`;
+                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
                 }
 
                 const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
