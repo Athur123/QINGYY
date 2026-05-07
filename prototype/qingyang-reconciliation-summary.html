@@ -201,7 +201,7 @@
             <div class="qy-page">
                 <div class="qy-page__header">
                     <h1 class="qy-page__title">对账复核 — 规则汇总</h1>
-                    <p class="qy-page__subtitle">按参保规则维度展示核对概览，导入台账后批量对账</p>
+                    <p class="qy-page__subtitle">按参保规则维度展示核对概览，支持未导入台账直接对账</p>
                 </div>
 
                 <!-- Filter Bar -->
@@ -807,7 +807,7 @@
             if (checked) {
                 subjectGroups.forEach(function(group) {
                     group.ruleNames.forEach(function(ruleName) {
-                        if (ruleImportStatus[ruleName] && ruleImportStatus[ruleName] !== 'archived') {
+                        if (ruleImportStatus[ruleName] !== 'archived') {
                             selectedRules.add(ruleName);
                         }
                     });
@@ -823,7 +823,7 @@
 
             if (checkbox.checked) {
                 group.ruleNames.forEach(function(ruleName) {
-                    if (ruleImportStatus[ruleName] && ruleImportStatus[ruleName] !== 'archived') {
+                    if (ruleImportStatus[ruleName] !== 'archived') {
                         selectedRules.add(ruleName);
                     }
                 });
@@ -1076,16 +1076,6 @@
         function batchReconcile() {
             if (selectedRules.size === 0) {
                 toast('请先选择要对账的规则', 'warning');
-                return;
-            }
-
-            // Verify all selected have imported ledger
-            var allImported = true;
-            selectedRules.forEach(function(name) {
-                if (!ledgerRecordsByRule[name]) allImported = false;
-            });
-            if (!allImported) {
-                toast('部分选中的规则尚未导入台账', 'warning');
                 return;
             }
 
