@@ -924,7 +924,9 @@ Step 5: 归档后操作
 19. **批量归档条件**：仅 reconciled 状态且系统侧差异=0、台账侧差异=0 的规则可归档。
 20. **DEMO_RULES 扩展字段**：新增 ledgerPending、ledgerPendingAmount、ledgerTotal、ledgerTotalAmount 四个统计字段。
 21. **汇总页新增参保主体列**：位于规则名称之后、月份之前，展示该规则所属参保主体名称（如 "某科技有限公司"），灰色二级文本样式（12px，var(--qy-text-secondary)）。
-22. **汇总页维度改为地区+参保主体分组**：表格行从"一条规则一行"改为"地区+参保主体分组维度"。分组行以 `地区 — 参保主体` 为名称（如 "重庆 — 某科技有限公司"），包含该主体下的多条参保规则。分组行可展开显示规则子行。替换 `ledgerBatches`/`expandedBatches` 为 `subjectGroups`/`expandedGroups`，新增 `buildSubjectGroups()` 函数从 `DEMO_RULES` 按 `region + insuranceSubject` 自动分组。表头改为 `地区 / 参保主体`，信息栏改为"X 个参保主体"。操作列仅保留分组级"对账"按钮，子行保留"详情"按钮。筛选功能仍按月份/地区过滤规则后自动重分组。
+23. **汇总页维度改为地区+参保主体分组**：表格行从"一条规则一行"改为"地区+参保主体分组维度"。分组行以 `地区 — 参保主体` 为名称（如 "重庆 — 某科技有限公司"），包含该主体下的多条参保规则。分组行可展开显示规则子行。替换 `ledgerBatches`/`expandedBatches` 为 `subjectGroups`/`expandedGroups`，新增 `buildSubjectGroups()` 函数从 `DEMO_RULES` 按 `region + insuranceSubject` 自动分组。表头改为 `地区 / 参保主体`，信息栏改为"X 个参保主体"。操作列仅保留分组级"对账"按钮，子行保留"详情"按钮。筛选功能仍按月份/地区过滤规则后自动重分组。
+24. **汇总页移除记录数列、新增账单月份列**：移除"记录数"列（分组内台账记录总数），替换为"账单月份"列，显示该分组覆盖的唯一账单月份（多个用顿号分隔，如 "2026-03、2026-04"）。
+25. **导入台账新增台账月份选择器**：导入对话框第一步在上传区上方新增"台账月份"下拉选择器，从 filteredRules 的月份列表中动态生成选项。未选择月份时点击上传或下一步会提示"请先选择台账月份"。预览和导入均按选定月份过滤数据。多次导入不同月份时，台账数据累加（不会覆盖之前导入的月份）。
 
 ### Demo 数据更新（2026-04-30）
 
@@ -1183,7 +1185,7 @@ let expandedGroups = new Set(); // 当前展开的分组ID集合
 
 **导入对话框：** 复用详情页的 `.import-dialog` / `.drop-zone` 样式模式，包含两步：
 
-1. **上传区域** — 拖拽/点击上传，模拟一份总台账 Excel 文件
+1. **台账月份选择 + 上传区域** — 首先选择台账月份（下拉选择器，从 filteredRules 的月份列表中动态生成），选择后才可上传。拖拽/点击上传，模拟一份总台账 Excel 文件。未选择月份时点击上传或下一步会提示"请先选择台账月份"。
 2. **预览表格** — 展示导入数据按规则拆分的结果：
 
    | 规则名称 | 月份 | 导入记录数 | 总金额 |
@@ -1193,7 +1195,7 @@ let expandedGroups = new Set(); // 当前展开的分组ID集合
 
 **自动拆分逻辑：**
 
-- 台账记录按 `insuranceType + billingMonth` 与 `DEMO_RULES` 中的规则匹配
+- 台账记录按选定月份过滤，再按 `insuranceType + billingMonth` 与 `DEMO_RULES` 中的规则匹配
 - 匹配成功的记录归入对应规则的 `ledgerRecordsByRule[ruleName]` 数组
 - 预览表格按规则分组展示：规则名称、月份、记录数合计、金额合计
 - 点击"确认导入"后：
@@ -1201,6 +1203,7 @@ let expandedGroups = new Set(); // 当前展开的分组ID集合
   - 设置 `ruleImportStatus[ruleName] = 'imported'`
   - 刷新表格，设置 `ruleImportStatus[ruleName] = 'imported'`
   - 该行 checkbox 变为可勾选状态
+- 多次导入不同月份时，台账数据累加（不会覆盖之前导入的月份）
 
 ### 批量对账
 
@@ -1313,7 +1316,7 @@ batchArchive()
 | 台账侧待确认列 | 新增：待确认笔数 + 待确认金额（单单元格 flex column 两行） |
 | 台账侧总计列 | 新增：总笔数 + 总金额（单单元格 flex column 两行），位于"系统侧差异"列之后 |
 | 操作按钮 | 合并于 filter-bar 右侧：刷新、批量导出、批量对账、批量归档（绿色）、导入台账 |
-| 导入对话框 | 上传区（拖拽/点击）+ 预览表格 + 确认按钮 |
+| 导入对话框 | 第一步：台账月份下拉选择器 + 上传区（拖拽/点击），未选月份时提示"请先选择台账月份"；第二步：预览表格 + 确认按钮 |
 | Loading 覆盖层 | 批量对账执行期间显示"正在批量对账..." |
 | 信息栏 | 显示"共 N 条规则，X 个参保主体，已导入 M 条，已归档 K 条" |
 
@@ -1321,11 +1324,11 @@ batchArchive()
 
 | 函数 | 用途 |
 |------|------|
-| `openImportDialog()` | 打开导入对话框，重置到第一步 |
+| `openImportDialog()` | 打开导入对话框，重置到第一步，从 filteredRules 的月份列表中动态填充台账月份下拉选项 |
 | `closeImportDialog(event)` | 关闭导入对话框（点击遮罩或关闭按钮） |
-| `handleFileSelect(event)` | 文件选择处理，触发预览 |
-| `showImportPreview()` | 展示按规则拆分的预览表格（MOCK_LEDGER_DATA 按 insuranceType + billingMonth 分组） |
-| `importNextStep()` | 第一步→第二步切换或确认导入，写入 ledgerRecordsByRule 并标记 imported |
+| `handleFileSelect(event)` | 文件选择处理，校验台账月份已选择后触发预览 |
+| `showImportPreview()` | 展示按规则拆分的预览表格（MOCK_LEDGER_DATA 按选定月份过滤后按规则分组） |
+| `importNextStep()` | 第一步→第二步切换或确认导入，按选定月份过滤 MOCK_LEDGER_DATA 后写入 ledgerRecordsByRule 并标记 imported |
 | `executeMatchingForRule(rule)` | 单规则匹配引擎，返回 12 个统计字段 |
 | `batchReconcile()` | 批量对账入口，遍历选中规则调用匹配，更新 DEMO_RULES 和 ruleImportStatus |
 | `batchArchive()` | 批量归档入口，筛选 reconciled + 零差异规则，标记 archived |
