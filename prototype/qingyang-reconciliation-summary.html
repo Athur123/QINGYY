@@ -778,15 +778,15 @@
             window.location.href = 'qingyang-reconciliation-unified.html?groupId=' + encodeURIComponent(groupId);
         }
 
-        // Group-level reconcile: reconcile all imported rules within a group
+        // Group-level reconcile: reconcile all rules within a group (system records always exist)
         function groupReconcile(groupId) {
             var group = subjectGroups.find(function(g) { return g.groupId === groupId; });
             if (!group) return;
 
-            // Select all imported rules in this group
+            // Select all non-archived rules in this group
             selectedRules.clear();
             group.ruleNames.forEach(function(ruleName) {
-                if (ruleImportStatus[ruleName] === 'imported') {
+                if (ruleImportStatus[ruleName] !== 'archived') {
                     selectedRules.add(ruleName);
                 }
             });

@@ -402,25 +402,21 @@
 
             <div class="qy-page">
                 <div class="qy-page__header">
-                    <h1 class="qy-page__title">社保对账复核</h1>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <a href="qingyang-reconciliation-summary.html" style="color: var(--qy-primary-500); font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                            对账复核
+                        </a>
+                        <span style="color: var(--qy-text-muted); font-size: 13px;">/</span>
+                        <span style="font-size: 13px; font-weight: 500;" id="breadcrumbRule">规则明细</span>
+                    </div>
+                    <h1 class="qy-page__title" id="detailTitle">社保对账复核</h1>
                     <p class="qy-page__subtitle">Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）</p>
                 </div>
 
                 <!-- Toolbar -->
                 <div class="toolbar">
                     <div class="toolbar__left">
-                        <select class="qy-select" id="filterMonth">
-                            <option value="2026-04">2026年4月</option>
-                            <option value="2026-03">2026年3月</option>
-                        </select>
-                        <select class="qy-select" id="filterSettlement">
-                            <option value="">按结算主体</option>
-                        </select>
-                        <input type="text" class="qy-input" id="filterName" placeholder="姓名/身份证">
-                        <button class="qy-btn qy-btn--primary" onclick="filterRecords()">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                            搜索
-                        </button>
                     </div>
                     <div class="toolbar__right">
                         <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">
@@ -749,6 +745,9 @@
             '大额医疗': ['大额医疗', '大额医疗保险', '大病医疗'],
             '公积金': ['公积金', '住房公积金', '住房公积'],
         };
+
+        // 当前规则筛选（URL参数传递）
+        let currentRuleFilter = null; // { insuranceType: '养老', month: '2026-04' }
 
         // 系统侧费用记录（基于重庆分202604真实台账数据）
         let systemRecords = [
@@ -1842,7 +1841,7 @@
             }
 
             const { successRows } = importFileData;
-            ledgerRecords = successRows.map((r, i) => ({
+            let mappedRows = successRows.map((r, i) => ({
                 id: 'T' + String(i + 1).padStart(3, '0'),
                 name: r.name,
                 idCard: r.idCard,
@@ -1860,6 +1859,17 @@
                 diffAmount: null,
                 remark: null,
             }));
+
+            // Filter ledger records by rule if coming from summary page
+            if (currentRuleFilter) {
+                mappedRows = mappedRows.filter(function(r) {
+                    if (r.insuranceType !== currentRuleFilter.insuranceType) return false;
+                    if (currentRuleFilter.month && r.billingMonth !== currentRuleFilter.month) return false;
+                    return true;
+                });
+            }
+
+            ledgerRecords = mappedRows;
 
             importMeta = {
                 insuranceSubject: document.getElementById('importSubject').value,
@@ -1899,8 +1909,8 @@
         // ========== 开始对账 ==========
 
         function startReconciliation() {
-            if (ledgerRecords.length === 0) {
-                showToast('请先导入台账数据', 'warning');
+            if (systemRecords.length === 0) {
+                showToast('当前无系统侧账单数据', 'warning');
                 return;
             }
 
@@ -2366,7 +2376,44 @@
 
         // ========== Init ==========
 
+        function parseUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const ruleName = params.get('ruleName');
+            const month = params.get('month');
+            const groupId = params.get('groupId');
+
+            if (groupId) {
+                // Group-level detail: show all records under this subject group
+                var parts = groupId.split('|');
+                var region = parts[0] || '';
+                var subject = parts[1] || '';
+                var groupLabel = region + ' — ' + subject;
+                document.getElementById('breadcrumbRule').textContent = groupLabel;
+                document.getElementById('detailTitle').textContent = groupLabel + ' 对账明细';
+                // No rule filter — show all system records and all ledger records for this group
+                currentRuleFilter = null;
+            } else if (ruleName) {
+                document.getElementById('breadcrumbRule').textContent = ruleName;
+                document.getElementById('detailTitle').textContent = ruleName + (month ? ' — ' + month : '') + ' 对账明细';
+                // Extract insurance type from rule name (e.g. "重庆养老" → "养老")
+                const typeMap = { '养老': '养老', '医疗': '医疗', '失业': '失业', '工伤': '工伤', '生育': '生育', '大额医疗': '大额医疗', '公积金': '公积金' };
+                let matched = null;
+                for (const key of Object.keys(typeMap)) {
+                    if (ruleName.includes(key)) { matched = typeMap[key]; break; }
+                }
+                if (matched) {
+                    currentRuleFilter = { insuranceType: matched, month: month };
+                    systemRecords = systemRecords.filter(function(r) {
+                        if (r.insuranceType !== matched) return false;
+                        if (month && r.billingMonth !== month) return false;
+                        return true;
+                    });
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            parseUrlParams();
             updateStats();
             updateMatchCounts();
             renderAllTables();
