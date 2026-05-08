@@ -934,38 +934,11 @@ Step 5: 归档后操作
 29. **操作列按钮移除箭头图标**：分组行"详情"、"对账"及子行"详情"按钮移除末尾 SVG 箭头图标，改为纯文本链接。`.action-link svg` 样式规则同步移除。
 
 30. **未导入台账允许直接对账**：明细页"开始对账"按钮、汇总页"批量对账"按钮、分组行"对账"链接均移除台账导入校验。系统侧账单基于员工异动申报已预计算，无台账时对账结果全部标记为差异（汇缴 → 差异/system_more，补缴/调基补差 → 未匹配）。`startReconciliation` 改为校验系统记录数而非台账记录数；`batchReconcile` 和 `groupReconcile` 移除 ledger 导入前置检查，选择逻辑放宽至所有未归档规则。
-31. **强制核对：DIFF/UNMATCHED 记录直接标记已核对**：DIFF 和 UNMATCHED 状态的**系统侧**记录支持"强制核对"，跳过金额匹配流程直接标记为 MATCHED。**台账侧账单不允许强制核对，必须有对应的系统侧账单明细进行匹配核对。**
-
-    **触发方式：**
-    - （1）系统侧行操作列"强制核对"按钮（DIFF/UNMATCHED 行显示，替代原有的"详情"按钮）
-    - （2）系统侧底部批量操作栏"强制核对"按钮（红色 danger 样式），仅当选中记录包含 DIFF/UNMATCHED 时启用
-
-    **确认对话框：** 操作前弹出模态对话框，展示待强制核对的记录列表（姓名、身份证号、险种、账单月份、金额）、警告提示（直接标记为已核对，无需台账匹配）和三条规则说明（台账侧差异保持不变、应缴月份使用账单月份、取消后可恢复原状态）。支持点击遮罩层关闭和 Escape 键关闭。
-
-    **强制核对后状态变更：**
-    - `matchStatus` → MATCHED
-    - `payableMonth` = 账单月份（billingMonth）
-    - `matchedLedgerId` = null（无台账关联）
-    - `forceMatched` = true（标记为强制核对，用于取消时识别）
-    - 保存原始状态到 `_originalMatchStatus` / `_originalDiffType` / `_originalDiffAmount` / `_originalPayableMonth`（用于取消恢复）
-    - 记录加入 `matchingResults.matched`（`ledgerRecord: null`），从 `matchingResults.diffs` 中移除
-    - 台账侧差异记录保留（ledger_more），不删除
-
-    **取消核对：** 点击"取消"按钮恢复原始状态。`cancelMatch()` 函数增加 `forceMatched` 分支：恢复原始 matchStatus/diffType/diffAmount/payableMonth，清除 forceMatched 标记和保存的 originals，从 `matchingResults.matched` 移除。若原状态为 DIFF，重新加入 `matchingResults.diffs`；若原状态为 UNMATCHED，不加入 diffs（UNMATCHED 记录直接从 systemRecords 渲染）。
-
-    **新增/修改函数：**
-    - `forceMatch(recordIds)` — 核心逻辑，批量处理强制核对，返回成功数量
-    - `showForceMatchConfirm(recordIds)` — 显示确认对话框，填充记录列表
-    - `closeForceMatchDialog()` — 关闭对话框，清空 pendingForceMatchIds
-    - `executeForceMatch()` — 执行强制核对：先复制 IDs 数组，再关闭对话框，调用 forceMatch，刷新表格和 toast
-    - `systemBatchForceMatch()` — 批量入口：获取选中 ID，过滤出 DIFF/UNMATCHED，打开确认对话框
-    - `cancelMatch(recordId)` — 更新：增加 forceMatched 分支，ledgerRecord 空值安全检查
-    - `updateSystemBatchButtons()` — 更新：增加 sysBatchForceMatchBtn 启用/禁用逻辑
-    - `renderSystemTable()` — 更新：DIFF/UNMATCHED 行操作按钮改为"强制核对"（仅系统侧）
-
-    **新增 CSS：** `.qy-btn--danger`（红色按钮）、`.force-match-dialog*`（对话框全套样式）
-
-    **已知修复：** `executeForceMatch()` 原实现先关闭对话框再调用 forceMatch，但 closeForceMatchDialog 清空了 pendingForceMatchIds 导致批量操作无效。修复为先 `slice()` 复制 IDs 数组再关闭对话框。
+31. **系统侧操作列增加强制核对按钮**：DIFF/UNMATCHED 状态的行操作列从"详情"改为"强制核对"，调用 `showForceMatchConfirm(['${r.id}'])`。
+32. **台账侧不允许强制核对**：台账侧 DIFF/UNMATCHED 行操作列保持"详情"，不显示"强制核对"。台账侧账单必须有对应的系统侧账单明细进行匹配核对。
+33. **系统侧底部新增批量强制核对按钮**：红色 danger 样式按钮，仅当选中记录包含 DIFF/UNMATCHED 时启用。按钮逻辑过滤选中 IDs，排除已 MATCHED/PENDING 记录。
+34. **强制核对确认对话框**：模态对话框展示记录列表（姓名、身份证号、险种、账单月份、金额），支持遮罩层点击关闭和 Escape 键关闭。新增全局 keydown 监听项。
+35. **强制核对状态变更与恢复机制**：强制核对记录标记 `forceMatched = true`，保存原始状态到 `_originalMatchStatus` / `_originalDiffType` / `_originalDiffAmount` / `_originalPayableMonth`。`cancelMatch()` 增加 forceMatched 分支处理恢复逻辑。`executeForceMatch()` 先 `slice()` 复制 IDs 再关闭对话框，避免竞态条件。新增 CSS `.qy-btn--danger`（红色按钮）和 `.force-match-dialog*`（对话框全套样式）。
 
 ### Demo 数据更新（2026-04-30）
 
