@@ -1,16 +1,16 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
 ## Dual Agent Support
 
-This repository is intentionally set up to support both **Claude Code** and **Codex** from the same project root.
+This repository is intentionally set up to support both **Codex** and **Claude Code** from the same project root.
 
-- `CLAUDE.md` is the Claude Code entry file
 - `AGENTS.md` is the Codex entry file
+- `CLAUDE.md` is the Claude Code entry file
 - Shared repository guidance should stay aligned in both files
-- Claude-specific local config lives in `.claude/`
 - Codex-specific local config lives in `.codex/`
+- Claude-specific local config lives in `.claude/`
 - Codex project skills live in `.agents/skills/`
 
 ## Project Overview
@@ -20,8 +20,9 @@ This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) sys
 1. **HTML Prototypes** (`prototype/`) — 41 HTML prototype pages organized by business module
 2. **Design System** (`styles/`) — CSS/SCSS component library with 25+ components
 3. **Design Documentation** — Specs, plans, SQL drafts, and code wiki
-4. **Claude Skills** (`.claude/skills/`) — Browser automation for the live HRO system
-5. **Scripts** (`scripts/`) — Utility scripts for PDF conversion, memory management, git hooks
+4. **Codex Skills** (`.agents/skills/`) — Browser automation for the live HRO system
+5. **Claude Code Assets** (`.claude/`) — Claude-specific skills, memory, and local settings
+6. **Scripts** (`scripts/`) — Utility scripts for PDF conversion, memory management, git hooks
 
 ## Key Directories
 
@@ -34,10 +35,10 @@ This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) sys
 | `docs/superpowers/plans/` | Implementation plans (same 7-module structure) |
 | `docs/superpowers/sql/` | Database migration drafts |
 | `scripts/` | Utility scripts (PDF conversion, git hooks, memory update) |
-| `.claude/skills/` | Automation skills for Qingyang Cloud |
 | `.agents/skills/` | Codex project skills for Qingyang Cloud |
-| `.claude/memory/` | Persistent session memory |
 | `.codex/` | Codex local configuration (machine-local, do not commit secrets) |
+| `.claude/skills/` | Claude Code skills kept for cross-tool compatibility |
+| `.claude/memory/` | Claude memory files |
 
 ## Design System
 
@@ -77,42 +78,40 @@ Prototypes organized by business module under `prototype/`. Serve from project r
 | Module | Directory | Active Pages |
 |--------|-----------|-------------|
 | **对账复核** | `reconciliation/` | `summary.html` (汇总列表), `unified.html` (明细核对) |
-| **社保计算** | `calculator/` | `index.html` (计算器), `policy.html` (政策), `region-rules.html`, `sub-account.html`, `formula-recognition.html` |
-| **员工管理** | `employee/` | `detail.html` (员工详情), `change-field.html` (异动采集), `cost-detail.html`, `archive-version.html` |
-| **结算方案** | `settlement/` | `plan.html` (结算列表), `detail.html` (结算详情), `cost-attribution.html`, `cost-allocation.html` |
-| **参保配置** | `insurance-config/` | `stepper.html` (规则向导), `field-collection.html`, `global-field.html` |
+| **社保计算** | `calculator/` | `index.html` (计算器), `policy.html` (政策), `region-rules.html`, `sub-account.html` |
+| **员工管理** | `employee/` | `detail.html` (员工详情), `change-field.html` (异动采集), `cost-detail.html` |
+| **结算方案** | `settlement/` | `plan.html` (结算列表), `detail.html` (结算详情) |
+| **参保配置** | `insurance-config/` | `stepper.html` (规则向导), `field-collection.html` |
 | **审批管理** | `approval/` | `template-management.html` |
 | **系统** | `system/` | `log-viewer.html`, `sys-log.html` |
 
-**Versioning:** Old iterations kept alongside active pages (e.g., `calculator/v2.html`, `v3.html`; `employee/detail-v2.html`, `detail-old.html`; `reconciliation/approach3.html`).
+**Versioning:** Old iterations kept alongside active pages.
 
-## Claude Skills
+## Codex Skills
 
-Skills in `.claude/skills/` automate interactions with the live Qingyang HRO system.
-
-## Codex Compatibility
-
-Codex reads the root-level `AGENTS.md`. Keep shared project facts synchronized between `CLAUDE.md` and `AGENTS.md`, store Codex project skills in `.agents/skills/`, and keep Codex machine-local environment settings in `.codex/config.toml`.
+Skills in `.agents/skills/` automate interactions with the live Qingyang HRO system.
 
 ### Available Skills
 
 **1. qingyang-login** — Login to Qingyang Cloud
 - URL: `https://qingyangyun.com.cn/#/login`
-- Credentials from `.claude/settings.local.json` env vars
+- Credentials from `.codex/config.toml` env vars
 - Triggers: "登录青阳云", "打开HRO", "进入系统"
 
 **2. qingyang-switch-hro** — Switch from EHR to HRO dimension
 - Via user avatar dropdown → "切换客户组织"
 - Triggers: "切换到HRO", "进入客户组织", "HRO维度"
 
-### Environment Variables (in `.claude/settings.local.json`)
-```json
-{
-  "QINGYANG_LOGIN_URL": "https://qingyangyun.com.cn/#/login",
-  "QINGYANG_TENANT": "zjhcrl",
-  "QINGYANG_USERNAME": "admin",
-  "QINGYANG_PASSWORD": "<redacted>"
-}
+### Environment Variables (in `.codex/config.toml`)
+```toml
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+QINGYANG_LOGIN_URL = "https://qingyangyun.com.cn/#/login"
+QINGYANG_TENANT = "zjhcrl"
+QINGYANG_USERNAME = "admin"
+QINGYANG_PASSWORD = "<redacted>"
 ```
 
 ## Development Workflow
@@ -125,7 +124,7 @@ python3 -m http.server 8080
 # Example: http://localhost:8080/prototype/reconciliation/summary.html
 ```
 
-**GOTCHA:** Prototypes are one level deeper now (`prototype/<module>/`), CSS references use `../../styles/`. Always serve from project root.
+**GOTCHA:** Prototypes are one level deeper (`prototype/<module>/`), CSS references use `../../styles/`. Always serve from project root.
 
 ### Browser Testing with Playwright MCP
 
@@ -146,7 +145,7 @@ Example test flow:
 
 **Test artifacts:** `.playwright-mcp/` contains playwright screenshots, logs, and snapshots. Manual test screenshots go to `screenshots/` directory. Both are gitignored — safe to clean up.
 
-### Using Claude Skills
+### Using Codex Skills
 Skills auto-trigger on keywords. To manually invoke:
 ```
 /skill qingyang-login
@@ -198,12 +197,12 @@ Utility scripts in `scripts/`:
 
 ## Important Notes
 
-1. **Playwright MCP** is configured for browser automation (see `.claude/settings.local.json`)
+1. **Playwright MCP** is configured for browser automation (see local Codex config in `.codex/config.toml`)
 2. **No package.json** — Pure HTML/CSS/Python, no build process
 3. **Prototypes are static HTML** — Open directly in browser or serve with `python3 -m http.server`
 4. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
 5. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source
-6. **Post-commit memory update** — After each commit, `update-memory.sh` auto-generates a changelog in `.claude/memory/changes/` and updates `MEMORY.md`
-7. **Keep local agent config out of version control** — `.claude/settings.local.json` and `.codex/config.toml` should remain machine-local because they can contain credentials
+6. **Keep local agent config out of version control** — `.codex/config.toml` and `.claude/settings.local.json` should remain machine-local because they can contain credentials
+7. **Post-commit memory update** — After each commit, `update-memory.sh` auto-generates a changelog in `.claude/memory/changes/` and updates `MEMORY.md`
 8. **Test screenshots go to `screenshots/`** — Never save screenshots to project root. Both `screenshots/` and `*.png` are gitignored.
 9. **File organization** — New features follow the 7-module structure. Prototypes → `prototype/<module>/`, specs → `docs/superpowers/specs/<module>/`, plans → `docs/superpowers/plans/<module>/`. Short business-meaningful filenames, no date prefixes.
