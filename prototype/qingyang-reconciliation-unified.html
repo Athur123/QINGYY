@@ -2446,37 +2446,72 @@
                 return;
             }
 
-            const pendingCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING).length;
-            const diffCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF && !r.remark).length;
+            // 筛选待归档：MATCHED 且未归档
+            const toArchive = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.MATCHED && !r.archived);
+            if (toArchive.length === 0) {
+                showToast('无待归档记录', 'warning');
+                return;
+            }
+
+            // DIFF/PENDING 检查（仅未归档的）
+            const pendingCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.PENDING && !r.archived).length;
+            const diffCount = systemRecords.filter(r => r.matchStatus === MATCH_STATUS.DIFF && !r.remark && !r.archived).length;
 
             if (pendingCount > 0 || diffCount > 0) {
                 showConfirmDialog(
                     '归档确认',
-                    `还有 ${pendingCount} 条待确认和 ${diffCount} 条未处理差异，是否继续归档？`,
-                    (confirmed) => { if (confirmed) doArchive(); }
+                    '还有 ' + pendingCount + ' 条待确认和 ' + diffCount + ' 条差异未处理，是否继续归档（仅归档已核对记录）？',
+                    function(confirmed) { if (confirmed) doArchive(toArchive); }
                 );
             } else {
-                doArchive();
+                doArchive(toArchive);
             }
         }
 
-        function doArchive() {
-            systemRecords.forEach(r => {
-                if (r.matchStatus === MATCH_STATUS.MATCHED) {
-                    r.archived = true;
-                    r.archivedAt = new Date().toLocaleString('zh-CN');
-                }
+        function doArchive(toArchive) {
+            var batchNum = archiveBatches.length + 1;
+            var batchId = 'B' + String(batchNum).padStart(3, '0');
+            var totalAmount = toArchive.reduce(function(sum, r) { return sum + r.amount; }, 0);
+            var now = new Date().toLocaleString('zh-CN');
+
+            // 创建批次
+            archiveBatches.unshift({
+                id: batchId,
+                label: '第' + batchNum + '批',
+                billingMonth: getCurrentBillingMonth(),
+                createdAt: now,
+                recordCount: toArchive.length,
+                totalAmount: totalAmount,
             });
-            ledgerRecords.forEach(r => {
-                if (r.matchStatus === MATCH_STATUS.MATCHED) {
-                    r.archived = true;
-                    r.archivedAt = new Date().toLocaleString('zh-CN');
+
+            // 标记系统侧记录
+            toArchive.forEach(function(r) {
+                r.archived = true;
+                r.archivedAt = now;
+                r.archiveBatchId = batchId;
+            });
+
+            // 标记关联的台账侧记录
+            toArchive.forEach(function(sysRec) {
+                if (sysRec.matchedLedgerId) {
+                    var ledRec = ledgerRecords.find(function(r) { return r.id === sysRec.matchedLedgerId; });
+                    if (ledRec && !ledRec.archived) {
+                        ledRec.archived = true;
+                        ledRec.archivedAt = now;
+                        ledRec.archiveBatchId = batchId;
+                    }
                 }
             });
 
             renderAllTables();
+            renderArchiveBatchHistory();
             updateMatchCounts();
-            showToast(`归档完成：共归档 ${systemRecords.filter(r => r.archived).length} 条记录`, 'success');
+            showToast('归档完成：第' + batchNum + '批，共' + toArchive.length + '条，' + formatMoney(totalAmount), 'success');
+        }
+
+        function getCurrentBillingMonth() {
+            var urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('month') || (systemRecords[0] && systemRecords[0].billingMonth) || '';
         }
 
         function showConfirmDialog(title, text, callback) {
