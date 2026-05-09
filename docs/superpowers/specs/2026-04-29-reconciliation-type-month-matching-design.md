@@ -899,6 +899,12 @@ Step 5: 归档后操作
 | `getSelectedLedgerIds()` / `toggleLedgerSelectAll()` / `updateLedgerBatchButtons()` / `ledgerBatchConfirm()` / `ledgerBatchCancel()` | 明细页台账侧批量操作 |
 | `confirmFromDrawer()` | 从详情抽屉确认核对，弹出台账选择器供用户手动匹配 |
 | `renderConfirmSelector()` | 渲染台账/系统侧选择器 UI |
+| `archiveResults()` / `doArchive(toArchive)` | 明细页归档操作：筛选未归档 MATCHED → 创建批次 → 标记记录 |
+| `renderArchiveBatchHistory()` | 更新归档批次筛选下拉选项和归档按钮状态 |
+| `updateArchiveBatchFilters()` | 动态更新系统侧/台账侧归档批次下拉选项 |
+| `onSystemArchiveBatchChange()` / `onLedgerArchiveBatchChange()` | 归档批次筛选切换处理 |
+| `openArchiveBatchDrawer()` / `closeArchiveBatchDrawer()` | 归档批次抽屉打开/关闭 |
+| `viewArchiveBatch(batchId)` | 关闭抽屉 → 设置筛选器为指定批次 → 过滤表格 |
 
 ### 实施差异记录
 
@@ -939,6 +945,12 @@ Step 5: 归档后操作
 33. **系统侧底部新增批量强制核对按钮**：红色 danger 样式按钮，仅当选中记录包含 DIFF/UNMATCHED 时启用。按钮逻辑过滤选中 IDs，排除已 MATCHED/PENDING 记录。
 34. **强制核对确认对话框**：模态对话框展示记录列表（姓名、身份证号、险种、账单月份、金额），支持遮罩层点击关闭和 Escape 键关闭。新增全局 keydown 监听项。
 35. **强制核对状态变更与恢复机制**：强制核对记录标记 `forceMatched = true`，保存原始状态到 `_originalMatchStatus` / `_originalDiffType` / `_originalDiffAmount` / `_originalPayableMonth`。`cancelMatch()` 增加 forceMatched 分支处理恢复逻辑。`executeForceMatch()` 先 `slice()` 复制 IDs 再关闭对话框，避免竞态条件。新增 CSS `.qy-btn--danger`（红色按钮）和 `.force-match-dialog*`（对话框全套样式）。
+36. **归档批次机制**：引入 `archiveBatches` 数组存储批次元数据（id/label/billingMonth/createdAt/recordCount/totalAmount）。系统侧和台账侧记录各新增 `archiveBatchId` 字段。`doArchive(toArchive)` 重写为按参数列表归档：筛选 MATCHED+unarchived → 创建批次 → 标记系统侧和台账侧记录。多次归档同一账单月份自动生成新批次（第1批/第2批/...）。
+37. **已归档状态简化**：已归档行的状态列仅显示「已归档」（灰色 badge），不显示批次编号。`archiveBatchId` 在后台保留用于批次追溯。已归档行使用 `row-archived` 样式（#F1F5F9, opacity 0.7），操作列从「取消」改为「详情」。
+38. **归档批次抽屉**：工具栏新增「📦 归档记录」按钮（无批次时 disabled）。点击打开右侧抽屉展示批次列表，点击某批次的「查看此批次」→ 关闭抽屉 → 筛选栏「归档批次」下拉默认选中该批次 → 表格过滤为仅显示该批次成员明细。
+39. **归档批次筛选器**：系统侧和台账侧筛选栏各新增「归档批次」下拉选择器。选择批次后 `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` 按 `record.archiveBatchId` 过滤。下拉选项通过 `updateArchiveBatchFilters()` 随归档操作动态更新。
+40. **汇总列表已归档列**：汇总列表页 DEMO_RULES 新增 `systemArchived` / `systemArchivedAmount` 字段。表头新增「系统侧已归档」列（位于系统侧差异之后）。分组行聚合显示已归档金额，子行显示笔数+金额。批量归档时自动将 `systemMatched` 复制为 `systemArchived`。
+41. **已归档记录禁止取消核对**：`doCancelMatch()` 增加 `archived` 检查，已归档记录调用时 toast "已归档记录不可取消核对" 并 return。`cancelMatch()` 增加 forceMatched 分支中 `ledgerRecord` 空值安全检查。
 
 ### Demo 数据更新（2026-04-30）
 
@@ -1491,36 +1503,51 @@ const archiveBatches = [
 
 ### 批次历史 UI
 
-在表格上方、筛选栏下方增加可折叠的批次历史区域：
+工具栏新增「📦 归档记录」按钮（无批次时 disabled），点击打开右侧抽屉：
 
 ```
-┌───────────────────────────────────────────────────────────────────────┐
-│  📦 归档批次  [展开 ▼]                                                  │
-├───────────────────────────────────────────────────────────────────────┤
-│  批次    │ 账单月份  │ 记录数  │ 金额       │ 归档时间            │ 操作  │
-│  ────────┼──────────┼────────┼───────────┼────────────────────┼────── │
-│  第2批   │ 2026-04  │ 2条    │ ¥900.00   │ 2026-05-03 14:00   │ 详情  │
-│  第1批   │ 2026-04  │ 10条   │ ¥5,800.00 │ 2026-04-28 10:30   │ 详情  │
-└───────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  归档批次记录                                        [×] 关闭  │
+├──────────────────────────────────────────────────────────────┤
+│  批次    │ 记录数  │ 金额       │ 归档时间            │ 操作  │
+│  ────────┼────────┼───────────┼────────────────────┼────── │
+│  第2批   │ 2条    │ ¥900.00   │ 2026-05-03 14:00   │ 查看  │
+│  2026-04 │        │           │                    │ 此批次│
+│  ────────┼────────┼───────────┼────────────────────┼────── │
+│  第1批   │ 10条   │ ¥5,800.00 │ 2026-04-28 10:30   │ 查看  │
+│  2026-04 │        │           │                    │ 此批次│
+└──────────────────────────────────────────────────────────────┘
 ```
 
 **交互规则：**
-- 默认折叠（`collapsed`），点击标题行展开/收起
 - 新批次插入到列表顶部（倒序）
-- 点击「详情」打开右侧抽屉，展示该批次内所有记录明细（姓名、身份证、险种、类型、金额），只读
-- 无批次时整个区域隐藏
-- 表格行中已归档记录的「状态」列显示灰色 tag + 批次标签（如 `已归档·第1批`）
+- 点击「查看此批次」→ 关闭抽屉 → 筛选栏「归档批次」下拉默认选中该批次 → 表格过滤为仅显示该批次成员明细
+- 无批次时按钮 disabled
+- 筛选栏「归档批次」下拉选项随归档操作自动更新
+
+### 归档批次筛选
+
+系统侧和台账侧筛选栏各新增「归档批次」下拉选择器（`<select>`），选项包括「全部批次」及所有已创建的批次。选择某批次后表格仅显示该批次的归档记录。筛选逻辑在 `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` 中通过 `record.archiveBatchId` 过滤。
 
 ### 表格行变更
 
-已归档行的状态列从纯文本改为 tag + 批次标签：
+已归档行的状态列仅显示「已归档」（灰色 badge），不显示批次编号：
 
 ```
 ● 已核对(绿)  →  已核对
-● 已归档·第1批(灰)  →  已归档 + 批次标签
+● 已归档(灰)  →  已归档
 ```
 
-渲染时：`matchStatus === MATCHED && archived` 的行显示"已归档·第N批"，背景色灰色。
+渲染时：`r.record.archived` 为 true 的行显示"已归档"，`row-archived` 背景色灰色。`archiveBatchId` 在后台保留用于批次追溯。
+
+### 汇总列表新增列
+
+汇总列表页（`qingyang-reconciliation-summary.html`）新增「系统侧已归档」列，位于「系统侧差异」之后：
+
+- **DEMO_RULES** 新增 `systemArchived` / `systemArchivedAmount` 字段
+- 分组行：聚合显示已归档金额（绿色）
+- 子行：显示已归档笔数 + 金额
+- 批量归档（`batchArchive()`）时自动将 `systemMatched` 复制为 `systemArchived`
 
 ### 边界情况
 
@@ -1529,7 +1556,7 @@ const archiveBatches = [
 | 无待归档记录 | Toast "无待归档记录"，不创建批次 |
 | 仅有 DIFF/PENDING 无 MATCHED | Toast "无已核对记录可归档" |
 | 归档后取消核对 | 已归档记录禁止取消核对。取消核对仅对未归档的 MATCHED 记录有效 |
-| 空批次历史 | 批次历史区域隐藏 |
+| 空批次 | 「归档记录」按钮 disabled，筛选下拉仅有「全部批次」 |
 | 批次详情抽屉 | 只读展示，无编辑/取消操作 |
 
 ### JS 函数变更
@@ -1537,20 +1564,25 @@ const archiveBatches = [
 | 函数 | 变更 |
 |------|------|
 | `archiveResults()` | 修改：筛选未归档的 MATCHED 记录，调用 `doArchive()` |
-| `doArchive()` | 重写：创建批次、标记记录、刷新批次历史区域 |
-| `renderArchiveBatchHistory()` | 新增：渲染批次历史表格 |
-| `toggleBatchHistory()` | 新增：展开/收起批次历史 |
-| `showBatchDetail(batchId)` | 新增：打开批次详情抽屉 |
-| `renderSystemTable()` | 修改：已归档行状态列显示批次标签 |
+| `doArchive()` | 重写：创建批次、标记记录、刷新筛选下拉和归档按钮状态 |
+| `renderArchiveBatchHistory()` | 新增：更新筛选下拉选项和归档按钮 disabled 状态 |
+| `updateArchiveBatchFilters()` | 新增：动态更新系统侧/台账侧归档批次下拉选项 |
+| `onSystemArchiveBatchChange()` | 新增：系统侧归档批次筛选切换 |
+| `onLedgerArchiveBatchChange()` | 新增：台账侧归档批次筛选切换 |
+| `openArchiveBatchDrawer()` | 新增：打开右侧归档批次抽屉 |
+| `closeArchiveBatchDrawer()` | 新增：关闭抽屉 |
+| `viewArchiveBatch(batchId)` | 新增：关闭抽屉 → 设置筛选器 → 过滤表格 |
+| `renderSystemTable()` | 修改：已归档行状态列显示「已归档」badge |
+| `renderLedgerTable()` | 修改：同上 |
 | `cancelMatch()` | 修改：增加 `archived` 检查，已归档记录禁止取消 |
+| `getFilteredSystemRecords()` | 修改：增加 `archiveBatchId` 过滤 |
+| `getFilteredLedgerRecords()` | 修改：增加 `archiveBatchId` 过滤 |
 
 ### CSS 类名
 
 | 类名 | 用途 |
 |------|------|
-| `.archive-batch-section` | 批次历史区域容器 |
-| `.archive-batch-section__header` | 标题行（可点击展开/收起） |
-| `.archive-batch-section__body` | 批次列表表格 |
-| `.archive-batch-table` | 批次表格 |
-| `.archive-badge` | 归档批次 tag（灰色） |
-| `.batch-detail-drawer` | 批次详情抽屉 |
+| `.row-archived` | 已归档行灰色背景（#F1F5F9, opacity 0.7） |
+| `.status-badge--archived` | 已归档状态 badge（灰色） |
+| `.archive-badge` | 归档批次 tag（灰色，保留备用） |
+| `.batch-detail-drawer` | 批次详情抽屉（保留备用） |
