@@ -474,6 +474,9 @@
                         <button class="qy-btn qy-btn--secondary" onclick="archiveResults()">
                             ✅ 归档结果
                         </button>
+                        <button class="qy-btn qy-btn--secondary" id="archiveRecordBtn" onclick="openArchiveBatchDrawer()">
+                            📦 归档记录
+                        </button>
                         <button class="qy-btn qy-btn--secondary">
                             📤 导出
                         </button>
@@ -533,15 +536,6 @@
         <select class="qy-select" id="systemArchiveBatchFilter" onchange="onSystemArchiveBatchChange()" style="width:130px;">
             <option value="all">全部批次</option>
         </select>
-    </div>
-
-    <!-- Archive Batch History -->
-    <div class="archive-batch-section" id="archiveBatchSection" style="display:none;">
-        <div class="archive-batch-section__header" onclick="toggleBatchHistory()">
-            <span>📦 归档批次</span>
-            <span class="collapse-icon" id="batchCollapseIcon">▼</span>
-        </div>
-        <div class="archive-batch-section__body" id="archiveBatchBody"></div>
     </div>
 
     <div class="data-table">
@@ -2570,24 +2564,9 @@
         }
 
         function renderArchiveBatchHistory() {
-            var section = document.getElementById('archiveBatchSection');
-            var body = document.getElementById('archiveBatchBody');
-            if (!section || !body) return;
-
-            if (archiveBatches.length === 0) {
-                section.style.display = 'none';
-                return;
-            }
-
-            section.style.display = 'block';
-            body.innerHTML = '<table class="archive-batch-table"><thead><tr><th>批次</th><th>账单月份</th><th>记录数</th><th>金额</th><th>归档时间</th><th>操作</th></tr></thead><tbody>' +
-                archiveBatches.map(function(b) {
-                    return '<tr><td><strong>' + b.label + '</strong></td><td>' + b.billingMonth + '</td><td>' + b.recordCount + '条</td><td>' + formatMoney(b.totalAmount) + '</td><td>' + b.createdAt + '</td><td><button class="btn-action" onclick="showBatchDetail(\'' + b.id + '\')">详情</button></td></tr>';
-                }).join('') +
-                '</tbody></table>';
-
-            // Update archive batch filter dropdowns
             updateArchiveBatchFilters();
+            var btn = document.getElementById('archiveRecordBtn');
+            if (btn) btn.disabled = archiveBatches.length === 0;
         }
 
         function updateArchiveBatchFilters() {
@@ -2622,27 +2601,31 @@
             renderLedgerTable();
         }
 
-        function toggleBatchHistory() {
-            var body = document.getElementById('archiveBatchBody');
-            var icon = document.getElementById('batchCollapseIcon');
-            if (!body || !icon) return;
-            if (body.style.display === 'none') {
-                body.style.display = 'block';
-                icon.classList.remove('collapsed');
+        function openArchiveBatchDrawer() {
+            var body = document.getElementById('archiveBatchDrawerBody');
+            if (!body) return;
+
+            if (archiveBatches.length === 0) {
+                body.innerHTML = '<p style="text-align:center;padding:40px;color:var(--qy-text-muted);">暂无归档批次记录</p>';
             } else {
-                body.style.display = 'none';
-                icon.classList.add('collapsed');
+                body.innerHTML = '<table class="qy-table"><thead><tr><th>批次</th><th>记录数</th><th>金额</th><th>归档时间</th><th>操作</th></tr></thead><tbody>' +
+                    archiveBatches.map(function(b) {
+                        return '<tr><td><strong>' + b.label + '</strong><br><span style="font-size:11px;color:var(--qy-text-secondary)">' + b.billingMonth + '</span></td><td>' + b.recordCount + '条</td><td>' + formatMoney(b.totalAmount) + '</td><td style="font-size:11px;">' + b.createdAt + '</td><td><button class="btn-action" onclick="showBatchRecords(\'' + b.id + '\')">查看明细</button></td></tr>';
+                    }).join('') +
+                    '</tbody></table>' +
+                    '<div id="archiveBatchDetailArea" style="margin-top:16px;"></div>';
             }
+
+            document.getElementById('archiveBatchDrawer').classList.add('is-visible');
         }
 
-        function showBatchDetail(batchId) {
+        function showBatchRecords(batchId) {
             var batch = archiveBatches.find(function(b) { return b.id === batchId; });
             if (!batch) return;
 
             var sysRecs = systemRecords.filter(function(r) { return r.archiveBatchId === batchId; });
-
-            document.getElementById('batchDetailTitle').textContent = batch.label + ' — ' + batch.billingMonth;
-            var bodyEl = document.getElementById('batchDetailBody');
+            var area = document.getElementById('archiveBatchDetailArea');
+            if (!area) return;
 
             var rowsHtml = sysRecs.map(function(r) {
                 var ledgerInfo = '—';
@@ -2658,15 +2641,14 @@
                     '<td style="font-size:11px;color:var(--qy-text-secondary)">' + ledgerInfo + '</td></tr>';
             }).join('');
 
-            bodyEl.innerHTML = '<table class="qy-table"><thead><tr><th>姓名</th><th>身份证</th><th>险种</th><th>类型</th><th>金额</th><th>台账</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
-                '<p style="margin-top:12px;font-size:12px;color:var(--qy-text-secondary)">共 <strong>' + sysRecs.length + '</strong> 条，金额合计 <strong>' + formatMoney(batch.totalAmount) + '</strong> · 归档时间 ' + batch.createdAt + '</p>';
-
-            document.getElementById('batchDetailDrawer').classList.add('is-visible');
+            area.innerHTML = '<div style="border-top:1px solid var(--qy-border-light);padding-top:12px;"><h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">' + batch.label + ' · ' + batch.billingMonth + '</h4>' +
+                '<p style="font-size:11px;color:var(--qy-text-secondary);margin-bottom:10px;">共 <strong>' + sysRecs.length + '</strong> 条，金额合计 <strong>' + formatMoney(batch.totalAmount) + '</strong> · ' + batch.createdAt + '</p>' +
+                '<table class="qy-table"><thead><tr><th>姓名</th><th>身份证</th><th>险种</th><th>类型</th><th>金额</th><th>台账</th></tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
         }
 
-        function closeBatchDetailDrawer(event) {
+        function closeArchiveBatchDrawer(event) {
             if (event && event.target !== event.currentTarget) return;
-            document.getElementById('batchDetailDrawer').classList.remove('is-visible');
+            document.getElementById('archiveBatchDrawer').classList.remove('is-visible');
         }
 
         function showConfirmDialog(title, text, callback) {
@@ -2713,8 +2695,8 @@
                     closeDetailDrawer();
                 } else if (document.getElementById('forceMatchDialog').classList.contains('is-visible')) {
                     closeForceMatchDialog();
-                } else if (document.getElementById('batchDetailDrawer').classList.contains('is-visible')) {
-                    closeBatchDetailDrawer();
+                } else if (document.getElementById('archiveBatchDrawer').classList.contains('is-visible')) {
+                    closeArchiveBatchDrawer();
                 }
             }
         });
@@ -2789,19 +2771,16 @@
         </div>
     </div>
 
-    <!-- Batch Detail Drawer -->
-    <div class="batch-detail-drawer" id="batchDetailDrawer" onclick="closeBatchDetailDrawer(event)">
-        <div class="batch-detail-drawer__box" onclick="event.stopPropagation()">
-            <div class="batch-detail-drawer__header">
-                <h3 class="batch-detail-drawer__title" id="batchDetailTitle">批次详情</h3>
-                <button class="drawer__close" onclick="closeBatchDetailDrawer()">
+    <!-- Archive Batch Drawer -->
+    <div class="drawer-overlay" id="archiveBatchDrawer" onclick="closeArchiveBatchDrawer(event)">
+        <div class="drawer" style="width: 560px;" onclick="event.stopPropagation()">
+            <div class="drawer__header">
+                <h3 class="drawer__title">归档批次记录</h3>
+                <button class="drawer__close" onclick="closeArchiveBatchDrawer()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
-            <div class="batch-detail-drawer__body" id="batchDetailBody"></div>
-            <div class="batch-detail-drawer__footer">
-                <button class="qy-btn qy-btn--secondary" onclick="closeBatchDetailDrawer()">关闭</button>
-            </div>
+            <div class="drawer__body" id="archiveBatchDrawerBody"></div>
         </div>
     </div>
 </body>
