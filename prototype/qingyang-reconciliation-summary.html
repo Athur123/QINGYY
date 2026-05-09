@@ -273,14 +273,14 @@
                                 <th rowspan="2" style="width: 100px;">参保规则</th>
                                 <th rowspan="2" style="width: 100px;">账单月份</th>
                                 <th colspan="3" style="text-align:center;">系统侧明细</th>
-                                <th colspan="4" style="text-align:center;">台账侧明细</th>
+                                <th colspan="4" style="text-align:center;border-left:2px solid var(--qy-border-light);">台账侧明细</th>
                                 <th rowspan="2" style="width: 80px;">操作</th>
                             </tr>
                             <tr>
                                 <th style="width: 120px;">已核对</th>
                                 <th style="width: 120px;">差异</th>
-                                <th style="width: 120px;">已归档</th>
-                                <th style="width: 120px;">总计</th>
+                                <th style="width: 120px;border-right:2px solid var(--qy-border-light);">已归档</th>
+                                <th style="width: 120px;border-left:2px solid var(--qy-border-light);">总计</th>
                                 <th style="width: 120px;">已核对</th>
                                 <th style="width: 120px;">差异</th>
                                 <th style="width: 120px;">待确认</th>
@@ -654,12 +654,6 @@
                     + '<td style="padding: 10px 16px; color: var(--qy-text-secondary); font-size: 13px;">' + group.ruleNames.length + '条</td>'
                     + '<td style="padding: 10px 16px;">' + grpMonthsText + '</td>'
                     + '<td><div class="summary-cell">'
-                        + (grpLedTotal > 0
-                            ? '<span class="summary-cell__count">' + grpLedCount + '笔</span><span class="summary-cell__amount">' + formatAmount(grpLedTotal) + '</span>'
-                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
-                        )
-                    + '</div></td>'
-                    + '<td><div class="summary-cell">'
                         + (grpSysMatched > 0
                             ? '<span class="summary-cell__count" style="color:#16a34a;">' + formatAmount(grpSysMatched) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
@@ -671,9 +665,15 @@
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
-                    + '<td><div class="summary-cell">'
+                    + '<td style="border-right:2px solid var(--qy-border-light);"><div class="summary-cell">'
                         + (grpSysArchived > 0
                             ? '<span class="summary-cell__count" style="color:#16a34a;">' + formatAmount(grpSysArchived) + '</span>'
+                            : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                        )
+                    + '</div></td>'
+                    + '<td style="border-left:2px solid var(--qy-border-light);"><div class="summary-cell">'
+                        + (grpLedTotal > 0
+                            ? '<span class="summary-cell__count">' + grpLedCount + '笔</span><span class="summary-cell__amount">' + formatAmount(grpLedTotal) + '</span>'
                             : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                         )
                     + '</div></td>'
@@ -722,14 +722,6 @@
                             + '<td></td>'
                             + '<td colspan="2" style="padding: 8px 16px;"><span class="rule-name" style="padding-left:16px;">' + rule.ruleName + '</span></td>'
                             + '<td style="padding: 8px 16px;">' + rule.month + '</td>'
-                            // Ledger total
-                            + '<td><div class="summary-cell">'
-                                + (hasReconciledData
-                                    ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
-                                        + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
-                                    : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
-                                )
-                            + '</div></td>'
                             // System matched
                             + '<td><div class="summary-cell">'
                                 + '<span class="summary-cell__count">' + (hasReconciledData ? rule.systemMatched + '笔' : '—') + '</span>'
@@ -744,9 +736,17 @@
                                 )
                             + '</div></td>'
                             // System archived
-                            + '<td><div class="summary-cell">'
+                            + '<td style="border-right:2px solid var(--qy-border-light);"><div class="summary-cell">'
                                 + '<span class="summary-cell__count">' + (hasReconciledData ? rule.systemArchived + '笔' : '—') + '</span>'
                                 + '<span class="summary-cell__amount">' + (hasReconciledData && rule.systemArchived > 0 ? formatAmount(rule.systemArchivedAmount) : '—') + '</span>'
+                            + '</div></td>'
+                            // Ledger total
+                            + '<td style="border-left:2px solid var(--qy-border-light);"><div class="summary-cell">'
+                                + (hasReconciledData
+                                    ? '<span class="summary-cell__count">' + rule.ledgerTotal + '笔</span>'
+                                        + '<span class="summary-cell__amount">' + (rule.ledgerTotal > 0 ? formatAmount(rule.ledgerTotalAmount) : '—') + '</span>'
+                                    : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
+                                )
                             + '</div></td>'
                             // Ledger matched
                             + '<td><div class="summary-cell">'
