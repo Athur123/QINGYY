@@ -1480,13 +1480,9 @@
             tbody.innerHTML = records.map(r => {
                 var statusLabel = getMatchStatusLabel(r.matchStatus);
                 var statusClass = getMatchStatusClass(r.matchStatus);
-                if (r.record.archived && r.record.archiveBatchId) {
-                    var batch = archiveBatches.find(function(b) { return b.id === r.record.archiveBatchId; });
+                if (r.record.archived) {
                     statusLabel = '已归档';
                     statusClass = 'status-badge--archived';
-                    if (batch) {
-                        statusLabel += '<span class="archive-badge">' + batch.label + '</span>';
-                    }
                 }
                 const statusBadge = '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
                 const typeBadge = r.feeType ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '—';
@@ -1572,13 +1568,9 @@
             tbody.innerHTML = records.map(r => {
                 var statusLabel = getMatchStatusLabel(r.matchStatus);
                 var statusClass = getMatchStatusClass(r.matchStatus);
-                if (r.record.archived && r.record.archiveBatchId) {
-                    var batch = archiveBatches.find(function(b) { return b.id === r.record.archiveBatchId; });
+                if (r.record.archived) {
                     statusLabel = '已归档';
                     statusClass = 'status-badge--archived';
-                    if (batch) {
-                        statusLabel += '<span class="archive-badge">' + batch.label + '</span>';
-                    }
                 }
                 const statusBadge = '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
                 const typeBadge = r.feeType ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '—';
