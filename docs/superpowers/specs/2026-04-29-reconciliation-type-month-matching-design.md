@@ -47,7 +47,7 @@
   "amount": 635.25,                       // 合计金额 = amount_company + amount_personal
 
   // 新增匹配字段
-  "match_status": "MATCHED",              // MATCHED / PENDING / DIFF / UNMATCHED
+  "match_status": "MATCHED",              // MATCHED / PENDING / DIFF / UNMATCHED / PAID
   "matched_ledger_id": "T003",            // 关联的台账记录ID
   "diff_type": null,                      // DIFF时的差异类型：system_more / ledger_more / amount_mismatch
   "diff_amount": null,                    // 差异金额（正=系统多，负=台账多）
@@ -79,7 +79,7 @@
   "fee_type": null,                       // 新增：费用类型（导入时未知，匹配后回填）
   "fee_type_inferred": "补缴",            // 推断的费用类型（匹配成功后写入）
   "payable_month_inferred": null,         // 推断的具体应缴月份（补缴/补差匹配后写入）
-  "match_status": "MATCHED",              // MATCHED / PENDING / DIFF / UNMATCHED
+  "match_status": "MATCHED",              // MATCHED / PENDING / DIFF / UNMATCHED / PAID
   "matched_system_id": "S001",            // 关联的系统记录ID
   "diff_type": null,
   "diff_amount": null,
@@ -99,7 +99,7 @@
 
 ### 核对状态机
 
-`matchStatus` 的四种状态流转：
+`matchStatus` 的五种状态流转：
 
 ```
                     ┌──────────┐
@@ -121,25 +121,39 @@
               │           │
               └── 取消核对 ─┘（仅未归档的 MATCHED）
               │
-              ▼ 归档（archived=true，创建批次）
+              ▼ 归档（archived=true，创建归档批次）
         ┌──────────┐
-        │ MATCHED   │  ← archived=true（归档批次归属）
-        │ (已归档)   │     matchStatus 仍为 MATCHED
+        │ MATCHED   │  ← archived=true, archiveBatchId
+        │ (已归档)   │
+        └─────┬────┘
+              │ 付款申请 → 从已归档批次获取付款明细 → 完成付款
+              ▼
+        ┌──────────┐
+        │   PAID    │  ← 已付款（matchStatus = PAID）
+        │ (已付款)   │     archived=true, archiveBatchId 保留
         └──────────┘
 ```
 
 **`archived` 独立标记**：`archived` 不是 `matchStatus` 的值，而是记录上的独立布尔字段。已归档记录的 `matchStatus` 仍为 `MATCHED`，`archived=true` + `archiveBatchId` 指向归属批次。同一账单月份可多次归档，每次生成新批次。
+
+**已付款状态**：付款申请从已归档批次中获取明细，完成付款后 `matchStatus` 从 `MATCHED` 变更为 `PAID`。`archived=true` 和 `archiveBatchId` 保留用于追溯。
 
 **已归档记录规则**：
 - 操作列显示「详情」而非「取消」
 - `doCancelMatch()` 拦截已归档记录，toast "已归档记录不可取消核对"
 - 表格行灰色背景（`row-archived`），状态列显示「已归档」
 
+**已付款记录规则**：
+- 操作列显示「详情」
+- 不可取消核对、不可取消归档
+- 表格行背景色区别于已归档，状态列显示「已付款」
+
 状态说明：
 - `UNMATCHED`: 未参与匹配（初始状态）
 - `MATCHED`: 匹配成功（自动配对、人工确认或强制核对后），可通过 `archived` 标记是否已归档
 - `PENDING`: 待确认（同金额多笔，或取消核对后恢复）
 - `DIFF`: 差异（金额无匹配或金额不一致），可通过强制核对直接转为 MATCHED
+- `PAID`: 已付款（从已归档批次发起付款申请并完成付款后），保留 `archived=true` 和 `archiveBatchId`
 
 ### 导入模板格式
 
