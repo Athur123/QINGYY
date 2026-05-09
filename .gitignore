@@ -30,8 +30,16 @@ build/
 # Playwright MCP
 .playwright-mcp/
 
-# Claude
+# Claude local state
 .claude/memory/
+.claude/settings.local.json
+.claude/worktrees/
+
+# Codex local state
+.codex/
+
+# Agent scratch space
+.superpowers/
 
 # Worktrees
 .worktrees/
@@ -47,3 +55,7 @@ build/
 *.tmp
 *.temp
 *.pdf
+
+# Test screenshots
+screenshots/
+*.png

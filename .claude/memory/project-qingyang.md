@@ -10,18 +10,33 @@ type: project
 - **色彩**: 主色 `#2563EB`，背景 `#F8FAFC`，文字 `#1E293B`
 - **字体**: 14px 正文，Plus Jakarta Sans（回退 Inter）
 - **变量前缀**: 所有 CSS 变量使用 `--qy-`
+- **布局方案**: flex 布局，`.qy-main { flex: 1; margin-left: 0 }`（非 margin-left 偏移）
+
+## 文件组织规范
+
+所有产出按 7 个业务模块分目录：
+
+| 模块 | 目录 |
+|------|------|
+| 对账复核 | `reconciliation/` |
+| 社保计算 | `calculator/` |
+| 员工管理 | `employee/` |
+| 结算方案 | `settlement/` |
+| 参保配置 | `insurance-config/` |
+| 审批管理 | `approval/` |
+| 系统日志 | `system/` |
+
+**约定**：原型→`prototype/<模块>/`，CSS 引用 `../../styles/`；spec→`docs/superpowers/specs/<模块>/`；plan→`docs/superpowers/plans/<模块>/`。文件名用业务含义短名称，不加日期前缀。
 
 ## 社保对账复核
-- **核心矛盾**：系统有费用类型无应缴月份（补缴/调基补差），台账有应缴月份无费用类型。双方共同拥有：身份证、险种、金额。
-- **匹配算法**：按 `身份证|险种|应缴月份` 分组 → 按金额精确配对 → 1:1自动匹配，多笔同金额标记待确认
-- **核对状态**：UNMATCHED → MATCHED / PENDING / DIFF → ARCHIVED
-- **UI模式**：Tab 切换（系统侧/台账侧），各自独立筛选+统计，已核对记录双向展示带跨引用
-- **特殊规则**：补缴/调基补差台账无匹配 → 未匹配（非差异，可后续月份继续匹配）；汇缴台账无匹配 → 差异
-- **险种映射**：支持别名标准化（如"基本养老保险"→"养老"），含大额医疗
-- **原型文件**：`prototype/qingyang-reconciliation-unified.html`
-- **设计文档**：`docs/superpowers/specs/2026-04-29-reconciliation-type-month-matching-design.md`
+
+- **两层结构**: 汇总列表（`reconciliation/summary.html`）+ 明细核对（`reconciliation/unified.html`）
+- **核对状态机**: UNMATCHED → MATCHED / PENDING / DIFF，MATCHED 可归档（`archived=true`），归档后可付款（PAID，spec 已定义）
+- **归档批次**: 同一账单月份可多次归档，每次生成新批次（`archiveBatches[]`），记录归属到批次（`archiveBatchId`）
+- **强制核对**: DIFF/UNMATCHED 可直接标记为 MATCHED（仅系统侧可用，台账侧不允许）
+- **核心 spec**: `docs/superpowers/specs/reconciliation/type-month-matching.md`
 
 ## 文档历史
+- v3.0 (2026-05-09): 目录按模块重组、归档批次、PAID 状态、flex 布局方案
 - v2.1 (2026-04-30): 新增社保对账复核模块知识
-- v2.0 (2026-04-28): 合并 guidelines + design-system 为单一文档，统一 `--qy-` 前缀
-- 原 `qingyang-ui-ux-guidelines.md` 已删除
+- v2.0 (2026-04-28): 合并 guidelines + design-system 为单一文档

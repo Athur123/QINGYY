@@ -144,7 +144,7 @@ Example test flow:
 5. browser_take_screenshot  (capture visual result)
 ```
 
-**Test artifacts:** `.playwright-mcp/` contains screenshots, logs, and snapshots — safe to clean up.
+**Test artifacts:** `.playwright-mcp/` contains playwright screenshots, logs, and snapshots. Manual test screenshots go to `screenshots/` directory. Both are gitignored — safe to clean up.
 
 ### Using Claude Skills
 Skills auto-trigger on keywords. To manually invoke:
