@@ -974,6 +974,7 @@ Step 5: 归档后操作
 39. **归档批次筛选器**：系统侧和台账侧筛选栏各新增「归档批次」下拉选择器。选择批次后 `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` 按 `record.archiveBatchId` 过滤。下拉选项通过 `updateArchiveBatchFilters()` 随归档操作动态更新。
 40. **汇总列表已归档列**：汇总列表页 DEMO_RULES 新增 `systemArchived` / `systemArchivedAmount` 字段。表头新增「系统侧已归档」列（位于系统侧差异之后）。分组行聚合显示已归档金额，子行显示笔数+金额。批量归档时自动将 `systemMatched` 复制为 `systemArchived`。
 41. **已归档记录禁止取消核对**：`doCancelMatch()` 增加 `archived` 检查，已归档记录调用时 toast "已归档记录不可取消核对" 并 return。`cancelMatch()` 增加 forceMatched 分支中 `ledgerRecord` 空值安全检查。
+42. **CSS 布局方案修复**：`qingyang-base.css` 中 `.qy-main { margin-left: var(--qy-sidebar-width) }`（220px）被移除，改为 `margin-left: 0`。原型页面采用 flex 布局（`.qy-layout { display: flex }` + `.qy-main { flex: 1 }`），margin-left 产生冗余间距导致侧边栏与主内容之间出现 220px 空距。设计规范文档同步更新为 flex 布局说明。
 
 ### Demo 数据更新（2026-04-30）
 
