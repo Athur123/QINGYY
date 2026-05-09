@@ -2,10 +2,10 @@
 
 > **类型**: B2B SaaS / 企业级人力资源管理系统
 > **风格**: Professional / Clean / Efficient
-> **版本**: v2.0（合并 v1.1 guidelines + v1.2 design-system）
-> **日期**: 2026-04-28
+> **版本**: v2.1（布局方案修正 + 模块目录结构）
+> **日期**: 2026-05-09
 >
-> **更新说明**: v2.0 合并了原 `qingyang-ui-ux-guidelines.md`（UI/UE 规范）和 `qingyang-hro-design-system.md`（组件实现手册），统一使用 `--qy-` 前缀，正文字号升级为 14px，首选字体改为 Plus Jakarta Sans。
+> **更新说明**: v2.0 合并了原 `qingyang-ui-ux-guidelines.md` 和 `qingyang-hro-design-system.md`，统一 `--qy-` 前缀，字号 14px，字体 Plus Jakarta Sans。v2.1 将布局方案从 margin-left 偏移修正为 flex 布局，原型按 7 业务模块分目录，CSS 引用路径调整为 `../../styles/`。
 
 ---
 
@@ -196,11 +196,12 @@
 ### 4.2 布局间距
 
 ```
-页面边距：24px 28px
-侧边栏宽度：220px
-顶部导航高度：52px
+页面边距：20px（左右），24px（上下）
+侧边栏宽度：220px（CSS 变量 --qy-sidebar-width）
+顶部导航高度：52px（CSS 变量 --qy-header-height）
 卡片内边距：16px - 20px
 表单元素间距：16px
+布局方案：flex 横向排列，.qy-main { flex: 1; margin-left: 0 }，不使用 margin-left 偏移
 ```
 
 ---
@@ -1473,15 +1474,18 @@ body {
 ### 15.2 CSS 布局
 
 ```css
-/* 布局 */
-.qy-layout { display: flex; min-height: 100vh; }
-.qy-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.qy-page { flex: 1; padding: var(--qy-space-6); overflow-y: auto; }
+/* 布局 — flex 方案，qy-main 不使用 margin-left 偏移 */
+.qy-layout { display: flex; height: 100vh; overflow: hidden; }
+.qy-sidebar { width: var(--qy-sidebar-width); flex-shrink: 0; border-right: 1px solid var(--qy-border-light); }
+.qy-main { flex: 1; margin-left: 0; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+.qy-page { flex: 1; padding: 20px; overflow-y: auto; }
 .qy-page__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--qy-space-6); }
 .qy-page__title { font-size: var(--qy-font-size-2xl); font-weight: var(--qy-font-weight-bold); color: var(--qy-text-primary); }
 .qy-kpi-section { display: flex; gap: var(--qy-space-4); margin-bottom: var(--qy-space-6); flex-wrap: wrap; }
 .qy-btn--with-icon { display: inline-flex; align-items: center; gap: var(--qy-space-2); }
 ```
+
+> **注意**: 原型文件位于 `prototype/<module>/` 目录下，CSS 引用路径为 `../../styles/`。始终从项目根目录启动 HTTP 服务。
 
 ### 15.3 HTML/CSS 文件模板
 
@@ -1608,6 +1612,7 @@ body {
 | v1.1 | 2026-04-03 | 新增登录页面设计规范 |
 | v1.2 | 2026-04-10 | design-system 新增抽屉组件、更新默认宽度 |
 | v2.0 | 2026-04-28 | 合并 guidelines + design-system，统一 `--qy-` 前缀，字号升级至 14px，字体改为 Plus Jakarta Sans |
+| v2.1 | 2026-05-09 | 布局方案从 margin-left 改为 flex，原型按 7 业务模块分目录，CSS 引用路径调整为 `../../styles/`，页面边距调整为 20px |
 
 ---
 
