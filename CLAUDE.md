@@ -117,6 +117,13 @@ Codex reads the root-level `AGENTS.md`. Keep shared project facts synchronized b
 
 ## Development Workflow
 
+This project follows a **brainstorming → spec → plan → implement** cycle:
+
+1. **Brainstorming** — explore context, ask clarifying questions, present design in sections
+2. **Spec** — write validated design to `docs/superpowers/specs/<module>/<name>.md`； commit
+3. **Plan** — break spec into bite-sized implementation tasks in `docs/superpowers/plans/<module>/<name>.md`
+4. **Implement** — execute tasks, test in browser, commit incrementally
+
 ### Viewing Prototypes
 Serve via Python HTTP server from project root (required for CSS paths to resolve):
 ```bash
@@ -196,14 +203,28 @@ Utility scripts in `scripts/`:
 - `API_BASE` constants in prototypes point to mock endpoints
 - User's preferred tech stack for production: Vue 3 + TypeScript + Vite (Composition API)
 
+### Reconciliation System Architecture
+
+The reconciliation module is the most complex part of the codebase. Key concepts:
+
+**Data flow**: Summary page (`reconciliation/summary.html`) → detail page (`reconciliation/unified.html`) via URL params (`?ruleName=X&month=Y` or `?groupId=Z`).
+
+**Core data structures** in unified.html:
+- `systemRecords[]` — system-side fee records (23 demo records S001-S023)
+- `ledgerRecords[]` — imported ledger records
+- `matchingResults { matched, pending, diffs, executed }` — matching engine output
+- `archiveBatches[]` — archive batch metadata (B001, B002...)
+- Each record has `matchStatus` (UNMATCHED/MATCHED/PENDING/DIFF/PAID), `archived` (boolean), `archiveBatchId`
+
+**Key interactions**: Tab switching (system/ledger) → status/type filters → single/batch operations → confirmation dialogs → right-side drawers (pairing, detail, archive). Archive batches use a separate drawer, with batch filtering via dropdown selects that drive `getFilteredSystemRecords()` / `getFilteredLedgerRecords()`.
+
 ## Important Notes
 
-1. **Playwright MCP** is configured for browser automation (see `.claude/settings.local.json`)
+1. **Playwright MCP** is configured for browser automation
 2. **No package.json** — Pure HTML/CSS/Python, no build process
-3. **Prototypes are static HTML** — Open directly in browser or serve with `python3 -m http.server`
-4. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
-5. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source
-6. **Post-commit memory update** — After each commit, `update-memory.sh` auto-generates a changelog in `.claude/memory/changes/` and updates `MEMORY.md`
-7. **Keep local agent config out of version control** — `.claude/settings.local.json` and `.codex/config.toml` should remain machine-local because they can contain credentials
-8. **Test screenshots go to `screenshots/`** — Never save screenshots to project root. Both `screenshots/` and `*.png` are gitignored.
-9. **File organization** — New features follow the 7-module structure. Prototypes → `prototype/<module>/`, specs → `docs/superpowers/specs/<module>/`, plans → `docs/superpowers/plans/<module>/`. Short business-meaningful filenames, no date prefixes.
+3. **`.claude/settings.local.json`** — local credentials file (gitignored, never commit)
+4. **Prototypes are static HTML** — serve with `python3 -m http.server` from project root
+5. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
+6. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source
+7. **Test screenshots go to `screenshots/`** — Never save screenshots to project root. Both `screenshots/` and `*.png` are gitignored.
+8. **File organization** — New features follow the 7-module structure. Prototypes → `prototype/<module>/`, specs → `docs/superpowers/specs/<module>/`, plans → `docs/superpowers/plans/<module>/`. Short business-meaningful filenames, no date prefixes.
