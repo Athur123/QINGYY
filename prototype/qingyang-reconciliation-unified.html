@@ -278,6 +278,8 @@
         .status-badge--pending::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
         .status-badge--diff { background: #FEE2E2; color: #991B1B; }
         .status-badge--diff::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
+        .status-badge--archived { background: #E2E8F0; color: #64748B; }
+        .status-badge--archived::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
         .status-badge--unmatched { background: #F1F5F9; color: #475569; }
         .status-badge--unmatched::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; margin-right: 4px; }
 
@@ -1476,7 +1478,17 @@
             const records = getFilteredSystemRecords();
 
             tbody.innerHTML = records.map(r => {
-                const statusBadge = `<span class="status-badge ${getMatchStatusClass(r.matchStatus)}">${getMatchStatusLabel(r.matchStatus)}</span>`;
+                var statusLabel = getMatchStatusLabel(r.matchStatus);
+                var statusClass = getMatchStatusClass(r.matchStatus);
+                if (r.record.archived && r.record.archiveBatchId) {
+                    var batch = archiveBatches.find(function(b) { return b.id === r.record.archiveBatchId; });
+                    statusLabel = '已归档';
+                    statusClass = 'status-badge--archived';
+                    if (batch) {
+                        statusLabel += '<span class="archive-badge">' + batch.label + '</span>';
+                    }
+                }
+                const statusBadge = '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
                 const typeBadge = r.feeType ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '—';
 
                 let diffStr = '—';
@@ -1495,13 +1507,16 @@
                 let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'system')">详情</button>`;
                 if (r.matchStatus === MATCH_STATUS.PENDING) {
                     actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'system')">确认核对</button>`;
-                } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
+                } else if (r.matchStatus === MATCH_STATUS.MATCHED && !r.record.archived) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.MATCHED && r.record.archived) {
+                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'system')">详情</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF || r.matchStatus === MATCH_STATUS.UNMATCHED) {
                     actionBtn = `<button class="btn-action" onclick="showForceMatchConfirm(['${r.id}'])">强制核对</button>`;
                 }
 
-                const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
+                const rowClass = r.record.archived ? 'row-archived'
+                    : r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
                     : r.matchStatus === MATCH_STATUS.PENDING ? 'row-pending'
                     : r.matchStatus === MATCH_STATUS.DIFF ? 'row-diff' : '';
 
@@ -1555,7 +1570,17 @@
             const records = getFilteredLedgerRecords();
 
             tbody.innerHTML = records.map(r => {
-                const statusBadge = `<span class="status-badge ${getMatchStatusClass(r.matchStatus)}">${getMatchStatusLabel(r.matchStatus)}</span>`;
+                var statusLabel = getMatchStatusLabel(r.matchStatus);
+                var statusClass = getMatchStatusClass(r.matchStatus);
+                if (r.record.archived && r.record.archiveBatchId) {
+                    var batch = archiveBatches.find(function(b) { return b.id === r.record.archiveBatchId; });
+                    statusLabel = '已归档';
+                    statusClass = 'status-badge--archived';
+                    if (batch) {
+                        statusLabel += '<span class="archive-badge">' + batch.label + '</span>';
+                    }
+                }
+                const statusBadge = '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>';
                 const typeBadge = r.feeType ? `<span class="type-badge type-badge--${r.feeType}">${getBillTypeLabel(r.feeType)}</span>` : '—';
 
                 let diffStr = '—';
@@ -1574,13 +1599,16 @@
                 let actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
                 if (r.matchStatus === MATCH_STATUS.PENDING) {
                     actionBtn = `<button class="btn-action" onclick="openPairingDrawer('${r.id}', 'ledger')">确认核对</button>`;
-                } else if (r.matchStatus === MATCH_STATUS.MATCHED) {
+                } else if (r.matchStatus === MATCH_STATUS.MATCHED && !r.record.archived) {
                     actionBtn = `<button class="btn-action" onclick="doCancelMatch('${r.id}')">取消</button>`;
+                } else if (r.matchStatus === MATCH_STATUS.MATCHED && r.record.archived) {
+                    actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
                 } else if (r.matchStatus === MATCH_STATUS.DIFF || r.matchStatus === MATCH_STATUS.UNMATCHED) {
                     actionBtn = `<button class="btn-action" onclick="showNewDetail('${r.id}', 'ledger')">详情</button>`;
                 }
 
-                const rowClass = r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
+                const rowClass = r.record.archived ? 'row-archived'
+                    : r.matchStatus === MATCH_STATUS.MATCHED ? 'row-matched'
                     : r.matchStatus === MATCH_STATUS.PENDING ? 'row-pending'
                     : r.matchStatus === MATCH_STATUS.DIFF ? 'row-diff' : '';
 
@@ -1816,6 +1844,11 @@
         }
 
         function doCancelMatch(id) {
+            var rec = systemRecords.find(function(r) { return r.id === id; });
+            if (rec && rec.archived) {
+                showToast('已归档记录不可取消核对', 'warning');
+                return;
+            }
             cancelMatch(id);
             renderAllTables();
             updateMatchCounts();
