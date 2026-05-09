@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>员工详情 - 青阳云HRO系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --background: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #1E293B;
+      --text-secondary: #64748B;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --success-bg: #d1fae5;
+      --success-text: #065f46;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --header-height: 56px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--background);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 200px;
+      background-color: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar__logo {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar__logo-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .sidebar__nav {
+      flex: 1;
+      padding: 12px 8px;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      margin-bottom: 16px;
+    }
+
+    .nav-section__title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item--active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item__icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-item__icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      margin-left: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      height: var(--header-height);
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header__left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header__back {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease;
+    }
+
+    .header__back:hover {
+      background-color: var(--background);
+      color: var(--primary);
+    }
+
+    .header__back svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .header__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header__actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Page Content */
+    .page-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Main Column */
+    .main-column {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Right Sidebar */
+    .right-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: color 0.15s ease;
+      background: none;
+      border: none;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Section Card */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-card__header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--background);
+    }
+
+    .section-card__header::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      background: var(--primary);
+      border-radius: 2px;
+      margin-right: 8px;
+    }
+
+    .section-card__title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+    }
+
+    .section-card__edit {
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+    }
+
+    .section-card__edit:hover {
+      background: var(--border);
+      color: var(--primary);
+    }
+
+    .section-card__edit svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Field List - 纵向布局 */
+    .field-list {
+      padding: 0;
+    }
+
+    .field-row {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field-row:last-child {
+      border-bottom: none;
+    }
+
+    .field-label {
+      width: 100px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      background: var(--background);
+      flex-shrink: 0;
+    }
+
+    .field-value {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--surface);
+      word-break: break-all;
+    }
+
+    .field-value:empty::before {
+      content: '';
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge--active {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .status-badge--active::before {
+      content: '✓';
+      font-weight: 600;
+    }
+
+    /* Employee Card */
+    .emp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .emp-card__header {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .emp-card__avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .emp-card__info {
+      flex: 1;
+    }
+
+    .emp-card__name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .emp-card__status {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .emp-card__base {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .emp-card__base-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+
+    .emp-card__base-label {
+      color: var(--text-secondary);
+    }
+
+    .emp-card__base-value {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Dynamic Records */
+    .dyn-records {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dyn-records__header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      background: var(--background);
+    }
+
+    .dyn-records__title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .dyn-records__toggle {
+      font-size: 12px;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .dyn-records__list {
+      padding: 8px 16px;
+    }
+
+    .dyn-record {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 12px;
+    }
+
+    .dyn-record__type {
+      color: var(--text-secondary);
+    }
+
+    .dyn-record__date {
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn--primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn--primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn--secondary {
+      background-color: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn--secondary:hover {
+      background-color: var(--background);
+      border-color: var(--text-muted);
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <span class="sidebar__logo-text">青阳云</span>
+      </div>
+      <nav class="sidebar__nav">
+        <div class="nav-section">
+          <div class="nav-section__title">员工管理</div>
+          <div class="nav-item nav-item--active">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </span>
+            员工列表
+          </div>
+          <div class="nav-item">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </span>
+            员工档案
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header__left">
+          <div class="header__back">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </div>
+          <h1 class="header__title">花名册详情</h1>
+        </div>
+        <div class="header__actions">
+          <button class="btn btn--secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            编辑
+          </button>
+          <button class="btn btn--secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+            更多
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Main Column -->
+        <div class="main-column">
+          <!-- Tabs -->
+          <div class="tabs">
+            <button class="tab active" data-tab="basic">基础信息</button>
+            <button class="tab" data-tab="contract">合同信息</button>
+            <button class="tab" data-tab="bank">银行卡</button>
+            <button class="tab" data-tab="education">教育经历</button>
+            <button class="tab" data-tab="work">工作经历</button>
+            <button class="tab" data-tab="family">家庭成员</button>
+            <button class="tab" data-tab="emergency">紧急联系人</button>
+            <button class="tab" data-tab="certificate">员工证书</button>
+            <button class="tab" data-tab="materials">个人材料</button>
+            <button class="tab" data-tab="salary">薪税档案</button>
+            <button class="tab" data-tab="insurance">参保档案</button>
+          </div>
+
+          <!-- Basic Info Content -->
+          <div id="basic-content" class="tab-content active">
+            <!-- 基本信息 Card -->
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">基本信息</span>
+                <span class="section-card__edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">姓名</div>
+                  <div class="field-value">曾强勇</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">性别</div>
+                  <div class="field-value">男</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">手机号码</div>
+                  <div class="field-value">18575504349</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">电子邮箱</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">证件类型</div>
+                  <div class="field-value">身份证</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">证件号码</div>
+                  <div class="field-value">43102319950825181X</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">出生日期</div>
+                  <div class="field-value">1995-08-25</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">年龄</div>
+                  <div class="field-value">30岁</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">籍贯</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">民族</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">政治面貌</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">婚姻状况</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">最高学历</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">国家/地区</div>
+                  <div class="field-value">中国</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 工作信息 Card -->
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">工作信息</span>
+                <span class="section-card__edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">员工类型</div>
+                  <div class="field-value">退休返聘</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">试用期状态</div>
+                  <div class="field-value">正式</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">入职日期</div>
+                  <div class="field-value">2025-02-25</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">司龄(月)</div>
+                  <div class="field-value">13</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">在职状态</div>
+                  <div class="field-value"><span class="status-badge status-badge--active">在职</span></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">所属客户</div>
+                  <div class="field-value">无锡一技有限公司/2222</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">所属合同</div>
+                  <div class="field-value">无锡一挤有限公司/WX20251114</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">所属项目</div>
+                  <div class="field-value">无锡项目/WX20251114</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">结算主体</div>
+                  <div class="field-value">无锡一技信息科技有限公司</div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">工号</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">职位</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contract Info Content -->
+          <div id="contract-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">合同信息</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">合同主体</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">合同类型</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">合同期限</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">开始日期</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">结束日期</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">签署日期</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">合同状态</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank Card Content -->
+          <div id="bank-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">银行卡信息</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">开户银行</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">银行账号</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">账户名称</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Education Content -->
+          <div id="education-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">教育经历</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">毕业院校</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">所学专业</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">最高学历</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">学位</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Work Content -->
+          <div id="work-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">工作经历</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">工作单位</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">职位</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">在职时间</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Family Content -->
+          <div id="family-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">家庭成员</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">姓名</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">关系</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">联系电话</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency Contact -->
+          <div id="emergency-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">紧急联系人</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">姓名</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">关系</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">联系电话</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Certificate -->
+          <div id="certificate-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">员工证书</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">证书名称</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">颁发机构</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">获得日期</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Materials -->
+          <div id="materials-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">个人材料</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">材料名称</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">材料类型</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">上传时间</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salary -->
+          <div id="salary-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">薪税档案</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">申报主体</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">工资发放方</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">基本工资</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insurance -->
+          <div id="insurance-content" class="tab-content">
+            <div class="section-card">
+              <div class="section-card__header">
+                <span class="section-card__title">参保档案</span>
+              </div>
+              <div class="field-list">
+                <div class="field-row">
+                  <div class="field-label">参保主体</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">参保城市</div>
+                  <div class="field-value"></div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">参保类型</div>
+                  <div class="field-value"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+          <!-- Employee Card -->
+          <div class="emp-card">
+            <div class="emp-card__header">
+              <div class="emp-card__avatar">曾</div>
+              <div class="emp-card__info">
+                <div class="emp-card__name">曾强勇</div>
+                <div class="emp-card__status">在职 · 正式</div>
+              </div>
+            </div>
+            <div class="emp-card__base">
+              <div class="emp-card__base-item">
+                <span class="emp-card__base-label">手机</span>
+                <span class="emp-card__base-value">18575504349</span>
+              </div>
+              <div class="emp-card__base-item">
+                <span class="emp-card__base-label">生日</span>
+                <span class="emp-card__base-value">1995-08-25</span>
+              </div>
+              <div class="emp-card__base-item">
+                <span class="emp-card__base-label">入职</span>
+                <span class="emp-card__base-value">2025-02-25</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Records -->
+          <div class="dyn-records">
+            <div class="dyn-records__header" onclick="toggleDynRecords()">
+              <span class="dyn-records__title">动态记录 (<span id="dyn-count">3</span>)</span>
+              <span class="dyn-records__toggle" id="dyn-toggle">展开</span>
+            </div>
+            <div class="dyn-records__list" id="dyn-list">
+              <div class="dyn-record">
+                <span class="dyn-record__type">转正</span>
+                <span class="dyn-record__date">2026-01-26</span>
+              </div>
+              <div class="dyn-record">
+                <span class="dyn-record__type">入职</span>
+                <span class="dyn-record__date">2025-02-25</span>
+              </div>
+              <div class="dyn-record">
+                <span class="dyn-record__type">转正</span>
+                <span class="dyn-record__date">2025-03-04</span>
+              </div>
+              <div class="dyn-record" id="dyn-more-1" style="display: none;">
+                <span class="dyn-record__type">入职</span>
+                <span class="dyn-record__date">2025-03-04</span>
+              </div>
+              <div class="dyn-record" id="dyn-more-2" style="display: none;">
+                <span class="dyn-record__type">入职</span>
+                <span class="dyn-record__date">2026-01-26</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        tabContents.forEach(c => c.classList.remove('active'));
+        const contentId = tab.dataset.tab + '-content';
+        document.getElementById(contentId).classList.add('active');
+      });
+    });
+
+    // Toggle dynamic records
+    function toggleDynRecords() {
+      const more1 = document.getElementById('dyn-more-1');
+      const more2 = document.getElementById('dyn-more-2');
+      const toggle = document.getElementById('dyn-toggle');
+      const count = document.getElementById('dyn-count');
+
+      if (more1.style.display === 'none') {
+        more1.style.display = 'flex';
+        more2.style.display = 'flex';
+        toggle.textContent = '收起';
+        count.textContent = '5';
+      } else {
+        more1.style.display = 'none';
+        more2.style.display = 'none';
+        toggle.textContent = '展开';
+        count.textContent = '3';
+      }
+    }
+  </script>
+</body>
+</html>

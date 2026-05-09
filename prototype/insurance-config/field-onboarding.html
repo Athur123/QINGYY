@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入职管理字段配置 - 青阳云HRO</title>
+  <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--qy-font-primary); font-size: var(--qy-font-size-14); color: var(--qy-text-primary); background: var(--qy-bg-secondary); line-height: var(--qy-line-height-normal); }
+
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar { width: var(--qy-sidebar-width); background: var(--qy-sidebar-bg); border-right: var(--qy-sidebar-border); flex-shrink: 0; position: fixed; height: 100vh; z-index: var(--qy-z-sticky); }
+    .sidebar-logo { padding: var(--qy-space-5) var(--qy-space-6); border-bottom: var(--qy-sidebar-border); }
+    .sidebar-logo h1 { font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold); color: var(--qy-color-primary); }
+    .sidebar-nav { list-style: none; padding: var(--qy-space-3) 0; }
+    .sidebar-nav-item { padding: var(--qy-space-3) var(--qy-space-6); cursor: pointer; display: flex; align-items: center; gap: var(--qy-space-3); color: var(--qy-text-secondary); font-size: var(--qy-font-size-13); transition: var(--qy-transition-fast); }
+    .sidebar-nav-item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+    .sidebar-nav-item.active { background: var(--qy-primary-50); color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
+    .sidebar-nav-sub { padding-left: var(--qy-space-12); }
+    .sidebar-nav-sub .sidebar-nav-item { padding: var(--qy-space-2) var(--qy-space-6); font-size: var(--qy-font-size-12); }
+
+    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); display: flex; flex-direction: column; }
+    .topbar { height: var(--qy-header-height); background: var(--qy-header-bg); border-bottom: var(--qy-header-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--qy-content-padding-x); }
+    .topbar-breadcrumb { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .topbar-user { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .content-area { flex: 1; padding: var(--qy-content-padding-y) var(--qy-content-padding-x); }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--qy-space-5); }
+    .page-title { font-size: var(--qy-font-size-20); font-weight: var(--qy-font-weight-bold); color: var(--qy-text-primary); }
+    .page-header-actions { display: flex; gap: var(--qy-space-3); }
+
+    /* Button refinements */
+    .qy-btn { transition: all var(--qy-transition-fast); }
+    .qy-btn:active:not(:disabled) { transform: scale(0.98); }
+    .qy-btn--primary { box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2); }
+    .qy-btn--primary:hover:not(:disabled) { box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
+    .qy-btn--secondary { border-color: var(--qy-border-light); }
+    .qy-btn--secondary:hover:not(:disabled) { border-color: var(--qy-border-medium); color: var(--qy-text-primary); }
+    .qy-btn svg { flex-shrink: 0; }
+    .page-header-actions .qy-btn svg { width: 15px; height: 15px; }
+
+    /* Row action buttons — icon-only enterprise style */
+    .row-actions { display: flex; gap: 2px; align-items: center; }
+    .row-actions .icon-btn {
+      width: 30px; height: 30px; border: none; background: transparent; border-radius: var(--qy-radius-md);
+      cursor: pointer; color: var(--qy-text-muted); display: inline-flex; align-items: center; justify-content: center;
+      transition: all var(--qy-transition-fast); position: relative;
+    }
+    .row-actions .icon-btn:hover { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .row-actions .icon-btn.danger:hover { background: var(--qy-error-50); color: var(--qy-color-error); }
+    .row-actions .icon-btn:active:not(:disabled) { transform: scale(0.92); }
+    .row-actions .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .row-actions .icon-btn:disabled:hover { background: transparent; color: var(--qy-text-muted); }
+    .row-actions .icon-btn svg { width: 15px; height: 15px; }
+
+    /* Page header action buttons — refined enterprise style */
+    .page-header-actions .qy-btn--primary {
+      background: var(--qy-color-primary); color: white; border: none; font-weight: var(--qy-font-weight-medium);
+      border-radius: var(--qy-radius-lg); padding: 0 16px; height: 34px; font-size: var(--qy-font-size-13);
+      letter-spacing: 0.01em; box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    }
+    .page-header-actions .qy-btn--primary:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35); background: var(--qy-primary-600); }
+    .page-header-actions .qy-btn--secondary {
+      background: white; color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-radius-lg); padding: 0 14px; height: 34px; font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium);
+    }
+    .page-header-actions .qy-btn--secondary:hover:not(:disabled) { border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50); }
+    .page-header-actions .qy-btn--sm svg { width: 14px; height: 14px; }
+    .page-header-actions .qy-btn svg { margin-right: 6px; }
+
+    /* Field group (collapsible) */
+    .field-group { border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); margin-bottom: var(--qy-space-4); background: var(--qy-bg-primary); box-shadow: var(--qy-shadow-sm); overflow: hidden; }
+    .field-group-header { display: flex; align-items: center; padding: var(--qy-space-3) var(--qy-space-5); cursor: pointer; user-select: none; gap: var(--qy-space-3); transition: background var(--qy-transition-fast); }
+    .field-group-header:hover { background: var(--qy-bg-secondary); }
+    .field-group-header .expand-icon { transition: transform var(--qy-transition-normal); color: var(--qy-text-muted); flex-shrink: 0; }
+    .field-group.is-collapsed .expand-icon { transform: rotate(-90deg); }
+    .field-group-header .group-title { font-size: var(--qy-font-size-15); font-weight: var(--qy-font-weight-semibold); flex: 1; }
+    .field-group-header .group-count { font-size: var(--qy-font-size-12); color: var(--qy-text-muted); }
+    .field-group-header .group-actions { display: flex; gap: 2px; }
+    .field-group-header .group-actions .icon-btn {
+      width: 28px; height: 28px; border: none; background: transparent; border-radius: var(--qy-radius-md);
+      cursor: pointer; color: var(--qy-text-muted); display: inline-flex; align-items: center; justify-content: center;
+      transition: all var(--qy-transition-fast);
+    }
+    .field-group-header .group-actions .icon-btn:hover:not(:disabled) { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .field-group-header .group-actions .icon-btn.danger:hover:not(:disabled) { background: var(--qy-error-50); color: var(--qy-color-error); }
+    .field-group-header .group-actions .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .field-group-header .group-actions .icon-btn svg { width: 14px; height: 14px; }
+    .field-group-body { border-top: 1px solid var(--qy-border-light); }
+    .field-group.is-collapsed .field-group-body { display: none; }
+
+    /* Filter bar */
+    .filter-bar { padding: var(--qy-space-4) var(--qy-space-5); border-bottom: 1px solid var(--qy-border-light); display: flex; align-items: center; gap: var(--qy-space-3); flex-wrap: wrap; }
+    .filter-input { height: var(--qy-input-height-md); padding: 0 var(--qy-space-8) 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-13); width: 220px; background: var(--qy-input-bg); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: var(--qy-transition-fast); }
+    .filter-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .filter-select { height: var(--qy-input-height-md); padding: 0 var(--qy-space-8) 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-13); background: var(--qy-input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--qy-space-2) center; appearance: none; cursor: pointer; color: var(--qy-text-secondary); transition: var(--qy-transition-fast); }
+    .filter-select:focus { outline: none; border-color: var(--qy-input-border-focus); }
+    .filter-count { font-size: var(--qy-font-size-12); color: var(--qy-text-muted); margin-left: auto; }
+    .filter-count strong { color: var(--qy-text-primary); }
+
+    /* Batch bar */
+    .batch-bar { padding: var(--qy-space-2) var(--qy-space-4); background: var(--qy-primary-50); border-bottom: 1px solid var(--qy-primary-200); display: none; align-items: center; gap: var(--qy-space-3); font-size: var(--qy-font-size-13); color: var(--qy-color-primary); }
+    .batch-bar.show { display: flex; }
+    .batch-bar .batch-count { font-weight: var(--qy-font-weight-semibold); }
+    .batch-bar .qy-btn--text { background: transparent; border: none; padding: 2px 8px; min-height: auto; font-size: var(--qy-font-size-13); color: var(--qy-color-primary); cursor: pointer; border-radius: var(--qy-radius-sm); transition: all var(--qy-transition-fast); }
+    .batch-bar .qy-btn--text:hover { background: var(--qy-primary-100); }
+
+    /* Table */
+    .field-table { width: 100%; border-collapse: collapse; font-size: var(--qy-font-size-13); }
+    .field-table th { background: var(--qy-table-header-bg); padding: var(--qy-space-3) var(--qy-space-4); text-align: left; font-weight: var(--qy-font-weight-semibold); color: var(--qy-text-secondary); border-bottom: 1px solid var(--qy-border-light); white-space: nowrap; }
+    .field-table td { padding: var(--qy-space-3) var(--qy-space-4); border-bottom: 1px solid var(--qy-border-light); color: var(--qy-text-primary); vertical-align: middle; }
+    .field-table tbody tr { transition: background var(--qy-transition-fast); }
+    .field-table tbody tr:hover td { background: var(--qy-table-row-hover); }
+    .field-table tbody tr.dragging { opacity: 0.5; background: var(--qy-primary-50); }
+
+    .drag-handle { cursor: grab; color: var(--qy-text-muted); display: inline-flex; padding: var(--qy-space-1); }
+    .drag-handle:hover { color: var(--qy-text-secondary); }
+    .drag-handle:active { cursor: grabbing; }
+
+    .sync-tag { display: inline-flex; align-items: center; gap: var(--qy-space-1); padding: 2px var(--qy-space-2); border-radius: var(--qy-radius-sm); font-size: var(--qy-font-size-11); background: var(--qy-bg-tertiary); color: var(--qy-text-secondary); cursor: pointer; border: 1px dashed transparent; transition: var(--qy-transition-fast); }
+    .sync-tag:hover { border-color: var(--qy-border-medium); color: var(--qy-text-primary); }
+    .sync-tag.active { background: var(--qy-primary-50); color: var(--qy-color-primary); border-color: var(--qy-primary-200); }
+    .sync-tag svg { flex-shrink: 0; }
+
+    .tag { display: inline-block; padding: 2px var(--qy-space-2); border-radius: var(--qy-radius-full); font-size: var(--qy-font-size-11); font-weight: var(--qy-font-weight-medium); }
+    .tag--blue { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .tag--green { background: var(--qy-success-50); color: var(--qy-success-600); }
+    .tag--purple { background: #ede9fe; color: #7c3aed; }
+    .tag--amber { background: #fef3c7; color: #d97706; }
+    .tag--pink { background: #fce7f3; color: #db2777; }
+    .tag--cyan { background: #cffafe; color: #0891b2; }
+    .tag--gray { background: var(--qy-bg-tertiary); color: var(--qy-text-secondary); }
+
+    /* Toggle switch inline */
+    .toggle { position: relative; width: 36px; height: 20px; display: inline-block; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; inset: 0; background: var(--qy-border-medium); border-radius: var(--qy-radius-full); transition: var(--qy-transition-fast); }
+    .toggle .slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 2px; top: 2px; background: white; border-radius: var(--qy-radius-full); transition: var(--qy-transition-fast); }
+    .toggle input:checked + .slider { background: var(--qy-color-primary); }
+    .toggle input:checked + .slider:before { transform: translateX(16px); }
+
+    /* Status badge */
+    .status-badge { display: inline-flex; align-items: center; gap: var(--qy-space-1); font-size: var(--qy-font-size-12); }
+    .status-dot { width: 6px; height: 6px; border-radius: var(--qy-radius-full); }
+    .status-dot.active { background: var(--qy-color-success); }
+    .status-dot.inactive { background: var(--qy-border-medium); }
+
+    /* Form helpers */
+    .form-group { margin-bottom: var(--qy-space-4); }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); font-weight: var(--qy-font-weight-medium); margin-bottom: var(--qy-space-2); }
+    .form-label .req { color: var(--qy-color-error); margin-right: var(--qy-space-1); }
+    .form-input { height: var(--qy-input-height-lg); padding: 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; background: var(--qy-input-bg); transition: var(--qy-transition-fast); }
+    .form-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-input.disabled { background: var(--qy-bg-tertiary); color: var(--qy-text-disabled); cursor: not-allowed; }
+    .form-input.has-error { border-color: var(--qy-color-error); }
+    .form-select { height: var(--qy-input-height-lg); padding: 0 var(--qy-space-8) 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; background: var(--qy-input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--qy-space-3) center; appearance: none; cursor: pointer; transition: var(--qy-transition-fast); }
+    .form-select:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-textarea { padding: var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; min-height: 60px; resize: vertical; font-family: var(--qy-font-primary); transition: var(--qy-transition-fast); }
+    .form-textarea:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-hint { font-size: var(--qy-font-size-12); color: var(--qy-text-muted); margin-top: var(--qy-space-1); }
+    .form-error { font-size: var(--qy-font-size-12); color: var(--qy-color-error); margin-top: var(--qy-space-1); display: none; }
+    .form-error.show { display: block; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--qy-space-4); }
+
+    /* Modal overrides */
+    .modal-overlay { position: fixed; inset: 0; background: var(--qy-modal-overlay); z-index: var(--qy-z-modal); display: none; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: var(--qy-bg-primary); border-radius: var(--qy-modal-radius); width: var(--qy-modal-max-width-md); max-height: 85vh; display: flex; flex-direction: column; box-shadow: var(--qy-modal-shadow); }
+    .modal-box.sm { width: var(--qy-modal-max-width-sm); }
+    .modal-header { padding: var(--qy-space-5); border-bottom: 1px solid var(--qy-border-light); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: var(--qy-font-size-16); font-weight: var(--qy-font-weight-semibold); }
+    .modal-close { background: none; border: none; font-size: var(--qy-font-size-20); cursor: pointer; color: var(--qy-text-muted); padding: var(--qy-space-1); }
+    .modal-close:hover { color: var(--qy-text-primary); }
+    .modal-body { padding: var(--qy-space-5); overflow-y: auto; }
+    .modal-footer { padding: var(--qy-space-4) var(--qy-space-5); border-top: 1px solid var(--qy-border-light); display: flex; justify-content: flex-end; gap: var(--qy-space-3); }
+
+    /* Modal / Drawer footer button styling */
+    .modal-footer .qy-btn, .qy-drawer__footer .qy-btn {
+      border-radius: var(--qy-radius-lg); padding: 0 18px; height: 36px; font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium); letter-spacing: 0.01em; transition: all var(--qy-transition-fast);
+    }
+    .modal-footer .qy-btn--secondary, .qy-drawer__footer .qy-btn--secondary {
+      background: white; color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium);
+    }
+    .modal-footer .qy-btn--secondary:hover:not(:disabled), .qy-drawer__footer .qy-btn--secondary:hover:not(:disabled) {
+      border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50);
+    }
+    .modal-footer .qy-btn--primary, .qy-drawer__footer .qy-btn--primary {
+      background: var(--qy-color-primary); color: white; border: none;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    }
+    .modal-footer .qy-btn--primary:hover:not(:disabled), .qy-drawer__footer .qy-btn--primary:hover:not(:disabled) {
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35); background: var(--qy-primary-600);
+    }
+    .modal-footer .qy-btn--danger, .qy-drawer__footer .qy-btn--danger {
+      background: var(--qy-color-error); color: white; border: none;
+      box-shadow: 0 1px 3px rgba(225, 29, 72, 0.25);
+    }
+    .modal-footer .qy-btn--danger:hover:not(:disabled), .qy-drawer__footer .qy-btn--danger:hover:not(:disabled) {
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35); background: var(--qy-error-600);
+    }
+
+    /* Toast */
+    .toast-container { position: fixed; top: var(--qy-space-6); left: 50%; transform: translateX(-50%); z-index: var(--qy-z-toast); display: flex; flex-direction: column; gap: var(--qy-space-2); pointer-events: none; }
+    .toast { padding: var(--qy-message-padding-y) var(--qy-message-padding-x); border-radius: var(--qy-message-radius); font-size: var(--qy-font-size-14); font-weight: var(--qy-font-weight-medium); color: var(--qy-text-inverse); background: var(--qy-color-primary); box-shadow: var(--qy-message-shadow); pointer-events: auto; min-width: 200px; text-align: center; animation: toastIn var(--qy-duration-normal) var(--qy-ease-out); }
+    .toast.success { background: var(--qy-color-success); }
+    .toast.info { background: var(--qy-color-primary); }
+    .toast.warning { background: var(--qy-color-warning); }
+    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">薪资档案</li>
+      <li class="sidebar-nav-item active"><span>保险福利</span></li>
+      <li class="sidebar-nav-sub">
+        <div class="sidebar-nav-item">保险台账</div>
+        <div class="sidebar-nav-item">参保规则</div>
+        <div class="sidebar-nav-item">二级户</div>
+        <div class="sidebar-nav-item">员工参保档案</div>
+        <div class="sidebar-nav-item">全局字段配置</div>
+        <div class="sidebar-nav-item active" style="color:var(--qy-color-primary)">入职字段配置</div>
+        <div class="sidebar-nav-item">保险福利核算</div>
+        <div class="sidebar-nav-item">保险分组</div>
+        <div class="sidebar-nav-item">险种配置</div>
+      </li>
+      <li class="sidebar-nav-item">异动申报</li>
+      <li class="sidebar-nav-item">报表</li>
+    </ul>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">入职管理 / 字段配置</div>
+      <div class="topbar-user">管理员</div>
+    </div>
+    <div class="content-area">
+      <div class="page-header">
+        <h1 class="page-title">入职管理字段配置</h1>
+        <div class="page-header-actions">
+          <button class="qy-btn qy-btn--secondary qy-btn--sm" id="batchDeleteBtn" onclick="batchDeleteSelected()" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            批量删除
+          </button>
+          <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="openAddGroupModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+            新增分组
+          </button>
+          <button class="qy-btn qy-btn--primary qy-btn--sm" onclick="openAddField()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            新增字段
+          </button>
+        </div>
+      </div>
+
+      <div id="groups-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Drawer: Edit Field ===== -->
+<div class="qy-drawer qy-drawer--right" id="fieldDrawer">
+  <div class="qy-drawer__overlay" onclick="closeDrawer()"></div>
+  <div class="qy-drawer__container">
+    <div class="qy-drawer__header">
+      <span class="qy-drawer__title" id="drawerTitle">新增字段</span>
+      <button class="qy-drawer__close" onclick="closeDrawer()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="qy-drawer__body">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> 显示名称</label>
+        <input class="form-input" id="f-display-name" placeholder="如 员工姓名">
+        <div class="form-error" id="displayNameError">请输入显示名称</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">提示文字</label>
+        <input class="form-input" id="f-placeholder" placeholder="表单中显示的提示语">
+        <div class="form-hint">用户填写该字段时显示的提示文字</div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label"><span class="req">*</span> 字段类型</label>
+          <select class="form-select" id="f-type">
+            <option value="text">文本</option>
+            <option value="number">数值</option>
+            <option value="date">日期</option>
+            <option value="select">下拉选择</option>
+            <option value="phone">电话号码</option>
+            <option value="email">电子邮箱</option>
+            <option value="idcard">身份证号</option>
+            <option value="file">附件</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">最大长度</label>
+          <input class="form-input" id="f-maxlen" type="number" placeholder="如 50" min="1" max="500">
+          <div class="form-hint">允许输入的最大字符数</div>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">是否必填</label>
+          <label class="toggle"><input type="checkbox" id="f-required"><span class="slider"></span></label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">是否唯一</label>
+          <label class="toggle"><input type="checkbox" id="f-unique"><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">状态</label>
+        <select class="form-select" id="f-status">
+          <option value="active">启用</option>
+          <option value="inactive">禁用</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">字段说明</label>
+        <textarea class="form-textarea" id="f-desc" placeholder="字段用途说明..."></textarea>
+      </div>
+    </div>
+    <div class="qy-drawer__footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取 消</button>
+      <button class="qy-btn qy-btn--primary" id="saveBtn" onclick="saveField()">保 存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: New Group ===== -->
+<div class="modal-overlay" id="addGroupModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>新增分组</h3><button class="modal-close" onclick="closeAddGroupModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> 分组名称</label>
+        <input class="form-input" id="g-name" placeholder="如 教育信息">
+        <div class="form-hint">新分组将添加到列表末尾</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeAddGroupModal()">取消</button>
+      <button class="qy-btn qy-btn--primary" onclick="confirmAddGroup()">确认创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Delete Confirm ===== -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>确认删除</h3><button class="modal-close" onclick="closeDeleteModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body" style="text-align:center;">
+      <div style="width:48px;height:48px;border-radius:var(--qy-radius-full);background:var(--qy-error-50);color:var(--qy-color-error);display:flex;align-items:center;justify-content:center;margin:0 auto var(--qy-space-4);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      </div>
+      <div style="font-size:var(--qy-font-size-15);color:var(--qy-text-primary);" id="deleteMsg">确定要删除吗？</div>
+      <div style="font-size:var(--qy-font-size-13);color:var(--qy-text-muted);margin-top:var(--qy-space-1);" id="deleteSub">此操作不可撤销</div>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeDeleteModal()">取消</button>
+      <button class="qy-btn qy-btn--danger" id="confirmDeleteBtn" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Sync Employee Tag ===== -->
+<div class="modal-overlay" id="syncTagModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>同步员工标签</h3><button class="modal-close" onclick="closeSyncTagModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body">
+      <div style="font-size:var(--qy-font-size-13);color:var(--qy-text-secondary);margin-bottom:var(--qy-space-4);">选择该字段需要同步的员工标签，设置后入职填写的值将自动同步到员工档案。</div>
+      <div class="form-group">
+        <label class="form-label">选择同步标签</label>
+        <select class="form-select" id="syncTagSelect">
+          <option value="">不同步</option>
+          <option value="name">姓名</option>
+          <option value="gender">性别</option>
+          <option value="id_number">身份证号</option>
+          <option value="phone">联系电话</option>
+          <option value="email">电子邮箱</option>
+          <option value="address">联系地址</option>
+          <option value="education">学历</option>
+          <option value="marriage_status">婚姻状况</option>
+        </select>
+        <div class="form-hint">选择后，入职时该字段的值将自动同步到员工档案对应标签</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeSyncTagModal()">取消</button>
+      <button class="qy-btn qy-btn--primary" onclick="confirmSyncTag()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========== Data ==========
+let groups = [
+  {
+    id: 1, name: '基本信息', collapsed: false,
+    fields: [
+      { id: 1, displayName: '姓名', type: 'text', required: true, unique: false, status: 'active', syncTag: 'name', placeholder: '请输入真实姓名', maxLength: 20, desc: '员工真实姓名' },
+      { id: 2, displayName: '性别', type: 'select', required: true, unique: false, status: 'active', syncTag: 'gender', placeholder: '', maxLength: 0, desc: '' },
+      { id: 3, displayName: '出生日期', type: 'date', required: true, unique: false, status: 'active', syncTag: '', placeholder: '请选择出生日期', maxLength: 0, desc: '' },
+      { id: 4, displayName: '民族', type: 'select', required: false, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '' },
+      { id: 5, displayName: '政治面貌', type: 'select', required: false, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '' },
+      { id: 6, displayName: '学历', type: 'select', required: true, unique: false, status: 'active', syncTag: 'education', placeholder: '', maxLength: 0, desc: '' },
+      { id: 7, displayName: '婚姻状况', type: 'select', required: false, unique: false, status: 'active', syncTag: 'marriage_status', placeholder: '', maxLength: 0, desc: '' },
+      { id: 8, displayName: '联系地址', type: 'text', required: false, unique: false, status: 'active', syncTag: 'address', placeholder: '请输入详细联系地址', maxLength: 200, desc: '' },
+      { id: 9, displayName: '照片', type: 'file', required: false, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '一寸免冠照片' },
+    ]
+  },
+  {
+    id: 2, name: '个人信息', collapsed: false,
+    fields: [
+      { id: 10, displayName: '身份证号', type: 'idcard', required: true, unique: true, status: 'active', syncTag: 'id_number', placeholder: '请输入18位身份证号', maxLength: 18, desc: '' },
+      { id: 11, displayName: '手机号码', type: 'phone', required: true, unique: true, status: 'active', syncTag: 'phone', placeholder: '请输入11位手机号码', maxLength: 11, desc: '' },
+      { id: 12, displayName: '电子邮箱', type: 'email', required: false, unique: false, status: 'active', syncTag: 'email', placeholder: 'example@email.com', maxLength: 100, desc: '' },
+      { id: 13, displayName: '紧急联系人', type: 'text', required: false, unique: false, status: 'active', syncTag: '', placeholder: '请输入紧急联系人姓名', maxLength: 20, desc: '' },
+      { id: 14, displayName: '紧急联系电话', type: 'phone', required: false, unique: false, status: 'active', syncTag: '', placeholder: '请输入紧急联系人电话', maxLength: 11, desc: '' },
+    ]
+  },
+  {
+    id: 3, name: '工作信息', collapsed: false,
+    fields: [
+      { id: 15, displayName: '入职部门', type: 'select', required: true, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '' },
+      { id: 16, displayName: '岗位', type: 'select', required: true, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '' },
+      { id: 17, displayName: '入职日期', type: 'date', required: true, unique: false, status: 'active', syncTag: '', placeholder: '请选择入职日期', maxLength: 0, desc: '' },
+      { id: 18, displayName: '员工类型', type: 'select', required: true, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '正式/试用/实习' },
+      { id: 19, displayName: '工作地点', type: 'text', required: false, unique: false, status: 'active', syncTag: '', placeholder: '请输入工作所在城市', maxLength: 50, desc: '' },
+    ]
+  },
+  {
+    id: 4, name: '放弃入职信息', collapsed: false,
+    fields: [
+      { id: 20, displayName: '放弃原因', type: 'select', required: true, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '' },
+      { id: 21, displayName: '放弃日期', type: 'date', required: true, unique: false, status: 'active', syncTag: '', placeholder: '请选择放弃入职日期', maxLength: 0, desc: '' },
+      { id: 22, displayName: '备注说明', type: 'text', required: false, unique: false, status: 'active', syncTag: '', placeholder: '其他补充说明', maxLength: 500, desc: '' },
+      { id: 23, displayName: 'HR确认人', type: 'text', required: true, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 20, desc: '确认放弃入职的HR' },
+      { id: 24, displayName: '放弃证明', type: 'file', required: false, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '员工签字的放弃入职证明' },
+      { id: 25, displayName: '处理状态', type: 'select', required: true, unique: false, status: 'active', syncTag: '', placeholder: '', maxLength: 0, desc: '待处理/已确认/已归档' },
+    ]
+  }
+];
+
+let nextGroupId = 5;
+let nextFieldId = 26;
+let editingField = null; // { groupId, fieldId } or { groupId, fieldId: null } for add
+let selectedIds = new Set();
+let deleteTarget = null; // { groupId, fieldId }
+let syncTagTarget = null; // { groupId, fieldId }
+let dragId = null;
+
+const typeLabels = { text: '文本', number: '数值', date: '日期', select: '下拉', phone: '电话', email: '邮箱', idcard: '身份证', file: '附件' };
+const typeTagClasses = { text: 'tag--blue', number: 'tag--purple', date: 'tag--green', select: 'tag--cyan', phone: 'tag--blue', email: 'tag--purple', idcard: 'tag--amber', file: 'tag--pink' };
+
+// ========== Render ==========
+function renderGroups() {
+  const container = document.getElementById('groups-container');
+  let totalCount = 0;
+
+  container.innerHTML = groups.map(g => {
+    const fieldCount = g.fields.length;
+    totalCount += fieldCount;
+
+    const filteredFields = g.fields.filter(f => {
+      const kw = document.getElementById('searchInput')?.value.toLowerCase() || '';
+      const ft = document.getElementById('filter-type')?.value || '';
+      const fs = document.getElementById('filter-status')?.value || '';
+      if (kw && !f.displayName.toLowerCase().includes(kw)) return false;
+      if (ft && f.type !== ft) return false;
+      if (fs && f.status !== fs) return false;
+      return true;
+    });
+
+    const allFields = g.fields;
+    const showFiltered = document.getElementById('searchInput')?.value || document.getElementById('filter-type')?.value || document.getElementById('filter-status')?.value;
+    const displayFields = showFiltered ? filteredFields : allFields;
+
+    return `<div class="field-group ${g.collapsed ? 'is-collapsed' : ''}" data-group-id="${g.id}">
+      <div class="field-group-header" onclick="toggleGroup(${g.id})">
+        <svg class="expand-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        <span class="group-title">${esc(g.name)}</span>
+        <span class="group-count">共 ${fieldCount} 个字段</span>
+        <div class="group-actions">
+          <button class="icon-btn" title="添加" onclick="event.stopPropagation(); addFieldToGroup(${g.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button class="icon-btn danger" title="${allFields.length > 0 ? '分组下有字段时不可删除' : '删除'}" onclick="event.stopPropagation(); deleteGroup(${g.id})" ${allFields.length > 0 ? 'disabled' : ''}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="field-group-body">
+        <div class="filter-bar">
+          <input class="filter-input" placeholder="搜索字段名称..." id="searchInput" oninput="renderGroups()">
+          <select class="filter-select" id="filter-type" onchange="renderGroups()">
+            <option value="">全部类型</option>
+            <option value="text">文本</option>
+            <option value="number">数值</option>
+            <option value="date">日期</option>
+            <option value="select">下拉选择</option>
+            <option value="phone">电话号码</option>
+            <option value="email">电子邮箱</option>
+            <option value="idcard">身份证号</option>
+            <option value="file">附件</option>
+          </select>
+          <select class="filter-select" id="filter-status" onchange="renderGroups()">
+            <option value="">全部状态</option>
+            <option value="active">启用</option>
+            <option value="inactive">禁用</option>
+          </select>
+          <span class="filter-count">显示 <strong>${displayFields.length}</strong> / <strong>${totalCount}</strong> 个字段</span>
+        </div>
+
+        <div class="batch-bar ${selectedIds.size > 0 ? 'show' : ''}">
+          <input type="checkbox" onchange="toggleGroupSelectAll(${g.id}, this.checked)" style="accent-color:var(--qy-color-primary);">
+          <span>已选 <span class="batch-count">${selectedIds.size}</span> 项</span>
+          <button class="qy-btn qy-btn--text" style="color:var(--qy-color-error);" onclick="batchDeleteSelected()">批量删除</button>
+          <button class="qy-btn qy-btn--text" onclick="clearBatch()" style="margin-left:auto;">取消选择</button>
+        </div>
+
+        <table class="field-table">
+          <thead>
+            <tr>
+              <th style="width:40px"><input type="checkbox" onchange="toggleGroupCheckAll(${g.id}, this.checked)" style="accent-color:var(--qy-color-primary);"></th>
+              <th style="width:40px"></th>
+              <th style="width:100px">默认名称</th>
+              <th style="width:100px">同步员工标签</th>
+              <th>显示名称</th>
+              <th style="width:80px">字段类型</th>
+              <th style="width:70px">必填</th>
+              <th style="width:70px">唯一</th>
+              <th style="width:80px">状态</th>
+              <th style="width:140px">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${displayFields.map(f => renderFieldRow(g.id, f)).join('')}
+          </tbody>
+        </table>
+        ${displayFields.length === 0 ? `<div class="qy-empty" style="padding:var(--qy-space-10);"><svg class="qy-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v4M12 16h.01"/></svg><p class="qy-empty__title" style="font-size:var(--qy-font-size-14);">暂无字段</p><p class="qy-empty__description">点击「添加」或「新增字段」开始配置</p></div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFieldRow(groupId, f) {
+  const checked = selectedIds.has(f.id);
+  return `<tr draggable="true" ondragstart="onDragStart(event,${groupId},${f.id})" ondragover="onDragOver(event)" ondrop="onDrop(event,${groupId},${f.id})" ondragend="onDragEnd(event)">
+    <td><input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSelect(${f.id}, this.checked)" style="accent-color:var(--qy-color-primary);"></td>
+    <td><span class="drag-handle" title="拖拽排序">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+    </span></td>
+    <td style="font-size:var(--qy-font-size-12);color:var(--qy-text-muted);">${esc(f.displayName)}</td>
+    <td><span class="sync-tag ${f.syncTag ? 'active' : ''}" onclick="openSyncTagModal(${groupId},${f.id})">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      ${f.syncTag ? esc(syncTagLabel(f.syncTag)) : '未同步'}
+    </span></td>
+    <td style="font-weight:var(--qy-font-weight-medium);">${esc(f.displayName)}</td>
+    <td><span class="tag ${typeTagClasses[f.type]}">${typeLabels[f.type]}</span></td>
+    <td><label class="toggle"><input type="checkbox" ${f.required ? 'checked' : ''} disabled><span class="slider"></span></label></td>
+    <td><label class="toggle"><input type="checkbox" ${f.unique ? 'checked' : ''} disabled><span class="slider"></span></label></td>
+    <td><span class="status-badge"><span class="status-dot ${f.status === 'active' ? 'active' : 'inactive'}"></span>${f.status === 'active' ? '启用' : '禁用'}</span></td>
+    <td style="width:100px"><div class="row-actions">
+        <button class="icon-btn" title="编辑" onclick="openEditField(${groupId},${f.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn danger" title="删除" onclick="openDeleteFieldModal(${groupId},${f.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div></td>
+  </tr>`;
+}
+
+function syncTagLabel(tag) {
+  const map = { name: '姓名', gender: '性别', id_number: '身份证号', phone: '联系电话', email: '电子邮箱', address: '联系地址', education: '学历', marriage_status: '婚姻状况' };
+  return map[tag] || tag;
+}
+
+// ========== Group toggle ==========
+function toggleGroup(id) {
+  const g = groups.find(x => x.id === id);
+  if (g) g.collapsed = !g.collapsed;
+  renderGroups();
+}
+
+// ========== Selection ==========
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id);
+  else selectedIds.delete(id);
+  renderGroups();
+}
+
+function toggleGroupCheckAll(groupId, checked) {
+  const g = groups.find(x => x.id === groupId);
+  if (!g) return;
+  g.fields.forEach(f => {
+    if (checked) selectedIds.add(f.id);
+    else selectedIds.delete(f.id);
+  });
+  renderGroups();
+}
+
+function toggleGroupSelectAll(groupId, checked) {
+  toggleGroupCheckAll(groupId, checked);
+}
+
+function clearBatch() {
+  selectedIds.clear();
+  renderGroups();
+}
+
+// ========== Add/Edit Field ==========
+function openAddField() {
+  editingField = { groupId: groups[0].id, fieldId: null };
+  document.getElementById('drawerTitle').textContent = '新增字段';
+  document.getElementById('f-display-name').value = '';
+  document.getElementById('f-placeholder').value = '';
+  document.getElementById('f-type').value = 'text';
+  document.getElementById('f-maxlen').value = '';
+  document.getElementById('f-required').checked = false;
+  document.getElementById('f-unique').checked = false;
+  document.getElementById('f-status').value = 'active';
+  document.getElementById('f-desc').value = '';
+  clearErrors();
+  document.getElementById('fieldDrawer').classList.add('is-open');
+}
+
+function addFieldToGroup(groupId) {
+  editingField = { groupId, fieldId: null };
+  document.getElementById('drawerTitle').textContent = '新增字段';
+  document.getElementById('f-display-name').value = '';
+  document.getElementById('f-placeholder').value = '';
+  document.getElementById('f-type').value = 'text';
+  document.getElementById('f-maxlen').value = '';
+  document.getElementById('f-required').checked = false;
+  document.getElementById('f-unique').checked = false;
+  document.getElementById('f-status').value = 'active';
+  document.getElementById('f-desc').value = '';
+  clearErrors();
+  document.getElementById('fieldDrawer').classList.add('is-open');
+}
+
+function openEditField(groupId, fieldId) {
+  const g = groups.find(x => x.id === groupId);
+  if (!g) return;
+  const f = g.fields.find(x => x.id === fieldId);
+  if (!f) return;
+  editingField = { groupId, fieldId };
+  document.getElementById('drawerTitle').textContent = '编辑字段 - ' + f.displayName;
+  document.getElementById('f-display-name').value = f.displayName;
+  document.getElementById('f-placeholder').value = f.placeholder || '';
+  document.getElementById('f-type').value = f.type;
+  document.getElementById('f-maxlen').value = f.maxLength || '';
+  document.getElementById('f-required').checked = f.required;
+  document.getElementById('f-unique').checked = f.unique;
+  document.getElementById('f-status').value = f.status;
+  document.getElementById('f-desc').value = f.desc || '';
+  clearErrors();
+  document.getElementById('fieldDrawer').classList.add('is-open');
+}
+
+function closeDrawer() {
+  document.getElementById('fieldDrawer').classList.remove('is-open');
+  editingField = null;
+}
+
+function clearErrors() {
+  document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.form-input').forEach(el => el.classList.remove('has-error'));
+}
+
+function saveField() {
+  clearErrors();
+  const displayName = document.getElementById('f-display-name').value.trim();
+  const placeholder = document.getElementById('f-placeholder').value.trim();
+  const type = document.getElementById('f-type').value;
+  const maxLength = parseInt(document.getElementById('f-maxlen').value) || 0;
+  const required = document.getElementById('f-required').checked;
+  const unique = document.getElementById('f-unique').checked;
+  const status = document.getElementById('f-status').value;
+  const desc = document.getElementById('f-desc').value.trim();
+
+  let valid = true;
+  if (!displayName) {
+    document.getElementById('displayNameError').classList.add('show');
+    document.getElementById('f-display-name').classList.add('has-error');
+    valid = false;
+  }
+
+  if (!valid) {
+    showToast('请检查必填项', 'warning');
+    return;
+  }
+
+  if (!editingField) return;
+  const g = groups.find(x => x.id === editingField.groupId);
+  if (!g) return;
+
+  if (editingField.fieldId) {
+    const f = g.fields.find(x => x.id === editingField.fieldId);
+    if (f) {
+      Object.assign(f, { displayName, placeholder, type, maxLength, required, unique, status, desc });
+    }
+    showToast('字段已更新', 'success');
+  } else {
+    g.fields.push({ id: nextFieldId++, displayName, type, required, unique, status, syncTag: '', placeholder, maxLength, desc });
+    showToast('字段已创建', 'success');
+  }
+
+  closeDrawer();
+  renderGroups();
+}
+
+// ========== Sync Tag ==========
+function openSyncTagModal(groupId, fieldId) {
+  syncTagTarget = { groupId, fieldId };
+  const g = groups.find(x => x.id === groupId);
+  if (!g) return;
+  const f = g.fields.find(x => x.id === fieldId);
+  if (!f) return;
+  document.getElementById('syncTagSelect').value = f.syncTag || '';
+  document.getElementById('syncTagModal').classList.add('show');
+}
+
+function closeSyncTagModal() {
+  document.getElementById('syncTagModal').classList.remove('show');
+  syncTagTarget = null;
+}
+
+function confirmSyncTag() {
+  if (!syncTagTarget) return;
+  const g = groups.find(x => x.id === syncTagTarget.groupId);
+  if (!g) return;
+  const f = g.fields.find(x => x.id === syncTagTarget.fieldId);
+  if (!f) return;
+  f.syncTag = document.getElementById('syncTagSelect').value;
+  closeSyncTagModal();
+  renderGroups();
+  showToast('同步标签已更新', 'success');
+}
+
+// ========== Delete ==========
+function openDeleteFieldModal(groupId, fieldId) {
+  const g = groups.find(x => x.id === groupId);
+  if (!g) return;
+  const f = g.fields.find(x => x.id === fieldId);
+  if (!f) return;
+  deleteTarget = { groupId, fieldId };
+  document.getElementById('deleteMsg').textContent = `确定要删除字段「${f.displayName}」吗？`;
+  document.getElementById('deleteSub').textContent = '此操作不可撤销';
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteTarget = null;
+}
+
+function confirmDelete() {
+  if (!deleteTarget) return;
+  const g = groups.find(x => x.id === deleteTarget.groupId);
+  if (!g) return;
+  const idx = g.fields.findIndex(x => x.id === deleteTarget.fieldId);
+  if (idx < 0) return;
+  g.fields.splice(idx, 1);
+  selectedIds.delete(deleteTarget.fieldId);
+  closeDeleteModal();
+  renderGroups();
+  showToast('字段已删除', 'info');
+}
+
+function deleteGroup(groupId) {
+  const g = groups.find(x => x.id === groupId);
+  if (!g || g.fields.length > 0) return;
+  groups = groups.filter(x => x.id !== groupId);
+  renderGroups();
+  showToast('分组已删除', 'info');
+}
+
+function batchDeleteSelected() {
+  if (selectedIds.size === 0) return;
+  document.getElementById('deleteMsg').textContent = `确定要删除选中的 ${selectedIds.size} 个字段吗？`;
+  document.getElementById('deleteSub').textContent = '此操作不可撤销';
+  document.getElementById('confirmDeleteBtn').onclick = () => {
+    groups.forEach(g => {
+      g.fields = g.fields.filter(f => !selectedIds.has(f.id));
+    });
+    const count = selectedIds.size;
+    selectedIds.clear();
+    closeDeleteModal();
+    document.getElementById('confirmDeleteBtn').onclick = confirmDelete;
+    renderGroups();
+    showToast(`已删除 ${count} 个字段`, 'info');
+  };
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+// ========== New Group ==========
+function openAddGroupModal() {
+  document.getElementById('g-name').value = '';
+  document.getElementById('addGroupModal').classList.add('show');
+}
+
+function closeAddGroupModal() {
+  document.getElementById('addGroupModal').classList.remove('show');
+}
+
+function confirmAddGroup() {
+  const name = document.getElementById('g-name').value.trim();
+  if (!name) {
+    showToast('请输入分组名称', 'warning');
+    return;
+  }
+  groups.push({ id: nextGroupId++, name, collapsed: false, fields: [] });
+  closeAddGroupModal();
+  renderGroups();
+  showToast('分组已创建', 'success');
+}
+
+// ========== Drag & Drop ==========
+function onDragStart(e, groupId, fieldId) {
+  dragId = { groupId, fieldId };
+  e.target.closest('tr').classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onDrop(e, targetGroupId, targetFieldId) {
+  e.preventDefault();
+  if (!dragId || dragId.fieldId === targetFieldId) return;
+  if (dragId.groupId !== targetGroupId) return; // Only same-group drag
+
+  const g = groups.find(x => x.id === dragId.groupId);
+  if (!g) return;
+  const fromIdx = g.fields.findIndex(f => f.id === dragId.fieldId);
+  const toIdx = g.fields.findIndex(f => f.id === targetFieldId);
+  if (fromIdx < 0 || toIdx < 0) return;
+  const [moved] = g.fields.splice(fromIdx, 1);
+  g.fields.splice(toIdx, 0, moved);
+  dragId = null;
+  renderGroups();
+}
+
+function onDragEnd(e) {
+  e.target.closest('tr').classList.remove('dragging');
+  dragId = null;
+}
+
+// ========== Toast ==========
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-10px)'; t.style.transition = 'all 250ms'; }, 2200);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ========== Utils ==========
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ========== Keyboard ==========
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeDrawer();
+    closeDeleteModal();
+    closeAddGroupModal();
+    closeSyncTagModal();
+  }
+});
+
+['deleteModal', 'addGroupModal', 'syncTagModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+
+// ========== Init ==========
+renderGroups();
+</script>
+
+</body>
+</html>

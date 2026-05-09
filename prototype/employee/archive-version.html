@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工档案版本管理 - 青阳云HR SaaS</title>
+    <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../../styles/qingyang-base.css">
+    <style>
+        .page-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .page-title { font-size: 18px; font-weight: 600; }
+
+        /* 员工信息卡片 */
+        .employee-hero {
+            background: var(--qy-bg-primary); border-radius: var(--qy-radius-lg);
+            border: 1px solid var(--qy-border-light); padding: 24px; margin-bottom: 24px;
+            display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center;
+        }
+        .employee-avatar {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--qy-primary-50); display: flex; align-items: center;
+            justify-content: center; font-size: 24px; color: var(--qy-primary-600); font-weight: 600;
+        }
+        .employee-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .employee-meta { display: flex; gap: 16px; font-size: 13px; color: var(--qy-text-secondary); }
+        .employee-meta span { display: flex; align-items: center; gap: 4px; }
+
+        /* 版本时间线 */
+        .version-timeline { position: relative; padding-left: 32px; }
+        .version-timeline::before {
+            content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+            width: 2px; background: var(--qy-border-light);
+        }
+        .version-item {
+            position: relative; margin-bottom: 16px;
+            background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md); overflow: hidden;
+        }
+        .version-item.current { border-color: var(--qy-primary-500); box-shadow: 0 0 0 1px var(--qy-primary-500); }
+        .version-item::before {
+            content: ''; position: absolute; left: -26px; top: 20px;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--qy-border-light); border: 2px solid var(--qy-bg-primary);
+        }
+        .version-item.current::before { background: var(--qy-primary-500); border-color: var(--qy-primary-100); }
+        .version-header {
+            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--qy-bg-secondary); border-bottom: 1px solid var(--qy-border-light);
+        }
+        .version-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: var(--qy-radius-full); font-size: 12px; font-weight: 500;
+        }
+        .version-badge.current { background: var(--qy-primary-50); color: var(--qy-primary-600); }
+        .version-badge.historical { background: var(--qy-bg-tertiary); color: var(--qy-text-secondary); }
+        .version-body { padding: 16px; }
+        .version-field { display: grid; grid-template-columns: 120px 1fr; gap: 8px; margin-bottom: 8px; }
+        .version-field:last-child { margin-bottom: 0; }
+        .version-label { font-size: 12px; color: var(--qy-text-secondary); }
+        .version-value { font-size: 13px; }
+
+        /* 变更对比 */
+        .change-diff {
+            display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px;
+            border-radius: var(--qy-radius-sm); font-size: 12px;
+        }
+        .change-diff.old { background: var(--qy-error-50); color: var(--qy-error-600); text-decoration: line-through; }
+        .change-diff.new { background: var(--qy-success-50); color: var(--qy-success-600); }
+        .change-arrow { color: var(--qy-text-muted); margin: 0 4px; }
+
+        /* 操作按钮组 */
+        .action-bar {
+            display: flex; gap: 8px; padding: 16px;
+            border-top: 1px solid var(--qy-border-light);
+        }
+
+        /* 筛选面板 */
+        .filter-bar {
+            display: flex; gap: 12px; margin-bottom: 24px; align-items: center; flex-wrap: wrap;
+        }
+        .qy-select { min-width: 180px; }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: var(--qy-z-modal-backdrop);
+            background: var(--qy-modal-overlay); display: none; align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.is-visible { display: flex; }
+        .modal-box {
+            background: var(--qy-bg-primary); border-radius: var(--qy-modal-radius);
+            box-shadow: var(--qy-modal-shadow); width: 90%; max-width: 480px;
+            padding: 24px; text-align: center;
+        }
+        .modal-box h3 { font-size: 16px; margin-bottom: 12px; }
+        .modal-box p { font-size: 13px; color: var(--qy-text-secondary); margin-bottom: 20px; }
+        .modal-actions { display: flex; gap: 8px; justify-content: center; }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <button class="qy-btn qy-btn--text" onclick="history.back()">← 返回</button>
+            <h1 class="page-title">员工档案版本管理</h1>
+        </div>
+
+        <!-- 员工信息 -->
+        <div class="employee-hero">
+            <div class="employee-avatar">张</div>
+            <div>
+                <div class="employee-name">张三</div>
+                <div class="employee-meta">
+                    <span>📱 15827115531</span>
+                    <span>🪪 421023199802058319</span>
+                    <span>🏢 全职 · 正式 · 在职</span>
+                </div>
+            </div>
+            <div>
+                <button class="qy-btn qy-btn--primary" onclick="showTransferModal()">发起调动</button>
+            </div>
+        </div>
+
+        <!-- 筛选 -->
+        <div class="filter-bar">
+            <span style="font-size: 13px; font-weight: 500;">筛选：</span>
+            <select class="qy-select" id="filterEntity">
+                <option value="">全部结算主体</option>
+                <option value="1" selected>无锡一技信息科技有限公司</option>
+                <option value="2">深圳青阳财税服务有限公司</option>
+            </select>
+            <select class="qy-select" id="filterStatus">
+                <option value="">全部状态</option>
+                <option value="current">当前版本</option>
+                <option value="historical">历史版本</option>
+            </select>
+            <span style="font-size: 12px; color: var(--qy-text-secondary); margin-left: auto;" id="versionCount">
+                共 3 个版本
+            </span>
+        </div>
+
+        <!-- 版本时间线 -->
+        <div class="version-timeline" id="versionTimeline">
+            <!-- 当前版本 -->
+            <div class="version-item current" data-version="3" data-status="current">
+                <div class="version-header">
+                    <div>
+                        <span class="version-badge current">● 当前版本</span>
+                        <span style="font-size: 13px; font-weight: 500; margin-left: 8px;">V3</span>
+                    </div>
+                    <span style="font-size: 12px; color: var(--qy-text-secondary);">2026-04-01 至今</span>
+                </div>
+                <div class="version-body">
+                    <div class="version-field">
+                        <span class="version-label">结算主体</span>
+                        <span class="version-value">深圳青阳财税服务有限公司</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属客户</span>
+                        <span class="version-value">立人科技</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属合同</span>
+                        <span class="version-value">立人服务协议</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属项目</span>
+                        <span class="version-value">立人外包项目</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">参保主体</span>
+                        <span class="version-value">深圳青阳人力资源服务有限公司</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">变更原因</span>
+                        <span class="version-value">调动（从无锡一技 → 深圳青阳）</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史版本 2 -->
+            <div class="version-item" data-version="2" data-status="historical">
+                <div class="version-header">
+                    <div>
+                        <span class="version-badge historical">历史版本</span>
+                        <span style="font-size: 13px; font-weight: 500; margin-left: 8px;">V2</span>
+                    </div>
+                    <span style="font-size: 12px; color: var(--qy-text-secondary);">2026-01-01 ~ 2026-03-31</span>
+                </div>
+                <div class="version-body">
+                    <div class="version-field">
+                        <span class="version-label">结算主体</span>
+                        <span class="version-value">
+                            <span class="change-diff old">无锡一技信息科技有限公司</span>
+                        </span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属客户</span>
+                        <span class="version-value">
+                            <span class="change-diff old">优派人力</span>
+                            <span class="change-arrow">→</span>
+                            <span class="change-diff new">优派人力</span>
+                        </span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">变更原因</span>
+                        <span class="version-value">客户变更</span>
+                    </div>
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--qy-border-light);">
+                        <span style="font-size: 12px; color: var(--qy-text-secondary);">该版本下的保险记录：</span>
+                        <div style="display: flex; gap: 6px; margin-top: 4px;">
+                            <span class="qy-tag qy-tag--success">养老保险 已参保</span>
+                            <span class="qy-tag qy-tag--success">医疗保险 已参保</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史版本 1 -->
+            <div class="version-item" data-version="1" data-status="historical">
+                <div class="version-header">
+                    <div>
+                        <span class="version-badge historical">历史版本</span>
+                        <span style="font-size: 13px; font-weight: 500; margin-left: 8px;">V1（初始）</span>
+                    </div>
+                    <span style="font-size: 12px; color: var(--qy-text-secondary);">2025-02-02 ~ 2025-12-31</span>
+                </div>
+                <div class="version-body">
+                    <div class="version-field">
+                        <span class="version-label">结算主体</span>
+                        <span class="version-value">无锡一技信息科技有限公司</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属客户</span>
+                        <span class="version-value">优派人力</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属合同</span>
+                        <span class="version-value">深圳外包服务合同A</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">所属项目</span>
+                        <span class="version-value">深圳外包项目一</span>
+                    </div>
+                    <div class="version-field">
+                        <span class="version-label">变更原因</span>
+                        <span class="version-value">入职</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 调动模态框 -->
+    <div class="modal-overlay" id="transferModal">
+        <div class="modal-box">
+            <h3>发起调动</h3>
+            <p>调动功能原型：选择新结算主体、客户、合同、项目，提交后生成新版本。</p>
+            <div class="modal-actions">
+                <button class="qy-btn qy-btn--secondary" onclick="closeTransferModal()">取消</button>
+                <button class="qy-btn qy-btn--primary" onclick="closeTransferModal()">确认调动</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 筛选功能 - 按状态过滤
+        document.getElementById('filterStatus').addEventListener('change', function() {
+            const val = this.value;
+            const items = document.querySelectorAll('.version-item');
+            let visibleCount = 0;
+            items.forEach(item => {
+                if (!val) { item.style.display = ''; visibleCount++; return; }
+                if (val === 'current') {
+                    if (item.classList.contains('current')) {
+                        item.style.display = ''; visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                } else if (val === 'historical') {
+                    if (!item.classList.contains('current')) {
+                        item.style.display = ''; visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+            document.getElementById('versionCount').textContent = '共 ' + visibleCount + ' 个版本';
+        });
+
+        // 筛选功能 - 按结算主体过滤（演示）
+        document.getElementById('filterEntity').addEventListener('change', function() {
+            // 原型演示：不做实际过滤，仅提示
+            const val = this.value;
+            if (val) {
+                const name = this.options[this.selectedIndex].text;
+                console.log('筛选结算主体：' + name);
+            }
+        });
+
+        // 调动模态框
+        function showTransferModal() {
+            document.getElementById('transferModal').classList.add('is-visible');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transferModal').classList.remove('is-visible');
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('transferModal').addEventListener('click', function(e) {
+            if (e.target === this) { closeTransferModal(); }
+        });
+    </script>
+</body>
+</html>

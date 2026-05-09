@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>结算方案 - 账单明细（优化版）</title>
+  <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../../styles/qingyang-base.css">
+  <link rel="stylesheet" href="../../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+  <style>
+    /* ========================================
+       账单明细页面优化版样式
+       基于青阳云设计规范 + UX优化
+       ======================================== */
+
+    /* 页面容器 */
+    .page-container {
+      min-height: 100vh;
+      background: var(--qy-bg-secondary);
+    }
+
+    /* 顶部导航 */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--qy-header-height);
+      padding: 0 var(--qy-content-padding-x);
+      background: var(--qy-bg-primary);
+      border-bottom: 1px solid var(--qy-border-light);
+      position: sticky;
+      top: 0;
+      z-index: var(--qy-z-sticky);
+    }
+
+    .page-header__left {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+    }
+
+    .page-header__back {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-1);
+      color: var(--qy-text-secondary);
+      cursor: pointer;
+      padding: var(--qy-space-2);
+      border-radius: var(--qy-radius-md);
+      transition: all var(--qy-transition-fast);
+    }
+
+    .page-header__back:hover {
+      color: var(--qy-color-primary);
+      background: var(--qy-bg-secondary);
+    }
+
+    .page-header__title {
+      font-size: var(--qy-font-size-16);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+    }
+
+    /* 主内容区 */
+    .page-content {
+      padding: var(--qy-content-padding-y) var(--qy-content-padding-x);
+      max-width: var(--qy-content-max-width);
+      margin: 0 auto;
+    }
+
+    /* ========================================
+       1. 步骤进度条
+       ======================================== */
+    .step-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--qy-space-2);
+      padding: var(--qy-space-4) var(--qy-space-6);
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      margin-bottom: var(--qy-space-4);
+      box-shadow: var(--qy-shadow-card);
+    }
+
+    .step-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--qy-space-2);
+      height: 44px;
+      padding: 0 var(--qy-space-3);
+      border-radius: var(--qy-radius-md);
+      background: var(--qy-bg-tertiary);
+      border: 2px solid transparent;
+      font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium);
+      color: var(--qy-text-muted);
+      cursor: pointer;
+      transition: all var(--qy-transition-normal);
+      position: relative;
+    }
+
+    .step-item__number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--qy-text-muted);
+      color: var(--qy-bg-primary);
+      font-size: var(--qy-font-size-12);
+      font-weight: var(--qy-font-weight-semibold);
+      transition: all var(--qy-transition-normal);
+    }
+
+    .step-item.active {
+      background: var(--qy-primary-50);
+      border-color: var(--qy-primary-500);
+      color: var(--qy-color-primary);
+    }
+
+    .step-item.active .step-item__number {
+      background: var(--qy-color-primary);
+    }
+
+    .step-item.completed {
+      background: var(--qy-success-50);
+      border-color: var(--qy-success-500);
+      color: var(--qy-success-600);
+    }
+
+    .step-item.completed .step-item__number {
+      background: var(--qy-success-500);
+    }
+
+    .step-item.completed .step-item__number::after {
+      content: '✓';
+      font-size: var(--qy-font-size-12);
+    }
+
+    .step-item.completed .step-item__number span {
+      display: none;
+    }
+
+    /* 连接线 */
+    .step-connector {
+      width: 24px;
+      height: 2px;
+      background: var(--qy-border-medium);
+      flex-shrink: 0;
+    }
+
+    .step-connector.completed {
+      background: var(--qy-success-500);
+    }
+
+    /* ========================================
+       2. Tab 导航
+       ======================================== */
+    .tab-nav {
+      display: flex;
+      gap: var(--qy-space-1);
+      padding: var(--qy-space-3) var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      margin-bottom: var(--qy-space-4);
+      box-shadow: var(--qy-shadow-card);
+      overflow-x: auto;
+    }
+
+    .tab-item {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+      padding: var(--qy-space-2) var(--qy-space-4);
+      border-radius: var(--qy-radius-md);
+      font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium);
+      color: var(--qy-text-secondary);
+      cursor: pointer;
+      transition: all var(--qy-transition-fast);
+      white-space: nowrap;
+    }
+
+    .tab-item:hover {
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-primary);
+    }
+
+    .tab-item.active {
+      background: var(--qy-primary-50);
+      color: var(--qy-color-primary);
+    }
+
+    .tab-item__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 6px;
+      border-radius: var(--qy-radius-full);
+      background: var(--qy-bg-tertiary);
+      font-size: var(--qy-font-size-11);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-muted);
+    }
+
+    .tab-item.active .tab-item__badge {
+      background: var(--qy-primary-100);
+      color: var(--qy-color-primary);
+    }
+
+    .tab-item.completed .tab-item__badge {
+      background: var(--qy-success-100);
+      color: var(--qy-success-600);
+    }
+
+    /* ========================================
+       3. 搜索和操作栏
+       ======================================== */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--qy-space-4);
+      padding: var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      margin-bottom: var(--qy-space-4);
+      box-shadow: var(--qy-shadow-card);
+    }
+
+    .toolbar__left {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+    }
+
+    .toolbar__right {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+    }
+
+    /* 搜索框组 */
+    .search-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 240px;
+      height: var(--qy-input-height-md);
+      padding: 0 var(--qy-space-8) 0 var(--qy-space-3);
+      border: 1px solid var(--qy-input-border);
+      border-radius: var(--qy-input-radius);
+      font-size: var(--qy-input-font-size);
+      background: var(--qy-input-bg);
+      transition: all var(--qy-transition-fast);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--qy-input-border-focus);
+      box-shadow: var(--qy-shadow-focus);
+    }
+
+    .search-input::placeholder {
+      color: var(--qy-text-muted);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: var(--qy-space-3);
+      color: var(--qy-text-muted);
+      pointer-events: none;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: var(--qy-space-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--qy-bg-tertiary);
+      border: none;
+      color: var(--qy-text-muted);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity var(--qy-transition-fast);
+    }
+
+    .search-input:not(:placeholder-shown) + .search-icon + .search-clear {
+      opacity: 1;
+    }
+
+    .search-clear:hover {
+      background: var(--qy-border-medium);
+      color: var(--qy-text-primary);
+    }
+
+    /* ========================================
+       4. 汇总区域 - 支持多统计项
+       ======================================== */
+    .summary-section {
+      margin-bottom: var(--qy-space-4);
+    }
+
+    .summary-section__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--qy-space-3);
+    }
+
+    .summary-section__title {
+      font-size: var(--qy-font-size-14);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+    }
+
+    /* 视图切换按钮 */
+    .summary-section__view-toggle {
+      display: flex;
+      gap: var(--qy-space-1);
+    }
+
+    .view-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--qy-radius-md);
+      background: transparent;
+      border: 1px solid var(--qy-border-light);
+      color: var(--qy-text-muted);
+      cursor: pointer;
+      transition: all var(--qy-transition-fast);
+    }
+
+    .view-toggle-btn:hover {
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-primary);
+    }
+
+    .view-toggle-btn.is-active {
+      background: var(--qy-primary-50);
+      border-color: var(--qy-primary-500);
+      color: var(--qy-color-primary);
+    }
+
+    /* 统计项容器 */
+    .summary-stats {
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      box-shadow: var(--qy-shadow-card);
+      overflow: hidden;
+    }
+
+    /* ========== 水平滚动视图 ========== */
+    .summary-stats--scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .summary-stats--scroll .summary-stats__list {
+      display: flex;
+      flex-wrap: nowrap;
+      min-width: max-content;
+    }
+
+    .summary-stats--scroll .summary-stat {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-3);
+      padding: var(--qy-space-4) var(--qy-space-5);
+      border-right: 1px solid var(--qy-border-light);
+      min-width: 180px;
+    }
+
+    .summary-stats--scroll .summary-stat:last-child {
+      border-right: none;
+    }
+
+    .summary-stats--scroll .summary-stat__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--qy-radius-md);
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-secondary);
+      flex-shrink: 0;
+    }
+
+    .summary-stats--scroll .summary-stat__content {
+      flex: 1;
+    }
+
+    .summary-stats--scroll .summary-stat__label {
+      font-size: var(--qy-font-size-12);
+      color: var(--qy-text-muted);
+      margin-bottom: 2px;
+    }
+
+    .summary-stats--scroll .summary-stat__value {
+      font-size: var(--qy-font-size-16);
+      font-weight: var(--qy-font-weight-bold);
+      color: var(--qy-text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ========== 流式换行视图 ========== */
+    .summary-stats--flow .summary-stats__list {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .summary-stats--flow .summary-stat {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+      padding: var(--qy-space-3) var(--qy-space-4);
+      border-bottom: 1px solid var(--qy-border-light);
+      width: 100%;
+    }
+
+    .summary-stats--flow .summary-stat:nth-last-child(-n+2):not(:nth-last-child(1)) {
+      border-bottom: none;
+    }
+
+    @media (min-width: 768px) {
+      .summary-stats--flow .summary-stat {
+        width: 50%;
+        border-bottom: none;
+        border-right: 1px solid var(--qy-border-light);
+      }
+
+      .summary-stats--flow .summary-stat:nth-child(2n) {
+        border-right: none;
+      }
+
+      .summary-stats--flow .summary-stat:nth-last-child(-n+2) {
+        border-bottom: none;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .summary-stats--flow .summary-stat {
+        width: 25%;
+        border-right: 1px solid var(--qy-border-light);
+        border-bottom: none;
+      }
+
+      .summary-stats--flow .summary-stat:nth-child(4n) {
+        border-right: none;
+      }
+    }
+
+    .summary-stats--flow .summary-stat__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--qy-radius-md);
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-secondary);
+      flex-shrink: 0;
+    }
+
+    .summary-stats--flow .summary-stat__label {
+      font-size: var(--qy-font-size-11);
+      color: var(--qy-text-muted);
+      flex-shrink: 0;
+    }
+
+    .summary-stats--flow .summary-stat__value {
+      font-size: var(--qy-font-size-14);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+      font-variant-numeric: tabular-nums;
+      margin-left: auto;
+    }
+
+    /* 隐藏/显示视图 */
+    .summary-stats--scroll .summary-stats__flow,
+    .summary-stats--flow .summary-stats__scroll {
+      display: none;
+    }
+
+    /* ========================================
+       5. 数据表格 - 优化版
+       ======================================== */
+    .table-card {
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      box-shadow: var(--qy-shadow-card);
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--qy-font-size-13);
+    }
+
+    .data-table thead {
+      background: var(--qy-table-header-bg);
+    }
+
+    .data-table th {
+      padding: var(--qy-table-cell-padding-y) var(--qy-table-cell-padding-x);
+      text-align: left;
+      font-size: var(--qy-font-size-12);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: var(--qy-letter-spacing-wide);
+      border-bottom: 1px solid var(--qy-table-border);
+      white-space: nowrap;
+    }
+
+    /* 优化：数字列右对齐 */
+    .data-table th.num,
+    .data-table td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 证件号码左对齐 */
+    .data-table th.id,
+    .data-table td.id {
+      text-align: left;
+    }
+
+    /* 姓名列居中 */
+    .data-table th.center,
+    .data-table td.center {
+      text-align: center;
+    }
+
+    .data-table td {
+      padding: var(--qy-table-cell-padding-y) var(--qy-table-cell-padding-x);
+      border-bottom: 1px solid var(--qy-table-border);
+      vertical-align: middle;
+      color: var(--qy-text-primary);
+    }
+
+    .data-table tbody tr {
+      transition: background var(--qy-transition-fast);
+    }
+
+    .data-table tbody tr:hover td {
+      background: var(--qy-table-row-hover);
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* 金额单元格 */
+    .cell-amount {
+      font-variant-numeric: tabular-nums;
+      font-family: var(--qy-font-mono);
+    }
+
+    /* 证件号码 */
+    .cell-id {
+      font-family: var(--qy-font-mono);
+      font-size: var(--qy-font-size-12);
+      color: var(--qy-text-secondary);
+    }
+
+    /* 操作列 */
+    .cell-action {
+      text-align: center;
+    }
+
+    .btn-detail {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: var(--qy-space-1) var(--qy-space-3);
+      height: 28px;
+      border-radius: var(--qy-radius-md);
+      font-size: var(--qy-font-size-12);
+      font-weight: var(--qy-font-weight-medium);
+      color: var(--qy-color-primary);
+      background: transparent;
+      border: 1px solid var(--qy-primary-200);
+      cursor: pointer;
+      transition: all var(--qy-transition-fast);
+    }
+
+    .btn-detail:hover {
+      background: var(--qy-primary-50);
+      border-color: var(--qy-color-primary);
+    }
+
+    .btn-detail:focus {
+      outline: none;
+      box-shadow: var(--qy-shadow-focus);
+    }
+
+    /* ========================================
+       6. 空状态
+       ======================================== */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--qy-space-16) var(--qy-space-4);
+      text-align: center;
+    }
+
+    .empty-state__icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: var(--qy-space-4);
+      color: var(--qy-text-disabled);
+    }
+
+    .empty-state__title {
+      font-size: var(--qy-font-size-16);
+      font-weight: var(--qy-font-weight-semibold);
+      color: var(--qy-text-primary);
+      margin-bottom: var(--qy-space-2);
+    }
+
+    .empty-state__desc {
+      font-size: var(--qy-font-size-13);
+      color: var(--qy-text-muted);
+      max-width: 300px;
+    }
+
+    /* ========================================
+       7. 分页组件
+       ======================================== */
+    .pagination-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--qy-space-4);
+      border-top: 1px solid var(--qy-border-light);
+    }
+
+    .pagination-info {
+      font-size: var(--qy-font-size-13);
+      color: var(--qy-text-secondary);
+    }
+
+    .pagination-info strong {
+      color: var(--qy-text-primary);
+      font-weight: var(--qy-font-weight-semibold);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-1);
+    }
+
+    .pagination__item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--qy-page-item-size);
+      height: var(--qy-page-item-size);
+      padding: 0 var(--qy-space-2);
+      border-radius: var(--qy-page-item-radius);
+      font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium);
+      color: var(--qy-text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all var(--qy-transition-fast);
+    }
+
+    .pagination__item:hover:not(.is-active):not(:disabled) {
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-primary);
+    }
+
+    .pagination__item.is-active {
+      background: var(--qy-color-primary);
+      color: var(--qy-text-inverse);
+    }
+
+    .pagination__item:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination__ellipsis {
+      padding: 0 var(--qy-space-1);
+      color: var(--qy-text-muted);
+    }
+
+    .pagination__select {
+      display: flex;
+      align-items: center;
+      gap: var(--qy-space-2);
+      margin-left: var(--qy-space-4);
+    }
+
+    .pagination__select label {
+      font-size: var(--qy-font-size-13);
+      color: var(--qy-text-secondary);
+    }
+
+    .pagination__select select {
+      height: var(--qy-page-item-size);
+      padding: 0 var(--qy-space-3);
+      border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-page-item-radius);
+      font-size: var(--qy-font-size-13);
+      background: var(--qy-bg-primary);
+      cursor: pointer;
+    }
+
+    /* ========================================
+       8. 底部导航
+       ======================================== */
+    .bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--qy-space-4);
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      margin-top: var(--qy-space-4);
+      box-shadow: var(--qy-shadow-card);
+    }
+
+    .bottom-nav__hint {
+      font-size: var(--qy-font-size-13);
+      color: var(--qy-text-muted);
+    }
+
+    .bottom-nav__buttons {
+      display: flex;
+      gap: var(--qy-space-3);
+    }
+
+    /* ========================================
+       9. 响应式适配
+       ======================================== */
+    @media (max-width: 1440px) {
+      .data-table {
+        font-size: var(--qy-font-size-12);
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: var(--qy-space-2) var(--qy-space-3);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toolbar__left,
+      .toolbar__right {
+        width: 100%;
+      }
+
+      .toolbar__right {
+        margin-top: var(--qy-space-3);
+        justify-content: flex-end;
+      }
+
+      .search-input {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        padding: 0 var(--qy-space-4);
+      }
+
+      .page-content {
+        padding: var(--qy-space-4);
+      }
+
+      .step-progress {
+        padding: var(--qy-space-3);
+        gap: var(--qy-space-1);
+      }
+
+      .step-item__label {
+        display: none;
+      }
+
+      .step-item__number {
+        width: 28px;
+        height: 28px;
+      }
+
+      .summary-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .pagination-wrapper {
+        flex-direction: column;
+        gap: var(--qy-space-3);
+      }
+    }
+
+    /* ========================================
+       10. 工具类
+       ======================================== */
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+
+    /* 金额千分位格式化显示 */
+    .amount {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .amount::before {
+      content: '¥';
+      margin-right: 2px;
+      font-size: 0.9em;
+      color: var(--qy-text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <!-- 顶部导航 -->
+    <header class="page-header">
+      <div class="page-header__left">
+        <div class="page-header__back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+          返回
+        </div>
+        <h1 class="page-header__title">账单明细</h1>
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="page-content">
+      <!-- 步骤进度 -->
+      <div class="step-progress">
+        <div class="step-item completed">
+          <span class="step-item__number"><span>1</span></span>
+          <span class="step-item__label">基础配置</span>
+        </div>
+        <div class="step-connector completed"></div>
+        <div class="step-item completed">
+          <span class="step-item__number"><span>2</span></span>
+          <span class="step-item__label">结算明细</span>
+        </div>
+        <div class="step-connector completed"></div>
+        <div class="step-item completed">
+          <span class="step-item__number"><span>3</span></span>
+          <span class="step-item__label">核算账单</span>
+        </div>
+        <div class="step-connector completed"></div>
+        <div class="step-item completed">
+          <span class="step-item__number"><span>4</span></span>
+          <span class="step-item__label">归档账单</span>
+        </div>
+        <div class="step-connector completed"></div>
+        <div class="step-item active">
+          <span class="step-item__number"><span>5</span></span>
+          <span class="step-item__label">账单明细</span>
+        </div>
+      </div>
+
+      <!-- Tab 导航 -->
+      <div class="tab-nav">
+        <div class="tab-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          确认结算明细
+        </div>
+        <div class="tab-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          确认结算人员
+          <span class="tab-item__badge">24</span>
+        </div>
+        <div class="tab-item completed">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+          3核算账单
+          <span class="tab-item__badge">✓</span>
+        </div>
+        <div class="tab-item completed">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="21 8 21 21 3 21 3 8"/>
+            <rect x="1" y="3" width="22" height="5"/>
+            <line x1="10" y1="12" x2="14" y2="12"/>
+          </svg>
+          4归档账单
+          <span class="tab-item__badge">✓</span>
+        </div>
+        <div class="tab-item active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          账单明细
+          <span class="tab-item__badge">24</span>
+        </div>
+      </div>
+
+      <!-- 搜索和操作栏 -->
+      <div class="toolbar">
+        <div class="toolbar__left">
+          <div class="search-group">
+            <input type="text" class="search-input" placeholder="姓名" id="searchName">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <button class="search-clear" type="button" aria-label="清除搜索">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <button class="qy-btn qy-btn--primary qy-btn--md" id="btnSearch">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            搜 索
+          </button>
+        </div>
+        <div class="toolbar__right">
+          <button class="qy-btn qy-btn--secondary qy-btn--md" id="btnExport">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            导出明细
+          </button>
+        </div>
+      </div>
+
+      <!-- 汇总区域 -->
+      <div class="summary-section">
+        <div class="summary-section__header">
+          <span class="summary-section__title">结算汇总</span>
+          <div class="summary-section__view-toggle">
+            <button class="view-toggle-btn is-active" id="btnScrollView" title="水平滚动视图" aria-label="水平滚动视图">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 14 10 14 10 20"/>
+                <polyline points="20 10 14 10 14 4"/>
+                <line x1="14" y1="10" x2="21" y2="3"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </button>
+            <button class="view-toggle-btn" id="btnFlowView" title="流式换行视图" aria-label="流式换行视图">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 统计项容器 -->
+        <div class="summary-stats summary-stats--scroll" id="summaryStats">
+          <!-- 水平滚动视图 -->
+          <div class="summary-stats__list summary-stats__scroll">
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">服务费合计</div>
+                <div class="summary-stat__value">¥660.00</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">税费合计</div>
+                <div class="summary-stat__value">¥4,004.46</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">代扣代缴工资</div>
+                <div class="summary-stat__value">¥239,616.00</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">结算人数</div>
+                <div class="summary-stat__value">24 人</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">结算月份</div>
+                <div class="summary-stat__value">2026年3月</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">应发总额</div>
+                <div class="summary-stat__value">¥244,280.46</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">实发总额</div>
+                <div class="summary-stat__value">¥240,276.00</div>
+              </div>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div class="summary-stat__content">
+                <div class="summary-stat__label">结算耗时</div>
+                <div class="summary-stat__value">2.5 小时</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 流式换行视图 -->
+          <div class="summary-stats__list summary-stats__flow">
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">服务费合计</span>
+              <span class="summary-stat__value">¥660.00</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">税费合计</span>
+              <span class="summary-stat__value">¥4,004.46</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">代扣代缴工资</span>
+              <span class="summary-stat__value">¥239,616.00</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">结算人数</span>
+              <span class="summary-stat__value">24 人</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">结算月份</span>
+              <span class="summary-stat__value">2026年3月</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">应发总额</span>
+              <span class="summary-stat__value">¥244,280.46</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">实发总额</span>
+              <span class="summary-stat__value">¥240,276.00</span>
+            </div>
+            <div class="summary-stat">
+              <div class="summary-stat__icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <span class="summary-stat__label">结算耗时</span>
+              <span class="summary-stat__value">2.5 小时</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table class="data-table" role="grid">
+            <thead>
+              <tr>
+                <th class="center">姓名</th>
+                <th class="id">证件号码</th>
+                <th class="center">入职日期</th>
+                <th class="num">服务费</th>
+                <th class="num">税费</th>
+                <th class="num">应发工资</th>
+                <th class="num">实发工资</th>
+                <th class="center">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- 数据行将通过 JavaScript 渲染 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 空状态（默认隐藏） -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="11" x2="12" y2="17"/>
+            <line x1="9" y1="14" x2="15" y2="14"/>
+          </svg>
+          <div class="empty-state__title">暂无数据</div>
+          <div class="empty-state__desc">请调整搜索条件或重新获取数据</div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-wrapper">
+          <div class="pagination-info">
+            共 <strong>24</strong> 条数据
+          </div>
+          <div class="pagination">
+            <button class="pagination__item" disabled aria-label="上一页">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <button class="pagination__item is-active">1</button>
+            <button class="pagination__item">2</button>
+            <button class="pagination__item">3</button>
+            <span class="pagination__ellipsis">...</span>
+            <button class="pagination__item">10</button>
+            <button class="pagination__item" aria-label="下一页">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+            <div class="pagination__select">
+              <label>10 条/页</label>
+              <select aria-label="每页条数">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部导航 -->
+      <div class="bottom-nav">
+        <div class="bottom-nav__hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          请确认结算明细无误后再进行下一步
+        </div>
+        <div class="bottom-nav__buttons">
+          <button class="qy-btn qy-btn--secondary qy-btn--lg" id="btnPrev">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+            上一步
+          </button>
+          <button class="qy-btn qy-btn--primary qy-btn--lg" id="btnNext">
+            完成结算
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // 模拟数据
+    const mockData = [
+      { name: '张伟', id: '640201200707181283', entryDate: '2025/9/30', serviceFee: 33.00, taxFee: 200.24, grossWage: 10012.00, netWage: 9979.00 },
+      { name: '李娜', id: '43092319990205333333', entryDate: '2025/12/22', serviceFee: 0, taxFee: 0.00, grossWage: 10023.00, netWage: 10023.00 },
+      { name: '王秀英', id: '220101200312053742', entryDate: '2025/9/29', serviceFee: 33.00, taxFee: 200.44, grossWage: 10022.00, netWage: 9989.00 },
+      { name: '赵敏', id: '430923199902051189', entryDate: '2026/1/1', serviceFee: 0, taxFee: 0.00, grossWage: 10021.00, netWage: 10021.00 },
+      { name: '陈静', id: '350201200301101512', entryDate: '2025/11/4', serviceFee: 33.00, taxFee: 200.40, grossWage: 10020.00, netWage: 9987.00 },
+      { name: '林志明', id: '530101197902143543', entryDate: '2025/10/28', serviceFee: 33.00, taxFee: 200.38, grossWage: 10019.00, netWage: 9986.00 },
+      { name: '周婷婷', id: '530201200704119366', entryDate: '2025/10/28', serviceFee: 33.00, taxFee: 200.36, grossWage: 10018.00, netWage: 9985.00 },
+      { name: '吴建华', id: '540101197804243470', entryDate: '2025/10/27', serviceFee: 33.00, taxFee: 200.34, grossWage: 10017.00, netWage: 9984.00 },
+      { name: '郑晓东', id: '500101198501114636', entryDate: '2025/9/29', serviceFee: 33.00, taxFee: 200.32, grossWage: 10016.00, netWage: 9983.00 },
+      { name: '孙国庆', id: '420101200204278095', entryDate: '2025/9/30', serviceFee: 33.00, taxFee: 200.30, grossWage: 10015.00, netWage: 9982.00 },
+    ];
+
+    // 格式化金额（千分位）
+    function formatAmount(num) {
+      return '¥' + num.toLocaleString('zh-CN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    // 渲染表格
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody');
+      const emptyState = document.getElementById('emptyState');
+      const tableWrapper = document.querySelector('.table-wrapper');
+
+      if (data.length === 0) {
+        tbody.innerHTML = '';
+        tableWrapper.style.display = 'none';
+        emptyState.style.display = 'flex';
+        return;
+      }
+
+      tableWrapper.style.display = 'block';
+      emptyState.style.display = 'none';
+
+      tbody.innerHTML = data.map(item => `
+        <tr>
+          <td class="center">${item.name}</td>
+          <td class="id">${item.id}</td>
+          <td class="center">${item.entryDate}</td>
+          <td class="num cell-amount">${formatAmount(item.serviceFee)}</td>
+          <td class="num cell-amount">${formatAmount(item.taxFee)}</td>
+          <td class="num cell-amount">${formatAmount(item.grossWage)}</td>
+          <td class="num cell-amount">${formatAmount(item.netWage)}</td>
+          <td class="cell-action">
+            <button class="btn-detail" aria-label="查看 ${item.name} 的明细">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              明细
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // 搜索功能
+    function handleSearch() {
+      const searchValue = document.getElementById('searchName').value.trim().toLowerCase();
+      if (!searchValue) {
+        renderTable(mockData);
+        return;
+      }
+      const filtered = mockData.filter(item => item.name.toLowerCase().includes(searchValue));
+      renderTable(filtered);
+    }
+
+    // 清除搜索
+    function handleClearSearch() {
+      document.getElementById('searchName').value = '';
+      renderTable(mockData);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 渲染初始数据
+      renderTable(mockData);
+
+      // 绑定搜索按钮
+      document.getElementById('btnSearch').addEventListener('click', handleSearch);
+
+      // 绑定回车搜索
+      document.getElementById('searchName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          handleSearch();
+        }
+      });
+
+      // 绑定清除按钮
+      document.querySelector('.search-clear').addEventListener('click', handleClearSearch);
+
+      // 绑定导出按钮
+      document.getElementById('btnExport').addEventListener('click', function() {
+        alert('导出功能开发中...');
+      });
+
+      // 绑定上一步按钮
+      document.getElementById('btnPrev').addEventListener('click', function() {
+        alert('返回上一步：归档账单');
+      });
+
+      // 绑定完成结算按钮
+      document.getElementById('btnNext').addEventListener('click', function() {
+        alert('完成结算！');
+      });
+
+      // 绑定明细按钮（事件委托）
+      document.getElementById('tableBody').addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-detail');
+        if (btn) {
+          const name = btn.getAttribute('aria-label').replace('查看 ', '').replace(' 的明细', '');
+          alert(`查看 ${name} 的明细`);
+        }
+      });
+
+      // 汇总视图切换
+      const summaryStats = document.getElementById('summaryStats');
+      const btnScrollView = document.getElementById('btnScrollView');
+      const btnFlowView = document.getElementById('btnFlowView');
+
+      btnScrollView.addEventListener('click', function() {
+        summaryStats.classList.remove('summary-stats--flow');
+        summaryStats.classList.add('summary-stats--scroll');
+        btnScrollView.classList.add('is-active');
+        btnFlowView.classList.remove('is-active');
+      });
+
+      btnFlowView.addEventListener('click', function() {
+        summaryStats.classList.remove('summary-stats--scroll');
+        summaryStats.classList.add('summary-stats--flow');
+        btnFlowView.classList.add('is-active');
+        btnScrollView.classList.remove('is-active');
+      });
+    });
+  </script>
+</body>
+</html>

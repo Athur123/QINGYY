@@ -2,11 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Dual Agent Support
+
+This repository is intentionally set up to support both **Claude Code** and **Codex** from the same project root.
+
+- `CLAUDE.md` is the Claude Code entry file
+- `AGENTS.md` is the Codex entry file
+- Shared repository guidance should stay aligned in both files
+- Claude-specific local config lives in `.claude/`
+- Codex-specific local config lives in `.codex/`
+- Codex project skills live in `.agents/skills/`
+
 ## Project Overview
 
 This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) system project — a SaaS HR management platform. The codebase is a **prototype and design system repository** (no build process, no package.json):
 
-1. **HTML Prototypes** (`prototype/`) — 42 HTML prototype pages for the HRO system
+1. **HTML Prototypes** (`prototype/`) — 41 HTML prototype pages organized by business module
 2. **Design System** (`styles/`) — CSS/SCSS component library with 25+ components
 3. **Design Documentation** — Specs, plans, SQL drafts, and code wiki
 4. **Claude Skills** (`.claude/skills/`) — Browser automation for the live HRO system
@@ -16,7 +27,7 @@ This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) sys
 
 | Directory | Purpose |
 |-----------|---------|
-| `prototype/` | HTML prototype pages (42 files) — open directly in browser |
+| `prototype/` | HTML prototype pages (41 files in 7 modules) — serve from project root |
 | `styles/` | Design system CSS/SCSS files |
 | `docs/` | Code Wiki, specs, plans, and SQL drafts |
 | `docs/superpowers/specs/` | Design specifications |
@@ -24,7 +35,9 @@ This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) sys
 | `docs/superpowers/sql/` | Database migration drafts |
 | `scripts/` | Utility scripts (PDF conversion, git hooks, memory update) |
 | `.claude/skills/` | Automation skills for Qingyang Cloud |
+| `.agents/skills/` | Codex project skills for Qingyang Cloud |
 | `.claude/memory/` | Persistent session memory |
+| `.codex/` | Codex local configuration (machine-local, do not commit secrets) |
 
 ## Design System
 
@@ -59,27 +72,27 @@ Components use the `qy-` prefix (BEM-style):
 
 ## Prototype Pages
 
-Key HTML prototypes in `prototype/`:
+Prototypes organized by business module under `prototype/`. Serve from project root: `python3 -m http.server 8080`, then navigate to `http://localhost:8080/prototype/<module>/<page>.html`.
 
-| Page | Description |
-|------|-------------|
-| `qingyang-policy-optimized.html` | Social insurance policy page |
-| `qingyang-reconciliation-summary.html` | Reconciliation rule summary list |
-| `qingyang-reconciliation-unified.html` | Reconciliation detail (system/ledger bills) |
-| `settlement-plan-optimized.html` | Settlement plan management |
-| `settlement-detail-optimized.html` | Settlement detail page |
-| `employee-detail-redesign.html` | Employee detail redesign |
-| `social-insurance-rule-stepper.html` | Insurance rule stepper wizard |
-| `insurance-cost-allocation.html` | Insurance cost allocation |
-| `field-collection-config-demo.html` | Field collection config |
-| `approval-template-management.html` | Approval template management |
-| `sys-log.html` | System log viewer |
+| Module | Directory | Active Pages |
+|--------|-----------|-------------|
+| **对账复核** | `reconciliation/` | `summary.html` (汇总列表), `unified.html` (明细核对) |
+| **社保计算** | `calculator/` | `index.html` (计算器), `policy.html` (政策), `region-rules.html`, `sub-account.html`, `formula-recognition.html` |
+| **员工管理** | `employee/` | `detail.html` (员工详情), `change-field.html` (异动采集), `cost-detail.html`, `archive-version.html` |
+| **结算方案** | `settlement/` | `plan.html` (结算列表), `detail.html` (结算详情), `cost-attribution.html`, `cost-allocation.html` |
+| **参保配置** | `insurance-config/` | `stepper.html` (规则向导), `field-collection.html`, `global-field.html` |
+| **审批管理** | `approval/` | `template-management.html` |
+| **系统** | `system/` | `log-viewer.html`, `sys-log.html` |
 
-**Versioning pattern:** Files with `-v2`, `-v3`, `-approach3`, `-approach4`, `-redesign` suffixes are iterative explorations. The latest/current version usually has no suffix or `-optimized`.
+**Versioning:** Old iterations kept alongside active pages (e.g., `calculator/v2.html`, `v3.html`; `employee/detail-v2.html`, `detail-old.html`; `reconciliation/approach3.html`).
 
 ## Claude Skills
 
 Skills in `.claude/skills/` automate interactions with the live Qingyang HRO system.
+
+## Codex Compatibility
+
+Codex reads the root-level `AGENTS.md`. Keep shared project facts synchronized between `CLAUDE.md` and `AGENTS.md`, store Codex project skills in `.agents/skills/`, and keep Codex machine-local environment settings in `.codex/config.toml`.
 
 ### Available Skills
 
@@ -105,19 +118,14 @@ Skills in `.claude/skills/` automate interactions with the live Qingyang HRO sys
 ## Development Workflow
 
 ### Viewing Prototypes
-Open HTML files directly in browser:
+Serve via Python HTTP server from project root (required for CSS paths to resolve):
 ```bash
-open prototype/qingyang-policy-optimized.html
-```
-
-Or serve via Python HTTP server:
-```bash
-# IMPORTANT: Serve from project root so ../styles/ CSS paths resolve correctly
 python3 -m http.server 8080
-# Then navigate to http://localhost:8080/prototype/<page>.html
+# Navigate to http://localhost:8080/prototype/<module>/<page>.html
+# Example: http://localhost:8080/prototype/reconciliation/summary.html
 ```
 
-**GOTCHA:** Serving from `prototype/` directory (e.g. `cd prototype && python3 -m http.server 8000`) causes CSS 404 errors because prototypes reference `../styles/` with relative paths. Always serve from project root.
+**GOTCHA:** Prototypes are one level deeper now (`prototype/<module>/`), CSS references use `../../styles/`. Always serve from project root.
 
 ### Browser Testing with Playwright MCP
 
@@ -196,3 +204,4 @@ Utility scripts in `scripts/`:
 4. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
 5. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source
 6. **Post-commit memory update** — After each commit, `update-memory.sh` auto-generates a changelog in `.claude/memory/changes/` and updates `MEMORY.md`
+7. **Keep local agent config out of version control** — `.claude/settings.local.json` and `.codex/config.toml` should remain machine-local because they can contain credentials

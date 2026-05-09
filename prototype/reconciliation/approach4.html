@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+<他></他><!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社保对账复核 - 方案三：三单分离模式 - 青阳云 HRO</title>
+    <title>社保对账复核 - 三单分离模式 v4 - 青阳云 HRO</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/qingyang-variables.css">
-    <link rel="stylesheet" href="../styles/qingyang-base.css">
-    <link rel="stylesheet" href="../styles/qingyang-components.css">
-    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../../styles/qingyang-forms.css">
     <style>
         :root {
             --huijiao-primary: #2563EB;
@@ -169,34 +169,89 @@
         .month-badge { display: inline-block; padding: 2px 6px; background: var(--qy-bg-secondary); border-radius: var(--qy-radius-sm); font-size: 11px; color: var(--qy-text-secondary); }
 
         /* Dashboard Summary (inline) */
-        .dashboard-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; padding-left: 0; margin-left: 0; margin-right: 0; }
-        .dashboard-summary__card { display: flex; align-items: center; gap: 16px; padding: 14px 18px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); cursor: pointer; transition: all var(--qy-transition-fast); }
+        .dashboard-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .dashboard-summary__card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); cursor: pointer; transition: all var(--qy-transition-fast); overflow: hidden; min-height: 90px; }
         .dashboard-summary__card:hover { box-shadow: var(--qy-shadow-md); }
         .dashboard-summary__card--huijiao { border-left: 3px solid var(--huijiao-primary); }
         .dashboard-summary__card--bujiao { border-left: 3px solid var(--bujiao-primary); }
         .dashboard-summary__card--tiaoji { border-left: 3px solid var(--tiaoji-primary); }
+        .dashboard-summary__card--summary { background: var(--qy-bg-secondary); border-left: 3px solid var(--qy-text-muted); }
         .dashboard-summary__card.is-active { box-shadow: 0 0 0 2px var(--huijiao-primary); }
         .dashboard-summary__card--huijiao.is-active { box-shadow: 0 0 0 2px var(--huijiao-primary); }
         .dashboard-summary__card--bujiao.is-active { box-shadow: 0 0 0 2px var(--bujiao-primary); }
         .dashboard-summary__card--tiaoji.is-active { box-shadow: 0 0 0 2px var(--tiaoji-primary); }
-        .dashboard-summary__icon { width: 40px; height: 40px; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .dashboard-summary__card--summary.is-active { box-shadow: 0 0 0 2px var(--qy-text-muted); }
+        .dashboard-summary__icon { width: 36px; height: 36px; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
         .dashboard-summary__card--huijiao .dashboard-summary__icon { background: var(--huijiao-light); }
         .dashboard-summary__card--bujiao .dashboard-summary__icon { background: var(--bujiao-light); }
         .dashboard-summary__card--tiaoji .dashboard-summary__icon { background: var(--tiaoji-light); }
-        .dashboard-summary__info { flex: 1; min-width: 0; }
-        .dashboard-summary__title { font-size: 13px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 4px; }
-        .dashboard-summary__stats { font-size: 12px; color: var(--qy-text-secondary); display: flex; gap: 12px; }
-        .dashboard-summary__stat { display: flex; align-items: center; gap: 4px; }
+        .dashboard-summary__card--summary .dashboard-summary__icon { background: var(--qy-bg-tertiary); }
+        .dashboard-summary__info { flex: 1; min-width: 0; overflow: hidden; }
+        .dashboard-summary__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dashboard-summary__stats { font-size: 11px; color: var(--qy-text-secondary); display: flex; gap: 8px; flex-wrap: nowrap; }
+        .dashboard-summary__stat { display: flex; align-items: center; gap: 2px; white-space: nowrap; }
         .dashboard-summary__stat-value { font-weight: 600; color: var(--qy-text-primary); }
-        .dashboard-summary__diff { margin-left: auto; text-align: right; flex-shrink: 0; }
-        .dashboard-summary__diff-value { font-size: 16px; font-weight: 700; color: var(--qy-error-500); }
-        .dashboard-summary__diff-label { font-size: 11px; color: var(--qy-text-muted); }
+        .dashboard-summary__money { display: flex; flex-direction: column; gap: 1px; min-width: 100px; flex-shrink: 0; }
+        .dashboard-summary__money-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; gap: 8px; }
+        .dashboard-summary__money-label { color: var(--qy-text-muted); flex-shrink: 0; }
+        .dashboard-summary__money-value { font-weight: 600; color: var(--qy-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .dashboard-summary__diff { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
+        .dashboard-summary__diff-value { font-size: 14px; font-weight: 700; color: var(--qy-error-500); line-height: 1.2; }
+        .dashboard-summary__diff-label { font-size: 10px; color: var(--qy-text-muted); white-space: nowrap; }
+        .dashboard-summary__summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 1px 0; gap: 8px; }
+        .dashboard-summary__summary-label { color: var(--qy-text-secondary); flex-shrink: 0; }
+        .dashboard-summary__summary-value { font-weight: 600; color: var(--qy-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .dashboard-summary__summary-value--highlight { color: var(--qy-error-500); }
 
         /* Alert Banner */
         .alert-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; margin-bottom: 16px; margin-left: 0; padding-left: 16px; }
         .alert-banner__icon { font-size: 16px; }
         .alert-banner__text { font-size: 13px; color: #991B1B; }
         .alert-banner__text strong { font-weight: 600; }
+
+        /* Diff Type Filter */
+        .diff-filter { display: flex; align-items: center; gap: 16px; padding: 10px 16px; background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-md); margin-bottom: 16px; }
+        .diff-filter__label { font-size: 12px; color: var(--qy-text-secondary); font-weight: 500; }
+        .diff-filter__item { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--qy-radius-sm); cursor: pointer; font-size: 12px; transition: all var(--qy-transition-fast); border: 1px solid transparent; }
+        .diff-filter__item:hover { background: var(--qy-bg-secondary); }
+        .diff-filter__item.is-active { border-color: currentColor; }
+        .diff-filter__item--system { color: #991B1B; }
+        .diff-filter__item--system.is-active { background: #FEE2E2; }
+        .diff-filter__item--ledger { color: #854D0E; }
+        .diff-filter__item--ledger.is-active { background: #FEF3C7; }
+        .diff-filter__item--all { color: var(--qy-text-secondary); }
+        .diff-filter__item--all.is-active { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .diff-filter__dot { width: 8px; height: 8px; border-radius: 50%; }
+        .diff-filter__dot--system { background: #EF4444; }
+        .diff-filter__dot--ledger { background: #F59E0B; }
+        .diff-filter__count { font-weight: 600; }
+
+        /* Detail Drawer */
+        .drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity var(--qy-transition-normal); }
+        .drawer-overlay.is-visible { opacity: 1; visibility: visible; }
+        .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 520px; max-width: 100%; background: var(--qy-bg-primary); box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12); display: flex; flex-direction: column; transform: translateX(100%); transition: transform var(--qy-transition-slow); }
+        .drawer-overlay.is-visible .drawer { transform: translateX(0); }
+        .drawer__header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .drawer__title { font-size: 16px; font-weight: 600; color: var(--qy-text-primary); }
+        .drawer__close { width: 32px; height: 32px; border: none; background: none; font-size: 20px; color: var(--qy-text-muted); cursor: pointer; border-radius: var(--qy-radius-md); display: flex; align-items: center; justify-content: center; }
+        .drawer__close:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+        .drawer__body { flex: 1; overflow-y: auto; padding: 20px; }
+        .drawer__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 20px; border-top: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .drawer-section { margin-bottom: 24px; }
+        .drawer-section__title { font-size: 13px; font-weight: 600; color: var(--qy-text-primary); padding-bottom: 10px; border-bottom: 1px solid var(--qy-border-light); margin-bottom: 12px; }
+        .drawer-section--system .drawer-section__title { color: var(--huijiao-primary); }
+        .drawer-section--ledger .drawer-section__title { color: var(--bujiao-primary); }
+        .drawer-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--qy-border-light); }
+        .drawer-row:last-child { border-bottom: none; }
+        .drawer-row__label { color: var(--qy-text-muted); flex-shrink: 0; }
+        .drawer-row__value { color: var(--qy-text-primary); font-weight: 500; text-align: right; }
+        .drawer-row__value--muted { color: var(--qy-text-muted); }
+        .drawer-analysis { background: var(--qy-bg-secondary); border-radius: var(--qy-radius-md); padding: 14px; }
+        .drawer-analysis__title { font-size: 12px; font-weight: 600; color: var(--qy-text-primary); margin-bottom: 8px; }
+        .drawer-analysis__content { font-size: 13px; color: var(--qy-text-secondary); line-height: 1.6; }
+        .drawer-analysis__cause { margin-top: 8px; font-size: 12px; color: var(--qy-text-muted); }
+        .drawer-multiple { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--qy-text-secondary); }
+        .drawer-multiple__badge { display: inline-flex; align-items: center; padding: 1px 6px; background: var(--tiaoji-light); color: var(--tiaoji-primary); border-radius: var(--qy-radius-sm); font-weight: 500; }
 
         /* Data Table */
         .data-table { background: var(--qy-bg-primary); border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); overflow-x: auto; }
@@ -307,7 +362,7 @@
             <div class="qy-page">
                 <div class="qy-page__header">
                     <h1 class="qy-page__title">社保对账复核</h1>
-                    <p class="qy-page__subtitle">方案三：三单分离模式 — 汇缴/补缴/调基补差独立对账</p>
+                    <p class="qy-page__subtitle">三单分离模式 — 汇缴/补缴/调基补差独立对账（PRD v4）</p>
                 </div>
 
                 <!-- Toolbar -->
@@ -320,7 +375,6 @@
                         <select class="qy-select" id="filterSettlement">
                             <option value="">按结算主体</option>
                         </select>
-                        <input type="text" class="qy-input" placeholder="姓名/证件号">
                         <button class="qy-btn qy-btn--primary">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                             搜索
@@ -336,18 +390,53 @@
 
                 <!-- Dashboard Summary -->
                 <div class="dashboard-summary" id="dashboardSummary">
+                    <div class="dashboard-summary__card dashboard-summary__card--summary" id="summaryCard">
+                        <div class="dashboard-summary__icon">📊</div>
+                        <div class="dashboard-summary__info">
+                            <div class="dashboard-summary__title">账单总额</div>
+                            <div class="dashboard-summary__stats">
+                                <span class="dashboard-summary__stat">已确认 <span class="dashboard-summary__stat-value" id="summaryChecked">0</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="summaryTotal">0</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统</span>
+                                <span class="dashboard-summary__money-value" id="summarySysAmount">¥0</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账</span>
+                                <span class="dashboard-summary__money-value" id="summaryLedgerAmount">¥0</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__diff">
+                            <div class="dashboard-summary__diff-value" id="summaryTotalDiff">0</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
+                        </div>
+                    </div>
+
                     <div class="dashboard-summary__card dashboard-summary__card--huijiao is-active" data-tab="huijiao">
                         <div class="dashboard-summary__icon">💰</div>
                         <div class="dashboard-summary__info">
                             <div class="dashboard-summary__title">汇缴账单</div>
                             <div class="dashboard-summary__stats">
-                                <span class="dashboard-summary__stat">已匹配 <span class="dashboard-summary__stat-value">1,238</span></span>
-                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value">1,256</span></span>
+                                <span class="dashboard-summary__stat">已核对 <span class="dashboard-summary__stat-value" id="huijiaoChecked">1,238</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="huijiaoTotal">1,256</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统金额</span>
+                                <span class="dashboard-summary__money-value" id="huijiaoSysAmount">¥1,256,000</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账金额</span>
+                                <span class="dashboard-summary__money-value" id="huijiaoLedgerAmount">¥1,234,560</span>
                             </div>
                         </div>
                         <div class="dashboard-summary__diff">
-                            <div class="dashboard-summary__diff-value">18</div>
-                            <div class="dashboard-summary__diff-label">差异</div>
+                            <div class="dashboard-summary__diff-value" id="huijiaoDiffCount">18</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
                         </div>
                     </div>
 
@@ -356,13 +445,23 @@
                         <div class="dashboard-summary__info">
                             <div class="dashboard-summary__title">补缴账单</div>
                             <div class="dashboard-summary__stats">
-                                <span class="dashboard-summary__stat">已匹配 <span class="dashboard-summary__stat-value">8</span></span>
-                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value">12</span></span>
+                                <span class="dashboard-summary__stat">已确认 <span class="dashboard-summary__stat-value" id="bujiaoChecked">8</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="bujiaoTotal">12</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统金额</span>
+                                <span class="dashboard-summary__money-value" id="bujiaoSysAmount">¥28,500</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账金额</span>
+                                <span class="dashboard-summary__money-value" id="bujiaoLedgerAmount">¥26,800</span>
                             </div>
                         </div>
                         <div class="dashboard-summary__diff">
-                            <div class="dashboard-summary__diff-value">4</div>
-                            <div class="dashboard-summary__diff-label">差异</div>
+                            <div class="dashboard-summary__diff-value" id="bujiaoDiffCount">4</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
                         </div>
                     </div>
 
@@ -371,21 +470,25 @@
                         <div class="dashboard-summary__info">
                             <div class="dashboard-summary__title">调基补差账单</div>
                             <div class="dashboard-summary__stats">
-                                <span class="dashboard-summary__stat">已匹配 <span class="dashboard-summary__stat-value">3</span></span>
-                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value">5</span></span>
+                                <span class="dashboard-summary__stat">已确认 <span class="dashboard-summary__stat-value" id="tiaojiChecked">3</span></span>
+                                <span class="dashboard-summary__stat">总数 <span class="dashboard-summary__stat-value" id="tiaojiTotal">5</span></span>
+                            </div>
+                        </div>
+                        <div class="dashboard-summary__money">
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">系统金额</span>
+                                <span class="dashboard-summary__money-value" id="tiaojiSysAmount">¥12,300</span>
+                            </div>
+                            <div class="dashboard-summary__money-row">
+                                <span class="dashboard-summary__money-label">台账金额</span>
+                                <span class="dashboard-summary__money-value" id="tiaojiLedgerAmount">¥11,500</span>
                             </div>
                         </div>
                         <div class="dashboard-summary__diff">
-                            <div class="dashboard-summary__diff-value">2</div>
-                            <div class="dashboard-summary__diff-label">差异</div>
+                            <div class="dashboard-summary__diff-value" id="tiaojiDiffCount">2</div>
+                            <div class="dashboard-summary__diff-label">条差异</div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Alert Banner -->
-                <div class="alert-banner">
-                    <span class="alert-banner__icon">⚠️</span>
-                    <span class="alert-banner__text">当前共 <strong>24</strong> 条差异记录待处理（汇缴18 / 补缴4 / 调基2）</span>
                 </div>
 
                 <!-- Tab Bar -->
@@ -403,6 +506,22 @@
                             调基补差对账
                             <span class="tab-badge">5</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Diff Type Filter -->
+                <div class="diff-filter" id="diffFilter">
+                    <span class="diff-filter__label">差异筛选：</span>
+                    <div class="diff-filter__item diff-filter__item--all is-active" data-filter="all" onclick="toggleDiffFilter('all')">
+                        全部 <span class="diff-filter__count" id="diffCountAll">24</span>
+                    </div>
+                    <div class="diff-filter__item diff-filter__item--system" data-filter="system" onclick="toggleDiffFilter('system')">
+                        <span class="diff-filter__dot diff-filter__dot--system"></span>
+                        系统多 <span class="diff-filter__count" id="diffCountSystem">12</span>
+                    </div>
+                    <div class="diff-filter__item diff-filter__item--ledger" data-filter="ledger" onclick="toggleDiffFilter('ledger')">
+                        <span class="diff-filter__dot diff-filter__dot--ledger"></span>
+                        台账多 <span class="diff-filter__count" id="diffCountLedger">12</span>
                     </div>
                 </div>
 
@@ -513,6 +632,25 @@
     <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Detail Drawer -->
+    <div class="drawer-overlay" id="detailDrawer" onclick="closeDetailDrawer(event)">
+        <div class="drawer">
+            <div class="drawer__header">
+                <h3 class="drawer__title" id="drawerTitle">差异详情</h3>
+                <button class="drawer__close" onclick="closeDetailDrawer()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="drawer__body" id="drawerBody">
+                <!-- JS动态填充 -->
+            </div>
+            <div class="drawer__footer">
+                <button class="qy-btn qy-btn--secondary" onclick="closeDetailDrawer()">关闭</button>
+                <button class="qy-btn qy-btn--primary" id="drawerConfirmBtn" onclick="confirmFromDrawer()">确认核对</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ========== 数据模型 ==========
 
@@ -549,12 +687,154 @@
         // 同月多笔调基：按 身份证+险种+补差月份 分组，金额求和后再比对
         // 确认时系统自动将台账的 paidMonth（实缴月份）写入记录
         // 调基补差差异数据（包含同月份多笔示例）
+        // sysMultiple/ledgerMultiple：同月多笔合并笔数
         const TIAOJI_DIFFS = [
-            { id: 't1', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: 156, sysPersonal: 78, ledgerCompany: 156, ledgerPersonal: 78, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001' },
-            { id: 't2', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '医疗保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: null, sysPersonal: null, ledgerCompany: 37, ledgerPersonal: 19, matchStatus: RECORD_TYPES.LEDGER_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001' },
-            { id: 't3', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 446, sysPersonal: 222, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.SYSTEM_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001' },
-            { id: 't4', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-02', paidMonth: '2026-03', sysCompany: 223, sysPersonal: 111, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED, adjustmentId: 'TJ-202601-001' },
+            { id: 't1', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: 156, sysPersonal: 78, ledgerCompany: 156, ledgerPersonal: 78, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 1, ledgerMultiple: 1 },
+            { id: 't2', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '医疗保险', billingMonth: '2026-04', paidMonth: '2026-04', sysCompany: null, sysPersonal: null, ledgerCompany: 37, ledgerPersonal: 19, matchStatus: RECORD_TYPES.LEDGER_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 0, ledgerMultiple: 1 },
+            { id: 't3', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-03', paidMonth: '2026-04', sysCompany: 446, sysPersonal: 222, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.SYSTEM_MORE, verifyStatus: VERIFY_STATUS.PENDING, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 2, ledgerMultiple: 1, note: '系统有2笔调基记录（01-15调基¥223，01-28调基¥223），台账合并为1笔¥446' },
+            { id: 't4', name: '郑十一', idCard: '430113199809099012', customer: '另一家公司', insuranceType: '养老保险', billingMonth: '2026-02', paidMonth: '2026-03', sysCompany: 223, sysPersonal: 111, ledgerCompany: 223, ledgerPersonal: 111, matchStatus: RECORD_TYPES.MATCHED, verifyStatus: VERIFY_STATUS.VERIFIED, adjustmentId: 'TJ-202601-001', adjustmentMonth: '2026-01', sysMultiple: 1, ledgerMultiple: 1 },
         ];
+
+        // 当前差异类型筛选
+        let currentDiffFilter = 'all';
+        let currentDetailRecord = null;
+
+        // ========== 差异类型筛选 ==========
+        function toggleDiffFilter(filterType) {
+            currentDiffFilter = filterType;
+
+            // 更新UI
+            document.querySelectorAll('.diff-filter__item').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.filter === filterType);
+            });
+
+            // 重新渲染当前表格
+            renderCurrentTable();
+            updateDiffCounts();
+        }
+
+        function updateDiffCounts() {
+            const allDiffs = [...getCurrentTabDiffs()];
+            const systemCount = allDiffs.filter(d => d.matchStatus === RECORD_TYPES.SYSTEM_MORE).length;
+            const ledgerCount = allDiffs.filter(d => d.matchStatus === RECORD_TYPES.LEDGER_MORE).length;
+
+            document.getElementById('diffCountAll').textContent = allDiffs.length;
+            document.getElementById('diffCountSystem').textContent = systemCount;
+            document.getElementById('diffCountLedger').textContent = ledgerCount;
+
+            updateDashboardAmounts();
+        }
+
+        function updateDashboardAmounts() {
+            // 汇缴金额计算
+            const huijiaoAmounts = calculateBillAmounts(HUIJIAO_DIFFS);
+            document.getElementById('huijiaoSysAmount').textContent = formatCurrency(huijiaoAmounts.sysTotal);
+            document.getElementById('huijiaoLedgerAmount').textContent = formatCurrency(huijiaoAmounts.ledgerTotal);
+            document.getElementById('huijiaoDiffCount').textContent = huijiaoAmounts.diffCount;
+            document.getElementById('huijiaoChecked').textContent = huijiaoAmounts.checkedCount.toLocaleString();
+            document.getElementById('huijiaoTotal').textContent = huijiaoAmounts.totalCount.toLocaleString();
+
+            // 补缴金额计算
+            const bujiaoAmounts = calculateBillAmounts(BUJIAO_DIFFS);
+            document.getElementById('bujiaoSysAmount').textContent = formatCurrency(bujiaoAmounts.sysTotal);
+            document.getElementById('bujiaoLedgerAmount').textContent = formatCurrency(bujiaoAmounts.ledgerTotal);
+            document.getElementById('bujiaoDiffCount').textContent = bujiaoAmounts.diffCount;
+            document.getElementById('bujiaoChecked').textContent = bujiaoAmounts.checkedCount.toLocaleString();
+            document.getElementById('bujiaoTotal').textContent = bujiaoAmounts.totalCount.toLocaleString();
+
+            // 调基补差金额计算
+            const tiaojiAmounts = calculateBillAmounts(TIAOJI_DIFFS);
+            document.getElementById('tiaojiSysAmount').textContent = formatCurrency(tiaojiAmounts.sysTotal);
+            document.getElementById('tiaojiLedgerAmount').textContent = formatCurrency(tiaojiAmounts.ledgerTotal);
+            document.getElementById('tiaojiDiffCount').textContent = tiaojiAmounts.diffCount;
+            document.getElementById('tiaojiChecked').textContent = tiaojiAmounts.checkedCount.toLocaleString();
+            document.getElementById('tiaojiTotal').textContent = tiaojiAmounts.totalCount.toLocaleString();
+
+            // 汇总金额计算
+            const totalSys = huijiaoAmounts.sysTotal + bujiaoAmounts.sysTotal + tiaojiAmounts.sysTotal;
+            const totalLedger = huijiaoAmounts.ledgerTotal + bujiaoAmounts.ledgerTotal + tiaojiAmounts.ledgerTotal;
+            const totalDiff = huijiaoAmounts.diffCount + bujiaoAmounts.diffCount + tiaojiAmounts.diffCount;
+            const totalChecked = huijiaoAmounts.checkedCount + bujiaoAmounts.checkedCount + tiaojiAmounts.checkedCount;
+            const totalCount = huijiaoAmounts.totalCount + bujiaoAmounts.totalCount + tiaojiAmounts.totalCount;
+
+            document.getElementById('summarySysAmount').textContent = formatCurrency(totalSys);
+            document.getElementById('summaryLedgerAmount').textContent = formatCurrency(totalLedger);
+            document.getElementById('summaryTotalDiff').textContent = totalDiff;
+            document.getElementById('summaryChecked').textContent = totalChecked.toLocaleString();
+            document.getElementById('summaryTotal').textContent = totalCount.toLocaleString();
+        }
+
+        function calculateBillAmounts(diffs) {
+            let sysTotal = 0;
+            let ledgerTotal = 0;
+            let diffCount = 0;
+            let systemMoreCount = 0;
+            let ledgerMoreCount = 0;
+            let totalCount = diffs.length;
+            let checkedCount = 0;
+
+            diffs.forEach(d => {
+                // 系统金额累加（只累加有效的金额）
+                if (d.sysCompany != null && d.sysPersonal != null) {
+                    sysTotal += d.sysCompany + d.sysPersonal;
+                }
+                // 台账金额累加（只累加有效的金额）
+                if (d.ledgerCompany != null && d.ledgerPersonal != null) {
+                    ledgerTotal += d.ledgerCompany + d.ledgerPersonal;
+                }
+                // 差异计数（系统多或台账多）
+                if (d.matchStatus === RECORD_TYPES.SYSTEM_MORE) {
+                    diffCount++;
+                    systemMoreCount++;
+                } else if (d.matchStatus === RECORD_TYPES.LEDGER_MORE) {
+                    diffCount++;
+                    ledgerMoreCount++;
+                }
+                // 已确认计数
+                if (d.hasOwnProperty('verified')) {
+                    // 汇缴
+                    if (d.verified) checkedCount++;
+                } else if (d.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                    // 补缴/调基
+                    checkedCount++;
+                }
+            });
+
+            return { sysTotal, ledgerTotal, diffCount, systemMoreCount, ledgerMoreCount, totalCount, checkedCount };
+        }
+
+        function formatCurrency(value) {
+            if (value === 0) return '¥0';
+            return '¥' + value.toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function getCurrentTabDiffs() {
+            const activeTab = document.querySelector('.tab-item.is-active')?.dataset.tab || 'huijiao';
+            switch (activeTab) {
+                case 'huijiao': return HUIJIAO_DIFFS;
+                case 'bujiao': return BUJIAO_DIFFS;
+                case 'tiaoji': return TIAOJI_DIFFS;
+                default: return HUIJIAO_DIFFS;
+            }
+        }
+
+        function getFilteredDiffs(diffs) {
+            if (currentDiffFilter === 'all') return diffs;
+            return diffs.filter(d => {
+                if (currentDiffFilter === 'system') return d.matchStatus === RECORD_TYPES.SYSTEM_MORE;
+                if (currentDiffFilter === 'ledger') return d.matchStatus === RECORD_TYPES.LEDGER_MORE;
+                return true;
+            });
+        }
+
+        function renderCurrentTable() {
+            const activeTab = document.querySelector('.tab-item.is-active')?.dataset.tab || 'huijiao';
+            switch (activeTab) {
+                case 'huijiao': renderHuijiaoTable(); break;
+                case 'bujiao': renderBujiaoTable(); break;
+                case 'tiaoji': renderTiaojiTable(); break;
+            }
+        }
 
         // ========== 渲染函数 ==========
 
@@ -625,7 +905,8 @@
         // verified 字段保留用于标识是否需要人工介入（如金额不一致时的处理）
         function renderHuijiaoTable() {
             const tbody = document.getElementById('huijiaoTableBody');
-            tbody.innerHTML = HUIJIAO_DIFFS.map(diff => {
+            const filteredDiffs = getFilteredDiffs(HUIJIAO_DIFFS);
+            tbody.innerHTML = filteredDiffs.map(diff => {
                 const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
                 const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
                 const diff_val = (sysTotal !== null && ledgerTotal !== null) ? sysTotal - ledgerTotal : (sysTotal !== null ? sysTotal : (ledgerTotal !== null ? -ledgerTotal : null));
@@ -637,7 +918,7 @@
                 const diffDetail = hasDiff ? `<span class="money-cell__split">${diffCompany !== null ? '单位:' + (diffCompany > 0 ? '+' : '') + formatMoney(diffCompany) : ''} ${diffPersonal !== null ? '个人:' + (diffPersonal > 0 ? '+' : '') + formatMoney(diffPersonal) : ''}</span>` : '';
 
                 return `<tr class="${getRowClass(diff.matchStatus)}">
-                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox" class="row-checkbox" data-id="${diff.id}" onchange="updateBatchButtons('huijiao')"></td>
                     <td><strong>${diff.name}</strong>${getMatchStatusBadge(diff)}</td>
                     <td>${maskIdCard(diff.idCard)}</td>
                     <td>${diff.customer}</td>
@@ -663,9 +944,10 @@
                         </div>
                     </td>
                     <td>${getVerifyBadge(diff)}</td>
-                    <td><button class="btn-action" onclick="showDetail('${diff.id}')">详情</button></td>
+                    <td><button class="btn-action" onclick="showDetail('${diff.id}', 'huijiao')">详情</button></td>
                 </tr>`;
             }).join('');
+            updateDiffCounts();
         }
 
         // 补缴表格渲染
@@ -673,7 +955,8 @@
         // 确认时系统自动将台账的 paidMonth（实缴月份）写入记录
         function renderBujiaoTable() {
             const tbody = document.getElementById('bujiaoTableBody');
-            tbody.innerHTML = BUJIAO_DIFFS.map(diff => {
+            const filteredDiffs = getFilteredDiffs(BUJIAO_DIFFS);
+            tbody.innerHTML = filteredDiffs.map(diff => {
                 const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
                 const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
                 const diff_val = (sysTotal !== null && ledgerTotal !== null) ? sysTotal - ledgerTotal : (sysTotal !== null ? sysTotal : (ledgerTotal !== null ? -ledgerTotal : null));
@@ -688,11 +971,11 @@
                 const sysPaidMonthDisplay = diff.verifyStatus === VERIFY_STATUS.VERIFIED ? `<span class="month-badge" style="background:var(--qy-success-100);color:var(--qy-success-700);">${diff.paidMonth}</span>` : `<span style="color:var(--qy-text-muted);">—</span>`;
 
                 // 操作按钮：根据核对状态显示不同按钮
-                let actionBtn = `<button class="btn-action" onclick="showDetail('${diff.id}')">详情</button>`;
+                let actionBtn = `<button class="btn-action" onclick="showDetail('${diff.id}', 'bujiao')">详情</button>`;
                 if (diff.verifyStatus === VERIFY_STATUS.PENDING && diff.matchStatus === RECORD_TYPES.MATCHED) {
-                    actionBtn = `<button class="btn-action" onclick="confirmVerify('${diff.id}', 'bujiao')" style="color:var(--bujiao-primary);">确认核对</button> <button class="btn-action" onclick="showDetail('${diff.id}')">详情</button>`;
+                    actionBtn = `<button class="btn-action" onclick="confirmVerify('${diff.id}', 'bujiao')" style="color:var(--bujiao-primary);">确认核对</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'bujiao')">详情</button>`;
                 } else if (diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
-                    actionBtn = `<button class="btn-action" onclick="cancelConfirm('${diff.id}', 'bujiao')" style="color:var(--qy-text-muted);">取消确认</button> <button class="btn-action" onclick="showDetail('${diff.id}')">详情</button>`;
+                    actionBtn = `<button class="btn-action" onclick="cancelConfirm('${diff.id}', 'bujiao')" style="color:var(--qy-text-muted);">取消确认</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'bujiao')">详情</button>`;
                 }
 
                 return `<tr class="${getRowClass(diff.matchStatus)}">
@@ -726,6 +1009,7 @@
                     <td>${actionBtn}</td>
                 </tr>`;
             }).join('');
+            updateDiffCounts();
         }
 
         function confirmBujiao(id) {
@@ -740,7 +1024,8 @@
         // 调基补差表格渲染
         function renderTiaojiTable() {
             const tbody = document.getElementById('tiaojiTableBody');
-            tbody.innerHTML = TIAOJI_DIFFS.map(diff => {
+            const filteredDiffs = getFilteredDiffs(TIAOJI_DIFFS);
+            tbody.innerHTML = filteredDiffs.map(diff => {
                 const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
                 const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
                 const diff_val = (sysTotal !== null && ledgerTotal !== null) ? sysTotal - ledgerTotal : (sysTotal !== null ? sysTotal : (ledgerTotal !== null ? -ledgerTotal : null));
@@ -754,17 +1039,23 @@
                 // 系统实缴月份：已确认显示月份，未确认显示—
                 const sysPaidMonthDisplay = diff.verifyStatus === VERIFY_STATUS.VERIFIED ? `<span class="month-badge" style="background:var(--qy-success-100);color:var(--qy-success-700);">${diff.paidMonth}</span>` : `<span style="color:var(--qy-text-muted);">—</span>`;
 
+                // 同月多笔合并笔数提示
+                const multipleInfo = (diff.sysMultiple > 1 || diff.ledgerMultiple > 1) ? `<span class="drawer-multiple__badge" title="系统${diff.sysMultiple}笔 / 台账${diff.ledgerMultiple}笔">含合并</span>` : '';
+
                 // 操作按钮：根据核对状态显示不同按钮
-                let actionBtn = `<button class="btn-action" onclick="showDetail('${diff.id}')">详情</button>`;
+                let actionBtn = `<button class="btn-action" onclick="showDetail('${diff.id}', 'tiaoji')">详情</button>`;
                 if (diff.verifyStatus === VERIFY_STATUS.PENDING && diff.matchStatus === RECORD_TYPES.MATCHED) {
-                    actionBtn = `<button class="btn-action" onclick="confirmVerify('${diff.id}', 'tiaoji')" style="color:var(--tiaoji-primary);">确认核对</button> <button class="btn-action" onclick="showDetail('${diff.id}')">详情</button>`;
+                    actionBtn = `<button class="btn-action" onclick="confirmVerify('${diff.id}', 'tiaoji')" style="color:var(--tiaoji-primary);">确认核对</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'tiaoji')">详情</button>`;
                 } else if (diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
-                    actionBtn = `<button class="btn-action" onclick="cancelConfirm('${diff.id}', 'tiaoji')" style="color:var(--qy-text-muted);">取消确认</button> <button class="btn-action" onclick="showDetail('${diff.id}')">详情</button>`;
+                    actionBtn = `<button class="btn-action" onclick="cancelConfirm('${diff.id}', 'tiaoji')" style="color:var(--qy-text-muted);">取消确认</button> <button class="btn-action" onclick="showDetail('${diff.id}', 'tiaoji')">详情</button>`;
                 }
 
                 return `<tr class="${getRowClass(diff.matchStatus)}">
                     <td><input type="checkbox" class="row-checkbox" data-id="${diff.id}" onchange="updateBatchButtons('tiaoji')"></td>
-                    <td><strong>${diff.name}</strong>${getMatchStatusBadge(diff)}</td>
+                    <td>
+                        <strong>${diff.name}</strong>${getMatchStatusBadge(diff)}
+                        ${multipleInfo}
+                    </td>
                     <td>${maskIdCard(diff.idCard)}</td>
                     <td>${diff.customer}</td>
                     <td>${diff.insuranceType}</td>
@@ -773,6 +1064,7 @@
                         <div class="money-cell">
                             <span class="money-cell__total">${diff.sysCompany !== null ? formatMoney(sysTotal) : '—'}</span>
                             <span class="money-cell__split">${diff.sysCompany !== null ? '单位:' + formatMoney(diff.sysCompany) : ''} ${diff.sysPersonal !== null ? '个人:' + formatMoney(diff.sysPersonal) : ''}</span>
+                            ${diff.sysMultiple > 1 ? `<span class="drawer-multiple__badge" style="margin-top:2px;">系统${diff.sysMultiple}笔</span>` : ''}
                         </div>
                     </td>
                     <td>${sysPaidMonthDisplay}</td>
@@ -780,6 +1072,7 @@
                         <div class="money-cell">
                             <span class="money-cell__total">${diff.ledgerCompany !== null ? formatMoney(ledgerTotal) : '—'}</span>
                             <span class="money-cell__split">${diff.ledgerCompany !== null ? '单位:' + formatMoney(diff.ledgerCompany) : ''} ${diff.ledgerPersonal !== null ? '个人:' + formatMoney(diff.ledgerPersonal) : ''}</span>
+                            ${diff.ledgerMultiple > 1 ? `<span class="drawer-multiple__badge" style="margin-top:2px;">台账${diff.ledgerMultiple}笔</span>` : ''}
                         </div>
                     </td>
                     <td><span class="month-badge month-badge--highlight">${diff.paidMonth || '—'}</span></td>
@@ -793,6 +1086,7 @@
                     <td>${actionBtn}</td>
                 </tr>`;
             }).join('');
+            updateDiffCounts();
         }
 
         function confirmTiaoji(id) {
@@ -813,6 +1107,10 @@
                     renderBujiaoTable();
                 } else {
                     renderTiaojiTable();
+                }
+                // 如果详情Drawer是打开的，更新它
+                if (currentDetailRecord && currentDetailRecord.id === id) {
+                    document.getElementById('drawerConfirmBtn').textContent = '取消确认';
                 }
                 showToast(`已确认核对（${diff.paidMonth}实缴）`, 'success');
             }
@@ -837,8 +1135,153 @@
             }
         }
 
-        function showDetail(id) {
-            showToast(`查看详情: ${id}`, 'info');
+        function showDetail(id, tab) {
+            const dataArray = tab === 'huijiao' ? HUIJIAO_DIFFS : (tab === 'bujiao' ? BUJIAO_DIFFS : TIAOJI_DIFFS);
+            const diff = dataArray.find(d => d.id === id);
+            if (!diff) return;
+
+            currentDetailRecord = { ...diff, tab };
+
+            const sysTotal = diff.sysCompany !== null && diff.sysPersonal !== null ? diff.sysCompany + diff.sysPersonal : null;
+            const ledgerTotal = diff.ledgerCompany !== null && diff.ledgerPersonal !== null ? diff.ledgerCompany + diff.ledgerPersonal : null;
+
+            // 构建详情内容
+            let bodyContent = `
+                <div class="drawer-section drawer-section--system">
+                    <div class="drawer-section__title">系统记录</div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">姓名</span>
+                        <span class="drawer-row__value">${diff.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">身份证号</span>
+                        <span class="drawer-row__value">${diff.idCard}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">客户</span>
+                        <span class="drawer-row__value">${diff.customer || '—'}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value">${diff.insuranceType}</span>
+                    </div>
+                    ${diff.insuranceStatus ? `<div class="drawer-row">
+                        <span class="drawer-row__label">参保状态</span>
+                        <span class="drawer-row__value">${diff.insuranceStatus}</span>
+                    </div>` : ''}
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">${tab === 'tiaoji' ? '补差月份' : (tab === 'bujiao' ? '补缴月份' : '费用月份')}</span>
+                        <span class="drawer-row__value">${diff.billingMonth}</span>
+                    </div>
+                    ${tab === 'tiaoji' && diff.adjustmentId ? `<div class="drawer-row">
+                        <span class="drawer-row__label">调基事件ID</span>
+                        <span class="drawer-row__value">${diff.adjustmentId}</span>
+                    </div>` : ''}
+                    ${tab === 'tiaoji' && diff.adjustmentMonth ? `<div class="drawer-row">
+                        <span class="drawer-row__label">调基生效月份</span>
+                        <span class="drawer-row__value">${diff.adjustmentMonth}</span>
+                    </div>` : ''}
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">系统金额</span>
+                        <span class="drawer-row__value">${diff.sysCompany !== null ? `单位: ¥${diff.sysCompany.toLocaleString()} / 个人: ¥${diff.sysPersonal.toLocaleString()} / 合计: ¥${sysTotal.toLocaleString()}` : '—'}</span>
+                    </div>
+                    ${tab !== 'huijiao' ? `<div class="drawer-row">
+                        <span class="drawer-row__label">系统实缴月份</span>
+                        <span class="drawer-row__value ${diff.verifyStatus === VERIFY_STATUS.VERIFIED ? '' : 'drawer-row__value--muted'}">${diff.verifyStatus === VERIFY_STATUS.VERIFIED ? diff.paidMonth : '未确认'}</span>
+                    </div>` : ''}
+                    ${tab === 'tiaoji' && diff.sysMultiple > 0 ? `<div class="drawer-row">
+                        <span class="drawer-row__label">系统合并笔数</span>
+                        <span class="drawer-row__value"><span class="drawer-multiple__badge">${diff.sysMultiple} 笔</span></span>
+                    </div>` : ''}
+                </div>
+
+                <div class="drawer-section drawer-section--ledger">
+                    <div class="drawer-section__title">台账记录</div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">姓名</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.name}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">险种</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.insuranceType}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">费用月份</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.billingMonth}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">台账金额</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.ledgerCompany !== null ? `单位: ¥${diff.ledgerCompany.toLocaleString()} / 个人: ¥${diff.ledgerPersonal.toLocaleString()} / 合计: ¥${ledgerTotal.toLocaleString()}` : '—'}</span>
+                    </div>
+                    <div class="drawer-row">
+                        <span class="drawer-row__label">台账实缴月份</span>
+                        <span class="drawer-row__value drawer-row__value--muted">${diff.paidMonth || '—'}</span>
+                    </div>
+                    ${tab === 'tiaoji' && diff.ledgerMultiple > 0 ? `<div class="drawer-row">
+                        <span class="drawer-row__label">台账合并笔数</span>
+                        <span class="drawer-row__value"><span class="drawer-multiple__badge">${diff.ledgerMultiple} 笔</span></span>
+                    </div>` : ''}
+                </div>
+
+                <div class="drawer-section">
+                    <div class="drawer-section__title">差异分析</div>
+                    <div class="drawer-analysis">
+                        <div class="drawer-analysis__content">
+                            ${diff.matchStatus === RECORD_TYPES.SYSTEM_MORE ?
+                                '<strong>系统多有记录，台账无此记录</strong>' :
+                                diff.matchStatus === RECORD_TYPES.LEDGER_MORE ?
+                                '<strong>台账多有记录，系统无此记录</strong>' :
+                                '<strong>金额一致</strong>'}
+                        </div>
+                        <div class="drawer-analysis__cause">
+                            可能原因：${diff.matchStatus === RECORD_TYPES.SYSTEM_MORE ?
+                                '申报失败未通知 / 不该减员被减了 / 漏申报' :
+                                diff.matchStatus === RECORD_TYPES.LEDGER_MORE ?
+                                '漏采集名单 / 误增员' :
+                                '—'}
+                        </div>
+                        ${diff.note ? `<div class="drawer-analysis__cause" style="margin-top:8px;color:var(--tiaoji-primary);">${diff.note}</div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('drawerTitle').textContent = `差异详情：${diff.name} - ${diff.insuranceType}`;
+            document.getElementById('drawerBody').innerHTML = bodyContent;
+
+            // 显示/隐藏确认按钮
+            const confirmBtn = document.getElementById('drawerConfirmBtn');
+            if (tab !== 'huijiao' && diff.matchStatus === RECORD_TYPES.MATCHED && diff.verifyStatus === VERIFY_STATUS.PENDING) {
+                confirmBtn.style.display = 'inline-flex';
+                confirmBtn.textContent = '确认核对';
+            } else if (tab !== 'huijiao' && diff.verifyStatus === VERIFY_STATUS.VERIFIED) {
+                confirmBtn.style.display = 'inline-flex';
+                confirmBtn.textContent = '取消确认';
+            } else {
+                confirmBtn.style.display = 'none';
+            }
+
+            // 打开Drawer
+            document.getElementById('detailDrawer').classList.add('is-visible');
+        }
+
+        function closeDetailDrawer(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('detailDrawer').classList.remove('is-visible');
+            currentDetailRecord = null;
+        }
+
+        function confirmFromDrawer() {
+            if (!currentDetailRecord) return;
+            const { id, tab, verifyStatus } = currentDetailRecord;
+
+            if (verifyStatus === VERIFY_STATUS.VERIFIED) {
+                // 取消确认
+                cancelConfirm(id, tab);
+            } else {
+                // 确认核对
+                confirmVerify(id, tab);
+            }
+            closeDetailDrawer();
         }
 
         function showToast(msg, type = 'success') {
@@ -974,6 +1417,13 @@
                 document.getElementById(v).style.display = 'none';
             });
             document.getElementById(tabName + 'View').style.display = 'block';
+
+            // Reset filter and update counts for new tab
+            currentDiffFilter = 'all';
+            document.querySelectorAll('.diff-filter__item').forEach(item => {
+                item.classList.toggle('is-active', item.dataset.filter === 'all');
+            });
+            updateDiffCounts();
         }
 
         tabs.forEach(tab => {
@@ -982,10 +1432,12 @@
             });
         });
 
-        // Dashboard cards also switch tabs
+        // Dashboard cards also switch tabs (except summary card which has no data-tab)
         dashCards.forEach(card => {
             card.addEventListener('click', () => {
-                switchToTab(card.dataset.tab);
+                if (card.dataset.tab) {
+                    switchToTab(card.dataset.tab);
+                }
             });
         });
 
@@ -995,6 +1447,7 @@
             renderHuijiaoTable();
             renderBujiaoTable();
             renderTiaojiTable();
+            updateDiffCounts();
             // Show huijiao view by default
             document.getElementById('huijiaoView').style.display = 'block';
         });

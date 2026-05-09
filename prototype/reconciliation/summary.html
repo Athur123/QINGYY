@@ -7,10 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/qingyang-variables.css">
-    <link rel="stylesheet" href="../styles/qingyang-base.css">
-    <link rel="stylesheet" href="../styles/qingyang-components.css">
-    <link rel="stylesheet" href="../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+    <link rel="stylesheet" href="../../styles/qingyang-base.css">
+    <link rel="stylesheet" href="../../styles/qingyang-components.css">
+    <link rel="stylesheet" href="../../styles/qingyang-forms.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
@@ -791,11 +791,11 @@
         }
 
         function navigateToDetail(ruleName, month) {
-            window.location.href = 'qingyang-reconciliation-unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
+            window.location.href = 'unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
         }
 
         function groupDetail(groupId) {
-            window.location.href = 'qingyang-reconciliation-unified.html?groupId=' + encodeURIComponent(groupId);
+            window.location.href = 'unified.html?groupId=' + encodeURIComponent(groupId);
         }
 
         // Group-level reconcile: reconcile all rules within a group (system records always exist)

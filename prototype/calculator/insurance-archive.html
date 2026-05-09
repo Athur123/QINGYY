@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参保档案 - 优化设计</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Design tokens */
+        :root {
+            --qy-primary-50: #EFF6FF; --qy-primary-100: #DBEAFE; --qy-primary-200: #BFDBFE;
+            --qy-primary-400: #60A5FA; --qy-primary-500: #2563EB; --qy-primary-600: #1D4ED8;
+            --qy-success-50: #F0FDF4; --qy-success-500: #22C55E; --qy-success-600: #16A34A;
+            --qy-warning-50: #FFF7ED; --qy-warning-500: #F97316; --qy-warning-600: #EA580C;
+            --qy-error-50: #FEF2F2; --qy-error-500: #EF4444; --qy-error-600: #DC2626;
+            --qy-bg-primary: #FFFFFF; --qy-bg-secondary: #F8FAFC; --qy-bg-tertiary: #F1F5F9;
+            --qy-text-primary: #1E293B; --qy-text-secondary: #64748B; --qy-text-muted: #94A3B8;
+            --qy-text-disabled: #CBD5E1; --qy-text-inverse: #FFFFFF;
+            --qy-border-light: #E2E8F0; --qy-border-medium: #CBD5E1;
+            --qy-radius-sm: 4px; --qy-radius-md: 8px; --qy-radius-lg: 12px; --qy-radius-xl: 16px;
+            --qy-radius-full: 9999px;
+            --qy-space-1: 4px; --qy-space-2: 8px; --qy-space-3: 12px; --qy-space-4: 16px;
+            --qy-space-5: 20px; --qy-space-6: 24px;
+            --qy-font-size-10: 10px; --qy-font-size-11: 11px; --qy-font-size-12: 12px;
+            --qy-font-size-13: 13px; --qy-font-size-14: 14px; --qy-font-size-16: 16px;
+            --qy-font-weight-normal: 400; --qy-font-weight-medium: 500;
+            --qy-font-weight-semibold: 600; --qy-font-weight-bold: 700;
+            --qy-transition-fast: 150ms ease;
+            --qy-transition-colors: color 150ms ease, background-color 150ms ease;
+            --qy-card-radius: var(--qy-radius-lg);
+            --qy-shadow-card: 0 2px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--qy-bg-secondary);
+            color: var(--qy-text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            height: 52px;
+            background: #fff;
+            border-bottom: 1px solid var(--qy-border-light);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--qy-primary-500);
+        }
+        .logo svg { width: 32px; height: 32px; }
+
+        .nav-modules { display: flex; align-items: center; gap: 4px; flex: 1; }
+
+        .nav-module {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+            cursor: pointer;
+            border-radius: var(--qy-radius-sm);
+            transition: var(--qy-transition-colors);
+        }
+        .nav-module:hover { color: var(--qy-text-primary); background: var(--qy-bg-secondary); }
+        .nav-module.active { color: var(--qy-primary-500); font-weight: 600; background: var(--qy-primary-50); }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--qy-text-secondary); }
+
+        /* Page Header */
+        .page-header {
+            padding: 16px 28px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-header .back-btn {
+            display: flex; align-items: center; gap: 4px;
+            color: var(--qy-text-secondary); cursor: pointer;
+            font-size: 13px; padding: 4px;
+            border-radius: var(--qy-radius-sm);
+            transition: var(--qy-transition-colors);
+        }
+        .page-header .back-btn:hover { color: var(--qy-primary-500); background: var(--qy-primary-50); }
+        .page-header .back-btn svg { width: 16px; height: 16px; }
+        .page-header .page-title { font-size: 15px; font-weight: 600; }
+
+        /* Sub Tabs */
+        .sub-tabs {
+            display: flex; align-items: center; gap: 0;
+            padding: 12px 28px 0;
+            border-bottom: 1px solid var(--qy-border-light);
+            background: #fff;
+            overflow-x: auto;
+        }
+        .sub-tabs::-webkit-scrollbar { display: none; }
+        .sub-tab {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: var(--qy-text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: var(--qy-transition-colors);
+        }
+        .sub-tab:hover { color: var(--qy-text-primary); }
+        .sub-tab.active { color: var(--qy-primary-500); font-weight: 600; border-bottom-color: var(--qy-primary-500); }
+
+        /* Layout */
+        .main-layout {
+            display: flex;
+            gap: 16px;
+            padding: 16px 28px 28px;
+            max-width: 1440px;
+        }
+        .detail-area { flex: 1; min-width: 0; }
+        .sidebar-area { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+
+        /* Employee Summary */
+        .employee-summary {
+            background: #fff;
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            overflow: hidden;
+        }
+        .summary-banner {
+            height: 80px;
+            background: linear-gradient(135deg, var(--qy-primary-500), var(--qy-primary-400));
+            position: relative;
+            overflow: hidden;
+        }
+        .summary-banner::after {
+            content: '';
+            position: absolute;
+            top: -20px; right: -20px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .summary-avatar {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            border: 3px solid #fff;
+            position: absolute;
+            bottom: -28px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #fff; font-weight: 600;
+        }
+        .summary-body { padding: 36px 20px 16px; text-align: center; }
+        .summary-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+
+        .summary-info-list { padding: 16px 20px; border-top: 1px solid var(--qy-border-light); }
+        .summary-info-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; font-size: 12px;
+        }
+        .summary-info-item + .summary-info-item { border-top: 1px solid var(--qy-bg-secondary); }
+        .summary-info-label { color: var(--qy-text-muted); }
+        .summary-info-value { color: var(--qy-text-primary); font-weight: 500; }
+
+        /* Timeline */
+        .timeline-card {
+            background: #fff;
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg);
+            padding: 16px;
+        }
+        .timeline-card-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+        .timeline { position: relative; padding-left: 20px; }
+        .timeline::before {
+            content: '';
+            position: absolute; left: 5px; top: 4px; bottom: 4px;
+            width: 2px; background: var(--qy-border-light);
+        }
+        .timeline-item { position: relative; padding-bottom: 16px; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-dot {
+            position: absolute; left: -17px; top: 4px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--qy-primary-500);
+            border: 2px solid #fff;
+        }
+        .timeline-dot.muted { background: var(--qy-text-muted); }
+        .timeline-content { margin-left: 12px; }
+        .timeline-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+        .timeline-title { font-size: 13px; font-weight: 600; }
+        .timeline-date { font-size: 12px; color: var(--qy-text-muted); }
+        .timeline-desc { font-size: 12px; color: var(--qy-text-secondary); }
+
+        /* ============================================================
+           INSURANCE ARCHIVE — Cost-at-a-glance
+           ============================================================ */
+
+        .insurance-card {
+            background: var(--qy-bg-primary);
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-card-radius);
+            box-shadow: var(--qy-shadow-card);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .insurance-card:last-child { margin-bottom: 0; }
+
+        .insurance-card__header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+        .insurance-card__header-bar {
+            width: 3px; height: 18px; border-radius: 2px;
+            background: var(--qy-primary-500); flex-shrink: 0;
+        }
+        .insurance-card__title { font-size: 14px; font-weight: 600; }
+
+        .insurance-card__header-right {
+            margin-left: auto;
+            display: flex; align-items: baseline; gap: 8px;
+        }
+        .insurance-card__total-label { font-size: 12px; color: var(--qy-text-muted); }
+        .insurance-card__total-value {
+            font-size: 20px; font-weight: 700;
+            color: var(--qy-primary-500);
+            font-variant-numeric: tabular-nums;
+        }
+        .insurance-card__total-unit { font-size: 12px; color: var(--qy-text-muted); font-weight: 400; }
+
+        /* Meta Info */
+        .insurance-meta {
+            padding: 12px 20px;
+            background: var(--qy-bg-secondary);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+        .insurance-meta__grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px 24px;
+        }
+        .insurance-meta__item { display: flex; align-items: baseline; gap: 6px; }
+        .insurance-meta__label { font-size: 12px; color: var(--qy-text-muted); white-space: nowrap; }
+        .insurance-meta__value { font-size: 13px; font-weight: 500; }
+
+        /* Table */
+        .insurance-table { width: 100%; }
+
+        .insurance-table__head {
+            display: grid;
+            grid-template-columns: 90px 72px minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(70px, 100px) minmax(70px, 100px);
+            gap: 0;
+            padding: 0 20px;
+            height: 36px;
+            background: var(--qy-bg-secondary);
+            border-bottom: 1px solid var(--qy-border-light);
+        }
+        .insurance-table__head span {
+            font-size: 11px; font-weight: 600;
+            color: var(--qy-text-secondary);
+            display: flex; align-items: center;
+        }
+
+        .insurance-table__row {
+            display: grid;
+            grid-template-columns: 90px 72px minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(70px, 100px) minmax(70px, 100px);
+            gap: 0;
+            padding: 0 20px;
+            height: 40px;
+            border-bottom: 1px solid var(--qy-border-light);
+            cursor: pointer;
+            transition: background var(--qy-transition-fast);
+            user-select: none;
+            align-items: center;
+            outline: none;
+        }
+        .insurance-table__row:last-child { border-bottom: none; }
+        .insurance-table__row:hover { background: var(--qy-primary-50); }
+
+        .insurance-table__row.is-active {
+            background: var(--qy-primary-50);
+            border-left: 3px solid var(--qy-primary-500);
+            padding-left: 17px;
+        }
+
+        .insurance-table__row:focus-visible {
+            outline: 2px solid var(--qy-primary-500);
+            outline-offset: -2px;
+        }
+
+        .insurance-table__cell {
+            display: flex; align-items: center;
+            font-size: 13px;
+        }
+        .insurance-table__cell--name { font-weight: 500; }
+        .insurance-table__cell--date {
+            font-size: 12px; color: var(--qy-text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+        .insurance-table__cell--date.empty { color: var(--qy-text-muted); }
+
+        .insurance-table__cell--amount {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        .insurance-table__cell--amount--emp { color: var(--qy-primary-500); }
+        .insurance-table__cell--amount--prs { color: var(--qy-warning-600); }
+        .insurance-table__cell--amount--zero { color: var(--qy-text-muted); font-weight: 400; }
+
+        /* Summary Row */
+        .insurance-table__summary {
+            display: grid;
+            grid-template-columns: 90px 72px minmax(80px, 1fr) minmax(80px, 1fr) minmax(80px, 1fr) minmax(70px, 100px) minmax(70px, 100px);
+            gap: 0;
+            padding: 0 20px;
+            height: 40px;
+            background: var(--qy-primary-50);
+            border-top: 2px solid var(--qy-primary-200);
+            align-items: center;
+        }
+        .insurance-table__summary-label {
+            font-size: 13px; font-weight: 600;
+            display: flex; align-items: center;
+        }
+        .insurance-table__summary-amount {
+            font-size: 14px; font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            display: flex; align-items: center;
+        }
+
+        /* Tags */
+        .insurance-tag {
+            display: inline-flex; align-items: center;
+            height: 20px; padding: 0 8px;
+            border-radius: var(--qy-radius-full);
+            font-size: 11px; font-weight: 500;
+        }
+        .insurance-tag--insured { background: var(--qy-success-50); color: var(--qy-success-600); }
+        .insurance-tag--not-insured { background: var(--qy-warning-50); color: var(--qy-warning-600); }
+
+        /* Detail Panel */
+        .insurance-detail {
+            border-top: 1px solid var(--qy-border-light);
+            background: var(--qy-bg-secondary);
+            overflow: hidden;
+            transition: max-height 250ms ease-out, opacity 200ms ease;
+        }
+        .insurance-detail.is-hidden {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .insurance-detail.is-visible {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .insurance-detail__inner { padding: 16px 20px; }
+        .insurance-detail__title {
+            font-size: 13px; font-weight: 600;
+            margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .insurance-detail__title::before {
+            content: '';
+            width: 3px; height: 14px; border-radius: 2px;
+            background: var(--qy-primary-500);
+        }
+
+        .contribution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 40px;
+        }
+        .contribution-section { display: flex; flex-direction: column; gap: 10px; }
+        .contribution-section__label {
+            font-size: 12px; font-weight: 600;
+            color: var(--qy-text-secondary);
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--qy-border-light);
+            margin-bottom: 2px;
+        }
+        .contribution-item {
+            display: flex; justify-content: space-between; align-items: baseline;
+        }
+        .contribution-item__label { font-size: 12px; color: var(--qy-text-muted); }
+        .contribution-item__value {
+            font-size: 14px; font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Formula */
+        .contribution-formula {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-md);
+            font-size: 12px;
+            color: var(--qy-text-secondary);
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .contribution-formula__line {
+            display: flex; align-items: center; gap: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+        .contribution-formula__result { font-weight: 600; color: var(--qy-text-primary); }
+
+        /* Empty State */
+        .insurance-empty {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 32px 20px; text-align: center;
+        }
+        .insurance-empty__icon {
+            width: 48px; height: 48px; margin-bottom: 12px;
+            color: var(--qy-text-muted); opacity: 0.6;
+        }
+        .insurance-empty__text { font-size: 13px; color: var(--qy-text-secondary); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout { flex-direction: column; }
+            .sidebar-area { width: 100%; }
+            .insurance-meta__grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .main-layout { padding: 16px; }
+            .insurance-meta__grid { grid-template-columns: 1fr; }
+            .insurance-table__head,
+            .insurance-table__row,
+            .insurance-table__summary {
+                grid-template-columns: 80px 70px 1fr 1fr;
+            }
+            .insurance-table__head span:nth-child(n+4),
+            .insurance-table__row > .insurance-table__cell:nth-child(n+4),
+            .insurance-table__summary > *:nth-child(n+4) { display: none; }
+            .contribution-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    let activeRow = null;
+
+    function selectRow(row) {
+        // Deselect if clicking the same row
+        if (activeRow === row) {
+            row.classList.remove('is-active');
+            const detail = document.querySelector('.insurance-detail');
+            detail.classList.remove('is-visible');
+            detail.classList.add('is-hidden');
+            activeRow = null;
+            return;
+        }
+
+        if (activeRow) activeRow.classList.remove('is-active');
+        row.classList.add('is-active');
+        activeRow = row;
+
+        const detail = document.querySelector('.insurance-detail');
+        detail.classList.remove('is-hidden');
+        // Small delay so the CSS transition applies
+        requestAnimationFrame(() => {
+            detail.classList.add('is-visible');
+        });
+
+        // Use dataset with camelCase (data-base-emp → baseEmp)
+        const d = row.dataset;
+        detail.querySelector('.insurance-detail__title').textContent = d.name + ' · 缴费明细';
+
+        detail.querySelector('[data-field="base-emp"]').textContent = d.baseEmp;
+        detail.querySelector('[data-field="rate-emp"]').textContent = d.rateEmp;
+        detail.querySelector('[data-field="fixed-emp"]').textContent = d.fixedEmp;
+        detail.querySelector('[data-field="amount-emp"]').textContent = d.amountEmp;
+        detail.querySelector('[data-field="base-prs"]').textContent = d.basePrs;
+        detail.querySelector('[data-field="rate-prs"]').textContent = d.ratePrs;
+        detail.querySelector('[data-field="fixed-prs"]').textContent = d.fixedPrs;
+        detail.querySelector('[data-field="amount-prs"]').textContent = d.amountPrs;
+
+        // Formula
+        const empExtra = d.fixedEmp !== '0' ? ' + ' + d.fixedEmp : '';
+        const prsExtra = d.fixedPrs !== '0' ? ' + ' + d.fixedPrs : '';
+        detail.querySelector('[data-field="formula-emp"]').textContent =
+            d.baseEmp + ' × ' + d.rateEmp + empExtra + ' = ' + d.amountEmp;
+        detail.querySelector('[data-field="formula-prs"]').textContent =
+            d.basePrs + ' × ' + d.ratePrs + prsExtra + ' = ' + d.amountPrs;
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const rows = document.querySelectorAll('.insurance-table__row');
+        if (!rows.length) return;
+
+        let currentIndex = activeRow ? Array.from(rows).indexOf(activeRow) : -1;
+        let newIndex = -1;
+
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (e.key === 'ArrowDown') {
+                newIndex = currentIndex < rows.length - 1 ? currentIndex + 1 : 0;
+            } else {
+                newIndex = currentIndex > 0 ? currentIndex - 1 : rows.length - 1;
+            }
+            selectRow(rows[newIndex]);
+            rows[newIndex].focus();
+        } else if (e.key === 'Enter' && activeRow) {
+            selectRow(activeRow);
+        }
+    });
+
+    // Pre-populate detail panel with first row on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstRow = document.querySelector('.insurance-table__row.is-active');
+        if (firstRow) selectRow(firstRow);
+    });
+</script>
+
+<!-- Top Navigation -->
+<nav class="top-nav">
+    <div class="logo">
+        <svg viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#2563EB"/>
+            <text x="16" y="21" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">青</text>
+        </svg>
+        青阳云
+    </div>
+    <div class="nav-modules">
+        <div class="nav-module active">核心人事</div>
+        <div class="nav-module">智能薪酬</div>
+        <div class="nav-module">假勤管理</div>
+        <div class="nav-module">审批中心</div>
+        <div class="nav-module">上下游管理</div>
+        <div class="nav-module">系统设置</div>
+    </div>
+    <div class="nav-right"><span>管理员</span></div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="back-btn">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        返回
+    </div>
+    <span class="page-title">花名册详情</span>
+</div>
+
+<!-- Sub Tabs -->
+<div class="sub-tabs">
+    <div class="sub-tab">基础信息</div>
+    <div class="sub-tab">合同信息</div>
+    <div class="sub-tab">银行卡信息</div>
+    <div class="sub-tab">教育经历</div>
+    <div class="sub-tab">工作经历</div>
+    <div class="sub-tab">家庭成员</div>
+    <div class="sub-tab">紧急联系人</div>
+    <div class="sub-tab">员工证书</div>
+    <div class="sub-tab">个人材料</div>
+    <div class="sub-tab">薪税档案</div>
+    <div class="sub-tab active">参保档案</div>
+</div>
+
+<!-- Main Layout -->
+<div class="main-layout">
+    <div class="detail-area">
+
+        <!-- Social Insurance Card -->
+        <div class="insurance-card">
+            <div class="insurance-card__header">
+                <div class="insurance-card__header-bar"></div>
+                <div class="insurance-card__title">社保参保档案</div>
+                <div class="insurance-card__header-right">
+                    <span class="insurance-card__total-label">月应缴合计</span>
+                    <span class="insurance-card__total-value">2,753</span>
+                    <span class="insurance-card__total-unit">元</span>
+                </div>
+            </div>
+
+            <div class="insurance-meta">
+                <div class="insurance-meta__grid">
+                    <div class="insurance-meta__item">
+                        <span class="insurance-meta__label">参保状态</span>
+                        <span class="insurance-meta__value"><span class="insurance-tag insurance-tag--insured">已参保</span></span>
+                    </div>
+                    <div class="insurance-meta__item">
+                        <span class="insurance-meta__label">参保规则</span>
+                        <span class="insurance-meta__value">江苏收费20260416第二版</span>
+                    </div>
+                    <div class="insurance-meta__item">
+                        <span class="insurance-meta__label">参保主体</span>
+                        <span class="insurance-meta__value">江苏悠派甄选有限公司</span>
+                    </div>
+                    <div class="insurance-meta__item">
+                        <span class="insurance-meta__label">参保地区</span>
+                        <span class="insurance-meta__value">山西省, 长治市, 潞城区</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insurance-table">
+                <div class="insurance-table__head">
+                    <span>险种名称</span>
+                    <span>参保状态</span>
+                    <span>增员生效月</span>
+                    <span>参保月份</span>
+                    <span>停保生效月</span>
+                    <span>单位应缴</span>
+                    <span>个人应缴</span>
+                </div>
+
+                <div class="insurance-table__row is-active" tabindex="0" role="button" aria-label="养老保险 已参保 增员2026-01 参保2026-05 单位应缴960 个人应缴480" onclick="selectRow(this)"
+                     data-name="养老保险"
+                     data-base-emp="6,000" data-rate-emp="16.0%" data-fixed-emp="0" data-amount-emp="960"
+                     data-base-prs="6,000" data-rate-prs="8.0%" data-fixed-prs="0" data-amount-prs="480">
+                    <div class="insurance-table__cell insurance-table__cell--name">养老保险</div>
+                    <div class="insurance-table__cell"><span class="insurance-tag insurance-tag--insured">已参保</span></div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-05</div>
+                    <div class="insurance-table__cell insurance-table__cell--date empty">—</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--emp">960</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--prs">480</div>
+                </div>
+
+                <div class="insurance-table__row" tabindex="0" role="button" aria-label="医疗保险 已参保 增员2026-01 参保2026-05 单位应缴480 个人应缴120" onclick="selectRow(this)"
+                     data-name="医疗保险"
+                     data-base-emp="6,000" data-rate-emp="8.0%" data-fixed-emp="0" data-amount-emp="480"
+                     data-base-prs="6,000" data-rate-prs="2.0%" data-fixed-prs="0" data-amount-prs="120">
+                    <div class="insurance-table__cell insurance-table__cell--name">医疗保险</div>
+                    <div class="insurance-table__cell"><span class="insurance-tag insurance-tag--insured">已参保</span></div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-05</div>
+                    <div class="insurance-table__cell insurance-table__cell--date empty">—</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--emp">480</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--prs">120</div>
+                </div>
+
+                <div class="insurance-table__row" tabindex="0" role="button" aria-label="工伤保险 已参保 增员2026-01 参保2026-05 单位应缴300" onclick="selectRow(this)"
+                     data-name="工伤保险"
+                     data-base-emp="6,000" data-rate-emp="5.0%" data-fixed-emp="0" data-amount-emp="300"
+                     data-base-prs="6,000" data-rate-prs="0.0%" data-fixed-prs="0" data-amount-prs="0">
+                    <div class="insurance-table__cell insurance-table__cell--name">工伤保险</div>
+                    <div class="insurance-table__cell"><span class="insurance-tag insurance-tag--insured">已参保</span></div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-05</div>
+                    <div class="insurance-table__cell insurance-table__cell--date empty">—</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--emp">300</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--prs insurance-table__cell--amount--zero">—</div>
+                </div>
+
+                <div class="insurance-table__row" tabindex="0" role="button" aria-label="失业保险 已参保 增员2026-01 参保2026-05 单位应缴42 个人应缴18" onclick="selectRow(this)"
+                     data-name="失业保险"
+                     data-base-emp="6,000" data-rate-emp="0.7%" data-fixed-emp="0" data-amount-emp="42"
+                     data-base-prs="6,000" data-rate-prs="0.3%" data-fixed-prs="0" data-amount-prs="18">
+                    <div class="insurance-table__cell insurance-table__cell--name">失业保险</div>
+                    <div class="insurance-table__cell"><span class="insurance-tag insurance-tag--insured">已参保</span></div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-05</div>
+                    <div class="insurance-table__cell insurance-table__cell--date empty">—</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--emp">42</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--prs">18</div>
+                </div>
+
+                <div class="insurance-table__row" tabindex="0" role="button" aria-label="生育保险 已参保 增员2026-01 参保2026-05 单位应缴48" onclick="selectRow(this)"
+                     data-name="生育保险"
+                     data-base-emp="6,000" data-rate-emp="0.8%" data-fixed-emp="0" data-amount-emp="48"
+                     data-base-prs="6,000" data-rate-prs="0.0%" data-fixed-prs="0" data-amount-prs="0">
+                    <div class="insurance-table__cell insurance-table__cell--name">生育保险</div>
+                    <div class="insurance-table__cell"><span class="insurance-tag insurance-tag--insured">已参保</span></div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-05</div>
+                    <div class="insurance-table__cell insurance-table__cell--date empty">—</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--emp">48</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--prs insurance-table__cell--amount--zero">—</div>
+                </div>
+
+                <div class="insurance-table__row" tabindex="0" role="button" aria-label="大病险种 已参保 增员2026-01 参保2026-01 单位应缴200 个人应缴105" onclick="selectRow(this)"
+                     data-name="大病险种"
+                     data-base-emp="6,000" data-rate-emp="0.0%" data-fixed-emp="200" data-amount-emp="200"
+                     data-base-prs="6,000" data-rate-prs="0.0%" data-fixed-prs="105" data-amount-prs="105">
+                    <div class="insurance-table__cell insurance-table__cell--name">大病险种</div>
+                    <div class="insurance-table__cell"><span class="insurance-tag insurance-tag--insured">已参保</span></div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date">2026-01</div>
+                    <div class="insurance-table__cell insurance-table__cell--date empty">—</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--emp">200</div>
+                    <div class="insurance-table__cell insurance-table__cell--amount insurance-table__cell--amount--prs">105</div>
+                </div>
+
+                <!-- Summary Row -->
+                <div class="insurance-table__summary">
+                    <div class="insurance-table__summary-label">月应缴合计</div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div class="insurance-table__summary-amount insurance-table__cell--amount--emp">2,030</div>
+                    <div class="insurance-table__summary-amount insurance-table__cell--amount--prs">723</div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="insurance-detail is-hidden">
+                <div class="insurance-detail__inner">
+                    <div class="insurance-detail__title">缴费明细</div>
+                    <div class="contribution-grid">
+                        <div class="contribution-section">
+                            <div class="contribution-section__label">单位缴纳</div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">参保基数</span>
+                                <span class="contribution-item__value" data-field="base-emp">—</span>
+                            </div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">缴纳比例</span>
+                                <span class="contribution-item__value" data-field="rate-emp">—</span>
+                            </div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">固定缴存额</span>
+                                <span class="contribution-item__value" data-field="fixed-emp">—</span>
+                            </div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">应缴金额</span>
+                                <span class="contribution-item__value" data-field="amount-emp" style="color:var(--qy-primary-500);font-weight:700;">—</span>
+                            </div>
+                        </div>
+                        <div class="contribution-section">
+                            <div class="contribution-section__label">个人缴纳</div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">参保基数</span>
+                                <span class="contribution-item__value" data-field="base-prs">—</span>
+                            </div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">缴纳比例</span>
+                                <span class="contribution-item__value" data-field="rate-prs">—</span>
+                            </div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">固定缴存额</span>
+                                <span class="contribution-item__value" data-field="fixed-prs">—</span>
+                            </div>
+                            <div class="contribution-item">
+                                <span class="contribution-item__label">应缴金额</span>
+                                <span class="contribution-item__value" data-field="amount-prs" style="color:var(--qy-warning-600);font-weight:700;">—</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contribution-formula">
+                        <div class="contribution-formula__line">
+                            <span>单位：</span>
+                            <span class="contribution-formula__result" data-field="formula-emp">—</span>
+                        </div>
+                        <div class="contribution-formula__line">
+                            <span>个人：</span>
+                            <span class="contribution-formula__result" data-field="formula-prs">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Housing Fund -->
+        <div class="insurance-card">
+            <div class="insurance-card__header">
+                <div class="insurance-card__header-bar"></div>
+                <div class="insurance-card__title">公积金参保档案</div>
+            </div>
+            <div class="insurance-empty">
+                <div class="insurance-empty__icon">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="8" y="12" width="32" height="24" rx="3"/>
+                        <line x1="8" y1="20" x2="40" y2="20"/>
+                        <line x1="16" y1="12" x2="16" y2="20"/>
+                        <line x1="32" y1="12" x2="32" y2="20"/>
+                        <circle cx="24" cy="28" r="5"/>
+                        <path d="M22 28l1.5 1.5L26 26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="insurance-empty__text">该员工暂无公积金参保记录</div>
+            </div>
+        </div>
+
+        <!-- Commercial Insurance -->
+        <div class="insurance-card">
+            <div class="insurance-card__header">
+                <div class="insurance-card__header-bar"></div>
+                <div class="insurance-card__title">商保参保档案</div>
+            </div>
+            <div class="insurance-empty">
+                <div class="insurance-empty__icon">
+                    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M24 6L40 14V34L24 42L8 34V14L24 6Z"/>
+                        <path d="M24 18V30M18 24H30"/>
+                    </svg>
+                </div>
+                <div class="insurance-empty__text">该员工暂无商保参保记录</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar-area">
+        <div class="employee-summary">
+            <div class="summary-banner">
+                <div class="summary-avatar">测</div>
+            </div>
+            <div class="summary-body">
+                <div class="summary-name">测试123</div>
+                <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;">
+                    <span class="insurance-tag insurance-tag--insured" style="font-size:11px;">劳务派遣</span>
+                    <span class="insurance-tag insurance-tag--insured" style="font-size:11px;">在职</span>
+                </div>
+            </div>
+            <div class="summary-info-list">
+                <div class="summary-info-item">
+                    <span class="summary-info-label">手机号码</span>
+                    <span class="summary-info-value">13200111211</span>
+                </div>
+                <div class="summary-info-item">
+                    <span class="summary-info-label">最高学历</span>
+                    <span class="summary-info-value" style="color:var(--qy-text-muted);">—</span>
+                </div>
+                <div class="summary-info-item">
+                    <span class="summary-info-label">出生日期</span>
+                    <span class="summary-info-value" style="color:var(--qy-text-muted);">—</span>
+                </div>
+                <div class="summary-info-item">
+                    <span class="summary-info-label">入职日期</span>
+                    <span class="summary-info-value">2026-04-02</span>
+                </div>
+                <div class="summary-info-item">
+                    <span class="summary-info-label">参保状态</span>
+                    <span class="summary-info-value">
+                        <span class="insurance-tag insurance-tag--insured" style="font-size:11px;">社保</span>
+                        <span class="insurance-tag insurance-tag--not-insured" style="font-size:11px;margin-left:4px;">公积金</span>
+                        <span class="insurance-tag insurance-tag--not-insured" style="font-size:11px;margin-left:4px;">商保</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-card">
+            <div class="timeline-card-title">动态记录</div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">转正</span>
+                            <span class="timeline-date">2024-01-28</span>
+                        </div>
+                        <div class="timeline-desc">1. 转正</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot muted"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">入职</span>
+                            <span class="timeline-date">2026-03-25</span>
+                        </div>
+                        <div class="timeline-desc">1. 入职</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社保异动 - 优化设计</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Design Tokens ===== */
+        :root {
+            --primary-50: #EFF6FF; --primary-100: #DBEAFE; --primary-200: #BFDBFE;
+            --primary-500: #2563EB; --primary-600: #1D4ED8;
+            --success-50: #F0FDF4; --success-100: #DCFCE7; --success-500: #22C55E; --success-600: #16A34A;
+            --warning-50: #FFFBEB; --warning-100: #FEF3C7; --warning-500: #F59E0B; --warning-600: #D97706;
+            --error-50: #FEF2F2; --error-100: #FEE2E2; --error-500: #EF4444; --error-600: #DC2626;
+            --bg-page: #F8FAFC; --bg-card: #FFFFFF; --bg-hover: #F1F5F9;
+            --text-primary: #1E293B; --text-secondary: #64748B; --text-muted: #94A3B8; --text-disabled: #CBD5E1;
+            --border: #E2E8F0; --border-light: #F1F5F9;
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+            --shadow-sticky: 2px 0 6px rgba(0,0,0,0.06);
+            --transition-fast: 150ms ease;
+            --transition-base: 200ms ease;
+
+            /* Density tokens - default */
+            --row-height: 48px;
+            --cell-padding: 12px 16px;
+            --font-size-body: 13px;
+            --font-size-label: 11px;
+        }
+
+        /* Compact density */
+        .table--compact {
+            --row-height: 40px;
+            --cell-padding: 8px 12px;
+            --font-size-body: 12px;
+            --font-size-label: 10px;
+        }
+
+        /* Relaxed density */
+        .table--relaxed {
+            --row-height: 56px;
+            --cell-padding: 16px 20px;
+            --font-size-body: 13px;
+            --font-size-label: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-size: 13px;
+        }
+
+        /* ===== Top Nav ===== */
+        .top-nav {
+            height: 52px; background: #fff; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 24px; gap: 32px;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--primary-500); }
+        .logo svg { width: 28px; height: 28px; }
+        .nav-modules { display: flex; align-items: center; gap: 4px; flex: 1; }
+        .nav-module {
+            padding: 6px 14px; font-size: 13px; color: var(--text-secondary); cursor: pointer;
+            border-radius: var(--radius-sm); transition: color var(--transition-fast), background-color var(--transition-fast);
+        }
+        .nav-module:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .nav-module.active { color: var(--primary-500); font-weight: 600; background: var(--primary-50); }
+        .nav-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--text-secondary); }
+        .nav-right .avatar {
+            width: 28px; height: 28px; border-radius: 50%; background: var(--primary-100);
+            display: flex; align-items: center; justify-content: center; color: var(--primary-500); font-size: 12px; font-weight: 600;
+        }
+
+        /* ===== Breadcrumb ===== */
+        .breadcrumb { padding: 12px 24px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--primary-500); }
+        .breadcrumb .sep { color: var(--text-disabled); }
+
+        /* ===== Page Header ===== */
+        .page-header {
+            padding: 0 24px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .page-header-left { display: flex; align-items: center; gap: 12px; }
+        .page-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .page-subtitle { font-size: 13px; color: var(--text-secondary); }
+        .page-stats {
+            display: flex; align-items: center; gap: 20px;
+        }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--primary-500); }
+        .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .stat-item.warning .stat-value { color: var(--warning-500); }
+        .stat-item.error .stat-value { color: var(--error-500); }
+
+        /* ===== Main Content ===== */
+        .main { padding: 0 24px 40px; }
+
+        /* ===== Tabs ===== */
+        .tabs {
+            display: flex; align-items: center; gap: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            padding: 0 8px;
+            overflow-x: auto;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            display: flex; align-items: center; gap: 6px;
+            transition: color var(--transition-fast), border-color var(--transition-fast);
+            position: relative;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--primary-500); font-weight: 600; border-bottom-color: var(--primary-500); }
+        .tab-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 18px; height: 18px; padding: 0 5px;
+            border-radius: var(--radius-full);
+            font-size: 10px; font-weight: 600;
+            background: var(--bg-hover); color: var(--text-muted);
+        }
+        .tab.active .tab-badge { background: var(--primary-100); color: var(--primary-600); }
+        .tab-badge.red { background: var(--error-50); color: var(--error-600); }
+
+        /* ===== Table Controls ===== */
+        .table-controls {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-top: none;
+        }
+        .controls-left { display: flex; align-items: center; gap: 12px; }
+        .controls-right { display: flex; align-items: center; gap: 12px; }
+
+        /* Search */
+        .search-box {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background: var(--bg-page);
+            transition: border-color var(--transition-fast);
+        }
+        .search-box:focus-within { border-color: var(--primary-500); box-shadow: 0 0 0 3px var(--primary-50); }
+        .search-box svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+        .search-box input {
+            border: none; outline: none; background: transparent;
+            font-size: 13px; color: var(--text-primary); width: 200px;
+        }
+        .search-box input::placeholder { color: var(--text-muted); }
+
+        /* Filter button */
+        .filter-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background: var(--bg-card); font-size: 13px; color: var(--text-secondary);
+            cursor: pointer; transition: all var(--transition-fast);
+        }
+        .filter-btn:hover { border-color: var(--primary-200); color: var(--primary-500); background: var(--primary-50); }
+        .filter-btn.has-filter { border-color: var(--primary-500); color: var(--primary-500); background: var(--primary-50); }
+        .filter-btn svg { width: 14px; height: 14px; }
+
+        /* Density switcher */
+        .density-switcher {
+            display: flex; align-items: center; gap: 2px;
+            padding: 2px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background: var(--bg-page);
+        }
+        .density-btn {
+            padding: 4px 10px; border: none; border-radius: 3px;
+            font-size: 12px; color: var(--text-secondary);
+            cursor: pointer; background: transparent;
+            transition: all var(--transition-fast);
+        }
+        .density-btn.active { background: var(--bg-card); color: var(--primary-500); font-weight: 500; box-shadow: var(--shadow-card); }
+        .density-btn:not(.active):hover { color: var(--text-primary); }
+
+        /* Column picker */
+        .col-picker-trigger {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background: var(--bg-card); font-size: 13px; color: var(--text-secondary);
+            cursor: pointer; transition: all var(--transition-fast);
+        }
+        .col-picker-trigger:hover { border-color: var(--primary-200); color: var(--primary-500); }
+        .col-picker-trigger svg { width: 14px; height: 14px; }
+
+        /* Column picker dropdown */
+        .col-picker-dropdown {
+            position: absolute; right: 0; top: calc(100% + 8px);
+            min-width: 220px; padding: 8px 0;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-md); box-shadow: var(--shadow-card);
+            z-index: 50; display: none;
+        }
+        .col-picker-dropdown.show { display: block; }
+        .col-picker-title {
+            padding: 8px 16px 4px; font-size: 11px; font-weight: 600;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .col-picker-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 16px; font-size: 13px; color: var(--text-primary);
+            cursor: pointer; transition: background var(--transition-fast);
+        }
+        .col-picker-item:hover { background: var(--bg-hover); }
+        .col-picker-checkbox {
+            width: 16px; height: 16px; border: 1.5px solid var(--border);
+            border-radius: 3px; display: flex; align-items: center; justify-content: center;
+            transition: all var(--transition-fast); flex-shrink: 0;
+        }
+        .col-picker-checkbox.checked { background: var(--primary-500); border-color: var(--primary-500); }
+        .col-picker-checkbox svg { width: 12px; height: 12px; color: white; }
+        .col-picker-divider { height: 1px; background: var(--border-light); margin: 4px 0; }
+
+        /* ===== Table ===== */
+        .table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            position: relative;
+        }
+        .table-scroll::-webkit-scrollbar { height: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: var(--bg-page); }
+        .table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .qy-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: var(--font-size-body);
+            min-width: 1200px;
+        }
+
+        .qy-table th {
+            padding: var(--cell-padding);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-hover);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: var(--font-size-label);
+            white-space: nowrap;
+            position: sticky; top: 0; z-index: 3;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .qy-table td {
+            padding: var(--cell-padding);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+            transition: background var(--transition-fast);
+            font-size: var(--font-size-body);
+        }
+
+        .qy-table tbody tr:hover td { background: var(--primary-50); }
+        .qy-table tbody tr:last-child td { border-bottom: none; }
+
+        /* Expanded row */
+        .qy-table tbody tr.is-expanded td { background: var(--primary-50); }
+        .qy-table tbody tr.is-expanded td:first-child { border-top: 2px solid var(--primary-500); }
+
+        .expand-row td {
+            padding: 16px 16px 16px calc(16px + 40px) !important;
+            background: var(--bg-hover) !important;
+        }
+        .expand-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 24px;
+        }
+        .expand-item {
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .expand-label { font-size: 11px; color: var(--text-muted); }
+        .expand-value { font-size: 13px; color: var(--text-primary); }
+        .expand-value.mono { font-family: 'SF Mono', 'Menlo', monospace; font-size: 12px; }
+
+        /* ===== Insurance Dates Table (增员) ===== */
+        .insurance-dates-section {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .insurance-dates-scroll {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+        .insurance-dates-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size: 12px;
+            min-width: 1200px;
+        }
+        .insurance-dates-table th {
+            padding: 8px 12px; text-align: left; font-weight: 600;
+            font-size: 11px; color: var(--text-muted);
+            background: var(--bg-hover);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .insurance-dates-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+        .insurance-dates-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
+        .insurance-dates-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .insurance-dates-table td.mono {
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: 11px;
+        }
+        .insurance-dates-table tbody tr:last-child td { border-bottom: none; }
+        .insurance-dates-table tbody tr:hover td { background: var(--primary-50); }
+        .date-cell-empty {
+            color: var(--text-disabled);
+            font-style: italic;
+            font-size: 11px;
+        }
+
+        /* ===== Change Type Tag ===== */
+        .change-type-section {
+            grid-column: 1 / -1;
+        }
+
+        /* Sticky columns */
+        .col-expand, .col-name {
+            position: sticky; left: 0; z-index: 2;
+            background: var(--bg-card);
+        }
+        .col-name { left: 40px; }
+        .col-status, .col-action {
+            position: sticky; right: 0; z-index: 2;
+            background: var(--bg-card);
+        }
+        .col-status { right: 100px; }
+
+        .qy-table th.col-expand, .qy-table th.col-name { z-index: 4; }
+        .qy-table th.col-status, .qy-table th.col-action { z-index: 4; }
+
+        .qy-table tbody tr:hover td.col-expand,
+        .qy-table tbody tr:hover td.col-name,
+        .qy-table tbody tr:hover td.col-status,
+        .qy-table tbody tr:hover td.col-action { background: var(--primary-50); }
+
+        /* Sticky column shadow when scrolled */
+        .table-scroll.scrolled-right .col-expand,
+        .table-scroll.scrolled-right .col-name { box-shadow: var(--shadow-sticky); }
+        .table-scroll.scrolled-left .col-status,
+        .table-scroll.scrolled-left .col-action { box-shadow: -2px 0 6px rgba(0,0,0,0.06); }
+
+        /* Column widths */
+        .col-expand { width: 40px; min-width: 40px; padding: 8px !important; }
+        .col-name { width: 80px; min-width: 80px; }
+        .col-phone { width: 120px; min-width: 120px; }
+        .col-id-card { width: 160px; min-width: 160px; }
+        .col-customer { min-width: 120px; }
+        .col-contract { min-width: 140px; }
+        .col-project { min-width: 120px; }
+        .col-contract-entity { min-width: 150px; }
+        .col-settlement-entity { min-width: 150px; }
+        .col-change-type { width: 90px; min-width: 90px; }
+        .col-time { width: 150px; min-width: 150px; }
+        .col-declarer { width: 80px; min-width: 80px; }
+        .col-status { width: 90px; min-width: 90px; }
+        .col-action { width: 100px; min-width: 100px; }
+
+        /* Hidden columns */
+        .col-hidden { display: none; }
+
+        /* ===== Tags ===== */
+        .tag {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 1px 8px; border-radius: var(--radius-full);
+            font-size: 11px; font-weight: 500; line-height: 1.6;
+            white-space: nowrap;
+        }
+        .tag-green { background: var(--success-50); color: var(--success-600); border: 1px solid var(--success-100); }
+        .tag-orange { background: var(--warning-50); color: var(--warning-600); border: 1px solid var(--warning-100); }
+        .tag-red { background: var(--error-50); color: var(--error-600); border: 1px solid var(--error-100); }
+        .tag-gray { background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border); }
+        .tag-blue { background: var(--primary-50); color: var(--primary-500); border: 1px solid var(--primary-100); }
+
+        /* Insurance tags */
+        .insurance-tags { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; }
+        .insurance-tags .tag { padding: 1px 6px; font-size: 10px; }
+        .tag-more {
+            background: var(--primary-50); color: var(--primary-500); border: 1px solid var(--primary-100);
+            font-weight: 600; cursor: pointer;
+        }
+
+        /* Snapshot indicator */
+        .snapshot-indicator {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 10px; color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .snapshot-indicator svg { width: 10px; height: 10px; }
+        .snapshot-changed { color: var(--warning-600); }
+
+        /* ===== Expand Button ===== */
+        .expand-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; border: none; border-radius: var(--radius-sm);
+            background: transparent; cursor: pointer;
+            transition: all var(--transition-fast); color: var(--text-muted);
+        }
+        .expand-btn:hover { background: var(--bg-hover); color: var(--primary-500); }
+        .expand-btn svg { width: 14px; height: 14px; transition: transform var(--transition-fast); }
+        .expand-btn.expanded svg { transform: rotate(90deg); }
+
+        /* ===== Action Buttons ===== */
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 8px; border: none; border-radius: var(--radius-sm);
+            font-size: 12px; color: var(--primary-500);
+            background: transparent; cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .action-btn:hover { background: var(--primary-50); }
+        .action-btn svg { width: 14px; height: 14px; }
+
+        /* ===== Pagination ===== */
+        .pagination {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px;
+            font-size: 12px; color: var(--text-secondary);
+        }
+        .pagination-info { display: flex; align-items: center; gap: 8px; }
+        .pagination-select {
+            padding: 4px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 12px; color: var(--text-primary); background: var(--bg-card);
+        }
+        .pagination-pages { display: flex; align-items: center; gap: 4px; }
+        .page-btn {
+            min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            padding: 0 8px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 13px; color: var(--text-secondary); background: var(--bg-card);
+            cursor: pointer; transition: all var(--transition-fast);
+        }
+        .page-btn:hover { border-color: var(--primary-200); color: var(--primary-500); }
+        .page-btn.active { border-color: var(--primary-500); background: var(--primary-500); color: white; }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ===== Filter Panel ===== */
+        .filter-panel {
+            display: none;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-top: none;
+        }
+        .filter-panel.show { display: block; }
+        .filter-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+        }
+        .filter-field { display: flex; flex-direction: column; gap: 4px; }
+        .filter-label { font-size: 11px; color: var(--text-muted); }
+        .filter-input {
+            padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 13px; color: var(--text-primary); background: var(--bg-card);
+            transition: border-color var(--transition-fast);
+        }
+        .filter-input:focus { outline: none; border-color: var(--primary-500); box-shadow: 0 0 0 3px var(--primary-50); }
+        .filter-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+        .btn {
+            padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
+            cursor: pointer; border: none; transition: all var(--transition-fast);
+        }
+        .btn-primary { background: var(--primary-500); color: white; }
+        .btn-primary:hover { background: var(--primary-600); }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+        .btn-text { background: transparent; color: var(--text-secondary); }
+        .btn-text:hover { color: var(--primary-500); }
+
+        /* ===== Tooltip ===== */
+        .tooltip {
+            position: absolute; z-index: 50;
+            padding: 8px 12px; border-radius: var(--radius-sm);
+            background: var(--text-primary); color: white;
+            font-size: 12px; line-height: 1.5;
+            max-width: 240px;
+            box-shadow: var(--shadow-card);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+        .tooltip.show { opacity: 1; }
+
+        /* ===== Name Link ===== */
+        .name-link {
+            color: var(--primary-500); cursor: pointer; font-weight: 500;
+            text-decoration: none;
+        }
+        .name-link:hover { text-decoration: underline; }
+
+        /* ===== Snapshot Badge ===== */
+        .snapshot-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 1px 6px; border-radius: var(--radius-full);
+            font-size: 9px; font-weight: 500;
+            background: var(--warning-50); color: var(--warning-600);
+            border: 1px solid var(--warning-100);
+        }
+        .snapshot-badge svg { width: 8px; height: 8px; }
+
+        /* ===== Diff Indicator (snapshot vs current) ===== */
+        .has-changes td:first-child {
+            position: relative;
+        }
+        .has-changes td:first-child::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 3px; height: 60%;
+            background: var(--warning-400);
+            border-radius: 2px;
+        }
+        .diff-indicator {
+            display: inline-flex; align-items: center; gap: 2px;
+            cursor: help; margin-right: 4px;
+            color: var(--warning-500);
+        }
+        .diff-indicator svg {
+            width: 14px; height: 14px; flex-shrink: 0;
+        }
+        .diff-indicator:hover { color: var(--warning-600); }
+
+        /* Multi-customer indicator */
+        .multi-customer {
+            display: inline-flex; align-items: center; gap: 4px;
+            margin-left: 4px; cursor: help;
+            color: var(--text-muted);
+        }
+        .multi-customer-badge {
+            display: inline-flex; align-items: center;
+            background: var(--warning-50);
+            border: 1px solid var(--warning-200);
+            color: var(--warning-700);
+            font-size: 10px; font-weight: 500;
+            padding: 1px 5px;
+            border-radius: var(--radius-sm);
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        /* Customer split tooltip */
+        .customer-split-tooltip {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            z-index: 100;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            padding: 8px 10px;
+            min-width: 240px;
+            font-size: 12px;
+        }
+        .multi-customer:hover .customer-split-tooltip {
+            display: block;
+        }
+        .customer-split-title {
+            font-weight: 600; color: var(--text-primary);
+            margin-bottom: 6px; font-size: 11px;
+        }
+        .customer-split-item {
+            display: flex; align-items: center; gap: 4px;
+            margin-bottom: 4px; flex-wrap: wrap;
+        }
+        .customer-split-tag {
+            font-size: 10px; padding: 1px 5px;
+        }
+        .customer-split-value {
+            color: var(--text-secondary);
+            margin-left: auto;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Diff tooltip on hover */
+        .has-changes:hover td {
+            background: var(--warning-50);
+        }
+        .diff-tooltip {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            z-index: 100;
+            background: white;
+            border: 1px solid var(--warning-200);
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            padding: 10px 12px;
+            min-width: 280px;
+            max-width: 420px;
+            font-size: 12px;
+            line-height: 1.5;
+            pointer-events: none;
+        }
+        .has-changes:hover .diff-tooltip {
+            display: block;
+        }
+        .diff-tooltip-title {
+            font-weight: 600; color: var(--text-primary);
+            margin-bottom: 6px; font-size: 11px;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .diff-tooltip-title .diff-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--warning-400);
+        }
+        .diff-tooltip-item {
+            display: flex; align-items: flex-start; gap: 6px;
+            padding: 3px 0; color: var(--text-secondary);
+        }
+        .diff-tooltip-item .diff-field {
+            color: var(--text-primary); font-weight: 500;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .diff-tooltip-item .diff-old {
+            color: var(--text-secondary);
+        }
+        .diff-tooltip-item .diff-arrow {
+            color: var(--warning-500); margin: 0 2px;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 1440px) {
+            .filter-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        /* ===== Toast Notification ===== */
+        .toast-container {
+            position: fixed; top: 64px; right: 24px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .toast {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 16px; min-width: 280px; max-width: 400px;
+            border-radius: var(--radius-md);
+            background: var(--bg-card); border: 1px solid var(--border);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            font-size: 13px; color: var(--text-primary);
+            animation: toastIn 0.3s ease forwards;
+        }
+        .toast.removing { animation: toastOut 0.25s ease forwards; }
+        .toast-icon { width: 18px; height: 18px; flex-shrink: 0; }
+        .toast.success .toast-icon { color: var(--success-500); }
+        .toast.info .toast-icon { color: var(--primary-500); }
+        .toast.warning .toast-icon { color: var(--warning-500); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+        /* ===== Sort Indicator ===== */
+        .qy-table th.sortable { cursor: pointer; user-select: none; }
+        .qy-table th.sortable:hover { color: var(--primary-500); }
+        .sort-icon { display: inline-flex; flex-direction: column; margin-left: 4px; vertical-align: middle; }
+        .sort-icon svg { width: 10px; height: 10px; opacity: 0.3; transition: opacity var(--transition-fast); }
+        .sort-icon .sort-up, .sort-icon .sort-down { line-height: 0; }
+        .qy-table th.sorted-asc .sort-icon .sort-up svg { opacity: 1; color: var(--primary-500); }
+        .qy-table th.sorted-desc .sort-icon .sort-down svg { opacity: 1; color: var(--primary-500); }
+        .qy-table th.sortable:not(.sorted-asc):not(.sorted-desc) .sort-icon svg:hover { opacity: 0.7; }
+
+        /* ===== Action Menu ===== */
+        .action-dropdown {
+            position: relative; display: inline-block;
+        }
+        .action-dropdown-trigger {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; border: none; border-radius: var(--radius-sm);
+            background: transparent; cursor: pointer; color: var(--text-muted);
+            transition: all var(--transition-fast);
+        }
+        .action-dropdown-trigger:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .action-dropdown-trigger svg { width: 16px; height: 16px; }
+        .action-menu {
+            position: absolute; right: 0; top: calc(100% + 4px);
+            min-width: 140px; padding: 4px 0;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-md); box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            z-index: 50; display: none;
+        }
+        .action-menu.show { display: block; }
+        .action-menu-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 14px; font-size: 13px; color: var(--text-primary);
+            cursor: pointer; transition: background var(--transition-fast);
+            border: none; background: transparent; width: 100%;
+        }
+        .action-menu-item:hover { background: var(--bg-hover); }
+        .action-menu-item svg { width: 14px; height: 14px; color: var(--text-secondary); }
+        .action-menu-item.danger { color: var(--error-600); }
+        .action-menu-item.danger svg { color: var(--error-500); }
+        .action-menu-item.danger:hover { background: var(--error-50); }
+        .action-menu-divider { height: 1px; background: var(--border-light); margin: 2px 0; }
+
+        /* ===== Filter Badges ===== */
+        .filter-badges {
+            display: none; align-items: center; gap: 6px; padding: 0 16px 12px;
+            background: var(--bg-card);
+        }
+        .filter-badges.show { display: flex; flex-wrap: wrap; }
+        .filter-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 8px 3px 10px; border-radius: var(--radius-full);
+            font-size: 12px; color: var(--primary-600);
+            background: var(--primary-50); border: 1px solid var(--primary-100);
+        }
+        .filter-badge-remove {
+            display: flex; align-items: center; cursor: pointer;
+            border-radius: 50%; padding: 2px;
+            transition: background var(--transition-fast);
+        }
+        .filter-badge-remove:hover { background: var(--primary-100); }
+        .filter-badge-remove svg { width: 12px; height: 12px; }
+        .filter-clear-all {
+            font-size: 12px; color: var(--text-secondary);
+            cursor: pointer; text-decoration: underline;
+        }
+        .filter-clear-all:hover { color: var(--error-600); }
+
+        /* ===== Transition for density ===== */
+        .qy-table th, .qy-table td { transition: padding var(--transition-base), font-size var(--transition-base); }
+
+        /* ===== Highlighted text ===== */
+        .highlight { background: #FEF08A; padding: 0 2px; border-radius: 2px; }
+
+        /* ===== Empty State ===== */
+        .empty-state-table {
+            display: none; padding: 60px 20px; text-align: center;
+        }
+        .empty-state-table.show { display: block; }
+        .empty-state-table svg { width: 48px; height: 48px; color: var(--text-disabled); margin-bottom: 12px; }
+        .empty-state-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .empty-state-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+
+        /* ===== Loading Skeleton ===== */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-hover) 25%, var(--border-light) 50%, var(--bg-hover) 75%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s ease-in-out infinite;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ===== Tooltip (for insurance tags) ===== */
+        .tooltip-wrapper { position: relative; }
+        .tooltip-content {
+            position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+            padding: 6px 10px; border-radius: var(--radius-sm);
+            background: var(--text-primary); color: white;
+            font-size: 11px; white-space: nowrap; z-index: 50;
+            opacity: 0; pointer-events: none; transition: opacity var(--transition-fast);
+        }
+        .tooltip-content::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border: 4px solid transparent; border-top-color: var(--text-primary);
+        }
+        .tooltip-wrapper:hover .tooltip-content { opacity: 1; }
+
+        /* ===== Active filter count ===== */
+        .filter-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 16px; height: 16px; padding: 0 4px;
+            border-radius: var(--radius-full); background: var(--primary-500);
+            color: white; font-size: 10px; font-weight: 600;
+        }
+
+        /* ===== Column picker animation ===== */
+        .col-picker-dropdown.show { animation: dropIn 0.15s ease forwards; }
+        @keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== Filter panel animation ===== */
+        .filter-panel { animation: slideDown 0.2s ease forwards; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<!-- ===== Top Navigation ===== -->
+<nav class="top-nav">
+    <div class="logo">
+        <svg viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#2563EB"/>
+            <path d="M8 16L14 22L24 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        青阳云HRO
+    </div>
+    <div class="nav-modules">
+        <div class="nav-module">首页</div>
+        <div class="nav-module active">员工管理</div>
+        <div class="nav-module">社保管理</div>
+        <div class="nav-module">薪资管理</div>
+        <div class="nav-module">合同管理</div>
+    </div>
+    <div class="nav-right">
+        <span>Admin</span>
+        <div class="avatar">A</div>
+    </div>
+</nav>
+
+<!-- ===== Breadcrumb ===== -->
+<div class="breadcrumb">
+    <a href="#">员工管理</a>
+    <span class="sep">/</span>
+    <span>社保异动</span>
+</div>
+
+<!-- ===== Page Header ===== -->
+<div class="page-header">
+    <div class="page-header-left">
+        <div>
+            <div class="page-title">社保异动</div>
+            <div class="page-subtitle">跟踪员工社保参保变更、申报、确认全流程</div>
+        </div>
+    </div>
+    <div class="page-stats">
+        <div class="stat-item">
+            <div class="stat-value">156</div>
+            <div class="stat-label">本月异动</div>
+        </div>
+        <div class="stat-item warning">
+            <div class="stat-value">8</div>
+            <div class="stat-label">待确认</div>
+        </div>
+        <div class="stat-item error">
+            <div class="stat-value">3</div>
+            <div class="stat-label">已驳回</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Main Content ===== -->
+<div class="main">
+
+    <!-- ===== Tabs (6 tabs, unified structure) ===== -->
+    <div class="tabs">
+        <div class="tab" onclick="switchTab(this)">
+            已申报
+            <span class="tab-badge">42</span>
+        </div>
+        <div class="tab active" onclick="switchTab(this)">
+            申报成功
+            <span class="tab-badge">86</span>
+        </div>
+        <div class="tab" onclick="switchTab(this)">
+            待确认
+            <span class="tab-badge red">8</span>
+        </div>
+        <div class="tab" onclick="switchTab(this)">
+            已驳回
+            <span class="tab-badge red">3</span>
+        </div>
+        <div class="tab" onclick="switchTab(this)">
+            已撤销
+            <span class="tab-badge">5</span>
+        </div>
+        <div class="tab" onclick="switchTab(this)">
+            已完成
+            <span class="tab-badge">12</span>
+        </div>
+    </div>
+
+    <!-- ===== Table Controls ===== -->
+    <div class="table-controls">
+        <div class="controls-left">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" placeholder="搜索姓名、客户、合同...">
+            </div>
+            <button class="filter-btn" onclick="toggleFilter(this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                </svg>
+                高级筛选
+            </button>
+        </div>
+        <div class="controls-right">
+            <div class="density-switcher">
+                <button class="density-btn" onclick="setDensity('compact', this)">紧凑</button>
+                <button class="density-btn active" onclick="setDensity('default', this)">默认</button>
+                <button class="density-btn" onclick="setDensity('relaxed', this)">宽松</button>
+            </div>
+            <div style="position: relative;">
+                <button class="col-picker-trigger" onclick="toggleColumnPicker()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    列设置
+                </button>
+                <!-- Column Picker Dropdown -->
+                <div class="col-picker-dropdown" id="columnPicker">
+                    <div class="col-picker-title">默认显示</div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'expand')">
+                        <div class="col-picker-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        展开行
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'name')">
+                        <div class="col-picker-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        姓名
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'customer')">
+                        <div class="col-picker-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        所属客户
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'contract')">
+                        <div class="col-picker-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        所属合同
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'insurance')">
+                        <div class="col-picker-checkbox checked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        险种明细
+                    </div>
+                    <div class="col-picker-divider"></div>
+                    <div class="col-picker-title">可选列</div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'project')">
+                        <div class="col-picker-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        所属项目
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'entryDate')">
+                        <div class="col-picker-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        入职日期
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'empType')">
+                        <div class="col-picker-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        员工类型
+                    </div>
+                    <div class="col-picker-item" onclick="toggleColumn(this, 'rule')">
+                        <div class="col-picker-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                        参保规则
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Filter Panel ===== -->
+    <div class="filter-panel" id="filterPanel">
+        <div class="filter-grid">
+            <div class="filter-field">
+                <label class="filter-label">所属客户</label>
+                <input class="filter-input" type="text" placeholder="输入客户名称" data-filter="customer">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">所属合同</label>
+                <input class="filter-input" type="text" placeholder="输入合同名称" data-filter="contract">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">所属项目</label>
+                <input class="filter-input" type="text" placeholder="输入项目名称" data-filter="project">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">参保规则</label>
+                <input class="filter-input" type="text" placeholder="选择参保规则" data-filter="rule">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">员工类型</label>
+                <select class="filter-input" data-filter="empType">
+                    <option value="">全部</option>
+                    <option value="正式员工">正式员工</option>
+                    <option value="外包员工">外包员工</option>
+                    <option value="实习员工">实习员工</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">申报时间（起）</label>
+                <input class="filter-input" type="date" data-filter="dateFrom">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">申报时间（止）</label>
+                <input class="filter-input" type="date" data-filter="dateTo">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">申报人</label>
+                <input class="filter-input" type="text" placeholder="输入申报人" data-filter="declarer">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-text" onclick="resetFilters()">重置条件</button>
+            <button class="btn btn-primary" onclick="applyFilters()">查询</button>
+        </div>
+    </div>
+
+    <!-- ===== Filter Badges ===== -->
+    <div class="filter-badges" id="filterBadges"></div>
+
+    <!-- ===== Table ===== -->
+    <div class="table-wrapper table--default" id="tableWrapper">
+        <div class="table-scroll" id="tableScroll">
+            <table class="qy-table">
+                <thead>
+                    <tr>
+                        <th class="col-expand"></th>
+                        <th class="col-name sortable" onclick="sortTable(this, 'name')">姓名
+                            <span class="sort-icon"><span class="sort-up"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg></span><span class="sort-down"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></span></span>
+                        </th>
+                        <th class="col-phone">手机号</th>
+                        <th class="col-id-card">证件号码</th>
+                        <th class="col-customer sortable" onclick="sortTable(this, 'customer')">所属客户
+                            <span class="sort-icon"><span class="sort-up"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg></span><span class="sort-down"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></span></span>
+                        </th>
+                        <th class="col-contract">所属合同</th>
+                        <th class="col-project">所属项目</th>
+                        <th class="col-contract-entity">合同主体</th>
+                        <th class="col-settlement-entity">结算主体</th>
+                        <th class="col-change-type">异动类型</th>
+                        <th class="col-time sortable" onclick="sortTable(this, 'time')">申报时间
+                            <span class="sort-icon"><span class="sort-up"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg></span><span class="sort-down"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></span></span>
+                        </th>
+                        <th class="col-declarer">申报人</th>
+                        <th class="col-status sortable" onclick="sortTable(this, 'status')">状态
+                            <span class="sort-icon"><span class="sort-up"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg></span><span class="sort-down"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></span></span>
+                        </th>
+                        <th class="col-action">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ===== Row 1: 曾强勇 增员 ===== -->
+                    <tr class="has-changes" data-changes='{"姓名":"张三","所属客户":"优派人力","所属合同":"深圳外包服务合同A","合同主体":"深圳青阳人力资源服务有限公司","结算主体":"深圳青阳财税服务有限公司"}'>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name" style="position: relative;">
+                            <span class="diff-indicator" title="查看变更字段">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                            </span>
+                            <div class="diff-tooltip">
+                                <div class="diff-tooltip-title">
+                                    <span class="diff-dot"></span>
+                                    5 项已变更（与当前档案值不同）
+                                </div>
+                                <div class="diff-tooltip-item"><span class="diff-field">姓名：</span><span class="diff-old">张三 <span class="diff-arrow">→</span> 曾强勇</span></div>
+                                <div class="diff-tooltip-item"><span class="diff-field">所属客户：</span><span class="diff-old">优派人力 <span class="diff-arrow">→</span> 立人科技</span></div>
+                                <div class="diff-tooltip-item"><span class="diff-field">所属合同：</span><span class="diff-old">深圳外包服务合同A <span class="diff-arrow">→</span> 立人服务协议</span></div>
+                                <div class="diff-tooltip-item"><span class="diff-field">合同主体：</span><span class="diff-old">深圳青阳人力资源服务有限公司 <span class="diff-arrow">→</span> 深圳立人人力资源有限公司</span></div>
+                                <div class="diff-tooltip-item"><span class="diff-field">结算主体：</span><span class="diff-old">深圳青阳财税服务有限公司 <span class="diff-arrow">→</span> 深圳立人财税服务有限公司</span></div>
+                            </div>
+                            <a class="name-link" href="#" onclick="event.preventDefault(); showDetail('曾强勇')">曾强勇</a>
+                        </td>
+                        <td class="col-phone">185****4349</td>
+                        <td class="col-id-card">440***********1234</td>
+                        <td class="col-customer" style="position: relative;">
+                            <span>立人科技</span>
+                            <span class="multi-customer" style="position: relative;">
+                                <span class="multi-customer-badge">2 个客户</span>
+                                <div class="customer-split-tooltip">
+                                    <div class="customer-split-title">各险种所属客户分布</div>
+                                    <div class="customer-split-item">
+                                        <span class="customer-split-tag tag-green">养老</span>
+                                        <span class="customer-split-value">立人科技</span>
+                                    </div>
+                                    <div class="customer-split-item">
+                                        <span class="customer-split-tag tag-green">医疗</span>
+                                        <span class="customer-split-tag tag-green">失业</span>
+                                        <span class="customer-split-tag tag-green">工伤</span>
+                                        <span class="customer-split-tag tag-green">生育</span>
+                                        <span class="customer-split-tag tag-green">大病</span>
+                                        <span class="customer-split-value">湘辉人力</span>
+                                    </div>
+                                </div>
+                            </span>
+                        </td>
+                        <td class="col-contract">立人服务协议</td>
+                        <td class="col-project">立人数据中心项目</td>
+                        <td class="col-contract-entity">深圳立人人力资源有限公司</td>
+                        <td class="col-settlement-entity">深圳立人财税服务有限公司</td>
+                        <td class="col-change-type"><span class="tag tag-green">增员</span></td>
+                        <td class="col-time" data-sort="2025-04-22 10:30">2025-04-22 10:30</td>
+                        <td class="col-declarer">张三</td>
+                        <td class="col-status" data-sort="2"><span class="tag tag-blue">已申报</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('曾强勇')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('曾强勇')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已复制快照数据', 'success')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                        复制快照
+                                    </button>
+                                    <button class="action-menu-item danger" onclick="confirmRevoke('曾强勇')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                                        撤销申报
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Expanded detail row (hidden by default) -->
+                    <tr class="expand-row" data-row-id="1" style="display: none;">
+                        <td colspan="13">
+                            <div class="expand-content">
+                                <div class="insurance-dates-section">
+                                    <div class="insurance-dates-scroll">
+                                        <table class="insurance-dates-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 80px;">险种</th>
+                                                    <th style="width: 110px;">参保日期</th>
+                                                    <th style="width: 110px;">汇缴日期</th>
+                                                    <th style="width: 110px;">补缴日期</th>
+                                                    <th>所属客户</th>
+                                                    <th>所属合同</th>
+                                                    <th>所属项目</th>
+                                                    <th>合同主体</th>
+                                                    <th>结算主体</th>
+                                                    <th>备注</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><span class="tag tag-green" style="font-size:10px; padding: 1px 6px;">养老</span></td>
+                                                    <td class="mono">2025-03-01</td>
+                                                    <td class="mono">2025-03-15</td>
+                                                    <td class="mono">—</td>
+                                                    <td>立人科技</td>
+                                                    <td>立人服务协议</td>
+                                                    <td>立人数据中心项目</td>
+                                                    <td>深圳立人人力资源有限公司</td>
+                                                    <td>深圳立人财税服务有限公司</td>
+                                                    <td class="date-cell-empty">无补缴</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="tag tag-green" style="font-size:10px; padding: 1px 6px;">医疗</span></td>
+                                                    <td class="mono">2025-03-01</td>
+                                                    <td class="mono">2025-03-15</td>
+                                                    <td class="mono">2025-03-20</td>
+                                                    <td>湘辉人力</td>
+                                                    <td>湘辉派遣服务协议</td>
+                                                    <td>湘辉外包项目</td>
+                                                    <td>上海湘辉人力资源服务有限公司</td>
+                                                    <td>上海湘辉财税服务有限公司</td>
+                                                    <td class="date-cell-empty">补缴 1 个月</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="tag tag-green" style="font-size:10px; padding: 1px 6px;">失业</span></td>
+                                                    <td class="mono">2025-03-01</td>
+                                                    <td class="mono">2025-03-15</td>
+                                                    <td class="mono">—</td>
+                                                    <td>湘辉人力</td>
+                                                    <td>湘辉派遣服务协议</td>
+                                                    <td>湘辉外包项目</td>
+                                                    <td>上海湘辉人力资源服务有限公司</td>
+                                                    <td>上海湘辉财税服务有限公司</td>
+                                                    <td class="date-cell-empty">无补缴</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="tag tag-green" style="font-size:10px; padding: 1px 6px;">工伤</span></td>
+                                                    <td class="mono">2025-03-01</td>
+                                                    <td class="mono">2025-03-15</td>
+                                                    <td class="mono">—</td>
+                                                    <td>湘辉人力</td>
+                                                    <td>湘辉派遣服务协议</td>
+                                                    <td>湘辉外包项目</td>
+                                                    <td>上海湘辉人力资源服务有限公司</td>
+                                                    <td>上海湘辉财税服务有限公司</td>
+                                                    <td class="date-cell-empty">无补缴</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="tag tag-green" style="font-size:10px; padding: 1px 6px;">生育</span></td>
+                                                    <td class="mono">2025-03-01</td>
+                                                    <td class="mono">2025-03-15</td>
+                                                    <td class="mono">2025-04-15</td>
+                                                    <td>湘辉人力</td>
+                                                    <td>湘辉派遣服务协议</td>
+                                                    <td>湘辉外包项目</td>
+                                                    <td>上海湘辉人力资源服务有限公司</td>
+                                                    <td>上海湘辉财税服务有限公司</td>
+                                                    <td class="date-cell-empty">补缴 2 个月</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="tag tag-green" style="font-size:10px; padding: 1px 6px;">大病</span></td>
+                                                    <td class="mono">2025-03-01</td>
+                                                    <td class="mono">2025-03-15</td>
+                                                    <td class="mono">—</td>
+                                                    <td>湘辉人力</td>
+                                                    <td>湘辉派遣服务协议</td>
+                                                    <td>湘辉外包项目</td>
+                                                    <td>上海湘辉人力资源服务有限公司</td>
+                                                    <td>上海湘辉财税服务有限公司</td>
+                                                    <td class="date-cell-empty">无补缴</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 7: 李思雨 ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#">李思雨</a></td>
+                        <td class="col-phone">139****8821</td>
+                        <td class="col-id-card">310***********5678</td>
+                        <td class="col-customer">万通科技</td>
+                        <td class="col-contract">上海派遣服务协议B</td>
+                        <td class="col-project">阿里外包项目</td>
+                        <td class="col-contract-entity">上海万通人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">上海万通财税服务有限公司</td>
+                        <td class="col-change-type"><span class="tag tag-green">增员</span></td>
+                        <td class="col-time" data-sort="2025-04-21 15:42">2025-04-21 15:42</td>
+                        <td class="col-declarer">李四</td>
+                        <td class="col-status" data-sort="1"><span class="tag tag-green">申报成功</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('李思雨')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('李思雨')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已复制快照数据', 'success')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                        复制快照
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 3: 王浩然 ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#" onclick="event.preventDefault(); showDetail('王浩然')">王浩然</a></td>
+                        <td class="col-phone">186****3357</td>
+                        <td class="col-id-card">110***********9012</td>
+                        <td class="col-customer">
+                            优派人力
+                            <div class="snapshot-indicator">
+                                <span class="snapshot-changed">
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 4v6h-2V6h2zm0 8h-2v2h2v-2z"/></svg>
+                                    客户已变更
+                                </span>
+                            </div>
+                        </td>
+                        <td class="col-contract">深圳外包服务合同A</td>
+                        <td class="col-project">华为外包项目</td>
+                        <td class="col-contract-entity">深圳青阳人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">深圳青阳财税服务有限公司</td>
+                        <td class="col-change-type"><span class="tag tag-orange">减员</span></td>
+                        <td class="col-time" data-sort="2025-04-20 09:15">2025-04-20 09:15</td>
+                        <td class="col-declarer">王五</td>
+                        <td class="col-status" data-sort="3"><span class="tag tag-orange">待确认</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('王浩然')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('王浩然')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已确认', 'success')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                                        确认异动
+                                    </button>
+                                    <button class="action-menu-item danger" onclick="confirmReject('王浩然')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        驳回
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 4: Rejected ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#" onclick="event.preventDefault(); showDetail('张晓明')">张晓明</a></td>
+                        <td class="col-phone">136****2246</td>
+                        <td class="col-id-card">510***********3456</td>
+                        <td class="col-customer">中企管理</td>
+                        <td class="col-contract">成都派遣合同C</td>
+                        <td class="col-project">京东物流项目</td>
+                        <td class="col-contract-entity">深圳青阳人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">深圳青阳财税服务有限公司</td>
+                        <td class="col-change-type"><span class="tag tag-blue">基数调整</span></td>
+                        <td class="col-time" data-sort="2025-04-19 14:22">2025-04-19 14:22</td>
+                        <td class="col-declarer">赵六</td>
+                        <td class="col-status" data-sort="4"><span class="tag tag-red">已驳回</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('张晓明')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('张晓明')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已重新提交申报', 'info')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                                        重新申报
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 5 ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#" onclick="event.preventDefault(); showDetail('陈美玲')">陈美玲</a></td>
+                        <td class="col-phone">159****7789</td>
+                        <td class="col-id-card">330***********7890</td>
+                        <td class="col-customer">优派人力</td>
+                        <td class="col-contract">杭州服务合同D</td>
+                        <td class="col-project">美团配送项目</td>
+                        <td class="col-contract-entity">深圳青阳人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">深圳青阳财税服务有限公司</td>
+                        <td class="col-change-type"><span class="tag tag-green">增员</span></td>
+                        <td class="col-time" data-sort="2025-04-18 11:05">2025-04-18 11:05</td>
+                        <td class="col-declarer">张三</td>
+                        <td class="col-status" data-sort="5"><span class="tag tag-green">已完成</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('陈美玲')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('陈美玲')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已导出', 'success')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        导出记录
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 6: Revoked ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#" onclick="event.preventDefault(); showDetail('刘建国')">刘建国</a></td>
+                        <td class="col-phone col-hidden">177****1134</td>
+                        <td class="col-id-card col-hidden">420***********2345</td>
+                        <td class="col-customer">万通科技</td>
+                        <td class="col-contract">上海派遣服务协议B</td>
+                        <td class="col-project col-hidden">拼多多项目</td>
+                        <td class="col-entry-date col-hidden">2025-03-01</td>
+                        <td class="col-emp-type col-hidden">正式</td>
+                        <td class="col-contract-entity">深圳青阳人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">深圳青阳财税服务有限公司</td>
+                        <td class="col-rule">
+                            <div class="insurance-tags tooltip-wrapper">
+                                <span class="tag tag-gray">养老</span>
+                                <span class="tag tag-gray">医疗</span>
+                                <span class="tag tag-gray">失业</span>
+                                <span class="tag tag-more">+3</span>
+                                <div class="tooltip-content">养老（已停保）、医疗（已停保）、失业（已停保）、工伤（已停保）、生育（已停保）、大病（已停保）</div>
+                            </div>
+                        </td>
+                        <td class="col-rule col-hidden">上海社保基数规则</td>
+                        <td class="col-time" data-sort="2025-04-17 16:30">2025-04-17 16:30</td>
+                        <td class="col-declarer col-hidden">李四</td>
+                        <td class="col-status" data-sort="6"><span class="tag tag-gray">已撤销</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('刘建国')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('刘建国')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已重新提交申报', 'info')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                                        重新申报
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 7 ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#" onclick="event.preventDefault(); showDetail('赵文婷')">赵文婷</a></td>
+                        <td class="col-phone col-hidden">150****5567</td>
+                        <td class="col-id-card col-hidden">350***********6789</td>
+                        <td class="col-customer">优派人力</td>
+                        <td class="col-contract">深圳外包服务合同A</td>
+                        <td class="col-project col-hidden">比亚迪项目</td>
+                        <td class="col-entry-date col-hidden">2025-01-05</td>
+                        <td class="col-emp-type col-hidden">外包</td>
+                        <td class="col-contract-entity">深圳青阳人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">深圳青阳财税服务有限公司</td>
+                        <td class="col-rule">
+                            <div class="insurance-tags tooltip-wrapper">
+                                <span class="tag tag-green">养老</span>
+                                <span class="tag tag-green">医疗</span>
+                                <span class="tag tag-green">失业</span>
+                                <span class="tag tag-more">+3</span>
+                                <div class="tooltip-content">养老、医疗、失业、工伤、生育、大病</div>
+                            </div>
+                        </td>
+                        <td class="col-rule col-hidden">深圳社保一档规则</td>
+                        <td class="col-time" data-sort="2025-04-16 08:50">2025-04-16 08:50</td>
+                        <td class="col-declarer col-hidden">王五</td>
+                        <td class="col-status" data-sort="5"><span class="tag tag-green">已完成</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('赵文婷')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('赵文婷')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已导出', 'success')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        导出记录
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Row 8 ===== -->
+                    <tr>
+                        <td class="col-expand">
+                            <button class="expand-btn" onclick="toggleExpand(this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                        </td>
+                        <td class="col-name"><a class="name-link" href="#" onclick="event.preventDefault(); showDetail('周德强')">周德强</a></td>
+                        <td class="col-phone col-hidden">188****9901</td>
+                        <td class="col-id-card col-hidden">320***********0123</td>
+                        <td class="col-customer">中企管理</td>
+                        <td class="col-contract">南京服务协议E</td>
+                        <td class="col-project col-hidden">苏宁物流项目</td>
+                        <td class="col-entry-date col-hidden">2024-09-12</td>
+                        <td class="col-emp-type col-hidden">正式</td>
+                        <td class="col-contract-entity">深圳青阳人力资源服务有限公司</td>
+                        <td class="col-settlement-entity">深圳青阳财税服务有限公司</td>
+                        <td class="col-rule">
+                            <div class="insurance-tags tooltip-wrapper">
+                                <span class="tag tag-green">养老</span>
+                                <span class="tag tag-green">医疗</span>
+                                <span class="tag tag-green">失业</span>
+                                <span class="tag tag-more">+3</span>
+                                <div class="tooltip-content">养老、医疗、失业、工伤、生育、大病</div>
+                            </div>
+                        </td>
+                        <td class="col-rule col-hidden">南京社保规则</td>
+                        <td class="col-time" data-sort="2025-04-15 13:18">2025-04-15 13:18</td>
+                        <td class="col-declarer col-hidden">赵六</td>
+                        <td class="col-status" data-sort="2"><span class="tag tag-blue">已申报</span></td>
+                        <td class="col-action">
+                            <div class="action-dropdown">
+                                <button class="action-btn" onclick="event.stopPropagation(); showDetail('周德强')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    详情
+                                </button>
+                                <button class="action-dropdown-trigger" onclick="event.stopPropagation(); toggleActionMenu(this)">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                                </button>
+                                <div class="action-menu">
+                                    <button class="action-menu-item" onclick="showDetail('周德强')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        查看详情
+                                    </button>
+                                    <button class="action-menu-item" onclick="showToast('已复制快照数据', 'success')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                        复制快照
+                                    </button>
+                                    <button class="action-menu-item danger" onclick="confirmRevoke('周德强')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                                        撤销申报
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== Empty State ===== -->
+        <div class="empty-state-table" id="emptyState">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <div class="empty-state-title">未找到匹配的记录</div>
+            <div class="empty-state-desc">请尝试调整搜索条件或筛选范围</div>
+            <button class="btn btn-secondary" onclick="resetFilters(); resetSearch();">重置所有条件</button>
+        </div>
+
+        <!-- ===== Pagination ===== -->
+        <div class="pagination" id="pagination">
+            <div class="pagination-info">
+                <span>共 <strong id="totalCount">156</strong> 条</span>
+                <select class="pagination-select" id="pageSizeSelect" onchange="changePageSize(this.value)">
+                    <option value="10">10 条/页</option>
+                    <option value="20">20 条/页</option>
+                    <option value="50">50 条/页</option>
+                </select>
+            </div>
+            <div class="pagination-pages" id="paginationPages"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Toast Container ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+    // ===== State =====
+    let currentTab = '申报成功';
+    let currentSort = { field: 'time', dir: 'desc' };
+    let currentPage = 1;
+    let pageSize = 10;
+    let expandedRows = new Set();
+    let activeFilters = {};
+
+    // Tab data simulation
+    const tabData = {
+        '已申报':     { count: 42, status: '已申报' },
+        '申报成功':   { count: 86, status: '申报成功' },
+        '待确认':     { count: 8,  status: '待确认' },
+        '已驳回':     { count: 3,  status: '已驳回' },
+        '已撤销':     { count: 5,  status: '已撤销' },
+        '已完成':     { count: 12, status: '已完成' }
+    };
+
+    // ===== Tab switching =====
+    function switchTab(el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        currentTab = el.textContent.trim().split('\n')[0].trim();
+        currentPage = 1;
+
+        // Show loading toast
+        showToast(`已切换到「${currentTab}」`, 'info');
+
+        // Close any open action menus
+        closeAllActionMenus();
+    }
+
+    // ===== Density switching =====
+    function setDensity(mode, btn) {
+        const wrapper = document.getElementById('tableWrapper');
+        wrapper.classList.remove('table--compact', 'table--default', 'table--relaxed');
+        if (mode === 'compact') wrapper.classList.add('table--compact');
+        else if (mode === 'relaxed') wrapper.classList.add('table--relaxed');
+        else wrapper.classList.add('table--default');
+
+        btn.parentElement.querySelectorAll('.density-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const labels = { compact: '紧凑', default: '默认', relaxed: '宽松' };
+        showToast(`表格密度已切换为「${labels[mode]}」`, 'info');
+    }
+
+    // ===== Column picker =====
+    function toggleColumnPicker() {
+        document.getElementById('columnPicker').classList.toggle('show');
+    }
+
+    function toggleColumn(item, colName) {
+        const checkbox = item.querySelector('.col-picker-checkbox');
+        const isChecked = checkbox.classList.toggle('checked');
+
+        const colMap = {
+            'expand': 'col-expand',
+            'name': 'col-name',
+            'customer': 'col-customer',
+            'contract': 'col-contract',
+            'insurance': 'col-insurance',
+            'project': 'col-project',
+            'entryDate': 'col-entry-date',
+            'empType': 'col-emp-type',
+            'rule': 'col-rule'
+        };
+
+        const cells = document.querySelectorAll('.' + colMap[colName]);
+        cells.forEach(cell => {
+            cell.classList.toggle('col-hidden', !isChecked);
+        });
+    }
+
+    // ===== Filter panel =====
+    function toggleFilter(btn) {
+        const panel = document.getElementById('filterPanel');
+        panel.classList.toggle('show');
+        btn.classList.toggle('has-filter');
+    }
+
+    function applyFilters() {
+        const inputs = document.querySelectorAll('.filter-input');
+        activeFilters = {};
+        inputs.forEach(input => {
+            const key = input.dataset.filter;
+            if (key && input.value) activeFilters[key] = input.value;
+        });
+
+        updateFilterBadges();
+        currentPage = 1;
+        renderTable();
+        showToast(`已应用 ${Object.keys(activeFilters).length} 个筛选条件`, 'success');
+
+        // Close panel
+        document.getElementById('filterPanel').classList.remove('show');
+    }
+
+    function resetFilters() {
+        document.querySelectorAll('.filter-input').forEach(input => { input.value = ''; });
+        activeFilters = {};
+        updateFilterBadges();
+        currentPage = 1;
+        renderTable();
+        showToast('已重置所有筛选条件', 'info');
+    }
+
+    function updateFilterBadges() {
+        const container = document.getElementById('filterBadges');
+        const labels = {
+            customer: '所属客户', contract: '所属合同', project: '所属项目',
+            rule: '参保规则', empType: '员工类型', dateFrom: '申报时间起',
+            dateTo: '申报时间止', declarer: '申报人'
+        };
+
+        if (Object.keys(activeFilters).length === 0) {
+            container.classList.remove('show');
+            container.innerHTML = '';
+            return;
+        }
+
+        container.classList.add('show');
+        let html = '';
+        Object.entries(activeFilters).forEach(([key, value]) => {
+            html += `<span class="filter-badge">
+                ${labels[key]}: ${value}
+                <span class="filter-badge-remove" onclick="removeFilter('${key}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </span>
+            </span>`;
+        });
+        html += `<span class="filter-clear-all" onclick="resetFilters()">清除全部</span>`;
+        container.innerHTML = html;
+    }
+
+    function removeFilter(key) {
+        delete activeFilters[key];
+        const input = document.querySelector(`.filter-input[data-filter="${key}"]`);
+        if (input) input.value = '';
+        updateFilterBadges();
+        renderTable();
+    }
+
+    // ===== Search =====
+    let searchDebounce;
+    document.querySelector('.search-box input').addEventListener('input', function(e) {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+            const query = e.target.value.trim().toLowerCase();
+            if (query) {
+                showToast(`正在搜索 "${query}"...`, 'info');
+            }
+            currentPage = 1;
+            renderTable(query);
+        }, 400);
+    });
+
+    function resetSearch() {
+        document.querySelector('.search-box input').value = '';
+        renderTable();
+    }
+
+    // ===== Sort =====
+    function sortTable(th, field) {
+        // Determine sort direction
+        const wasAsc = th.classList.contains('sorted-asc');
+        const wasDesc = th.classList.contains('sorted-desc');
+
+        // Clear all sort indicators
+        document.querySelectorAll('.qy-table th').forEach(h => {
+            h.classList.remove('sorted-asc', 'sorted-desc');
+        });
+
+        if (wasDesc) {
+            th.classList.add('sorted-asc');
+            currentSort = { field, dir: 'asc' };
+        } else {
+            th.classList.add('sorted-desc');
+            currentSort = { field, dir: 'desc' };
+        }
+
+        currentPage = 1;
+        renderTable();
+        showToast(`已按「${th.textContent.trim()}」${currentSort.dir === 'asc' ? '升序' : '降序'}排列`, 'info');
+    }
+
+    // ===== Expand row =====
+    function toggleExpand(btn) {
+        const row = btn.closest('tr');
+        const nextRow = row.nextElementSibling;
+        const isExpanded = btn.classList.contains('expanded');
+
+        if (isExpanded) {
+            btn.classList.remove('expanded');
+            row.classList.remove('is-expanded');
+            if (nextRow && nextRow.classList.contains('expand-row')) {
+                nextRow.style.display = 'none';
+            }
+        } else {
+            btn.classList.add('expanded');
+            row.classList.add('is-expanded');
+            if (nextRow && nextRow.classList.contains('expand-row')) {
+                nextRow.style.display = '';
+            }
+        }
+    }
+
+    // ===== Action menu =====
+    function toggleActionMenu(trigger) {
+        const menu = trigger.parentElement.querySelector('.action-menu');
+        const wasOpen = menu.classList.contains('show');
+
+        // Close all menus first
+        closeAllActionMenus();
+
+        if (!wasOpen) {
+            menu.classList.add('show');
+        }
+    }
+
+    function closeAllActionMenus() {
+        document.querySelectorAll('.action-menu.show').forEach(m => m.classList.remove('show'));
+    }
+
+    // Close action menus and column picker on outside click
+    document.addEventListener('click', function(e) {
+        // Column picker
+        if (!e.target.closest('.col-picker-trigger') && !e.target.closest('.col-picker-dropdown')) {
+            document.getElementById('columnPicker').classList.remove('show');
+        }
+        // Action menus
+        if (!e.target.closest('.action-dropdown')) {
+            closeAllActionMenus();
+        }
+    });
+
+    // ===== Table scroll shadows =====
+    const tableScroll = document.getElementById('tableScroll');
+    tableScroll.addEventListener('scroll', function() {
+        const isScrolledRight = this.scrollLeft > 0;
+        const isScrolledLeft = this.scrollLeft < this.scrollWidth - this.clientWidth - 1;
+        this.classList.toggle('scrolled-right', isScrolledRight);
+        this.classList.toggle('scrolled-left', isScrolledLeft);
+    });
+
+    // ===== Pagination =====
+    function renderPagination(total) {
+        const totalPages = Math.ceil(total / pageSize);
+        const container = document.getElementById('paginationPages');
+        document.getElementById('totalCount').textContent = total;
+
+        let html = '';
+        html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>`;
+
+        // Smart page range
+        let start = Math.max(1, currentPage - 2);
+        let end = Math.min(totalPages, currentPage + 2);
+
+        if (start > 1) {
+            html += `<button class="page-btn" onclick="goToPage(1)">1</button>`;
+            if (start > 2) html += `<button class="page-btn" disabled>...</button>`;
+        }
+
+        for (let i = start; i <= end; i++) {
+            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        }
+
+        if (end < totalPages) {
+            if (end < totalPages - 1) html += `<button class="page-btn" disabled>...</button>`;
+            html += `<button class="page-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        }
+
+        html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>`;
+
+        container.innerHTML = html;
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderTable();
+        tableScroll.scrollTop = 0;
+        showToast(`第 ${page} 页`, 'info');
+    }
+
+    function changePageSize(size) {
+        pageSize = parseInt(size);
+        currentPage = 1;
+        renderTable();
+    }
+
+    // ===== Table rendering (simulated) =====
+    function renderTable(searchQuery) {
+        // Get current tab data
+        const tabInfo = tabData[currentTab];
+        const tbody = document.querySelector('.qy-table tbody');
+        const rows = tbody.querySelectorAll('tr:not(.expand-row)');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            let show = true;
+
+            // Filter by tab status
+            const statusCell = row.querySelector('.col-status span');
+            if (statusCell && currentTab !== '申报成功') {
+                const statusText = statusCell.textContent.trim();
+                const tabStatusMap = {
+                    '已申报': ['已申报'],
+                    '待确认': ['待确认'],
+                    '已驳回': ['已驳回'],
+                    '已撤销': ['已撤销'],
+                    '已完成': ['已完成']
+                };
+                if (tabStatusMap[currentTab] && !tabStatusMap[currentTab].includes(statusText)) {
+                    show = false;
+                }
+            }
+
+            // Filter by active filters
+            if (show && Object.keys(activeFilters).length > 0) {
+                const customerCell = row.querySelector('.col-customer');
+                const customerText = customerCell ? customerCell.textContent.trim().split('\n')[0].trim() : '';
+                if (activeFilters.customer && !customerText.includes(activeFilters.customer)) show = false;
+            }
+
+            // Search
+            if (show && searchQuery) {
+                const text = row.textContent.toLowerCase();
+                if (!text.includes(searchQuery)) show = false;
+
+                // Highlight matched text
+                if (show) {
+                    row.querySelectorAll('.highlight').forEach(h => {
+                        h.outerHTML = h.textContent;
+                    });
+                }
+            }
+
+            row.style.display = show ? '' : 'none';
+
+            // Hide corresponding expand row
+            const expandRow = row.nextElementSibling;
+            if (expandRow && expandRow.classList.contains('expand-row')) {
+                expandRow.style.display = (show && row.classList.contains('is-expanded')) ? '' : 'none';
+            }
+
+            if (show) visibleCount++;
+        });
+
+        // Show/hide empty state
+        const emptyState = document.getElementById('emptyState');
+        const pagination = document.getElementById('pagination');
+        if (visibleCount === 0) {
+            emptyState.classList.add('show');
+            pagination.style.display = 'none';
+        } else {
+            emptyState.classList.remove('show');
+            pagination.style.display = '';
+            renderPagination(visibleCount);
+        }
+    }
+
+    // ===== Toast notifications =====
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+
+        const icons = {
+            success: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>',
+            info: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+            warning: '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+        };
+
+        toast.innerHTML = `${icons[type] || icons.info}<span>${message}</span>`;
+        container.appendChild(toast);
+
+        // Auto dismiss
+        setTimeout(() => {
+            toast.classList.add('removing');
+            setTimeout(() => toast.remove(), 250);
+        }, 3000);
+    }
+
+    // ===== Detail view =====
+    function showDetail(name) {
+        closeAllActionMenus();
+        showToast(`正在查看「${name}」的异动详情`, 'info');
+    }
+
+    // ===== Confirm actions =====
+    function confirmRevoke(name) {
+        closeAllActionMenus();
+        showToast(`已提交「${name}」的撤销申请`, 'success');
+    }
+
+    function confirmReject(name) {
+        closeAllActionMenus();
+        showToast(`已驳回「${name}」的异动申请`, 'warning');
+    }
+
+    // ===== Initialize =====
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default sort indicator on time column
+        const timeHeader = document.querySelector('.qy-table th.col-time');
+        if (timeHeader) timeHeader.classList.add('sorted-desc');
+
+        // Initial render
+        renderPagination(156);
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Escape closes all dropdowns
+        if (e.key === 'Escape') {
+            closeAllActionMenus();
+            document.getElementById('columnPicker').classList.remove('show');
+        }
+    });
+</script>
+
+</body>
+</html>

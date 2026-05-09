@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>配置社保参保规则 - 青阳云HRO</title>
-  <link rel="stylesheet" href="../styles/qingyang-variables.css">
-  <link rel="stylesheet" href="../styles/qingyang-base.css">
-  <link rel="stylesheet" href="../styles/qingyang-components.css">
-  <link rel="stylesheet" href="../styles/qingyang-forms.css">
+  <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../../styles/qingyang-base.css">
+  <link rel="stylesheet" href="../../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../../styles/qingyang-forms.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -183,7 +183,61 @@
     .step-panel.active { display: block; animation: fadeIn 200ms ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    .insurance-summary { display: flex; gap: 28px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-100); }
+    /* Insurance list (redesigned) */
+    .unified-section { background: linear-gradient(135deg, var(--primary-light) 0%, var(--gray-50) 100%); border: 1px solid var(--primary-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 0; }
+    .unified-section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .unified-section-icon { width: 20px; height: 20px; color: var(--primary); }
+    .unified-section-title { font-size: 14px; font-weight: 600; color: var(--gray-800); }
+    .unified-section-hint { font-size: 12px; color: var(--primary); background: white; padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+    .unified-section-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .insurance-list-wrapper { background: white; border-radius: 0 0 var(--radius-lg) var(--radius-lg); border: 1px solid var(--gray-200); border-top: none; overflow: hidden; }
+    .insurance-list-header { padding: 14px 20px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; background: var(--gray-50); }
+    .insurance-list-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .insurance-list-actions { display: flex; gap: 8px; }
+
+    .insurance-list { font-size: 13px; }
+    .list-header { display: flex; align-items: center; padding: 12px 20px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); font-weight: 600; color: var(--gray-500); font-size: 12px; }
+    .list-item { display: flex; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--gray-100); cursor: pointer; transition: background 150ms; }
+    .list-item:hover { background: var(--gray-50); }
+    .list-detail { display: none; padding: 16px 20px; background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+    .list-detail.is-expanded { display: block; }
+
+    .col-check { width: 48px; flex-shrink: 0; }
+    .col-check input { width: 16px; height: 16px; cursor: pointer; }
+    .col-name { flex: 1; min-width: 150px; }
+    .col-field { min-width: 100px; padding: 0 12px; }
+    .list-item .col-field input,
+    .list-item .col-field select { width: 100%; height: 28px; padding: 0 8px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 12px; font-family: inherit; background: white; }
+    .list-item .col-field input:focus,
+    .list-item .col-field select:focus { outline: none; border-color: var(--primary); background: var(--primary-light); }
+    .list-item .col-field input.unit-field { border-color: var(--primary-border); background: var(--primary-light); color: var(--primary); font-weight: 500; }
+
+    .insurance-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+    .badge-essential { background: #FEF2F2; color: #DC2626; }
+    .badge-optional { background: var(--gray-100); color: var(--gray-500); }
+
+    .detail-groups { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px 16px; }
+    .detail-field { text-align: center; }
+    .detail-field-title { font-size: 11px; font-weight: 600; color: var(--gray-500); margin-bottom: 8px; letter-spacing: 0.03em; }
+    .detail-field-value { font-size: 13px; font-weight: 500; padding: 4px 0; }
+    .detail-field-value.is-empty { color: var(--gray-400); }
+    .detail-field-value.unit { color: var(--primary); }
+    .detail-field-value.personal { color: var(--success); }
+    .detail-input { width: 80px; height: 28px; padding: 0 8px; border: 1px solid var(--gray-300); border-radius: 6px; font-size: 12px; font-family: inherit; text-align: center; }
+    .detail-input:focus { outline: none; border-color: var(--primary); }
+    .detail-input.unit { color: var(--primary); background: var(--primary-light); border-color: var(--primary-border); }
+    .detail-input.personal { color: var(--success); background: #ECFDF5; border-color: #A7F3D0; }
+    .detail-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+    .detail-tag.status { background: #ECFDF5; color: #059669; }
+    .detail-tag.none { background: var(--gray-100); color: var(--gray-500); }
+
+    .btn-text-link { padding: 4px 8px; border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; border-radius: 6px; transition: all 150ms; font-family: inherit; }
+    .btn-text-link:hover { background: var(--primary-light); }
+
+    /* Legacy insurance-summary (kept for rounding settings) */
+    .insurance-summary { display: flex; gap: 28px; padding: 16px 24px; border-top: 1px solid var(--gray-100); }
     .insurance-summary .summary-item { display: flex; align-items: center; gap: 8px; }
     .insurance-summary .summary-label { font-size: 13px; color: var(--gray-500); }
     .insurance-summary .summary-select { height: 36px; padding: 0 32px 0 10px; border: 1px solid var(--gray-300); border-radius: var(--radius-md); font-size: 13px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; appearance: none; }
@@ -356,113 +410,80 @@
             <div class="card-title">参保险种</div>
             <button class="btn btn-sm btn-outline" onclick="openInsuranceDrawer()">+ 添加险种</button>
           </div>
-          <div class="card-body" style="padding:0;">
-            <table class="qy-table">
-              <thead>
-                <tr>
-                  <th>险种名称</th><th>险种编码</th>
-                  <th colspan="5" style="text-align:center;color:var(--primary)">单位</th>
-                  <th colspan="5" style="text-align:center;color:var(--success)">个人</th>
-                  <th colspan="2" style="text-align:center;color:var(--warning)">报增报减</th>
-                  <th>存缴类型</th><th>操作</th>
-                </tr>
-                <tr>
-                  <th></th><th></th>
-                  <th>基数上限</th><th>基数下限</th><th>默认基数</th><th>比例(%)</th><th>固定额</th>
-                  <th>基数上限</th><th>基数下限</th><th>默认基数</th><th>比例(%)</th><th>固定额</th>
-                  <th>增员规则</th><th>报增截止</th><th>减员规则</th><th>报减截止</th>
-                  <th></th><th></th>
-                </tr>
-              </thead>
-              <tbody id="insuranceBody">
-                <tr>
-                  <td><strong>养老保险</strong></td><td>001</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>15</td><td>0.00</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>8</td><td>0.00</td>
-                  <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
-                  <td><span class="tag tag-blue">月度</span></td>
-                  <td>
-                    <button class="action-link" onclick="openInsuranceDrawer('养老保险')">编辑</button><span class="action-sep">|</span>
-                    <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
-                    <button class="action-link danger" onclick="confirmRemoveInsurance('养老保险', this)">移除</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>医疗保险</strong></td><td>002</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>8</td><td>0.00</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>2</td><td>0.00</td>
-                  <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
-                  <td><span class="tag tag-blue">月度</span></td>
-                  <td>
-                    <button class="action-link" onclick="openInsuranceDrawer('医疗保险')">编辑</button><span class="action-sep">|</span>
-                    <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
-                    <button class="action-link danger" onclick="confirmRemoveInsurance('医疗保险', this)">移除</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>工伤保险</strong></td><td>003</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.4</td><td>0.00</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>0.00</td>
-                  <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
-                  <td><span class="tag tag-blue">月度</span></td>
-                  <td>
-                    <button class="action-link" onclick="openInsuranceDrawer('工伤保险')">编辑</button><span class="action-sep">|</span>
-                    <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
-                    <button class="action-link danger" onclick="confirmRemoveInsurance('工伤保险', this)">移除</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>失业保险</strong></td><td>004</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.7</td><td>0.00</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.3</td><td>0.00</td>
-                  <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
-                  <td><span class="tag tag-blue">月度</span></td>
-                  <td>
-                    <button class="action-link" onclick="openInsuranceDrawer('失业保险')">编辑</button><span class="action-sep">|</span>
-                    <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
-                    <button class="action-link danger" onclick="confirmRemoveInsurance('失业保险', this)">移除</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>生育保险</strong></td><td>005</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0.8</td><td>0.00</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>0.00</td>
-                  <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
-                  <td><span class="tag tag-blue">月度</span></td>
-                  <td>
-                    <button class="action-link" onclick="openInsuranceDrawer('生育保险')">编辑</button><span class="action-sep">|</span>
-                    <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
-                    <button class="action-link danger" onclick="confirmRemoveInsurance('生育保险', this)">移除</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>大病险种</strong></td><td>007</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>240.00</td>
-                  <td>21789.00</td><td>4357.00</td><td>4357.00</td><td>0</td><td>100.00</td>
-                  <td>当月增员当月生效</td><td>15号</td><td>当月减员当月生效</td><td>15号</td>
-                  <td><span class="tag tag-orange">年度</span></td>
-                  <td>
-                    <button class="action-link" onclick="openInsuranceDrawer('大病险种')">编辑</button><span class="action-sep">|</span>
-                    <button class="action-link" onclick="showToast('复制险种（原型未实现）','info')">复制</button><span class="action-sep">|</span>
-                    <button class="action-link danger" onclick="confirmRemoveInsurance('大病险种', this)">移除</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div style="padding:16px 24px;">
-            <div class="insurance-summary">
-              <div class="summary-item">
-                <span class="summary-label">单位社保合计舍位方式：</span>
-                <select class="summary-select">
-                  <option selected>四舍五入至分</option><option>四舍五入至角</option><option>四舍五入至元</option><option>舍去至分</option>
-                </select>
+          <div class="card-body" style="padding: 0 0 0 0;">
+            <!-- 统一申报信息 -->
+            <div class="unified-section" style="border-radius: 0; margin-bottom: 0;">
+              <div class="unified-section-header">
+                <svg class="unified-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span class="unified-section-title">统一申报信息</span>
+                <span class="unified-section-hint">以下设置将同步至所有险种</span>
               </div>
-              <div class="summary-item">
-                <span class="summary-label">个人社保合计舍位方式：</span>
-                <select class="summary-select">
-                  <option selected>四舍五入至分</option><option>四舍五入至角</option><option>四舍五入至元</option><option>舍去至分</option>
-                </select>
+              <div class="unified-section-row">
+                <div class="form-field">
+                  <label class="form-field-label"><span class="req">*</span> 申报工资</label>
+                  <input class="form-input" id="unifiedSalary" value="6,001" onclick="event.stopPropagation()">
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label"><span class="req">*</span> 生效年月</label>
+                  <select class="form-select" id="unifiedEffectiveMonth" onclick="event.stopPropagation()">
+                    <option value="">请选择月份</option>
+                    <option value="2026-05" selected>2026年05月</option>
+                    <option value="2026-04">2026年04月</option>
+                    <option value="2026-03">2026年03月</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="form-field-label"><span class="req">*</span> 参保原因</label>
+                  <select class="form-select" id="unifiedReason" onclick="event.stopPropagation()">
+                    <option value="">请选择</option>
+                    <option value="XYGRZ" selected>新员工入职</option>
+                    <option value="BZGRZ">本月新增</option>
+                    <option value="QT">其他</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 险种列表 -->
+            <div class="insurance-list-wrapper">
+              <div class="insurance-list-header">
+                <div class="insurance-list-title">
+                  险种信息 · 共 <span id="insuranceCount">6</span> 个险种
+                </div>
+                <div class="insurance-list-actions">
+                  <button class="btn-text-link" onclick="toggleAllInsurance()" id="toggleAllBtn">全部展开</button>
+                </div>
+              </div>
+
+              <div class="insurance-list">
+                <div class="list-header">
+                  <div class="col-check"></div>
+                  <div class="col-name">险种名称</div>
+                  <div class="col-field">申报工资</div>
+                  <div class="col-field">生效年月</div>
+                  <div class="col-field">参保年月</div>
+                  <div class="col-field">补缴年月</div>
+                  <div class="col-field">参保原因</div>
+                </div>
+                <div id="insuranceListBody"></div>
+              </div>
+
+              <div class="insurance-summary">
+                <div class="summary-item">
+                  <span class="summary-label">单位社保合计舍位方式：</span>
+                  <select class="summary-select">
+                    <option selected>四舍五入至分</option><option>四舍五入至角</option><option>四舍五入至元</option><option>舍去至分</option>
+                  </select>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">个人社保合计舍位方式：</span>
+                  <select class="summary-select">
+                    <option selected>四舍五入至分</option><option>四舍五入至角</option><option>四舍五入至元</option><option>舍去至分</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -474,7 +495,7 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title">字段采集配置</div>
-            <span style="font-size:12px;color:var(--gray-400);">从 <a href="field-collection-config-demo.html" style="color:var(--primary);">全局字段字典</a> 中选择字段 · <a href="#" onclick="showToast('跳转至全局字段管理（原型演示）','info');return false;" style="color:var(--primary);">管理全局字段</a></span>
+            <span style="font-size:12px;color:var(--gray-400);">从 <a href="field-collection.html" style="color:var(--primary);">全局字段字典</a> 中选择字段 · <a href="#" onclick="showToast('跳转至全局字段管理（原型演示）','info');return false;" style="color:var(--primary);">管理全局字段</a></span>
           </div>
           <div class="card-body">
             <div class="op-tabs">
@@ -814,6 +835,144 @@ function updateStepper() {
 }
 
 // ==================== Insurance Drawer ====================
+// Insurance type data (mirrors the rule config page)
+const INSURANCE_TYPES = [
+  { id: 1, name: '养老保险', code: '001', essential: true, unitBase: 4357, unitRate: 15, unitAmount: 0, personalBase: 4357, personalRate: 8, personalAmount: 0, paymentType: '月度', status: '参保中', joinRule: '当月增员当月生效', joinDeadline: '15号', leaveRule: '当月减员当月生效', leaveDeadline: '15号', baseMin: 4357, baseMax: 21789 },
+  { id: 2, name: '医疗保险', code: '002', essential: true, unitBase: 4357, unitRate: 8, unitAmount: 0, personalBase: 4357, personalRate: 2, personalAmount: 0, paymentType: '月度', status: '参保中', joinRule: '当月增员当月生效', joinDeadline: '15号', leaveRule: '当月减员当月生效', leaveDeadline: '15号', baseMin: 4357, baseMax: 21789 },
+  { id: 3, name: '工伤保险', code: '003', essential: true, unitBase: 4357, unitRate: 0.4, unitAmount: 0, personalBase: 4357, personalRate: 0, personalAmount: 0, paymentType: '月度', status: '参保中', joinRule: '当月增员当月生效', joinDeadline: '15号', leaveRule: '当月减员当月生效', leaveDeadline: '15号', baseMin: 4357, baseMax: 21789 },
+  { id: 4, name: '失业保险', code: '004', essential: true, unitBase: 4357, unitRate: 0.7, unitAmount: 0, personalBase: 4357, personalRate: 0.3, personalAmount: 0, paymentType: '月度', status: '参保中', joinRule: '当月增员当月生效', joinDeadline: '15号', leaveRule: '当月减员当月生效', leaveDeadline: '15号', baseMin: 4357, baseMax: 21789 },
+  { id: 5, name: '生育保险', code: '005', essential: true, unitBase: 4357, unitRate: 0.8, unitAmount: 0, personalBase: 4357, personalRate: 0, personalAmount: 0, paymentType: '月度', status: '参保中', joinRule: '当月增员当月生效', joinDeadline: '15号', leaveRule: '当月减员当月生效', leaveDeadline: '15号', baseMin: 4357, baseMax: 21789 },
+  { id: 6, name: '大病险种', code: '007', essential: false, unitBase: 4357, unitRate: 0, unitAmount: 240, personalBase: 4357, personalRate: 0, personalAmount: 100, paymentType: '年度', status: '参保中', joinRule: '当月增员当月生效', joinDeadline: '15号', leaveRule: '当月减员当月生效', leaveDeadline: '15号', baseMin: 4357, baseMax: 21789 }
+];
+
+const expandedInsurance = new Set();
+
+function calcContribution(base, rate, fixedAmt) {
+  if (fixedAmt > 0) return fixedAmt.toFixed(2);
+  return (base * rate / 100).toFixed(2);
+}
+
+function renderInsuranceList() {
+  const container = document.getElementById('insuranceListBody');
+  if (!container) return;
+  document.getElementById('insuranceCount').textContent = INSURANCE_TYPES.length;
+
+  container.innerHTML = INSURANCE_TYPES.map(ins => {
+    const unitContrib = calcContribution(ins.unitBase, ins.unitRate, ins.unitAmount);
+    const personalContrib = calcContribution(ins.personalBase, ins.personalRate, ins.personalAmount);
+    const badge = ins.essential
+      ? '<span class="badge badge-essential">必选</span>'
+      : '<span class="badge badge-optional">可选</span>';
+    const isExpanded = expandedInsurance.has(ins.id);
+
+    return `
+      <div class="list-item" onclick="toggleInsuranceDetail(${ins.id})">
+        <div class="col-check"><input type="checkbox" checked onclick="event.stopPropagation()"></div>
+        <div class="col-name"><div class="insurance-name">${ins.name} ${badge}</div></div>
+        <div class="col-field"><input type="text" class="unit-field" value="${ins.unitBase.toLocaleString()}" onclick="event.stopPropagation()"></div>
+        <div class="col-field"><input type="month" value="2026-05" onclick="event.stopPropagation()"></div>
+        <div class="col-field">—</div>
+        <div class="col-field">—</div>
+        <div class="col-field">
+          <select onclick="event.stopPropagation()">
+            <option value="XYGRZ" selected>新员工入职</option>
+            <option value="BZGRZ">本月新增</option>
+            <option value="QT">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="list-detail ${isExpanded ? 'is-expanded' : ''}" id="ins-detail-${ins.id}">
+        <div class="detail-groups">
+          <div class="detail-field">
+            <div class="detail-field-title">单位缴费基数</div>
+            <div class="detail-field-value unit">${ins.unitBase.toLocaleString()}</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">个人缴费基数</div>
+            <div class="detail-field-value personal">${ins.personalBase.toLocaleString()}</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">单位承担基数</div>
+            <input type="text" class="detail-input unit" value="${ins.unitBase.toLocaleString()}" onclick="event.stopPropagation()">
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">个人承担基数</div>
+            <input type="text" class="detail-input personal" value="${ins.personalBase.toLocaleString()}" onclick="event.stopPropagation()">
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">单位参保比例</div>
+            <div class="detail-field-value unit">${ins.unitRate}%</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">个人参保比例</div>
+            <div class="detail-field-value personal">${ins.personalRate}%</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">单位存缴额</div>
+            <div class="detail-field-value unit">${unitContrib}</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">个人存缴额</div>
+            <div class="detail-field-value personal">${personalContrib}</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">参保状态</div>
+            <div class="detail-field-value"><span class="detail-tag status">${ins.status}</span></div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">参保年月</div>
+            <div class="detail-field-value is-empty">—</div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">异动类型</div>
+            <div class="detail-field-value"><span class="detail-tag none">无</span></div>
+          </div>
+          <div class="detail-field">
+            <div class="detail-field-title">异动状态</div>
+            <div class="detail-field-value"><span class="detail-tag none">—</span></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleInsuranceDetail(id) {
+  const detail = document.getElementById('ins-detail-' + id);
+  if (!detail) return;
+  if (expandedInsurance.has(id)) {
+    expandedInsurance.delete(id);
+    detail.classList.remove('is-expanded');
+  } else {
+    expandedInsurance.add(id);
+    detail.classList.add('is-expanded');
+  }
+  updateToggleAllText();
+}
+
+function toggleAllInsurance() {
+  const allExpanded = expandedInsurance.size === INSURANCE_TYPES.length;
+  if (allExpanded) {
+    expandedInsurance.clear();
+    INSURANCE_TYPES.forEach(ins => {
+      const el = document.getElementById('ins-detail-' + ins.id);
+      if (el) el.classList.remove('is-expanded');
+    });
+  } else {
+    INSURANCE_TYPES.forEach(ins => {
+      expandedInsurance.add(ins.id);
+      const el = document.getElementById('ins-detail-' + ins.id);
+      if (el) el.classList.add('is-expanded');
+    });
+  }
+  updateToggleAllText();
+}
+
+function updateToggleAllText() {
+  const btn = document.getElementById('toggleAllBtn');
+  if (!btn) return;
+  const allExpanded = expandedInsurance.size === INSURANCE_TYPES.length;
+  btn.textContent = allExpanded ? '全部收起' : '全部展开';
+}
 function openInsuranceDrawer(name) {
   const title = name ? '编辑险种 - ' + name : '添加险种';
   document.getElementById('insuranceDrawerTitle').textContent = title;
@@ -1192,6 +1351,7 @@ document.getElementById('ruleName').addEventListener('input', function() {
 });
 
 // Init
+renderInsuranceList();
 renderFields();
 </script>
 

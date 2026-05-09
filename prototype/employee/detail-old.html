@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>员工详情 - 青阳云HRO系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Design Tokens */
+    :root {
+      --primary: #2563EB;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --background: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text-primary: #1E293B;
+      --text-secondary: #64748B;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --sidebar-width: 240px;
+      --header-height: 64px;
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--background);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar__logo {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar__logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .sidebar__nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      margin-bottom: 24px;
+    }
+
+    .nav-section__title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 8px;
+      margin-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item--active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-item__icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-item__icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Main Content */
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      height: var(--header-height);
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header__left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header__back {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 8px;
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease;
+    }
+
+    .header__back:hover {
+      background-color: var(--background);
+      color: var(--primary);
+    }
+
+    .header__back svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .header__title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .header__actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Page Content */
+    .page-content {
+      flex: 1;
+      padding: 24px;
+    }
+
+    /* ========================================
+       Employee Card
+       ======================================== */
+    .employee-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .employee-card__avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .employee-card__info {
+      flex: 1;
+    }
+
+    .employee-card__name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .employee-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .employee-card__meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .employee-card__meta-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+    }
+
+    .employee-card__actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn--primary {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .btn--primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn--secondary {
+      background-color: var(--surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn--secondary:hover {
+      background-color: var(--background);
+      border-color: var(--text-muted);
+    }
+
+    .btn--text {
+      background-color: transparent;
+      color: var(--text-secondary);
+      padding: 0 12px;
+    }
+
+    .btn--text:hover {
+      background-color: var(--background);
+      color: var(--primary);
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ========================================
+       Detail Card
+       ======================================== */
+    .detail-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .detail-card__header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-card__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .detail-card__body {
+      padding: 24px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .detail-grid__item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .detail-grid__label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-grid__value {
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    /* ========================================
+       Change History Drawer
+       ======================================== */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .drawer-overlay--open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 480px;
+      background-color: var(--surface);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .drawer--open {
+      transform: translateX(0);
+    }
+
+    .drawer__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .drawer__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .drawer__close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: var(--text-muted);
+    }
+
+    .drawer__close:hover {
+      background-color: var(--background);
+      color: var(--text-primary);
+    }
+
+    .drawer__close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .drawer__body {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    /* Timeline Placeholder */
+    .timeline-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .timeline-placeholder__icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .timeline-placeholder__text {
+      font-size: 14px;
+    }
+
+    .timeline-placeholder__sub {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .drawer__footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <span class="sidebar__logo-text">青阳云</span>
+      </div>
+      <nav class="sidebar__nav">
+        <div class="nav-section">
+          <div class="nav-section__title">员工管理</div>
+          <div class="nav-item nav-item--active">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </span>
+            员工列表
+          </div>
+          <div class="nav-item">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </span>
+            员工档案
+          </div>
+          <div class="nav-item">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </span>
+            入职管理
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section__title">组织管理</div>
+          <div class="nav-item">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </span>
+            部门管理
+          </div>
+          <div class="nav-item">
+            <span class="nav-item__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </span>
+            岗位管理
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Header -->
+      <header class="header">
+        <div class="header__left">
+          <div class="header__back">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </div>
+          <h1 class="header__title">员工详情</h1>
+        </div>
+        <div class="header__actions">
+          <button class="btn btn--secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            编辑
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Employee Card -->
+        <div class="employee-card">
+          <div class="employee-card__avatar">李</div>
+          <div class="employee-card__info">
+            <h2 class="employee-card__name">李明</h2>
+            <div class="employee-card__meta">
+              <span class="employee-card__meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                </svg>
+                工号：EMP-2024-001
+              </span>
+              <span class="employee-card__meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                部门：技术部
+              </span>
+              <span class="employee-card__meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                岗位：高级工程师
+              </span>
+            </div>
+            <div class="employee-card__actions">
+              <button class="btn btn--primary" id="btn-change-history">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                变更记录
+              </button>
+              <button class="btn btn--secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                查看合同
+              </button>
+              <button class="btn btn--secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                社保公积金
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Card -->
+        <div class="detail-card">
+          <div class="detail-card__header">
+            <h3 class="detail-card__title">基本信息</h3>
+          </div>
+          <div class="detail-card__body">
+            <div class="detail-grid">
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">姓名</span>
+                <span class="detail-grid__value">李明</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">手机号码</span>
+                <span class="detail-grid__value">138****8800</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">电子邮箱</span>
+                <span class="detail-grid__value">liming@example.com</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">部门</span>
+                <span class="detail-grid__value">技术部</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">岗位</span>
+                <span class="detail-grid__value">高级工程师</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">入职日期</span>
+                <span class="detail-grid__value">2024-01-15</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">员工状态</span>
+                <span class="detail-grid__value">在职</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">员工类型</span>
+                <span class="detail-grid__value">正式员工</span>
+              </div>
+              <div class="detail-grid__item">
+                <span class="detail-grid__label">用工形式</span>
+                <span class="detail-grid__value">劳动合同</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <!-- Change History Drawer -->
+  <div class="drawer" id="change-history-drawer">
+    <div class="drawer__header">
+      <h2 class="drawer__title">变更记录</h2>
+      <button class="drawer__close" id="drawer-close">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="drawer__body">
+      <!-- Timeline Placeholder -->
+      <div class="timeline-placeholder">
+        <svg class="timeline-placeholder__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="timeline-placeholder__text">暂无变更记录</span>
+        <span class="timeline-placeholder__sub">该员工的变更记录将显示在这里</span>
+      </div>
+    </div>
+    <div class="drawer__footer">
+      <button class="btn btn--secondary" id="drawer-close-btn">关闭</button>
+    </div>
+  </div>
+
+  <script>
+    // Employee data
+    const EMPLOYEE = {
+      id: "E001",
+      name: "李明",
+      department: "销售部",
+      position: "经理",
+      phone: "138xxxx",
+      email: "liming@company.com",
+      hireDate: "2020-01-15",
+      status: "在职",
+      employeeType: "全职",
+      employmentForm: "合同制"
+    };
+
+    // Field groups definition
+    const FIELD_GROUPS = {
+      '基本信息': ['姓名', '性别', '出生日期', '民族', '身份证号', '年龄', '籍贯', '婚姻状况'],
+      '联系方式': ['手机', '邮箱', '紧急联系人', '紧急联系电话', '现住址', '户口所在地'],
+      '职位信息': ['部门', '岗位', '职位', '入职日期', '转正日期', '工龄'],
+      '合同信息': ['合同主体', '合同开始日期', '合同结束日期', '签署时间', '合同期限', '试用期'],
+      '社保信息': ['参保主体', '参保规则', '参保日期', '参保基数', '缴纳比例'],
+      '薪税信息': ['申报主体', '薪资', '基本工资', '绩效工资', '奖金', '补贴', '公积金']
+    };
+
+    // Get field group by field name
+    function getFieldGroup(fieldName) {
+      for (const [group, fields] of Object.entries(FIELD_GROUPS)) {
+        if (fields.includes(fieldName)) return group;
+      }
+      return '其他';
+    }
+
+    // Change logs data
+    const CHANGE_LOGS = [
+      {
+        changedAt: "2026-04-21 10:30:00",
+        changedBy: "李四",
+        operationType: "编辑",
+        fields: [
+          { field: "姓名", oldValue: "李明", newValue: "李明轩" },
+          { field: "民族", oldValue: "汉族", newValue: "回族" }
+        ]
+      },
+      {
+        changedAt: "2026-04-20 14:00:00",
+        changedBy: "王五",
+        operationType: "编辑",
+        fields: [
+          { field: "合同主体", oldValue: "上海总公司", newValue: "北京分公司" },
+          { field: "合同开始日期", oldValue: "2024-01-01", newValue: "2026-04-20" }
+        ]
+      },
+      {
+        changedAt: "2026-04-20 09:00:00",
+        changedBy: "周八",
+        operationType: "完善入职信息",
+        fields: [
+          { field: "参保主体", oldValue: null, newValue: "上海社保局" },
+          { field: "参保规则", oldValue: null, newValue: "城镇职工社保" },
+          { field: "参保日期", oldValue: null, newValue: "2026-04-20" }
+        ]
+      },
+      {
+        changedAt: "2026-04-19 17:00:00",
+        changedBy: "赵六",
+        operationType: "编辑",
+        fields: [
+          { field: "申报主体", oldValue: "上海总公司", newValue: "北京分公司" },
+          { field: "薪资", oldValue: "10000", newValue: "15000" }
+        ]
+      },
+      {
+        changedAt: "2026-04-18 10:00:00",
+        changedBy: "孙七",
+        operationType: "调动",
+        fields: [
+          { field: "部门", oldValue: "销售部", newValue: "运营部" },
+          { field: "岗位", oldValue: "销售经理", newValue: "运营经理" }
+        ]
+      },
+      {
+        changedAt: "2026-04-17 14:00:00",
+        changedBy: "周八",
+        operationType: "完善入职信息",
+        fields: [
+          { field: "手机", oldValue: null, newValue: "13812345678" },
+          { field: "邮箱", oldValue: null, newValue: "liming@company.com" }
+        ]
+      },
+      {
+        changedAt: "2026-04-16 09:00:00",
+        changedBy: "吴九",
+        operationType: "办理入职",
+        fields: [
+          { field: "姓名", oldValue: null, newValue: "李明" },
+          { field: "性别", oldValue: null, newValue: "男" },
+          { field: "身份证号", oldValue: null, newValue: "110101199001011234" },
+          { field: "部门", oldValue: null, newValue: "销售部" }
+        ]
+      }
+    ];
+
+    // Sort fields by group
+    function sortFieldsByGroup(fields) {
+      const grouped = {};
+      fields.forEach(f => {
+        const group = getFieldGroup(f.field);
+        if (!grouped[group]) grouped[group] = [];
+        grouped[group].push(f);
+      });
+      return grouped;
+    }
+
+    // DOM elements
+    const drawerOverlay = document.getElementById('drawer-overlay');
+    const drawer = document.getElementById('change-history-drawer');
+    const drawerBody = drawer.querySelector('.drawer__body');
+    const drawerClose = document.getElementById('drawer-close');
+    const drawerCloseBtn = document.getElementById('drawer-close-btn');
+    const btnChangeHistory = document.getElementById('btn-change-history');
+
+    // Track expanded states
+    const expandedStates = {};
+
+    // Get operation type color
+    function getOperationTypeColor(operationType) {
+      switch (operationType) {
+        case '添加':
+        case '办理入职':
+        case '完善入职信息':
+          return '#16A34A';
+        case '编辑':
+        case '确认到岗':
+          return '#2563EB';
+        case '离职':
+          return '#DC2626';
+        case '调动':
+          return '#D97706';
+        default:
+          return '#64748B';
+      }
+    }
+
+    // Get operation type tag class
+    function getOperationTypeTagClass(operationType) {
+      return `tag-${operationType}`;
+    }
+
+    // Generate summary text
+    function generateSummary(log) {
+      if (log.operationType === '添加' && log.fields.length === 0) {
+        return `${log.changedBy} 添加了新员工`;
+      }
+      const fieldNames = log.fields.map(f => f.field).join('、');
+      return `${log.changedBy} [${log.operationType}] 修改了 ${fieldNames}`;
+    }
+
+    // Format date for display
+    function formatDate(dateStr) {
+      const parts = dateStr.split(' ');
+      return parts[0] + ' ' + parts[1];
+    }
+
+    // Get unique field names grouped by group
+    function getUniqueFieldsGrouped() {
+      const grouped = {};
+      CHANGE_LOGS.forEach(log => {
+        log.fields.forEach(f => {
+          const group = getFieldGroup(f.field);
+          if (!grouped[group]) grouped[group] = [];
+          if (!grouped[group].includes(f.field)) grouped[group].push(f.field);
+        });
+      });
+      // Sort fields within each group
+      for (const group in grouped) {
+        grouped[group].sort();
+      }
+      return grouped;
+    }
+
+    // Render change logs
+    function renderChangeLogs() {
+      const startDateInput = document.getElementById('start-date');
+      const endDateInput = document.getElementById('end-date');
+      const operationTypeInput = document.getElementById('operation-type-filter');
+      const fieldFilterInput = document.getElementById('field-filter');
+      const startDate = startDateInput ? startDateInput.value : '';
+      const endDate = endDateInput ? endDateInput.value : '';
+      const operationTypeFilter = operationTypeInput ? operationTypeInput.value : '';
+      const fieldFilter = fieldFilterInput ? fieldFilterInput.value : '';
+
+      // Filter logs by date range, operation type, and field
+      let filteredLogs = CHANGE_LOGS;
+      if (startDate) {
+        filteredLogs = filteredLogs.filter(log => log.changedAt.split(' ')[0] >= startDate);
+      }
+      if (endDate) {
+        filteredLogs = filteredLogs.filter(log => log.changedAt.split(' ')[0] <= endDate);
+      }
+      if (operationTypeFilter) {
+        filteredLogs = filteredLogs.filter(log => log.operationType === operationTypeFilter);
+      }
+      if (fieldFilter) {
+        filteredLogs = filteredLogs.filter(log => log.fields.some(f => f.field === fieldFilter));
+      }
+
+      const groupedFields = getUniqueFieldsGrouped();
+      let fieldOptionsHtml = '<option value="">全部字段</option>';
+      for (const [group, fields] of Object.entries(groupedFields)) {
+        fieldOptionsHtml += `<optgroup label="${group}">${fields.map(f => `<option value="${f}" ${fieldFilter === f ? 'selected' : ''}>${f}</option>`).join('')}</optgroup>`;
+      }
+
+      // Build HTML
+      let html = `
+        <div class="change-log-header">
+          <div class="change-log-title">${EMPLOYEE.name} 的变更记录</div>
+          <div class="change-log-filters">
+            <select id="operation-type-filter" class="filter-select">
+              <option value="">全部类型</option>
+              <option value="办理入职" ${operationTypeFilter === '办理入职' ? 'selected' : ''}>办理入职</option>
+              <option value="完善入职信息" ${operationTypeFilter === '完善入职信息' ? 'selected' : ''}>完善入职信息</option>
+              <option value="编辑" ${operationTypeFilter === '编辑' ? 'selected' : ''}>编辑</option>
+              <option value="确认到岗" ${operationTypeFilter === '确认到岗' ? 'selected' : ''}>确认到岗</option>
+              <option value="离职" ${operationTypeFilter === '离职' ? 'selected' : ''}>离职</option>
+              <option value="调动" ${operationTypeFilter === '调动' ? 'selected' : ''}>调动</option>
+            </select>
+            <select id="field-filter" class="filter-select">
+              <option value="">全部字段</option>
+              ${fieldOptionsHtml}
+            </select>
+            <select id="date-range" class="filter-select" onchange="onDateRangeChange()">
+              <option value="">不限</option>
+              <option value="7">最近7天</option>
+              <option value="30">最近30天</option>
+              <option value="month">本月</option>
+              <option value="lastMonth">上月</option>
+              <option value="custom">自定义</option>
+            </select>
+            <div id="custom-date-range" style="display:none">
+              <input type="date" id="start-date" class="filter-input" value="${startDate}">
+              <span class="filter-separator">至</span>
+              <input type="date" id="end-date" class="filter-input" value="${endDate}">
+            </div>
+            <button class="btn btn--primary btn--sm" onclick="filterChangeLogs()">筛选</button>
+          </div>
+        </div>
+        <div class="timeline">
+      `;
+
+      if (filteredLogs.length === 0) {
+        html += `
+          <div class="timeline-placeholder">
+            <svg class="timeline-placeholder__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="timeline-placeholder__text">暂无变更记录</span>
+            <span class="timeline-placeholder__sub">该员工的变更记录将显示在这里</span>
+          </div>
+        `;
+      } else {
+        filteredLogs.forEach((log, index) => {
+          const originalIndex = CHANGE_LOGS.indexOf(log);
+          const color = getOperationTypeColor(log.operationType);
+          const tagClass = getOperationTypeTagClass(log.operationType);
+          const summary = generateSummary(log);
+          const isExpanded = expandedStates[originalIndex] || false;
+
+          html += `
+            <div class="timeline-item" data-index="${originalIndex}">
+              <div class="timeline-dot" style="background-color: ${color}"></div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="timeline-time">${formatDate(log.changedAt)}</span>
+                  <span class="tag ${tagClass}">${log.operationType}</span>
+                </div>
+                <div class="timeline-summary-row">
+                  <span class="timeline-summary">${summary}</span>
+                  <button class="toggle-btn ${isExpanded ? 'expanded' : ''}" onclick="toggleFields(${originalIndex})">
+                    ${isExpanded ? '收起' : '展开'}
+                  </button>
+                </div>
+                <div class="timeline-fields ${isExpanded ? 'expanded' : ''}">
+                  ${(() => {
+                    const grouped = sortFieldsByGroup(log.fields);
+                    let fieldsHtml = '';
+                    for (const [group, groupFields] of Object.entries(grouped)) {
+                      fieldsHtml += `<div class="field-group">
+                        <div class="field-group-title">${group}</div>
+                        ${groupFields.map(f => `
+                          <div class="field-item">
+                            <span class="field-name">${f.field}:</span>
+                            ${f.oldValue !== null ? `<span class="field-old">${f.oldValue}</span>` : '<span class="field-null">无</span>'}
+                            <span class="field-arrow">→</span>
+                            ${f.newValue !== null ? `<span class="field-new">${f.newValue}</span>` : '<span class="field-null">无</span>'}
+                          </div>
+                        `).join('')}
+                      </div>`;
+                    }
+                    return fieldsHtml;
+                  })()}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      html += '</div>';
+      drawerBody.innerHTML = html;
+    }
+
+    // Open change log drawer
+    function openChangeLogDrawer() {
+      drawerOverlay.classList.add('drawer-overlay--open');
+      drawer.classList.add('drawer--open');
+      renderChangeLogs();
+    }
+
+    // Close change log drawer
+    function closeChangeLogDrawer() {
+      drawerOverlay.classList.remove('drawer-overlay--open');
+      drawer.classList.remove('drawer--open');
+    }
+
+    // Toggle fields visibility
+    function toggleFields(index) {
+      expandedStates[index] = !expandedStates[index];
+      renderChangeLogs();
+    }
+
+    // Handle date range select change
+    function onDateRangeChange() {
+      const dateRangeSelect = document.getElementById('date-range');
+      const customDateRange = document.getElementById('custom-date-range');
+      const startDateInput = document.getElementById('start-date');
+      const endDateInput = document.getElementById('end-date');
+
+      if (dateRangeSelect.value === 'custom') {
+        customDateRange.style.display = 'flex';
+      } else {
+        customDateRange.style.display = 'none';
+        // Calculate dates based on preset
+        const today = new Date();
+        let start = new Date();
+        let end = new Date();
+
+        switch (dateRangeSelect.value) {
+          case '7':
+            start.setDate(today.getDate() - 7);
+            break;
+          case '30':
+            start.setDate(today.getDate() - 30);
+            break;
+          case 'month':
+            start = new Date(today.getFullYear(), today.getMonth(), 1);
+            break;
+          case 'lastMonth':
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            end = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+          default:
+            startDateInput.value = '';
+            endDateInput.value = '';
+            return;
+        }
+
+        startDateInput.value = start.toISOString().split('T')[0];
+        endDateInput.value = end.toISOString().split('T')[0];
+      }
+    }
+
+    // Filter change logs
+    function filterChangeLogs() {
+      renderChangeLogs();
+    }
+
+    // Event listeners
+    btnChangeHistory.addEventListener('click', openChangeLogDrawer);
+    drawerClose.addEventListener('click', closeChangeLogDrawer);
+    drawerCloseBtn.addEventListener('click', closeChangeLogDrawer);
+    drawerOverlay.addEventListener('click', function(e) {
+      if (e.target === drawerOverlay) {
+        closeChangeLogDrawer();
+      }
+    });
+
+    // ESC key handler
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && drawerOverlay.classList.contains('drawer-overlay--open')) {
+        closeChangeLogDrawer();
+      }
+    });
+  </script>
+  <style>
+    .change-log-header {
+      margin-bottom: 24px;
+    }
+
+    .change-log-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .change-log-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-input {
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--text-primary);
+      background-color: var(--surface);
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .filter-separator {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .filter-select {
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--text-primary);
+      background-color: var(--surface);
+      cursor: pointer;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn--sm {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .timeline {
+      position: relative;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 24px;
+      padding-bottom: 24px;
+      border-left: 2px solid var(--border);
+      margin-left: 5px;
+    }
+
+    .timeline-item:last-child {
+      border-left-color: transparent;
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .timeline-content {
+      background-color: var(--background);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+    }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .timeline-time {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Operation type tag colors */
+    .tag-添加,
+    .tag-办理入职,
+    .tag-完善入职信息 {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .tag-编辑,
+    .tag-确认到岗 {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    .tag-离职 {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .tag-调动 {
+      background-color: #fed7aa;
+      color: #9a3412;
+    }
+
+    .timeline-summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .timeline-summary {
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    .toggle-btn {
+      font-size: 12px;
+      padding: 2px 10px;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .toggle-btn.expanded {
+      background: var(--bg);
+      color: var(--text-secondary);
+    }
+
+    .timeline-fields {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .timeline-fields.expanded {
+      display: block;
+    }
+
+    .field-group {
+      margin-bottom: 12px;
+      padding: 12px;
+      background: var(--background);
+      border-radius: 6px;
+    }
+
+    .field-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-group-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .field-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-name {
+      font-weight: 500;
+      color: var(--text-secondary);
+      min-width: 60px;
+    }
+
+    .field-old {
+      color: var(--danger);
+      text-decoration: line-through;
+    }
+
+    .field-new {
+      color: var(--success);
+    }
+
+    .field-null {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .field-arrow {
+      color: var(--text-muted);
+    }
+  </style>
+</body>
+</html>

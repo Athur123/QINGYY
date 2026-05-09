@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>汇总统计项 - 3-4项效果</title>
+  <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+  <style>
+    body {
+      padding: 40px;
+      background: var(--qy-bg-secondary);
+      font-family: var(--qy-font-primary);
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: var(--qy-text-primary);
+    }
+
+    h3 {
+      margin: 32px 0 16px;
+      color: var(--qy-text-secondary);
+      font-size: 14px;
+    }
+
+    /* 统计项容器 */
+    .summary-stats {
+      background: var(--qy-bg-primary);
+      border-radius: var(--qy-radius-lg);
+      box-shadow: var(--qy-shadow-card);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    /* ========== 水平滚动视图 ========== */
+    .summary-stats--scroll {
+      overflow-x: hidden;
+      overflow-y: hidden;
+    }
+
+    .summary-stats--scroll .summary-stats__list {
+      display: grid;
+      gap: 1px;
+      background: var(--qy-border-light);
+    }
+
+    .summary-stats--scroll .summary-stat:last-child {
+      border-right: none;
+    }
+
+    .summary-stats--scroll .summary-stat__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--qy-radius-md);
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-secondary);
+      flex-shrink: 0;
+    }
+
+    .summary-stats--scroll .summary-stat__content {
+      flex: 1;
+    }
+
+    .summary-stats--scroll .summary-stat__label {
+      font-size: 13px;
+      color: var(--qy-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .summary-stats--scroll .summary-stat__value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--qy-text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ========== 流式换行视图（最大4列，不留白） ========== */
+    .summary-stats--flow .summary-stats__list {
+      display: grid;
+      gap: 1px;
+      background: var(--qy-border-light);
+    }
+
+    .summary-stats--flow .summary-stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--qy-bg-primary);
+    }
+
+    .summary-stats--scroll .summary-stat {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--qy-bg-primary);
+      white-space: nowrap;
+      border-right: 1px solid var(--qy-border-light);
+    }
+
+    .summary-stats--scroll .summary-stat:last-child {
+      border-right: none;
+    }
+
+    .summary-stats--flow .summary-stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--qy-bg-primary);
+    }
+
+    .summary-stats--flow .summary-stat__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--qy-radius-md);
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-secondary);
+      flex-shrink: 0;
+    }
+
+    .summary-stats--flow .summary-stat__label {
+      font-size: 12px;
+      color: var(--qy-text-muted);
+      flex-shrink: 0;
+    }
+
+    .summary-stats--flow .summary-stat__value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--qy-text-primary);
+      font-variant-numeric: tabular-nums;
+      margin-left: auto;
+    }
+
+    /* ========== 语义化图标系统 ========== */
+    .summary-stat__icon {
+      transition: background-color 150ms, color 150ms;
+    }
+
+    /* 图标类型：金额/金钱 */
+    .summary-stat__icon--money {
+      background: #ECFDF5;
+      color: #059669;
+    }
+
+    /* 图标类型：人数/人员 */
+    .summary-stat__icon--person {
+      background: #EFF6FF;
+      color: #3B82F6;
+    }
+
+    /* 图标类型：文件/文档 */
+    .summary-stat__icon--document {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    /* 图标类型：时间/日历 */
+    .summary-stat__icon--time {
+      background: #F3E8FF;
+      color: #7C3AED;
+    }
+
+    /* 图标类型：状态/进度 */
+    .summary-stat__icon--status {
+      background: #F0FDF4;
+      color: #22C55E;
+    }
+
+    /* 图标类型：警告/异常 */
+    .summary-stat__icon--warning {
+      background: #FEF2F2;
+      color: #EF4444;
+    }
+
+    /* 图标类型：信息/提示 */
+    .summary-stat__icon--info {
+      background: #EFF6FF;
+      color: #0EA5E9;
+    }
+
+    /* 图标类型：回退/默认 - 通用方块图标 */
+    .summary-stat__icon--fallback {
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-secondary);
+    }
+
+    /* 视图切换按钮 */
+    .summary-section__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .summary-section__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--qy-text-primary);
+    }
+
+    .summary-section__view-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--qy-radius-md);
+      background: transparent;
+      border: 1px solid var(--qy-border-light);
+      color: var(--qy-text-muted);
+      cursor: pointer;
+      transition: all 150ms;
+    }
+
+    .view-toggle-btn:hover {
+      background: var(--qy-bg-secondary);
+      color: var(--qy-text-primary);
+    }
+
+    .view-toggle-btn.is-active {
+      background: var(--qy-primary-50);
+      border-color: var(--qy-primary-500);
+      color: var(--qy-color-primary);
+    }
+  </style>
+</head>
+<body>
+  <h2>汇总统计项效果（3-4项）</h2>
+
+  <!-- SVG 图标库（隐藏）-->
+  <svg style="display: none;">
+    <!-- 金额图标 -->
+    <symbol id="icon-money" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="1" x2="12" y2="23"/>
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </symbol>
+    <!-- 税费图标 -->
+    <symbol id="icon-document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </symbol>
+    <!-- 银行卡图标 -->
+    <symbol id="icon-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+      <line x1="1" y1="10" x2="23" y2="10"/>
+    </symbol>
+    <!-- 人员图标 -->
+    <symbol id="icon-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="8.5" cy="7" r="4"/>
+    </symbol>
+    <!-- 日历图标 -->
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </symbol>
+    <!-- 趋势图图标 -->
+    <symbol id="icon-trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+    </symbol>
+    <!-- 时钟图标 -->
+    <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </symbol>
+    <!-- 完成图标 -->
+    <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </symbol>
+    <!-- 警告图标 -->
+    <symbol id="icon-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </symbol>
+    <!-- 错误图标 -->
+    <symbol id="icon-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="15" y1="9" x2="9" y2="15"/>
+      <line x1="9" y1="9" x2="15" y2="15"/>
+    </symbol>
+    <!-- 待处理图标 -->
+    <symbol id="icon-pending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </symbol>
+    <!-- 备注图标 -->
+    <symbol id="icon-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </symbol>
+    <!-- 回退图标：通用方块 -->
+    <symbol id="icon-fallback" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+    </symbol>
+  </svg>
+
+  <h3>水平滚动视图</h3>
+  <div class="summary-stats summary-stats--scroll">
+    <div class="summary-stats__list">
+      <div class="summary-stat" data-type="money">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="18" height="18"><use href="#icon-money"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">服务费合计</div>
+          <div class="summary-stat__value">¥660.00</div>
+        </div>
+      </div>
+      <div class="summary-stat" data-type="document">
+        <div class="summary-stat__icon" style="background:#FEF3C7;color:#D97706;">
+          <svg width="18" height="18"><use href="#icon-document"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">税费合计</div>
+          <div class="summary-stat__value">¥4,004.46</div>
+        </div>
+      </div>
+      <div class="summary-stat" data-type="card">
+        <div class="summary-stat__icon" style="background:#DBEAFE;color:#2563EB;">
+          <svg width="18" height="18"><use href="#icon-card"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">代扣代缴工资</div>
+          <div class="summary-stat__value">¥239,616.00</div>
+        </div>
+      </div>
+      <div class="summary-stat" data-type="person">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#3B82F6;">
+          <svg width="18" height="18"><use href="#icon-person"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">结算人数</div>
+          <div class="summary-stat__value">24 人</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>流式换行视图</h3>
+  <div class="summary-stats summary-stats--flow">
+    <div class="summary-stats__list">
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="16" height="16"><use href="#icon-money"/></svg>
+        </div>
+        <span class="summary-stat__label">服务费合计</span>
+        <span class="summary-stat__value">¥660.00</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF3C7;color:#D97706;">
+          <svg width="16" height="16"><use href="#icon-document"/></svg>
+        </div>
+        <span class="summary-stat__label">税费合计</span>
+        <span class="summary-stat__value">¥4,004.46</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#DBEAFE;color:#2563EB;">
+          <svg width="16" height="16"><use href="#icon-card"/></svg>
+        </div>
+        <span class="summary-stat__label">代扣代缴工资</span>
+        <span class="summary-stat__value">¥239,616.00</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#3B82F6;">
+          <svg width="16" height="16"><use href="#icon-person"/></svg>
+        </div>
+        <span class="summary-stat__label">结算人数</span>
+        <span class="summary-stat__value">24 人</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>水平滚动（仅3项）</h3>
+  <div class="summary-stats summary-stats--scroll">
+    <div class="summary-stats__list">
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="18" height="18"><use href="#icon-money"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">服务费合计</div>
+          <div class="summary-stat__value">¥660.00</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF3C7;color:#D97706;">
+          <svg width="18" height="18"><use href="#icon-document"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">税费合计</div>
+          <div class="summary-stat__value">¥4,004.46</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#DBEAFE;color:#2563EB;">
+          <svg width="18" height="18"><use href="#icon-card"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">代扣代缴工资</div>
+          <div class="summary-stat__value">¥239,616.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>流式换行（仅3项）</h3>
+  <div class="summary-stats summary-stats--flow">
+    <div class="summary-stats__list">
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="16" height="16"><use href="#icon-money"/></svg>
+        </div>
+        <span class="summary-stat__label">服务费合计</span>
+        <span class="summary-stat__value">¥660.00</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF3C7;color:#D97706;">
+          <svg width="16" height="16"><use href="#icon-document"/></svg>
+        </div>
+        <span class="summary-stat__label">税费合计</span>
+        <span class="summary-stat__value">¥4,004.46</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#DBEAFE;color:#2563EB;">
+          <svg width="16" height="16"><use href="#icon-card"/></svg>
+        </div>
+        <span class="summary-stat__label">代扣代缴工资</span>
+        <span class="summary-stat__value">¥239,616.00</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>水平滚动（12项）</h3>
+  <div class="summary-stats summary-stats--scroll">
+    <div class="summary-stats__list">
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="18" height="18"><use href="#icon-money"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">服务费合计</div>
+          <div class="summary-stat__value">¥660.00</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF3C7;color:#D97706;">
+          <svg width="18" height="18"><use href="#icon-document"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">税费合计</div>
+          <div class="summary-stat__value">¥4,004.46</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#DBEAFE;color:#2563EB;">
+          <svg width="18" height="18"><use href="#icon-card"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">代扣代缴工资</div>
+          <div class="summary-stat__value">¥239,616.00</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#3B82F6;">
+          <svg width="18" height="18"><use href="#icon-person"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">结算人数</div>
+          <div class="summary-stat__value">24 人</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F3E8FF;color:#7C3AED;">
+          <svg width="18" height="18"><use href="#icon-calendar"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">结算月份</div>
+          <div class="summary-stat__value">2026年3月</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F0FDF4;color:#22C55E;">
+          <svg width="18" height="18"><use href="#icon-trend"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">应发总额</div>
+          <div class="summary-stat__value">¥244,280.46</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="18" height="18"><use href="#icon-money"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">实发总额</div>
+          <div class="summary-stat__value">¥240,276.00</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F3E8FF;color:#7C3AED;">
+          <svg width="18" height="18"><use href="#icon-clock"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">结算耗时</div>
+          <div class="summary-stat__value">2.5 小时</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F0FDF4;color:#22C55E;">
+          <svg width="18" height="18"><use href="#icon-check"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">已完成</div>
+          <div class="summary-stat__value">18 人</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#0EA5E9;">
+          <svg width="18" height="18"><use href="#icon-pending"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">待处理</div>
+          <div class="summary-stat__value">6 人</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF2F2;color:#EF4444;">
+          <svg width="18" height="18"><use href="#icon-warning"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">异常</div>
+          <div class="summary-stat__value">0 人</div>
+        </div>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#0EA5E9;">
+          <svg width="18" height="18"><use href="#icon-note"/></svg>
+        </div>
+        <div class="summary-stat__content">
+          <div class="summary-stat__label">备注</div>
+          <div class="summary-stat__value">正常</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>流式换行（12项）</h3>
+  <div class="summary-stats summary-stats--flow">
+    <div class="summary-stats__list">
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="16" height="16"><use href="#icon-money"/></svg>
+        </div>
+        <span class="summary-stat__label">服务费合计</span>
+        <span class="summary-stat__value">¥660.00</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF3C7;color:#D97706;">
+          <svg width="16" height="16"><use href="#icon-document"/></svg>
+        </div>
+        <span class="summary-stat__label">税费合计</span>
+        <span class="summary-stat__value">¥4,004.46</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#DBEAFE;color:#2563EB;">
+          <svg width="16" height="16"><use href="#icon-card"/></svg>
+        </div>
+        <span class="summary-stat__label">代扣代缴工资</span>
+        <span class="summary-stat__value">¥239,616.00</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#3B82F6;">
+          <svg width="16" height="16"><use href="#icon-person"/></svg>
+        </div>
+        <span class="summary-stat__label">结算人数</span>
+        <span class="summary-stat__value">24 人</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F3E8FF;color:#7C3AED;">
+          <svg width="16" height="16"><use href="#icon-calendar"/></svg>
+        </div>
+        <span class="summary-stat__label">结算月份</span>
+        <span class="summary-stat__value">2026年3月</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F0FDF4;color:#22C55E;">
+          <svg width="16" height="16"><use href="#icon-trend"/></svg>
+        </div>
+        <span class="summary-stat__label">应发总额</span>
+        <span class="summary-stat__value">¥244,280.46</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#ECFDF5;color:#059669;">
+          <svg width="16" height="16"><use href="#icon-money"/></svg>
+        </div>
+        <span class="summary-stat__label">实发总额</span>
+        <span class="summary-stat__value">¥240,276.00</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F3E8FF;color:#7C3AED;">
+          <svg width="16" height="16"><use href="#icon-clock"/></svg>
+        </div>
+        <span class="summary-stat__label">结算耗时</span>
+        <span class="summary-stat__value">2.5 小时</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#F0FDF4;color:#22C55E;">
+          <svg width="16" height="16"><use href="#icon-check"/></svg>
+        </div>
+        <span class="summary-stat__label">已完成</span>
+        <span class="summary-stat__value">18 人</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#0EA5E9;">
+          <svg width="16" height="16"><use href="#icon-pending"/></svg>
+        </div>
+        <span class="summary-stat__label">待处理</span>
+        <span class="summary-stat__value">6 人</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#FEF2F2;color:#EF4444;">
+          <svg width="16" height="16"><use href="#icon-warning"/></svg>
+        </div>
+        <span class="summary-stat__label">异常</span>
+        <span class="summary-stat__value">0 人</span>
+      </div>
+      <div class="summary-stat">
+        <div class="summary-stat__icon" style="background:#EFF6FF;color:#0EA5E9;">
+          <svg width="16" height="16"><use href="#icon-note"/></svg>
+        </div>
+        <span class="summary-stat__label">备注</span>
+        <span class="summary-stat__value">正常</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 语义化图标映射系统 ==========
+
+    // 图标类型定义
+    const ICON_TYPES = {
+      money: {
+        keywords: ['服务费', '税费', '工资', '金额', '总额', '实发', '应发', '薪資', '薪酬'],
+        icon: 'icon-money',
+        colorClass: 'summary-stat__icon--money'
+      },
+      person: {
+        keywords: ['人数', '人员', '员工', '员工数', '成员'],
+        icon: 'icon-person',
+        colorClass: 'summary-stat__icon--person'
+      },
+      document: {
+        keywords: ['税费', '税', '文档', '材料'],
+        icon: 'icon-document',
+        colorClass: 'summary-stat__icon--document'
+      },
+      calendar: {
+        keywords: ['月份', '日期', '时间', '结算月份'],
+        icon: 'icon-calendar',
+        colorClass: 'summary-stat__icon--time'
+      },
+      trend: {
+        keywords: ['应发', '实发', '趋势'],
+        icon: 'icon-trend',
+        colorClass: 'summary-stat__icon--status'
+      },
+      clock: {
+        keywords: ['耗时', '时长', '时间', '待处理'],
+        icon: 'icon-clock',
+        colorClass: 'summary-stat__icon--time'
+      },
+      check: {
+        keywords: ['完成', '已完成', '成功'],
+        icon: 'icon-check',
+        colorClass: 'summary-stat__icon--status'
+      },
+      warning: {
+        keywords: ['异常', '警告', '待处理'],
+        icon: 'icon-warning',
+        colorClass: 'summary-stat__icon--warning'
+      },
+      pending: {
+        keywords: ['待处理', '待审核', '待确认'],
+        icon: 'icon-pending',
+        colorClass: 'summary-stat__icon--info'
+      },
+      note: {
+        keywords: ['备注', '说明', '备注'],
+        icon: 'icon-note',
+        colorClass: 'summary-stat__icon--info'
+      }
+    };
+
+    // 关键字匹配函数
+    function matchIconType(labelText) {
+      for (const [type, config] of Object.entries(ICON_TYPES)) {
+        for (const keyword of config.keywords) {
+          if (labelText.includes(keyword)) {
+            return config;
+          }
+        }
+      }
+      return null;
+    }
+
+    // 初始化图标：根据 data-type 或 label 关键字自动匹配
+    function initIcons() {
+      document.querySelectorAll('.summary-stat').forEach(stat => {
+        const iconEl = stat.querySelector('.summary-stat__icon');
+        const labelEl = stat.querySelector('.summary-stat__label');
+        const labelText = labelEl ? labelEl.textContent.trim() : '';
+
+        // 优先使用 data-type 属性
+        let config = null;
+        const dataType = stat.getAttribute('data-type');
+        if (dataType && ICON_TYPES[dataType]) {
+          config = ICON_TYPES[dataType];
+        } else {
+          config = matchIconType(labelText);
+        }
+
+        if (config) {
+          iconEl.classList.add(config.colorClass);
+          const useEl = iconEl.querySelector('svg use');
+          if (useEl) {
+            useEl.setAttribute('href', '#' + config.icon);
+          }
+        } else {
+          // 回退到默认图标
+          iconEl.classList.add('summary-stat__icon--fallback');
+          const useEl = iconEl.querySelector('svg use');
+          if (useEl) {
+            useEl.setAttribute('href', '#icon-fallback');
+          }
+        }
+      });
+    }
+
+    // 动态计算列数和列宽
+    function adjustGrid() {
+      // 流式换行视图
+      document.querySelectorAll('.summary-stats--flow').forEach(container => {
+        const list = container.querySelector('.summary-stats__list');
+        const stats = list.querySelectorAll('.summary-stat');
+        const count = stats.length;
+        const cols = Math.min(count, 4);
+        const colWidth = 100 / cols;
+        list.style.gridTemplateColumns = `repeat(${cols}, ${colWidth}%)`;
+      });
+
+      // 水平滚动视图
+      document.querySelectorAll('.summary-stats--scroll').forEach(container => {
+        const list = container.querySelector('.summary-stats__list');
+        const stats = list.querySelectorAll('.summary-stat');
+        const count = stats.length;
+        if (count <= 4) {
+          // 不超过4项：均分填满，无滚动
+          list.style.gridTemplateColumns = `repeat(${count}, ${100 / count}%)`;
+          list.style.width = '100%';
+          container.style.overflowX = 'hidden';
+        } else {
+          // 超过4项：最小列宽200px，超出时滚动
+          container.style.overflowX = 'auto';
+          const minColWidth = 200;
+          const colWidth = Math.max(minColWidth, Math.floor(container.offsetWidth / 4));
+          list.style.gridTemplateColumns = `repeat(${count}, ${colWidth}px)`;
+          list.style.width = colWidth * count + 'px';
+        }
+      });
+    }
+
+    // 初始化
+    initIcons();
+    adjustGrid();
+    window.addEventListener('resize', adjustGrid);
+  </script>
+</body>
+</html>

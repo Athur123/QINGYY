@@ -808,7 +808,7 @@ Step 5: 归档后操作
 
 ## 关键文件
 
-- **涉及页面**: 社保对账复核页面（在 `qingyang-reconciliation-unified.html` 基础上扩展）
+- **涉及页面**: 社保对账复核页面（在 `prototype/reconciliation/unified.html` 基础上扩展）
 - **新增组件**:
   - Tab 切换栏（系统侧账单 / 台账侧账单）
   - 台账导入对话框（两步骤：选择文件 → 预览确认）
@@ -1064,14 +1064,14 @@ if (forcePendingSys.length > 0) {
 
 将对账复核拆分为两层结构：
 
-1. **汇总列表页** (`qingyang-reconciliation-summary.html`) — 按参保规则维度展示核对概览
-2. **明细核对页** (`qingyang-reconciliation-unified.html`) — 单个参保规则的系统/台账账单逐笔核对（即现有页面）
+1. **汇总列表页** (`prototype/reconciliation/summary.html`) — 按参保规则维度展示核对概览
+2. **明细核对页** (`prototype/reconciliation/unified.html`) — 单个参保规则的系统/台账账单逐笔核对（即现有页面）
 
 用户从汇总列表选择规则，点击进入明细页进行逐笔核对操作。
 
 ### 汇总列表页面
 
-**文件**: `prototype/qingyang-reconciliation-summary.html`
+**文件**: `prototype/reconciliation/summary.html`
 
 **页面布局**:
 ```
@@ -1116,7 +1116,7 @@ if (forcePendingSys.length > 0) {
 
 **操作按钮**: 合并于 filter-bar 右侧，从左到右依次为：刷新、批量导出、批量对账、批量归档、导入台账。
 
-**跳转**: 子行点击 `[详情]` 跳转到 `qingyang-reconciliation-unified.html?ruleName=社保规则A&month=2026-04`。
+**跳转**: 子行点击 `[详情]` 跳转到 `prototype/reconciliation/unified.html?ruleName=社保规则A&month=2026-04`。
 
 **分组展开**: 点击分组行（或展开图标 ▸/▼）切换子行显示/隐藏。新导入的分组自动展开。
 
@@ -1128,7 +1128,7 @@ if (forcePendingSys.length > 0) {
 
 ### 明细核对页面变更
 
-**文件**: `prototype/qingyang-reconciliation-unified.html`（现有文件）
+**文件**: `prototype/reconciliation/unified.html`（现有文件）
 
 **变更**:
 1. **移除顶部规则/月份筛选器** — 从汇总列表进入，无需再按参保规则或月份筛选
@@ -1163,7 +1163,7 @@ if (forcePendingSys.length > 0) {
 
 ### 功能概述
 
-在汇总列表页（`qingyang-reconciliation-summary.html`）新增两项能力：
+在汇总列表页（`prototype/reconciliation/summary.html`）新增两项能力：
 
 1. **批量导入台账** — 上传一份总台账 Excel，自动按规则拆分到各规则
 2. **批量对账** — 勾选已导入台账的规则，批量执行对账匹配（复用详情页的"开始对账"逻辑）
@@ -1568,7 +1568,7 @@ const archiveBatches = [
 
 ### 汇总列表新增列
 
-汇总列表页（`qingyang-reconciliation-summary.html`）新增「系统侧已归档」列，位于「系统侧差异」之后：
+汇总列表页（`prototype/reconciliation/summary.html`）新增「系统侧已归档」列，位于「系统侧差异」之后：
 
 - **DEMO_RULES** 新增 `systemArchived` / `systemArchivedAmount` 字段
 - 分组行：聚合显示已归档金额（绿色）

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>结算明细配置 - 青阳云HRO</title>
+  <link rel="stylesheet" href="../../styles/qingyang-variables.css">
+  <link rel="stylesheet" href="../../styles/qingyang-components.css">
+  <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--qy-font-primary); font-size: var(--qy-font-size-14); color: var(--qy-text-primary); background: var(--qy-bg-secondary); line-height: var(--qy-line-height-normal); }
+
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar { width: var(--qy-sidebar-width); background: var(--qy-sidebar-bg); border-right: var(--qy-sidebar-border); flex-shrink: 0; position: fixed; height: 100vh; z-index: var(--qy-z-sticky); }
+    .sidebar-logo { padding: var(--qy-space-5) var(--qy-space-6); border-bottom: var(--qy-sidebar-border); }
+    .sidebar-logo h1 { font-size: var(--qy-font-size-18); font-weight: var(--qy-font-weight-bold); color: var(--qy-color-primary); }
+    .sidebar-nav { list-style: none; padding: var(--qy-space-3) 0; }
+    .sidebar-nav-item { padding: var(--qy-space-3) var(--qy-space-6); cursor: pointer; display: flex; align-items: center; gap: var(--qy-space-3); color: var(--qy-text-secondary); font-size: var(--qy-font-size-13); transition: var(--qy-transition-fast); }
+    .sidebar-nav-item:hover { background: var(--qy-bg-secondary); color: var(--qy-text-primary); }
+    .sidebar-nav-item.active { background: var(--qy-primary-50); color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
+    .sidebar-nav-sub { padding-left: var(--qy-space-12); }
+    .sidebar-nav-sub .sidebar-nav-item { padding: var(--qy-space-2) var(--qy-space-6); font-size: var(--qy-font-size-12); }
+
+    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); display: flex; flex-direction: column; }
+    .topbar { height: var(--qy-header-height); background: var(--qy-header-bg); border-bottom: var(--qy-header-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--qy-content-padding-x); }
+    .topbar-breadcrumb { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .topbar-user { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
+    .content-area { flex: 1; padding: var(--qy-content-padding-y) var(--qy-content-padding-x); }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--qy-space-5); }
+    .page-title { font-size: var(--qy-font-size-20); font-weight: var(--qy-font-weight-bold); color: var(--qy-text-primary); }
+    .page-header-actions { display: flex; gap: var(--qy-space-3); }
+
+    /* Button refinements */
+    .qy-btn { transition: all var(--qy-transition-fast); }
+    .qy-btn:active:not(:disabled) { transform: scale(0.98); }
+    .qy-btn--primary { box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2); }
+    .qy-btn--primary:hover:not(:disabled) { box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3); }
+    .qy-btn--secondary { border-color: var(--qy-border-light); }
+    .qy-btn--secondary:hover:not(:disabled) { border-color: var(--qy-border-medium); color: var(--qy-text-primary); }
+    .qy-btn svg { flex-shrink: 0; }
+    .page-header-actions .qy-btn svg { width: 15px; height: 15px; }
+
+    /* Row action buttons — icon-only enterprise style */
+    .row-actions { display: flex; gap: 2px; align-items: center; }
+    .row-actions .icon-btn {
+      width: 30px; height: 30px; border: none; background: transparent; border-radius: var(--qy-radius-md);
+      cursor: pointer; color: var(--qy-text-muted); display: inline-flex; align-items: center; justify-content: center;
+      transition: all var(--qy-transition-fast); position: relative;
+    }
+    .row-actions .icon-btn:hover { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .row-actions .icon-btn.danger:hover { background: var(--qy-error-50); color: var(--qy-color-error); }
+    .row-actions .icon-btn:active:not(:disabled) { transform: scale(0.92); }
+    .row-actions .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .row-actions .icon-btn:disabled:hover { background: transparent; color: var(--qy-text-muted); }
+    .row-actions .icon-btn svg { width: 15px; height: 15px; }
+
+    /* Page header action buttons — refined enterprise style */
+    .page-header-actions .qy-btn--primary {
+      background: var(--qy-color-primary); color: white; border: none; font-weight: var(--qy-font-weight-medium);
+      border-radius: var(--qy-radius-lg); padding: 0 16px; height: 34px; font-size: var(--qy-font-size-13);
+      letter-spacing: 0.01em; box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    }
+    .page-header-actions .qy-btn--primary:hover:not(:disabled) { box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35); background: var(--qy-primary-600); }
+    .page-header-actions .qy-btn--secondary {
+      background: white; color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium);
+      border-radius: var(--qy-radius-lg); padding: 0 14px; height: 34px; font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium);
+    }
+    .page-header-actions .qy-btn--secondary:hover:not(:disabled) { border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50); }
+    .page-header-actions .qy-btn--sm svg { width: 14px; height: 14px; }
+    .page-header-actions .qy-btn svg { margin-right: 6px; }
+
+    /* Field group (collapsible) */
+    .field-group { border: 1px solid var(--qy-border-light); border-radius: var(--qy-radius-lg); margin-bottom: var(--qy-space-4); background: var(--qy-bg-primary); box-shadow: var(--qy-shadow-sm); overflow: hidden; }
+    .field-group-header { display: flex; align-items: center; padding: var(--qy-space-3) var(--qy-space-5); cursor: pointer; user-select: none; gap: var(--qy-space-3); transition: background var(--qy-transition-fast); }
+    .field-group-header:hover { background: var(--qy-bg-secondary); }
+    .field-group-header .expand-icon { transition: transform var(--qy-transition-normal); color: var(--qy-text-muted); flex-shrink: 0; }
+    .field-group.is-collapsed .expand-icon { transform: rotate(-90deg); }
+    .field-group-header .group-title { font-size: var(--qy-font-size-15); font-weight: var(--qy-font-weight-semibold); flex: 1; }
+    .field-group-header .group-count { font-size: var(--qy-font-size-12); color: var(--qy-text-muted); }
+    .field-group-header .group-actions { display: flex; gap: 2px; }
+    .field-group-header .group-actions .icon-btn {
+      width: 28px; height: 28px; border: none; background: transparent; border-radius: var(--qy-radius-md);
+      cursor: pointer; color: var(--qy-text-muted); display: inline-flex; align-items: center; justify-content: center;
+      transition: all var(--qy-transition-fast);
+    }
+    .field-group-header .group-actions .icon-btn:hover:not(:disabled) { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .field-group-header .group-actions .icon-btn.danger:hover:not(:disabled) { background: var(--qy-error-50); color: var(--qy-color-error); }
+    .field-group-header .group-actions .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .field-group-header .group-actions .icon-btn svg { width: 14px; height: 14px; }
+    .field-group-body { border-top: 1px solid var(--qy-border-light); }
+    .field-group.is-collapsed .field-group-body { display: none; }
+
+    /* Table */
+    .table-container { overflow-x: auto; }
+    .field-table { width: 100%; border-collapse: collapse; font-size: var(--qy-font-size-13); text-align: left; }
+    .field-table th { background: var(--qy-gray-50); padding: 12px 16px; font-weight: var(--qy-font-weight-semibold); color: var(--qy-text-secondary); border-bottom: 1px solid var(--qy-border-light); white-space: nowrap; }
+    .field-table td { padding: 12px 16px; border-bottom: 1px solid var(--qy-border-light); color: var(--qy-text-primary); vertical-align: middle; }
+    .field-table tbody tr { transition: background var(--qy-transition-fast); }
+    .field-table tbody tr:hover td { background: var(--qy-gray-50); }
+    .field-table tbody tr.dragging { opacity: 0.5; background: var(--qy-primary-50); }
+
+    .drag-handle { cursor: grab; color: var(--qy-text-muted); display: inline-flex; padding: 4px; border-radius: 4px; opacity: 0.3; transition: all var(--qy-transition-fast); }
+    .field-table tbody tr:hover .drag-handle { opacity: 1; }
+    .drag-handle:hover { background: var(--qy-gray-200); color: var(--qy-text-secondary); }
+    .drag-handle:active { cursor: grabbing; background: var(--qy-gray-300); }
+
+    .tag { display: inline-block; padding: 2px var(--qy-space-2); border-radius: var(--qy-radius-full); font-size: var(--qy-font-size-11); font-weight: var(--qy-font-weight-medium); }
+    .tag--blue { background: var(--qy-primary-50); color: var(--qy-color-primary); }
+    .tag--green { background: var(--qy-success-50); color: var(--qy-success-600); }
+    .tag--purple { background: #ede9fe; color: #7c3aed; }
+    .tag--amber { background: #fef3c7; color: #d97706; }
+    .tag--pink { background: #fce7f3; color: #db2777; }
+    .tag--cyan { background: #cffafe; color: #0891b2; }
+    .tag--gray { background: var(--qy-bg-tertiary); color: var(--qy-text-secondary); }
+    .tag--red { background: var(--qy-error-50); color: var(--qy-color-error); }
+
+    .rule-cell { font-family: var(--qy-font-mono); font-size: var(--qy-font-size-12); color: var(--qy-text-secondary); background: var(--qy-bg-tertiary); padding: 3px var(--qy-space-2); border-radius: var(--qy-radius-sm); display: inline-block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rule-cell .var { color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
+
+    /* Form helpers */
+    .form-group { margin-bottom: var(--qy-space-4); }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); font-weight: var(--qy-font-weight-medium); margin-bottom: var(--qy-space-2); }
+    .form-label .req { color: var(--qy-color-error); margin-right: var(--qy-space-1); }
+    .form-input { height: var(--qy-input-height-lg); padding: 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; background: var(--qy-input-bg); transition: var(--qy-transition-fast); }
+    .form-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-input.disabled { background: var(--qy-bg-tertiary); color: var(--qy-text-disabled); cursor: not-allowed; }
+    .form-input.has-error { border-color: var(--qy-color-error); }
+    .form-select { height: var(--qy-input-height-lg); padding: 0 var(--qy-space-8) 0 var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; background: var(--qy-input-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--qy-space-3) center; appearance: none; cursor: pointer; transition: var(--qy-transition-fast); }
+    .form-select:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-textarea { padding: var(--qy-space-3); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); font-size: var(--qy-font-size-14); width: 100%; min-height: 60px; resize: vertical; font-family: var(--qy-font-primary); transition: var(--qy-transition-fast); }
+    .form-textarea:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .form-hint { font-size: var(--qy-font-size-12); color: var(--qy-text-muted); margin-top: var(--qy-space-1); }
+    .form-error { font-size: var(--qy-font-size-12); color: var(--qy-color-error); margin-top: var(--qy-space-1); display: none; }
+    .form-error.show { display: block; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--qy-space-4); }
+
+    /* Formula editor */
+    .formula-editor { position: relative; }
+    .formula-input { font-family: var(--qy-font-mono); font-size: var(--qy-font-size-13); background: var(--qy-bg-tertiary); border: 1px solid var(--qy-border-medium); border-radius: var(--qy-radius-md); padding: var(--qy-space-3); min-height: 80px; resize: vertical; width: 100%; color: var(--qy-text-primary); }
+    .formula-input:focus { outline: none; border-color: var(--qy-input-border-focus); box-shadow: var(--qy-shadow-focus); }
+    .formula-actions { display: flex; gap: var(--qy-space-2); margin-top: var(--qy-space-2); }
+
+    /* Modal overrides */
+    .modal-overlay { position: fixed; inset: 0; background: var(--qy-modal-overlay); z-index: var(--qy-z-modal); display: none; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: var(--qy-bg-primary); border-radius: var(--qy-modal-radius); width: var(--qy-modal-max-width-md); max-height: 85vh; display: flex; flex-direction: column; box-shadow: var(--qy-modal-shadow); }
+    .modal-box.sm { width: var(--qy-modal-max-width-sm); }
+    .modal-header { padding: var(--qy-space-5); border-bottom: 1px solid var(--qy-border-light); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: var(--qy-font-size-16); font-weight: var(--qy-font-weight-semibold); }
+    .modal-close { background: none; border: none; font-size: var(--qy-font-size-20); cursor: pointer; color: var(--qy-text-muted); padding: var(--qy-space-1); }
+    .modal-close:hover { color: var(--qy-text-primary); }
+    .modal-body { padding: var(--qy-space-5); overflow-y: auto; }
+    .modal-footer { padding: var(--qy-space-4) var(--qy-space-5); border-top: 1px solid var(--qy-border-light); display: flex; justify-content: flex-end; gap: var(--qy-space-3); }
+
+    /* Modal / Drawer footer button styling */
+    .modal-footer .qy-btn, .qy-drawer__footer .qy-btn {
+      border-radius: var(--qy-radius-lg); padding: 0 18px; height: 36px; font-size: var(--qy-font-size-13);
+      font-weight: var(--qy-font-weight-medium); letter-spacing: 0.01em; transition: all var(--qy-transition-fast);
+    }
+    .modal-footer .qy-btn--secondary, .qy-drawer__footer .qy-btn--secondary {
+      background: white; color: var(--qy-text-primary); border: 1px solid var(--qy-border-medium);
+    }
+    .modal-footer .qy-btn--secondary:hover:not(:disabled), .qy-drawer__footer .qy-btn--secondary:hover:not(:disabled) {
+      border-color: var(--qy-color-primary); color: var(--qy-color-primary); background: var(--qy-primary-50);
+    }
+    .modal-footer .qy-btn--primary, .qy-drawer__footer .qy-btn--primary {
+      background: var(--qy-color-primary); color: white; border: none;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+    }
+    .modal-footer .qy-btn--primary:hover:not(:disabled), .qy-drawer__footer .qy-btn--primary:hover:not(:disabled) {
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35); background: var(--qy-primary-600);
+    }
+    .modal-footer .qy-btn--danger, .qy-drawer__footer .qy-btn--danger {
+      background: var(--qy-color-error); color: white; border: none;
+      box-shadow: 0 1px 3px rgba(225, 29, 72, 0.25);
+    }
+    .modal-footer .qy-btn--danger:hover:not(:disabled), .qy-drawer__footer .qy-btn--danger:hover:not(:disabled) {
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35); background: var(--qy-error-600);
+    }
+
+    /* Toast */
+    .toast-container { position: fixed; top: var(--qy-space-6); left: 50%; transform: translateX(-50%); z-index: var(--qy-z-toast); display: flex; flex-direction: column; gap: var(--qy-space-2); pointer-events: none; }
+    .toast { padding: var(--qy-message-padding-y) var(--qy-message-padding-x); border-radius: var(--qy-message-radius); font-size: var(--qy-font-size-14); font-weight: var(--qy-font-weight-medium); color: var(--qy-text-inverse); background: var(--qy-color-primary); box-shadow: var(--qy-message-shadow); pointer-events: auto; min-width: 200px; text-align: center; animation: toastIn var(--qy-duration-normal) var(--qy-ease-out); }
+    .toast.success { background: var(--qy-color-success); }
+    .toast.info { background: var(--qy-color-primary); }
+    .toast.warning { background: var(--qy-color-warning); }
+    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
+    <ul class="sidebar-nav">
+      <li class="sidebar-nav-item">薪资档案</li>
+      <li class="sidebar-nav-item active"><span>保险福利</span></li>
+      <li class="sidebar-nav-sub">
+        <div class="sidebar-nav-item">保险台账</div>
+        <div class="sidebar-nav-item">参保规则</div>
+        <div class="sidebar-nav-item">二级户</div>
+        <div class="sidebar-nav-item">员工参保档案</div>
+        <div class="sidebar-nav-item">全局字段配置</div>
+        <div class="sidebar-nav-item">入职字段配置</div>
+        <div class="sidebar-nav-item active" style="color:var(--qy-color-primary)">结算明细配置</div>
+        <div class="sidebar-nav-item">保险福利核算</div>
+        <div class="sidebar-nav-item">保险分组</div>
+        <div class="sidebar-nav-item">险种配置</div>
+      </li>
+      <li class="sidebar-nav-item">异动申报</li>
+      <li class="sidebar-nav-item">报表</li>
+    </ul>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-breadcrumb">结算管理 / 明细配置</div>
+      <div class="topbar-user">管理员</div>
+    </div>
+    <div class="content-area">
+      <div class="page-header">
+        <h1 class="page-title">结算明细配置</h1>
+        <div class="page-header-actions">
+          <button class="qy-btn qy-btn--secondary qy-btn--sm" onclick="openAddCategoryModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+            新增类目
+          </button>
+        </div>
+      </div>
+
+      <div id="groups-container"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Drawer: Edit Settlement Item ===== -->
+<div class="qy-drawer qy-drawer--right" id="itemDrawer">
+  <div class="qy-drawer__overlay" onclick="closeDrawer()"></div>
+  <div class="qy-drawer__container">
+    <div class="qy-drawer__header">
+      <span class="qy-drawer__title" id="drawerTitle">编辑结算项</span>
+      <button class="qy-drawer__close" onclick="closeDrawer()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="qy-drawer__body">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> 名称</label>
+        <input class="form-input" id="f-name" placeholder="如 社保个人部分">
+        <div class="form-error" id="nameError">请输入名称</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> 数据来源</label>
+        <select class="form-select" id="f-source" onchange="onSourceChange()">
+          <option value="formula">公式计算</option>
+          <option value="reference">字段引用</option>
+          <option value="summary">汇总合计</option>
+        </select>
+      </div>
+      <div class="form-group" id="grp-formula">
+        <label class="form-label">计算公式</label>
+        <div class="formula-editor">
+          <textarea class="formula-input" id="f-formula" placeholder="如 #base_salary# * #social_rate#"></textarea>
+          <div class="form-hint">使用 #变量# 语法引用字段，如 #base_salary# 表示基本工资</div>
+        </div>
+        <div class="formula-actions">
+          <button class="qy-btn qy-btn--secondary" onclick="insertFieldVar()">插入变量</button>
+          <button class="qy-btn qy-btn--secondary" onclick="previewFormula()">预览结果</button>
+        </div>
+      </div>
+      <div class="form-group" id="grp-reference" style="display:none;">
+        <label class="form-label">引用路径</label>
+        <input class="form-input" id="f-reference" placeholder="如 employee.salary.base">
+        <div class="form-hint">字段引用路径，从员工档案中取值</div>
+      </div>
+      <div class="form-group" id="grp-summary" style="display:none;">
+        <label class="form-label">汇总规则</label>
+        <select class="form-select" id="f-summary-rule">
+          <option value="sum">求和</option>
+          <option value="avg">平均值</option>
+          <option value="max">最大值</option>
+          <option value="min">最小值</option>
+        </select>
+        <div class="form-hint">对同类目下的结算项进行汇总计算</div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label"><span class="req">*</span> 收支类别</label>
+          <select class="form-select" id="f-income-type">
+            <option value="income">收入</option>
+            <option value="expense">支出</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">分类</label>
+          <select class="form-select" id="f-category">
+            <option value="base">基础薪资</option>
+            <option value="allowance">津贴补贴</option>
+            <option value="overtime">加班费</option>
+            <option value="deduction">扣款</option>
+            <option value="tax">税费</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">说明</label>
+        <textarea class="form-textarea" id="f-desc" placeholder="结算项说明..."></textarea>
+      </div>
+    </div>
+    <div class="qy-drawer__footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeDrawer()">取 消</button>
+      <button class="qy-btn qy-btn--primary" onclick="saveItem()">保 存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: New Category ===== -->
+<div class="modal-overlay" id="addCategoryModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>新增类目</h3><button class="modal-close" onclick="closeAddCategoryModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> 类目名称</label>
+        <input class="form-input" id="c-name" placeholder="如 奖金明细">
+        <div class="form-hint">新类目将添加到列表末尾</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeAddCategoryModal()">取消</button>
+      <button class="qy-btn qy-btn--primary" onclick="confirmAddCategory()">确认创建</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Delete Confirm ===== -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>确认删除</h3><button class="modal-close" onclick="closeDeleteModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body" style="text-align:center;">
+      <div style="width:48px;height:48px;border-radius:var(--qy-radius-full);background:var(--qy-error-50);color:var(--qy-color-error);display:flex;align-items:center;justify-content:center;margin:0 auto var(--qy-space-4);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      </div>
+      <div style="font-size:var(--qy-font-size-15);color:var(--qy-text-primary);" id="deleteMsg">确定要删除吗？</div>
+      <div style="font-size:var(--qy-font-size-13);color:var(--qy-text-muted);margin-top:var(--qy-space-1);" id="deleteSub">此操作不可撤销</div>
+    </div>
+    <div class="modal-footer">
+      <button class="qy-btn qy-btn--secondary" onclick="closeDeleteModal()">取消</button>
+      <button class="qy-btn qy-btn--danger" id="confirmDeleteBtn" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Modal: Insert Variable ===== -->
+<div class="modal-overlay" id="insertVarModal">
+  <div class="modal-box sm">
+    <div class="modal-header"><h3>插入变量</h3><button class="modal-close" onclick="closeInsertVarModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button></div>
+    <div class="modal-body">
+      <div style="font-size:var(--qy-font-size-13);color:var(--qy-text-secondary);margin-bottom:var(--qy-space-3);">选择一个变量插入到公式中：</div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--qy-space-2);">
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('base_salary')">基本工资</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('overtime_pay')">加班费</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('bonus')">奖金</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('allowance')">津贴</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('social_rate')">社保费率</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('housing_rate')">公积金费率</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('tax_rate')">税率</button>
+        <button class="qy-btn qy-btn--secondary" onclick="selectVar('deduction')">扣款</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========== Data ==========
+let categories = [
+  {
+    id: 1, name: '基础信息', collapsed: false, type: 'reference',
+    items: [
+      { id: 1, name: '基本工资', source: 'reference', reference: 'employee.salary.base', incomeType: 'income', category: 'base', desc: '员工基本工资' },
+      { id: 2, name: '岗位津贴', source: 'reference', reference: 'employee.salary.allowance', incomeType: 'income', category: 'allowance', desc: '' },
+      { id: 3, name: '加班费', source: 'reference', reference: 'employee.salary.overtime', incomeType: 'income', category: 'overtime', desc: '' },
+      { id: 4, name: '绩效奖金', source: 'reference', reference: 'employee.salary.bonus', incomeType: 'income', category: 'other', desc: '' },
+    ]
+  },
+  {
+    id: 2, name: '服务费', collapsed: false, type: 'formula',
+    items: [
+      { id: 5, name: '社保个人部分', source: 'formula', formula: '#base_salary# * #social_rate#', incomeType: 'expense', category: 'deduction', desc: '个人社保缴纳部分' },
+      { id: 6, name: '公积金个人部分', source: 'formula', formula: '#base_salary# * #housing_rate#', incomeType: 'expense', category: 'deduction', desc: '' },
+      { id: 7, name: '服务费', source: 'formula', formula: '(#base_salary# + #allowance#) * 0.05', incomeType: 'expense', category: 'other', desc: '按5%收取服务费' },
+    ]
+  },
+  {
+    id: 3, name: '税费', collapsed: false, type: 'formula',
+    items: [
+      { id: 8, name: '个人所得税', source: 'formula', formula: '(#base_salary# + #bonus# - #social_rate# - #housing_rate# - 5000) * #tax_rate#', incomeType: 'expense', category: 'tax', desc: '按超额累进税率计算' },
+      { id: 9, name: '附加税', source: 'formula', formula: '#个人所得税# * 0.1', incomeType: 'expense', category: 'tax', desc: '个人所得税的10%' },
+    ]
+  },
+  {
+    id: 4, name: '汇总配置', collapsed: false, type: 'summary',
+    items: [
+      { id: 10, name: '总收入', source: 'summary', summaryRule: 'sum', incomeType: 'income', category: 'base', desc: '各项收入合计' },
+      { id: 11, name: '总支出', source: 'summary', summaryRule: 'sum', incomeType: 'expense', category: 'deduction', desc: '各项支出合计' },
+      { id: 12, name: '实发工资', source: 'formula', formula: '#总收入# - #总支出#', incomeType: 'income', category: 'base', desc: '应发扣除后的实发金额' },
+    ]
+  }
+];
+
+let nextCategoryId = 5;
+let nextItemId = 13;
+let editingItem = null; // { categoryId, itemId } or null for add
+let deleteTarget = null; // { categoryId, itemId }
+let dragId = null;
+
+const sourceLabels = { formula: '公式计算', reference: '字段引用', summary: '汇总合计' };
+const sourceTagClasses = { formula: 'tag--blue', reference: 'tag--purple', summary: 'tag--green' };
+const incomeLabels = { income: '收入', expense: '支出' };
+const incomeTagClasses = { income: 'tag--green', expense: 'tag--red' };
+const categoryLabels = { base: '基础薪资', allowance: '津贴补贴', overtime: '加班费', deduction: '扣款', tax: '税费', other: '其他' };
+
+// ========== Render ==========
+function renderGroups() {
+  const container = document.getElementById('groups-container');
+  let totalCount = 0;
+
+  container.innerHTML = categories.map(c => {
+    const itemCount = c.items.length;
+    totalCount += itemCount;
+
+    return `<div class="field-group ${c.collapsed ? 'is-collapsed' : ''}" data-category-id="${c.id}">
+      <div class="field-group-header" onclick="toggleCategory(${c.id})">
+        <svg class="expand-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        <span class="group-title">${esc(c.name)}</span>
+        <span class="group-count">共 ${itemCount} 个结算项</span>
+        <div class="group-actions">
+          <button class="icon-btn" title="添加" onclick="event.stopPropagation(); addItemToCategory(${c.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button class="icon-btn danger" title="${itemCount > 0 ? '类目下有结算项时不可删除' : '删除'}" onclick="event.stopPropagation(); deleteCategory(${c.id})" ${itemCount > 0 ? 'disabled' : ''}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="field-group-body">
+        <table class="field-table">
+          <thead>
+            <tr>
+              <th style="width:40px"></th>
+              <th>名称</th>
+              <th>规则</th>
+              <th style="width:90px">类型</th>
+              <th style="width:80px">收支类别</th>
+              <th style="width:180px">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${c.items.map(item => renderItemRow(c.id, item)).join('')}
+          </tbody>
+        </table>
+        ${itemCount === 0 ? `<div class="qy-empty" style="padding:var(--qy-space-10);"><svg class="qy-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v4M12 16h.01"/></svg><p class="qy-empty__title" style="font-size:var(--qy-font-size-14);">暂无结算项</p><p class="qy-empty__description">点击「添加」按钮开始配置</p></div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderItemRow(categoryId, item) {
+  const ruleContent = getItemRule(item);
+  return `<tr draggable="true" ondragstart="onDragStart(event,${categoryId},${item.id})" ondragover="onDragOver(event)" ondrop="onDrop(event,${categoryId},${item.id})" ondragend="onDragEnd(event)">
+    <td><span class="drag-handle" title="拖拽排序">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+    </span></td>
+    <td style="font-weight:var(--qy-font-weight-medium);">${esc(item.name)}</td>
+    <td>${ruleContent}</td>
+    <td><span class="tag ${sourceTagClasses[item.source]}">${sourceLabels[item.source]}</span></td>
+    <td><span class="tag ${incomeTagClasses[item.incomeType]}">${incomeLabels[item.incomeType]}</span></td>
+    <td class="col-center"><div class="row-actions" style="justify-content:center;">
+        <button class="icon-btn" title="编辑" onclick="openEditItem(${categoryId},${item.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-btn" title="重置" onclick="resetItem(${categoryId},${item.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </button>
+        <button class="icon-btn danger" title="删除" onclick="openDeleteItemModal(${categoryId},${item.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div></td>
+  </tr>`;
+}
+
+function getItemRule(item) {
+  switch (item.source) {
+    case 'formula':
+      return `<span class="rule-cell">${highlightFormula(item.formula || '-')}</span>`;
+    case 'reference':
+      return `<span class="rule-cell">${esc(item.reference || '-')}</span>`;
+    case 'summary':
+      return `<span class="rule-cell">合计: ${item.summaryRule === 'sum' ? '求和' : item.summaryRule === 'avg' ? '平均值' : item.summaryRule === 'max' ? '最大值' : '最小值'}</span>`;
+    default:
+      return '-';
+  }
+}
+
+function highlightFormula(formula) {
+  if (!formula || formula === '-') return '-';
+  return esc(formula).replace(/#([^#]+)#/g, '<span class="var">#$1#</span>');
+}
+
+// ========== Category toggle ==========
+function toggleCategory(id) {
+  const c = categories.find(x => x.id === id);
+  if (c) c.collapsed = !c.collapsed;
+  renderGroups();
+}
+
+// ========== Add/Edit Item ==========
+function addItemToCategory(categoryId) {
+  editingItem = { categoryId, itemId: null };
+  document.getElementById('drawerTitle').textContent = '新增结算项';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-source').value = 'formula';
+  document.getElementById('f-formula').value = '';
+  document.getElementById('f-reference').value = '';
+  document.getElementById('f-summary-rule').value = 'sum';
+  document.getElementById('f-income-type').value = 'income';
+  document.getElementById('f-category').value = 'base';
+  document.getElementById('f-desc').value = '';
+  clearErrors();
+  onSourceChange();
+  document.getElementById('itemDrawer').classList.add('is-open');
+}
+
+function openEditItem(categoryId, itemId) {
+  const c = categories.find(x => x.id === categoryId);
+  if (!c) return;
+  const item = c.items.find(x => x.id === itemId);
+  if (!item) return;
+  editingItem = { categoryId, itemId };
+  document.getElementById('drawerTitle').textContent = '编辑结算项 - ' + item.name;
+  document.getElementById('f-name').value = item.name;
+  document.getElementById('f-source').value = item.source;
+  document.getElementById('f-formula').value = item.formula || '';
+  document.getElementById('f-reference').value = item.reference || '';
+  document.getElementById('f-summary-rule').value = item.summaryRule || 'sum';
+  document.getElementById('f-income-type').value = item.incomeType;
+  document.getElementById('f-category').value = item.category;
+  document.getElementById('f-desc').value = item.desc || '';
+  clearErrors();
+  onSourceChange();
+  document.getElementById('itemDrawer').classList.add('is-open');
+}
+
+function closeDrawer() {
+  document.getElementById('itemDrawer').classList.remove('is-open');
+  editingItem = null;
+}
+
+function onSourceChange() {
+  const source = document.getElementById('f-source').value;
+  document.getElementById('grp-formula').style.display = source === 'formula' ? '' : 'none';
+  document.getElementById('grp-reference').style.display = source === 'reference' ? '' : 'none';
+  document.getElementById('grp-summary').style.display = source === 'summary' ? '' : 'none';
+}
+
+function clearErrors() {
+  document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.form-input').forEach(el => el.classList.remove('has-error'));
+}
+
+function saveItem() {
+  clearErrors();
+  const name = document.getElementById('f-name').value.trim();
+  const source = document.getElementById('f-source').value;
+  const formula = document.getElementById('f-formula').value.trim();
+  const reference = document.getElementById('f-reference').value.trim();
+  const summaryRule = document.getElementById('f-summary-rule').value;
+  const incomeType = document.getElementById('f-income-type').value;
+  const category = document.getElementById('f-category').value;
+  const desc = document.getElementById('f-desc').value.trim();
+
+  if (!name) {
+    document.getElementById('nameError').classList.add('show');
+    document.getElementById('f-name').classList.add('has-error');
+    showToast('请输入名称', 'warning');
+    return;
+  }
+
+  if (!editingItem) return;
+  const c = categories.find(x => x.id === editingItem.categoryId);
+  if (!c) return;
+
+  const data = { name, source, formula, reference, summaryRule, incomeType, category, desc };
+
+  if (editingItem.itemId) {
+    const item = c.items.find(x => x.id === editingItem.itemId);
+    if (item) Object.assign(item, data);
+    showToast('结算项已更新', 'success');
+  } else {
+    c.items.push({ id: nextItemId++, ...data });
+    showToast('结算项已创建', 'success');
+  }
+
+  closeDrawer();
+  renderGroups();
+}
+
+// ========== Reset Item ==========
+function resetItem(categoryId, itemId) {
+  const c = categories.find(x => x.id === categoryId);
+  if (!c) return;
+  const item = c.items.find(x => x.id === itemId);
+  if (!item) return;
+
+  if (item.source === 'formula') {
+    item.formula = '';
+  } else if (item.source === 'reference') {
+    item.reference = '';
+  }
+  renderGroups();
+  showToast('计算项已重置', 'info');
+}
+
+// ========== Delete ==========
+function openDeleteItemModal(categoryId, itemId) {
+  const c = categories.find(x => x.id === categoryId);
+  if (!c) return;
+  const item = c.items.find(x => x.id === itemId);
+  if (!item) return;
+  deleteTarget = { categoryId, itemId };
+  document.getElementById('deleteMsg').textContent = `确定要删除结算项「${item.name}」吗？`;
+  document.getElementById('deleteSub').textContent = '此操作不可撤销';
+  document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('show');
+  deleteTarget = null;
+}
+
+function confirmDelete() {
+  if (!deleteTarget) return;
+  const c = categories.find(x => x.id === deleteTarget.categoryId);
+  if (!c) return;
+  const idx = c.items.findIndex(x => x.id === deleteTarget.itemId);
+  if (idx < 0) return;
+  c.items.splice(idx, 1);
+  closeDeleteModal();
+  renderGroups();
+  showToast('结算项已删除', 'info');
+}
+
+function deleteCategory(categoryId) {
+  const c = categories.find(x => x.id === categoryId);
+  if (!c || c.items.length > 0) return;
+  categories = categories.filter(x => x.id !== categoryId);
+  renderGroups();
+  showToast('类目已删除', 'info');
+}
+
+// ========== New Category ==========
+function openAddCategoryModal() {
+  document.getElementById('c-name').value = '';
+  document.getElementById('addCategoryModal').classList.add('show');
+}
+
+function closeAddCategoryModal() {
+  document.getElementById('addCategoryModal').classList.remove('show');
+}
+
+function confirmAddCategory() {
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) {
+    showToast('请输入类目名称', 'warning');
+    return;
+  }
+  categories.push({ id: nextCategoryId++, name, collapsed: false, type: 'formula', items: [] });
+  closeAddCategoryModal();
+  renderGroups();
+  showToast('类目已创建', 'success');
+}
+
+// ========== Insert Variable ==========
+function insertFieldVar() {
+  document.getElementById('insertVarModal').classList.add('show');
+}
+
+function closeInsertVarModal() {
+  document.getElementById('insertVarModal').classList.remove('show');
+}
+
+function selectVar(varName) {
+  const textarea = document.getElementById('f-formula');
+  const val = textarea.value;
+  const pos = textarea.selectionStart;
+  const prefix = val.substring(0, pos);
+  const suffix = val.substring(pos);
+  textarea.value = prefix + '#' + varName + '#' + suffix;
+  textarea.focus();
+  closeInsertVarModal();
+}
+
+function previewFormula() {
+  const formula = document.getElementById('f-formula').value;
+  if (!formula) {
+    showToast('请先输入公式', 'warning');
+    return;
+  }
+  showToast('预览：' + formula, 'info');
+}
+
+// ========== Drag & Drop ==========
+function onDragStart(e, categoryId, itemId) {
+  dragId = { categoryId, itemId };
+  e.target.closest('tr').classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onDrop(e, targetCategoryId, targetItemId) {
+  e.preventDefault();
+  if (!dragId || dragId.itemId === targetItemId) return;
+  if (dragId.categoryId !== targetCategoryId) return;
+
+  const c = categories.find(x => x.id === dragId.categoryId);
+  if (!c) return;
+  const fromIdx = c.items.findIndex(i => i.id === dragId.itemId);
+  const toIdx = c.items.findIndex(i => i.id === targetItemId);
+  if (fromIdx < 0 || toIdx < 0) return;
+  const [moved] = c.items.splice(fromIdx, 1);
+  c.items.splice(toIdx, 0, moved);
+  dragId = null;
+  renderGroups();
+}
+
+function onDragEnd(e) {
+  e.target.closest('tr').classList.remove('dragging');
+  dragId = null;
+}
+
+// ========== Toast ==========
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(-10px)'; t.style.transition = 'all 250ms'; }, 2200);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ========== Utils ==========
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ========== Keyboard ==========
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeDrawer();
+    closeDeleteModal();
+    closeAddCategoryModal();
+    closeInsertVarModal();
+  }
+});
+
+['deleteModal', 'addCategoryModal', 'insertVarModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+
+// ========== Init ==========
+renderGroups();
+</script>
+
+</body>
+</html>
