@@ -1071,13 +1071,17 @@ body {
 
 ### 11.14 导航 Navigation
 
-#### 侧边栏
+#### 侧边栏 + 主内容布局
+
+侧边栏与主内容区采用 flex 横向排列，`.qy-main` 通过 `flex: 1` 自动占据剩余空间，无需 margin-left 偏移。
 
 ```css
+.qy-layout { display: flex; height: 100vh; overflow: hidden; }
 .qy-sidebar {
   width: var(--qy-sidebar-width); background: var(--qy-bg-primary);
   border-right: 1px solid var(--qy-border-light); flex-shrink: 0;
 }
+.qy-main { flex: 1; margin-left: 0; min-width: 0; overflow: hidden; }
 .qy-sidebar__logo {
   display: flex; align-items: center; height: var(--qy-header-height);
   padding: 0 var(--qy-space-4); border-bottom: 1px solid var(--qy-border-light);
