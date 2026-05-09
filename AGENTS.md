@@ -36,6 +36,7 @@ This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) sys
 | `docs/superpowers/plans/` | Implementation plans (same 7-module structure) |
 | `docs/superpowers/sql/` | Database migration drafts |
 | `scripts/` | Utility scripts (PDF conversion, git hooks, memory update) |
+| `README.md` | Fast repository entry for new collaborators |
 | `.agents/skills/` | Codex project skills for Qingyang Cloud |
 | `.codex/` | Codex local configuration (machine-local, do not commit secrets) |
 | `.claude/skills/` | Claude Code skills kept for cross-tool compatibility |
@@ -91,6 +92,8 @@ Prototypes organized by business module under `prototype/`. Serve from project r
 ## Codex Skills
 
 Skills in `.agents/skills/` automate interactions with the live Qingyang HRO system.
+
+Claude-facing companion skills remain in `.claude/skills/` so both agent entrypoints can coexist cleanly in this repo.
 
 ### Available Skills
 
@@ -185,6 +188,8 @@ Utility scripts in `scripts/`:
 | `md_to_pdf.py` | Convert Markdown spec docs to PDF (uses reportlab, Chinese font STHeiti) |
 | `update-memory.sh` | Post-commit hook: analyzes git changes, generates changelog, updates MEMORY.md |
 | `post-commit-hook.sh` | Git hook installer — copies itself to `.git/hooks/post-commit` |
+
+One-off local patch scripts should not live at the repo root. Keep reusable tooling in `scripts/` and ignore disposable helpers.
 
 ## System Architecture
 

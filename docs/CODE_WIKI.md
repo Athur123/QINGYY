@@ -54,9 +54,11 @@
 | [docs/superpowers/](file:///Users/athur/PycharmProjects/qyy/docs/superpowers) | 规划与规格文档 | plans（实施计划）/ specs（设计说明、数据结构、流程） |
 | [.claude/skills/](file:///Users/athur/PycharmProjects/qyy/.claude/skills) | 自动化技能说明 | 以浏览器自动化方式完成登录/切换维度等操作 |
 | [.agents/skills/](file:///Users/athur/PycharmProjects/qyy/.agents/skills) | Codex 项目技能 | 与 Claude 技能对应的项目级技能入口 |
+| [scripts/](file:///Users/athur/PycharmProjects/qyy/scripts) | 仓库辅助脚本 | PDF 转换、post-commit hook、memory 更新 |
 | [.superpowers/](file:///Users/athur/PycharmProjects/qyy/.superpowers) | brainstorming 产物 | 片段型 HTML 草稿与策略说明 |
 | [CLAUDE.md](file:///Users/athur/PycharmProjects/qyy/CLAUDE.md) | Claude 协作说明 | 约定、目录解释、原型预览方式 |
 | [AGENTS.md](file:///Users/athur/PycharmProjects/qyy/AGENTS.md) | Codex 协作说明 | 与 `CLAUDE.md` 同步的项目级协作入口 |
+| [README.md](file:///Users/athur/PycharmProjects/qyy/README.md) | 快速入口文档 | 新协作者的最短阅读路径 |
 
 ### 2.2 docs/superpowers 内容分层
 

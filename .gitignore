@@ -29,6 +29,7 @@ build/
 
 # Playwright MCP
 .playwright-mcp/
+.playwright-cli/
 
 # Claude local state
 .claude/memory/
@@ -60,3 +61,7 @@ build/
 # Test screenshots
 screenshots/
 *.png
+
+# One-off local scripts
+fix_indent.py
+update_html.py

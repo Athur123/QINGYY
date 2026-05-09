@@ -1,0 +1,27 @@
+# Reconciliation Index
+
+- Primary prototype pages:
+  - `/Users/athur/PycharmProjects/qyy/prototype/reconciliation/summary.html`
+  - `/Users/athur/PycharmProjects/qyy/prototype/reconciliation/unified.html`
+- Supporting prototype pages:
+  - `/Users/athur/PycharmProjects/qyy/prototype/reconciliation/index.html`
+- Main specs:
+  - `/Users/athur/PycharmProjects/qyy/docs/superpowers/specs/reconciliation/reconciliation-design.md`
+  - `/Users/athur/PycharmProjects/qyy/docs/superpowers/specs/reconciliation/type-month-matching.md`
+  - `/Users/athur/PycharmProjects/qyy/docs/superpowers/specs/reconciliation/ledger-import.md`
+- Main plans:
+  - `/Users/athur/PycharmProjects/qyy/docs/superpowers/plans/reconciliation/archive-batch.md`
+  - `/Users/athur/PycharmProjects/qyy/docs/superpowers/plans/reconciliation/reconciliation-plan.md`
+  - `/Users/athur/PycharmProjects/qyy/docs/superpowers/plans/reconciliation/type-month-matching.md`
+- Legacy / exploration pages:
+  - `approach3.html`
+  - `approach4.html`
+- Reference assets:
+  - `社保台账导入模板-长表格式.csv`
+  - `社保台账导入模板-宽表格式.csv`
+- Recommended entry point:
+  - `summary.html` is the list-level entry
+  - `unified.html` is the detail-level entry
+  - `approach3.html` and `approach4.html` are historical explorations
+  - `reconciliation-design.md` is the base spec
+  - `archive-batch.md` and `type-month-matching.md` are focused follow-up documents
