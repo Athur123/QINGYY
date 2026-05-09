@@ -12,6 +12,7 @@ This repository is intentionally set up to support both **Codex** and **Claude C
 - Codex-specific local config lives in `.codex/`
 - Claude-specific local config lives in `.claude/`
 - Codex project skills live in `.agents/skills/`
+- Safe setup templates live in `.claude/settings.local.example.json` and `.codex/config.example.toml`
 
 ## Project Overview
 
@@ -102,7 +103,12 @@ Skills in `.agents/skills/` automate interactions with the live Qingyang HRO sys
 - Via user avatar dropdown → "切换客户组织"
 - Triggers: "切换到HRO", "进入客户组织", "HRO维度"
 
-### Environment Variables (in `.codex/config.toml`)
+### Environment Variables
+
+Real local values live in `.codex/config.toml`.
+Safe setup examples live in `.claude/settings.local.example.json` and `.codex/config.example.toml`.
+
+Example:
 ```toml
 [shell_environment_policy]
 inherit = "core"
@@ -202,7 +208,8 @@ Utility scripts in `scripts/`:
 3. **Prototypes are static HTML** — Open directly in browser or serve with `python3 -m http.server`
 4. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
 5. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source
-6. **Keep local agent config out of version control** — `.codex/config.toml` and `.claude/settings.local.json` should remain machine-local because they can contain credentials
+6. **Keep local agent config out of version control** — `.codex/config.toml` and `.claude/settings.local.json` should remain machine-local because they can contain credentials. Start from `.codex/config.example.toml` and `.claude/settings.local.example.json`
 7. **Post-commit memory update** — After each commit, `update-memory.sh` auto-generates a changelog in `.claude/memory/changes/` and updates `MEMORY.md`
 8. **Test screenshots go to `screenshots/`** — Never save screenshots to project root. Both `screenshots/` and `*.png` are gitignored.
 9. **File organization** — New features follow the 7-module structure. Prototypes → `prototype/<module>/`, specs → `docs/superpowers/specs/<module>/`, plans → `docs/superpowers/plans/<module>/`. Short business-meaningful filenames, no date prefixes.
+10. **Safe local setup** — Keep real secrets only in local config files. Commit only example templates such as `.claude/settings.local.example.json` and `.codex/config.example.toml`

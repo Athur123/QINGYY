@@ -12,6 +12,7 @@ This repository is intentionally set up to support both **Claude Code** and **Co
 - Claude-specific local config lives in `.claude/`
 - Codex-specific local config lives in `.codex/`
 - Codex project skills live in `.agents/skills/`
+- Safe setup templates live in `.claude/settings.local.example.json` and `.codex/config.example.toml`
 
 ## Project Overview
 
@@ -105,7 +106,12 @@ Codex reads the root-level `AGENTS.md`. Keep shared project facts synchronized b
 - Via user avatar dropdown → "切换客户组织"
 - Triggers: "切换到HRO", "进入客户组织", "HRO维度"
 
-### Environment Variables (in `.claude/settings.local.json`)
+### Environment Variables
+
+Real local values live in `.claude/settings.local.json`.
+Safe setup examples live in `.claude/settings.local.example.json` and `.codex/config.example.toml`.
+
+Example:
 ```json
 {
   "QINGYANG_LOGIN_URL": "https://qingyangyun.com.cn/#/login",
@@ -222,9 +228,10 @@ The reconciliation module is the most complex part of the codebase. Key concepts
 
 1. **Playwright MCP** is configured for browser automation
 2. **No package.json** — Pure HTML/CSS/Python, no build process
-3. **`.claude/settings.local.json`** — local credentials file (gitignored, never commit)
+3. **`.claude/settings.local.json`** — local credentials file (gitignored, never commit). Start from `.claude/settings.local.example.json`
 4. **Prototypes are static HTML** — serve with `python3 -m http.server` from project root
 5. **Skills require Playwright MCP** — Ensure plugin is enabled for automation
 6. **`.claude/worktrees/` and `.worktrees/`** are git worktree snapshots — not part of main source
 7. **Test screenshots go to `screenshots/`** — Never save screenshots to project root. Both `screenshots/` and `*.png` are gitignored.
 8. **File organization** — New features follow the 7-module structure. Prototypes → `prototype/<module>/`, specs → `docs/superpowers/specs/<module>/`, plans → `docs/superpowers/plans/<module>/`. Short business-meaningful filenames, no date prefixes.
+9. **Safe local setup** — Keep real secrets only in local config files. Commit only example templates such as `.claude/settings.local.example.json` and `.codex/config.example.toml`

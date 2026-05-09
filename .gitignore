@@ -36,7 +36,8 @@ build/
 .claude/worktrees/
 
 # Codex local state
-.codex/
+.codex/*
+!.codex/config.example.toml
 
 # Agent scratch space
 .superpowers/

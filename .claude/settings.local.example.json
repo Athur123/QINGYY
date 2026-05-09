@@ -1,0 +1,19 @@
+{
+  "env": {
+    "QINGYANG_TENANT": "your-tenant",
+    "QINGYANG_USERNAME": "your-username",
+    "QINGYANG_PASSWORD": "your-password",
+    "QINGYANG_LOGIN_URL": "https://qingyangyun.com.cn/#/login"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(sleep:*)",
+      "Bash(python3:*)",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_wait_for",
+      "mcp__plugin_playwright_playwright__browser_press_key",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot"
+    ]
+  }
+}

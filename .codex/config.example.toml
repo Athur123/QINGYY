@@ -1,0 +1,8 @@
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+QINGYANG_LOGIN_URL = "https://qingyangyun.com.cn/#/login"
+QINGYANG_TENANT = "your-tenant"
+QINGYANG_USERNAME = "your-username"
+QINGYANG_PASSWORD = "your-password"
