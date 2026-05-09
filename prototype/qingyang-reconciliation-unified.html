@@ -2610,40 +2610,22 @@
             } else {
                 body.innerHTML = '<table class="qy-table"><thead><tr><th>批次</th><th>记录数</th><th>金额</th><th>归档时间</th><th>操作</th></tr></thead><tbody>' +
                     archiveBatches.map(function(b) {
-                        return '<tr><td><strong>' + b.label + '</strong><br><span style="font-size:11px;color:var(--qy-text-secondary)">' + b.billingMonth + '</span></td><td>' + b.recordCount + '条</td><td>' + formatMoney(b.totalAmount) + '</td><td style="font-size:11px;">' + b.createdAt + '</td><td><button class="btn-action" onclick="showBatchRecords(\'' + b.id + '\')">查看明细</button></td></tr>';
+                        return '<tr><td><strong>' + b.label + '</strong><br><span style="font-size:11px;color:var(--qy-text-secondary)">' + b.billingMonth + '</span></td><td>' + b.recordCount + '条</td><td>' + formatMoney(b.totalAmount) + '</td><td style="font-size:11px;">' + b.createdAt + '</td><td><button class="btn-action" onclick="viewArchiveBatch(\'' + b.id + '\')">查看此批次</button></td></tr>';
                     }).join('') +
-                    '</tbody></table>' +
-                    '<div id="archiveBatchDetailArea" style="margin-top:16px;"></div>';
+                    '</tbody></table>';
             }
 
             document.getElementById('archiveBatchDrawer').classList.add('is-visible');
         }
 
-        function showBatchRecords(batchId) {
-            var batch = archiveBatches.find(function(b) { return b.id === batchId; });
-            if (!batch) return;
-
-            var sysRecs = systemRecords.filter(function(r) { return r.archiveBatchId === batchId; });
-            var area = document.getElementById('archiveBatchDetailArea');
-            if (!area) return;
-
-            var rowsHtml = sysRecs.map(function(r) {
-                var ledgerInfo = '—';
-                if (r.matchedLedgerId) {
-                    var ledRec = ledgerRecords.find(function(lr) { return lr.id === r.matchedLedgerId; });
-                    ledgerInfo = ledRec ? formatMoney(ledRec.amount) + ' <span class="cross-ref">↔ ' + ledRec.id + '</span>' : '—';
-                }
-                return '<tr><td><strong>' + r.name + '</strong></td>' +
-                    '<td>' + maskIdCard(r.idCard) + '</td>' +
-                    '<td>' + r.insuranceType + '</td>' +
-                    '<td><span class="type-badge type-badge--' + r.feeType + '">' + getBillTypeLabel(r.feeType) + '</span></td>' +
-                    '<td>' + formatMoney(r.amount) + '</td>' +
-                    '<td style="font-size:11px;color:var(--qy-text-secondary)">' + ledgerInfo + '</td></tr>';
-            }).join('');
-
-            area.innerHTML = '<div style="border-top:1px solid var(--qy-border-light);padding-top:12px;"><h4 style="font-size:14px;font-weight:600;margin-bottom:8px;">' + batch.label + ' · ' + batch.billingMonth + '</h4>' +
-                '<p style="font-size:11px;color:var(--qy-text-secondary);margin-bottom:10px;">共 <strong>' + sysRecs.length + '</strong> 条，金额合计 <strong>' + formatMoney(batch.totalAmount) + '</strong> · ' + batch.createdAt + '</p>' +
-                '<table class="qy-table"><thead><tr><th>姓名</th><th>身份证</th><th>险种</th><th>类型</th><th>金额</th><th>台账</th></tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
+        function viewArchiveBatch(batchId) {
+            closeArchiveBatchDrawer();
+            var sysSelect = document.getElementById('systemArchiveBatchFilter');
+            if (sysSelect) {
+                sysSelect.value = batchId;
+                currentSystemArchiveBatchFilter = batchId;
+                renderSystemTable();
+            }
         }
 
         function closeArchiveBatchDrawer(event) {
