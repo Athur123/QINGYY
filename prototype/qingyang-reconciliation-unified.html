@@ -528,6 +528,11 @@
                 调基补差
             </div>
         </div>
+        <div class="filter-bar__divider"></div>
+        <span class="filter-bar__label">归档批次</span>
+        <select class="qy-select" id="systemArchiveBatchFilter" onchange="onSystemArchiveBatchChange()" style="width:130px;">
+            <option value="all">全部批次</option>
+        </select>
     </div>
 
     <!-- Archive Batch History -->
@@ -606,6 +611,11 @@
                 调基补差
             </div>
         </div>
+        <div class="filter-bar__divider"></div>
+        <span class="filter-bar__label">归档批次</span>
+        <select class="qy-select" id="ledgerArchiveBatchFilter" onchange="onLedgerArchiveBatchChange()" style="width:130px;">
+            <option value="all">全部批次</option>
+        </select>
     </div>
 
     <div class="data-table">
@@ -872,8 +882,10 @@
         let currentBillTab = 'system';
         let currentSystemMatchFilter = 'all';
         let currentSystemTypeFilter = 'all';
+        let currentSystemArchiveBatchFilter = 'all';
         let currentLedgerMatchFilter = 'all';
         let currentLedgerTypeFilter = 'all';
+        let currentLedgerArchiveBatchFilter = 'all';
 
         let currentDetailRecord = null;
         let currentPendingGroup = null;
@@ -1464,6 +1476,10 @@
                 records = records.filter(r => r.feeType === currentSystemTypeFilter);
             }
 
+            if (currentSystemArchiveBatchFilter !== 'all') {
+                records = records.filter(r => r.record.archiveBatchId === currentSystemArchiveBatchFilter);
+            }
+
             const nameVal = document.getElementById('filterName')?.value?.trim();
             if (nameVal) {
                 records = records.filter(r => r.name.includes(nameVal) || r.idCard.includes(nameVal));
@@ -1550,6 +1566,10 @@
 
             if (currentLedgerTypeFilter !== 'all') {
                 records = records.filter(r => r.feeType === currentLedgerTypeFilter);
+            }
+
+            if (currentLedgerArchiveBatchFilter !== 'all') {
+                records = records.filter(r => r.record.archiveBatchId === currentLedgerArchiveBatchFilter);
             }
 
             const nameVal = document.getElementById('filterName')?.value?.trim();
@@ -2565,6 +2585,41 @@
                     return '<tr><td><strong>' + b.label + '</strong></td><td>' + b.billingMonth + '</td><td>' + b.recordCount + '条</td><td>' + formatMoney(b.totalAmount) + '</td><td>' + b.createdAt + '</td><td><button class="btn-action" onclick="showBatchDetail(\'' + b.id + '\')">详情</button></td></tr>';
                 }).join('') +
                 '</tbody></table>';
+
+            // Update archive batch filter dropdowns
+            updateArchiveBatchFilters();
+        }
+
+        function updateArchiveBatchFilters() {
+            var batchOptions = '<option value="all">全部批次</option>' +
+                archiveBatches.map(function(b) {
+                    return '<option value="' + b.id + '">' + b.label + '</option>';
+                }).join('');
+
+            var sysSelect = document.getElementById('systemArchiveBatchFilter');
+            var ledSelect = document.getElementById('ledgerArchiveBatchFilter');
+            if (sysSelect) {
+                var sysVal = sysSelect.value;
+                sysSelect.innerHTML = batchOptions;
+                sysSelect.value = sysVal || 'all';
+            }
+            if (ledSelect) {
+                var ledVal = ledSelect.value;
+                ledSelect.innerHTML = batchOptions;
+                ledSelect.value = ledVal || 'all';
+            }
+        }
+
+        function onSystemArchiveBatchChange() {
+            var select = document.getElementById('systemArchiveBatchFilter');
+            currentSystemArchiveBatchFilter = select ? select.value : 'all';
+            renderSystemTable();
+        }
+
+        function onLedgerArchiveBatchChange() {
+            var select = document.getElementById('ledgerArchiveBatchFilter');
+            currentLedgerArchiveBatchFilter = select ? select.value : 'all';
+            renderLedgerTable();
         }
 
         function toggleBatchHistory() {
