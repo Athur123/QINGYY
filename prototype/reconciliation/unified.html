@@ -988,6 +988,7 @@
                 document.getElementById('panel-ledger').classList.add('is-active');
             }
             renderAllTables();
+            if (document.body.classList.contains('anno-visible')) { removeAllBadges(); showAllBadges(); }
         }
 
         function maskIdCard(v) {
