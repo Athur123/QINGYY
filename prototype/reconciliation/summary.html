@@ -1346,15 +1346,6 @@
             if (container) container.remove();
         }
 
-        function highlightAnno(num, on) {
-            document.querySelectorAll('[data-anno-num="' + num + '"]').forEach(function(el) {
-                el.style.filter = on ? 'brightness(1.3)' : '';
-            });
-            var legendItem = document.querySelector('.anno-legend__item[data-anno="' + num + '"]');
-            if (legendItem) legendItem.style.background = on ? 'var(--qy-primary-50)' : '';
-        }
-
-        var annoPulseTimer = null;
         function scrollToAnno(num) {
             var annotation = annotations.find(function(a) { return a.num === num; });
             if (!annotation) return;
@@ -1362,18 +1353,26 @@
             if (typeof annotation.targetSel === 'function') target = annotation.targetSel();
             else if (annotation.target) target = document.querySelector(annotation.target);
             if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
-            clearTimeout(annoPulseTimer);
+        function highlightAnno(num, on) {
             var badgeInner = document.querySelector('.anno-badge-box[data-anno-num="' + num + '"] .anno-badge-inner');
             if (badgeInner) {
-                badgeInner.style.transform = 'scale(1.8)';
-                badgeInner.style.boxShadow = '0 0 0 8px rgba(37,99,235,0.4)';
-                badgeInner.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
-                annoPulseTimer = setTimeout(function() {
+                if (on) {
+                    badgeInner.style.transform = 'scale(1.6)';
+                    badgeInner.style.background = '#EAB308';
+                    badgeInner.style.color = '#1E293B';
+                    badgeInner.style.boxShadow = '0 0 0 10px rgba(234,179,8,0.35)';
+                    badgeInner.style.transition = 'all 0.2s ease';
+                } else {
                     badgeInner.style.transform = 'scale(1)';
+                    badgeInner.style.background = 'var(--qy-primary-500)';
+                    badgeInner.style.color = 'white';
                     badgeInner.style.boxShadow = '0 2px 8px rgba(37,99,235,0.4)';
-                }, 600);
+                }
             }
+            var legendItem = document.querySelector('.anno-legend__item[data-anno="' + num + '"]');
+            if (legendItem) legendItem.style.background = on ? 'var(--qy-primary-50)' : '';
         }
 
         function toggleLegendCollapse() {
