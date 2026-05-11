@@ -168,28 +168,7 @@
         .drop-zone__text { font-size: 14px; color: var(--qy-text-secondary); }
         .drop-zone__hint { font-size: 12px; color: var(--qy-text-muted); margin-top: 8px; }
 
-        /* Annotation System */
-        .anno-badge {
-            position: absolute; top: -14px; left: -14px; width: 26px; height: 26px; border-radius: 50%;
-            background: var(--qy-primary-500); color: white; font-size: 12px; font-weight: 700;
-            display: none; align-items: center; justify-content: center; z-index: 20; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.4); transition: transform 0.15s;
-        }
-        .anno-badge:hover { transform: scale(1.2); }
-        .anno-visible .anno-badge { display: flex; }
-        .anno-tooltip {
-            display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-            background: #1E293B; color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.5;
-            white-space: nowrap; z-index: 30; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            max-width: 280px; white-space: normal;
-        }
-        .anno-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: #1E293B; }
-        .anno-badge:hover .anno-tooltip { display: block; }
-        .anno-highlight-box {
-            position: absolute; inset: -4px; border: 2px dashed var(--qy-primary-400);
-            border-radius: 8px; pointer-events: none; z-index: 5; display: none;
-        }
-        .anno-visible .anno-highlight-box { display: block; }
+        /* Annotation container */
 
         /* Legend Box */
         .anno-legend {
@@ -1293,28 +1272,34 @@
         }
 
         function showAllBadges() {
+            var container = document.createElement('div');
+            container.id = 'annoBadgeContainer';
+            container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:100;';
+            document.body.appendChild(container);
             annotations.forEach(function(a) {
                 var target = null;
                 if (typeof a.targetSel === 'function') target = a.targetSel();
                 else if (a.target) target = document.querySelector(a.target);
                 if (!target) return;
-                var pos = window.getComputedStyle(target).position;
-                if (pos === 'static') target.style.position = 'relative';
+                var rect = target.getBoundingClientRect();
                 var badge = document.createElement('span');
                 badge.className = 'anno-badge';
-                badge.innerHTML = a.num + '<span class="anno-tooltip">' + a.text + '</span>';
+                badge.style.cssText = 'position:fixed; left:' + (rect.left - 10) + 'px; top:' + (rect.top - 10) + 'px; width:24px; height:24px; border-radius:50%; background:var(--qy-primary-500); color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; z-index:20; cursor:pointer; pointer-events:auto; box-shadow:0 2px 8px rgba(37,99,235,0.4);';
+                badge.innerHTML = a.num + '<span class="anno-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1E293B;color:white;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.5;white-space:normal;max-width:280px;z-index:30;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,0.2);">' + a.text + '</span>';
                 badge.setAttribute('data-anno-num', a.num);
-                target.appendChild(badge);
+                badge.onmouseenter = function() { this.querySelector('.anno-tooltip').style.display='block'; };
+                badge.onmouseleave = function() { this.querySelector('.anno-tooltip').style.display='none'; };
+                container.appendChild(badge);
                 var box = document.createElement('span');
-                box.className = 'anno-highlight-box';
+                box.style.cssText = 'position:fixed; left:' + (rect.left - 4) + 'px; top:' + (rect.top - 4) + 'px; width:' + rect.width + 'px; height:' + rect.height + 'px; border:2px dashed var(--qy-primary-400); border-radius:6px; pointer-events:none; z-index:5;';
                 box.setAttribute('data-anno-num', a.num);
-                target.appendChild(box);
+                container.appendChild(box);
             });
         }
 
         function removeAllBadges() {
-            document.querySelectorAll('.anno-badge').forEach(function(el) { el.remove(); });
-            document.querySelectorAll('.anno-highlight-box').forEach(function(el) { el.remove(); });
+            var container = document.getElementById('annoBadgeContainer');
+            if (container) container.remove();
         }
 
         function highlightAnno(num, on) {
