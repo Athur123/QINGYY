@@ -1295,34 +1295,56 @@
             }
         }
 
+        var annoUpdateTimer = null;
+
         function showAllBadges() {
+            removeAllBadges();
             var container = document.createElement('div');
             container.id = 'annoBadgeContainer';
             container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:100;';
             document.body.appendChild(container);
             annotations.forEach(function(a) {
+                var el = document.createElement('span');
+                el.className = 'anno-badge-box';
+                el.setAttribute('data-anno-num', a.num);
+                el.innerHTML = '<span class="anno-badge-inner" style="position:absolute;left:-10px;top:-10px;width:24px;height:24px;border-radius:50%;background:var(--qy-primary-500);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:20;cursor:pointer;pointer-events:auto;box-shadow:0 2px 8px rgba(37,99,235,0.4);">' + a.num + '<span class="anno-tooltip">' + a.text + '</span></span>'
+                    + '<span class="anno-box-inner" style="position:absolute;left:-4px;top:-4px;border:2px dashed var(--qy-primary-400);border-radius:6px;pointer-events:none;z-index:5;"></span>';
+                el.querySelector('.anno-badge-inner').onmouseenter = function() { this.querySelector('.anno-tooltip').style.display='block'; this.style.zIndex='50'; };
+                el.querySelector('.anno-badge-inner').onmouseleave = function() { this.querySelector('.anno-tooltip').style.display='none'; this.style.zIndex='20'; };
+                container.appendChild(el);
+            });
+            updateAnnoPositions();
+            document.addEventListener('scroll', onAnnoScroll, true);
+            window.addEventListener('resize', onAnnoScroll);
+        }
+
+        function updateAnnoPositions() {
+            var boxes = document.querySelectorAll('.anno-badge-box');
+            boxes.forEach(function(el) {
+                var num = el.getAttribute('data-anno-num');
+                var a = annotations.find(function(x) { return x.num === parseInt(num); });
+                if (!a) return;
                 var target = null;
                 if (typeof a.targetSel === 'function') target = a.targetSel();
                 else if (a.target) target = document.querySelector(a.target);
-                if (!target) return;
+                if (!target) { el.style.display = 'none'; return; }
+                el.style.display = 'block';
                 var rect = target.getBoundingClientRect();
-                var isNearTop = rect.top < 80;
-                var badge = document.createElement('span');
-                badge.style.cssText = 'position:fixed; left:' + (rect.left - 10) + 'px; top:' + (rect.top - 10) + 'px; width:24px; height:24px; border-radius:50%; background:var(--qy-primary-500); color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; z-index:20; cursor:pointer; pointer-events:auto; box-shadow:0 2px 8px rgba(37,99,235,0.4);';
-                var tipClass = isNearTop ? 'anno-tooltip anno-tooltip--below' : 'anno-tooltip';
-                badge.innerHTML = a.num + '<span class="' + tipClass + '">' + a.text + '</span>';
-                badge.setAttribute('data-anno-num', a.num);
-                badge.onmouseenter = function() { this.querySelector('.anno-tooltip').style.display='block'; this.style.zIndex='50'; };
-                badge.onmouseleave = function() { this.querySelector('.anno-tooltip').style.display='none'; this.style.zIndex='20'; };
-                container.appendChild(badge);
-                var box = document.createElement('span');
-                box.style.cssText = 'position:fixed; left:' + (rect.left - 4) + 'px; top:' + (rect.top - 4) + 'px; width:' + rect.width + 'px; height:' + rect.height + 'px; border:2px dashed var(--qy-primary-400); border-radius:6px; pointer-events:none; z-index:5;';
-                box.setAttribute('data-anno-num', a.num);
-                container.appendChild(box);
+                el.style.cssText = 'position:fixed; left:' + rect.left + 'px; top:' + rect.top + 'px; width:' + rect.width + 'px; height:' + rect.height + 'px; pointer-events:none; z-index:100;';
+                var tip = el.querySelector('.anno-tooltip');
+                if (rect.top < 80) { tip.classList.add('anno-tooltip--below'); }
+                else { tip.classList.remove('anno-tooltip--below'); }
             });
         }
 
+        function onAnnoScroll() {
+            clearTimeout(annoUpdateTimer);
+            annoUpdateTimer = setTimeout(updateAnnoPositions, 50);
+        }
+
         function removeAllBadges() {
+            document.removeEventListener('scroll', onAnnoScroll, true);
+            window.removeEventListener('resize', onAnnoScroll);
             var container = document.getElementById('annoBadgeContainer');
             if (container) container.remove();
         }
