@@ -1328,8 +1328,9 @@
                 if (typeof a.targetSel === 'function') target = a.targetSel();
                 else if (a.target) target = document.querySelector(a.target);
                 if (!target) { el.style.display = 'none'; return; }
-                el.style.display = 'block';
                 var rect = target.getBoundingClientRect();
+                if (rect.width === 0 && rect.height === 0) { el.style.display = 'none'; return; }
+                el.style.display = 'block';
                 el.style.cssText = 'position:fixed; left:' + rect.left + 'px; top:' + rect.top + 'px; width:' + rect.width + 'px; height:' + rect.height + 'px; pointer-events:none; z-index:100;';
                 var tip = el.querySelector('.anno-tooltip');
                 if (rect.top < 80) { tip.classList.add('anno-tooltip--below'); }

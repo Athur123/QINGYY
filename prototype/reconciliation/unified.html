@@ -2855,9 +2855,9 @@
             { num: 31, text: 'DIFF(差异)：system_more(系统多)/ledger_more(台账多)/amount_mismatch(金额不一致)。系统侧可强制核对', targetSel: function() { return document.querySelector('[data-match="diff"]'); }, area: '状态含义' },
             { num: 32, text: '已归档：matchStatus仍为MATCHED，archived=true+archiveBatchId。灰色行，不可取消核对', targetSel: function() { return document.querySelector('[data-match="matched"]'); }, area: '状态含义' },
             { num: 33, text: 'PAID(已付款)：spec已定义未实现。归档后发起付款申请完成付款后变更为此状态', target: '.qy-page__subtitle', area: '状态含义' },
-            { num: 34, text: '配对确认抽屉：PENDING行点击「确认核对」→右侧滑出抽屉，智能推荐配对(系统↔台账按列表顺序)+手动下拉调整映射', targetSel: function() { return document.querySelector('#pairingDrawer') || document.querySelector('.qy-page__subtitle'); }, area: '交互模式' },
-            { num: 35, text: '差异详情抽屉：DIFF行点击「详情」→右侧滑出抽屉，显示金额对比(系统侧vs台账侧)、差异分析、可能原因', targetSel: function() { return document.querySelector('#detailDrawer') || document.querySelector('.qy-page__subtitle'); }, area: '交互模式' },
-            { num: 36, text: '强制核对确认弹窗：点击「强制核对」→模态弹窗，展示待操作记录列表(姓名/身份证/险种/金额)。确认后DIFF/UNMATCHED→MATCHED', targetSel: function() { return document.querySelector('#forceMatchDialog') || document.querySelector('.qy-page__subtitle'); }, area: '交互模式' },
+            { num: 34, text: '配对确认抽屉：PENDING行点击「确认核对」→右侧滑出抽屉，智能推荐配对(系统↔台账按列表顺序)+手动下拉调整映射', targetSel: function() { return document.querySelector('#sysBatchConfirmBtn') || document.getElementById('sysSelectAllBtn'); }, area: '交互模式' },
+            { num: 35, text: '差异详情抽屉：DIFF行点击「详情」→右侧滑出抽屉，显示金额对比(系统侧vs台账侧)、差异分析、可能原因', targetSel: function() { return document.getElementById('sysBatchForceMatchBtn') || document.getElementById('sysSelectAllBtn'); }, area: '交互模式' },
+            { num: 36, text: '强制核对确认弹窗：点击「强制核对」→模态弹窗，展示待操作记录列表(姓名/身份证/险种/金额)。确认后DIFF/UNMATCHED→MATCHED', targetSel: function() { return document.getElementById('sysBatchForceMatchBtn') || document.getElementById('sysSelectAllBtn'); }, area: '交互模式' },
             { num: 37, text: '归档批次抽屉：工具栏「归档记录」→右侧滑出抽屉，列出所有批次。点击「查看此批次」→关闭抽屉→筛选器设为该批次→表格过滤', targetSel: function() { return document.getElementById('archiveRecordBtn'); }, area: '交互模式' },
             { num: 38, text: '导入台账对话框：两步流程——步骤1选择参保主体+规则+月份+上传文件→步骤2预览导入结果(成功/失败条数+按规则拆分表格)→确认导入', targetSel: function() { return document.querySelector('button[onclick*="openImportDialog"]'); }, area: '交互模式' },
             { num: 39, text: '归档确认弹窗：存在DIFF/PENDING时点击归档→弹窗提示条数→确认后仅归档MATCHED记录', targetSel: function() { return document.querySelector('button[onclick*="archiveResults"]'); }, area: '交互模式' },
@@ -2928,8 +2928,9 @@
                 if (typeof a.targetSel === 'function') target = a.targetSel();
                 else if (a.target) target = document.querySelector(a.target);
                 if (!target) { el.style.display = 'none'; return; }
-                el.style.display = 'block';
                 var rect = target.getBoundingClientRect();
+                if (rect.width === 0 && rect.height === 0) { el.style.display = 'none'; return; }
+                el.style.display = 'block';
                 el.style.cssText = 'position:fixed; left:' + rect.left + 'px; top:' + rect.top + 'px; width:' + rect.width + 'px; height:' + rect.height + 'px; pointer-events:none; z-index:100;';
                 var inner = el.querySelector('.anno-badge-inner');
                 var tip = inner.querySelector('.anno-tooltip');
