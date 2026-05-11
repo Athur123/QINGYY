@@ -1069,22 +1069,74 @@ document.addEventListener('keydown',function(e){
 // ANNOTATION ENGINE
 // ============================================================
 const annotations = [
-    { num:1, text:'面包屑导航：返回对账复核汇总列表', target:'.qy-page__header a', area:'页面结构' },
-    { num:2, text:'PRD §8：导入台账 — Excel上传，选择参保主体+规则+月份', targetSel:function(){ return document.querySelector('button[onclick*="openImportDialog"]'); }, area:'工具栏' },
-    { num:3, text:'PRD §8：开始对账 — 按身份证|险种|月份分组精确金额配对', targetSel:function(){ return document.querySelector('button[onclick*="startReconciliation"]'); }, area:'工具栏' },
-    { num:4, text:'PRD §26：归档结果 — 将MATCHED+unarchived归档为批次，同月可多次归档', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'工具栏' },
-    { num:5, text:'PRD §29：归档记录 — 右侧抽屉展示批次列表，查看此批次+申请付款', targetSel:function(){ return document.getElementById('archiveRecordBtn'); }, area:'工具栏' },
-    { num:6, text:'PRD §21：Tab切换 — 系统侧/台账侧分离，sticky吸顶，各自独立筛选', target:'#billTabs', area:'Tab切换' },
-    { num:7, text:'PRD §22：核对状态筛选 — 全部/已核对/待确认/未匹配/差异，附金额统计', target:'#systemFilterBar', area:'筛选栏' },
-    { num:8, text:'PRD §31：归档批次筛选 — 下拉选择批次，表格仅显示该批次记录', target:'#systemArchiveBatchFilter', area:'筛选栏' },
-    { num:9, text:'12列：复选框/状态/类型/姓名/身份证/险种/应缴月/费款期/系统金额/台账金额/差异/操作', target:'.data-table', area:'表格' },
-    { num:10, text:'核对状态列 — UNMATCHED/MATCHED/PENDING/DIFF/已归档/已付款', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>1?ths[1]:document.querySelector('.data-table'); }, area:'表格' },
-    { num:11, text:'操作列按钮规则 — 各状态对应不同按钮(详情/确认核对/取消/强制核对)', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>11?ths[11]:document.querySelector('.data-table'); }, area:'表格' },
-    { num:12, text:'PRD §20：批量操作栏 — 全选/确认所选/取消确认/强制核对(仅系统侧)', target:'#sysSelectAllBtn', area:'批量操作' },
-    { num:13, text:'UNMATCHED:初始状态 | MATCHED:配对成功 | PENDING:待确认 | DIFF:差异 | PAID:已付款', targetSel:function(){ return document.querySelector('.filter-bar__item--pending')||document.querySelector('.filter-bar'); }, area:'状态机' },
-    { num:14, text:'PRD §11-12：配对确认抽屉 — 智能推荐+手动下拉调整映射后确认', targetSel:function(){ return document.getElementById('sysBatchConfirmBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互' },
-    { num:15, text:'PRD §16-18：强制核对确认弹窗 — 仅系统侧可用，确认后DIFF/UNMATCHED→MATCHED', target:'#sysBatchForceMatchBtn', area:'交互' },
-    { num:16, text:'PRD：已付款状态 — 归档→申请付款→完成付款→变更为PAID', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'交互' },
+    // ====== 页面结构 ======
+    { num:1, text:'面包屑导航：「对账复核」链接返回汇总列表页面', target:'.qy-page__header a', area:'页面结构' },
+    { num:2, text:'页面标题：显示当前参保规则名称 + 账单月份', target:'.qy-page__title', area:'页面结构' },
+    { num:3, text:'页面副标题：Tab切换模式 PRD v6，系统侧/台账侧分离展示', target:'.qy-page__subtitle', area:'页面结构' },
+
+    // ====== 工具栏（6个按钮） ======
+    { num:4, text:'📥 导入台账：上传社保局Excel(.xlsx/.xls)→选择主体+规则+月份→预览→确认导入。两步流程，月份必选，支持判重覆盖', targetSel:function(){ return document.querySelector('button[onclick*="openImportDialog"]'); }, area:'工具栏' },
+    { num:5, text:'▶ 开始对账：执行匹配算法。无需台账也可执行→汇缴→DIFF/补缴调基→UNMATCHED。按身份证|险种|月份分组精确金额配对', targetSel:function(){ return document.querySelector('button[onclick*="startReconciliation"]'); }, area:'工具栏' },
+    { num:6, text:'✅ 归档结果：筛选MATCHED+unarchived→创建批次→标记archived=true。有PENDING/DIFF时弹确认窗。无待归档记录时toast提示', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'工具栏' },
+    { num:7, text:'📦 归档记录：无批次时disabled。右侧抽屉展示批次列表(批次/记录数/金额/时间)。含「查看此批次」和「申请付款」两个操作', targetSel:function(){ return document.getElementById('archiveRecordBtn'); }, area:'工具栏' },
+    { num:8, text:'📤 导出：导出对账结果为Excel（当前为占位按钮）', targetSel:function(){ var btns=document.querySelectorAll('.qy-btn--secondary'); for(var i=0;i<btns.length;i++){ if(btns[i].textContent.includes('导出')&&!btns[i].textContent.includes('标注')) return btns[i]; } return null; }, area:'工具栏' },
+    { num:9, text:'💬 标注：开启/关闭页面功能标注。badge编号+虚线高亮框+右下角图例面板。hover图例项→对应badge亮黄色放大', target:'#annotationToggle', area:'工具栏' },
+
+    // ====== Tab切换 ======
+    { num:10, text:'🖥 系统侧账单Tab：显示系统根据员工异动生成的费用。角标为当前记录总数。sticky吸顶', target:'.bill-tab--system', area:'Tab切换' },
+    { num:11, text:'📋 台账侧账单Tab：显示导入的台账记录。角标为当前记录总数。匹配后费用类型从系统侧回填', target:'.bill-tab--ledger', area:'Tab切换' },
+    { num:12, text:'Tab sticky吸顶：position:sticky;top:0;z-index:100，向下滚动时始终可见', target:'#billTabs', area:'Tab切换' },
+
+    // ====== 筛选栏 ======
+    { num:13, text:'核对状态筛选(5按钮)：全部/已核对(含PAID)/待确认/未匹配/差异。每个按钮附带该状态的金额合计，随数据实时更新', target:'#systemFilterBar', area:'筛选栏' },
+    { num:14, text:'费用类型筛选(4按钮)：全部/汇缴(蓝badge)/补缴(紫badge)/调基补差(青badge)', target:'#systemFilterBar', area:'筛选栏' },
+    { num:15, text:'归档批次下拉筛选：默认「全部批次」。选项随归档操作动态生成(updateArchiveBatchFilters)。选择后仅显示该批次记录', target:'#systemArchiveBatchFilter', area:'筛选栏' },
+
+    // ====== 表格12列 ======
+    { num:16, text:'第1列☑复选框：勾选行参与底部批量操作。选中状态决定批量按钮启用/禁用(updateSystemBatchButtons)', targetSel:function(){ return document.querySelector('.data-table th'); }, area:'表格字段-列' },
+    { num:17, text:'第2列核对状态：UNMATCHED灰/MATCHED绿/PENDING黄/DIFF红/已归档灰badge/PAID蓝badge。带圆点+颜色编码badge', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>1?ths[1]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:18, text:'第3列费用类型：汇缴(蓝#DBEAFE)/补缴(紫#EDE9FE)/调基补差(青#CFFAFE)。系统侧始终有值，台账侧核对后从系统回填', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>2?ths[2]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:19, text:'第4列姓名：加粗显示', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>3?ths[3]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:20, text:'第5列身份证号：脱敏显示(前6+**********+后4)', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>4?ths[4]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:21, text:'第6列险种：养老/医疗/失业/工伤/生育/大额医疗/公积金', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>5?ths[5]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:22, text:'第7列应缴月份(payableMonth)：汇缴初始有值(=费款所属期)；补缴/调基初始为空→匹配后从台账billingMonth回填', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>6?ths[6]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:23, text:'第8列费款所属期(feePeriod)：汇缴=应缴月份；补缴=补缴月份；调基补差=补差月份。所有类型均有值', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>7?ths[7]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:24, text:'第9列系统金额：合计=单位+个人。格式化为¥', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>8?ths[8]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:25, text:'第10列台账金额(系统侧)：已核对→¥金额+↔Txxx跨引用链接(蓝色)；未核对→「—」。台账侧此处为系统金额', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>9?ths[9]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:26, text:'第11列差异：无差异→「—」；有差异→+¥金额(红,系统多)/-¥金额(红,台账多)，加粗显示', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>10?ths[10]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:27, text:'第12列操作按钮：UNMATCHED→强制核对(系统侧)/详情(台账)；PENDING→确认核对；MATCHED未归档→取消；已归档/PAID→详情；DIFF→强制核对', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>11?ths[11]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+
+    // ====== 行状态颜色 ======
+    { num:28, text:'行颜色编码：MATCHED→浅绿#F0FDF4；PENDING→浅黄#FEFCE8；DIFF→浅红#FEF2F2；已归档→灰#F1F5F9(opacity.7)；PAID→浅蓝#EFF6FF', target:'.data-table', area:'表格-行颜色' },
+
+    // ====== 批量操作栏 ======
+    { num:29, text:'底部批量操作栏：位于表格下方，含4个按钮+总条数/页码', target:'#sysSelectAllBtn', area:'批量操作栏' },
+    { num:30, text:'「全选」按钮：选中/取消当前Tab所有可见行。文案随状态切换(全选/取消全选)', target:'#sysSelectAllBtn', area:'批量操作栏' },
+    { num:31, text:'「确认所选」按钮(primary蓝色)：有选中行时启用。批量将PENDING→MATCHED', target:'#sysBatchConfirmBtn', area:'批量操作栏' },
+    { num:32, text:'「取消确认」按钮(secondary)：有选中MATCHED未归档行时启用。批量将MATCHED→PENDING，清空回填字段', target:'#sysBatchCancelBtn', area:'批量操作栏' },
+    { num:33, text:'「强制核对」按钮(danger红色)：仅系统侧有。选中含DIFF/UNMATCHED时启用。自动过滤选中中的MATCHED/PENDING记录', target:'#sysBatchForceMatchBtn', area:'批量操作栏' },
+
+    // ====== 核对状态机（5种） ======
+    { num:34, text:'UNMATCHED(未匹配)：导入后初始状态。补缴/调基补差无台账时为此状态→可在后续月份匹配，非异常', targetSel:function(){ return document.querySelector('[data-match="unmatched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
+    { num:35, text:'MATCHED(已核对)：唯一金额配对成功。双向回填→系统得payableMonth，台账得feeTypeInferred。可归档为批次', targetSel:function(){ return document.querySelector('[data-match="matched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
+    { num:36, text:'PENDING(待确认)：同金额多笔无法自动区分→需人工在配对抽屉确认。forcePending标记模拟需审核场景', targetSel:function(){ return document.querySelector('[data-match="pending"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
+    { num:37, text:'DIFF(差异)：system_more(系统多,汇缴)/ledger_more(台账多)/amount_mismatch(金额不一致)。系统侧可强制核对直达MATCHED', targetSel:function(){ return document.querySelector('[data-match="diff"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
+    { num:38, text:'PAID(已付款)：归档后发起付款→matchStatus变更为PAID。archived+archiveBatchId保留。行蓝色，操作列仅「详情」', targetSel:function(){ return document.querySelector('[data-match="matched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
+
+    // ====== 交互组件（5个抽屉/弹窗） ======
+    { num:39, text:'配对确认抽屉(right 600px)：PENDING行「确认核对」触发。4区结构→信息栏+智能推荐(按列表顺序,默认勾选)+手动下拉调整映射+确认按钮。冲突检测:两系统记录不能选同一台账', targetSel:function(){ return document.getElementById('sysBatchConfirmBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
+    { num:40, text:'差异详情抽屉(right 520px)：DIFF行「详情」触发。3区结构→基本信息区+金额对比区(系统vs台账,单位/个人拆分)+差异分析区(可能原因分类)。底部「确认核对」可切换为台账选择器手动匹配', targetSel:function(){ return document.getElementById('sysBatchForceMatchBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
+    { num:41, text:'强制核对确认弹窗(center 480px)：DIFF/UNMATCHED行「强制核对」触发。红色警告文案+规则说明+记录列表(姓名/身份证/险种/金额)。确认后forceMatched=true,payableMonth=billingMonth。取消时从_original*恢复', target:'#sysBatchForceMatchBtn', area:'交互组件' },
+    { num:42, text:'导入台账对话框(center 520px)：两步流程。Step1→月份(必选)+主体+规则+文件上传(drop-zone拖拽/点击)；Step2→预览结果(成功/失败条数+前10条表格)。确认后写入ledgerRecords', targetSel:function(){ return document.querySelector('button[onclick*="openImportDialog"]'); }, area:'交互组件' },
+    { num:43, text:'归档批次抽屉(right 560px)：工具栏「归档记录」触发。批次列表(批次/月份/记录数/金额/时间)。每行两个操作→「查看此批次」关闭抽屉+筛选器设为该批次；「申请付款」弹出付款确认弹窗', targetSel:function(){ return document.getElementById('archiveRecordBtn'); }, area:'交互组件' },
+    { num:44, text:'付款确认弹窗(center 480px)：归档批次「申请付款」触发。显示批次信息+记录数+金额合计+状态变更说明。确认后doPayment()遍历批次内MATCHED+archived→PAID。已全部付款则提示无可付款记录', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'交互组件' },
+    { num:45, text:'通用确认弹窗(center 400px)：showConfirmDialog(title,text,callback)。归档确认/判重覆盖等场景复用。Escape键关闭', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'交互组件' },
+
+    // ====== 取消核对 ======
+    { num:46, text:'取消核对：MATCHED未归档→doCancelMatch→cancelMatch→恢复PENDING,清空payableMonth和feeTypeInferred。已归档记录→toast拦截「已归档记录不可取消核对」。强制核对取消→从_original*恢复', targetSel:function(){ return document.getElementById('sysBatchCancelBtn')||document.querySelector('.data-table'); }, area:'取消核对' },
+
+    // ====== 键盘交互 ======
+    { num:47, text:'Escape键全局处理：依次关闭→导入对话框/确认弹窗/配对抽屉/详情抽屉/强制核对弹窗/付款弹窗/归档批次抽屉/标注模式', target:'.qy-page__title', area:'键盘交互' },
 ];
 var annoUpdateTimer=null;
 
@@ -1109,7 +1161,7 @@ function updateAnnoPositions(){
         var n=el.getAttribute('data-anno-num'), a=annotations.find(function(x){ return x.num===parseInt(n); }); if(!a) return;
         var t=null; if(typeof a.targetSel==='function') t=a.targetSel(); else if(a.target) t=document.querySelector(a.target);
         if(!t){ el.style.display='none'; return; } var r=t.getBoundingClientRect(); if(r.width===0&&r.height===0){ el.style.display='none'; return; }
-        el.style.display='block'; el.style.cssText='position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;pointer-events:none;z-index:100';
+        el.style.cssText='display:block;position:fixed;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;pointer-events:none;z-index:100';
         var tip=el.querySelector('.anno-tooltip'); if(r.top<80) tip.classList.add('anno-tooltip--below'); else tip.classList.remove('anno-tooltip--below');
     });
 }
