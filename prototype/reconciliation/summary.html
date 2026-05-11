@@ -167,6 +167,53 @@
         .drop-zone:hover, .drop-zone.is-dragover { border-color: var(--qy-primary-400); background: var(--qy-primary-50); }
         .drop-zone__text { font-size: 14px; color: var(--qy-text-secondary); }
         .drop-zone__hint { font-size: 12px; color: var(--qy-text-muted); margin-top: 8px; }
+
+        /* Annotation System */
+        .anno-badge {
+            position: absolute; top: -14px; left: -14px; width: 26px; height: 26px; border-radius: 50%;
+            background: var(--qy-primary-500); color: white; font-size: 12px; font-weight: 700;
+            display: none; align-items: center; justify-content: center; z-index: 20; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.4); transition: transform 0.15s;
+        }
+        .anno-badge:hover { transform: scale(1.2); }
+        .anno-visible .anno-badge { display: flex; }
+        .anno-tooltip {
+            display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+            background: #1E293B; color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.5;
+            white-space: nowrap; z-index: 30; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            max-width: 280px; white-space: normal;
+        }
+        .anno-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: #1E293B; }
+        .anno-badge:hover .anno-tooltip { display: block; }
+        .anno-highlight-box {
+            position: absolute; inset: -4px; border: 2px dashed var(--qy-primary-400);
+            border-radius: 8px; pointer-events: none; z-index: 5; display: none;
+        }
+        .anno-visible .anno-highlight-box { display: block; }
+
+        /* Legend Box */
+        .anno-legend {
+            position: fixed; bottom: 20px; right: 20px; background: white; border: 1px solid var(--qy-border-light);
+            border-radius: var(--qy-radius-lg); box-shadow: 0 8px 30px rgba(0,0,0,0.12); z-index: 400;
+            width: 340px; max-height: 400px; overflow: hidden; display: none; flex-direction: column;
+        }
+        .anno-visible .anno-legend { display: flex; }
+        .anno-legend__header {
+            display: flex; align-items: center; justify-content: space-between; padding: 10px 14px;
+            border-bottom: 1px solid var(--qy-border-light); font-size: 13px; font-weight: 600; flex-shrink: 0;
+        }
+        .anno-legend__body { flex: 1; overflow-y: auto; padding: 8px 12px; }
+        .anno-legend__item {
+            display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 11px; line-height: 1.5;
+            color: var(--qy-text-secondary); border-bottom: 1px solid #F8FAFC; cursor: pointer;
+        }
+        .anno-legend__item:hover { color: var(--qy-text-primary); }
+        .anno-legend__num {
+            display: flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+            border-radius: 50%; background: var(--qy-primary-500); color: white; font-size: 10px;
+            font-weight: 600; flex-shrink: 0; margin-top: 1px;
+        }
+        .anno-legend__collapse { font-size: 11px; color: var(--qy-primary-500); cursor: pointer; user-select: none; }
     </style>
 </head>
 <body>
@@ -231,6 +278,7 @@
                         <button class="qy-btn qy-btn--primary" id="batchReconcileBtn" onclick="batchReconcile()" disabled>批量对账</button>
                         <button class="qy-btn qy-btn--success" id="batchArchiveBtn" onclick="batchArchive()" disabled>批量归档</button>
                         <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">导入台账</button>
+                        <button class="qy-btn qy-btn--secondary" id="annotationToggle" onclick="toggleAnnotation()">💬 标注</button>
                     </div>
                 </div>
 
@@ -1179,6 +1227,121 @@
         });
 
         renderSummaryTable();
+    </script>
+
+    <!-- Annotation Legend -->
+    <div class="anno-legend" id="annoLegend">
+        <div class="anno-legend__header">
+            <span>📝 页面标注说明</span>
+            <span class="anno-legend__collapse" onclick="toggleLegendCollapse()">收起</span>
+        </div>
+        <div class="anno-legend__body" id="annoLegendBody"></div>
+    </div>
+
+    <script>
+        const annotations = [
+            { num: 1, text: '月份筛选：按账单月份过滤规则列表', target: '#filterMonth', area: '筛选区' },
+            { num: 2, text: '地区筛选：按地区过滤规则列表', target: '#filterRegion', area: '筛选区' },
+            { num: 3, text: '刷新：重新加载汇总数据', targetSel: function() { return document.querySelector('button[onclick*="applyFilters"]'); }, area: '操作按钮' },
+            { num: 4, text: '批量对账：勾选已导入台账的规则后，一键执行匹配算法', targetSel: function() { return document.getElementById('batchReconcileBtn'); }, area: '操作按钮' },
+            { num: 5, text: '批量归档：勾选已对账且无差异的规则后，一键归档。归档后 systemMatched 复制为 systemArchived', targetSel: function() { return document.getElementById('batchArchiveBtn'); }, area: '操作按钮' },
+            { num: 6, text: '导入台账：上传总台账 Excel，系统自动按规则拆分到各规则下', targetSel: function() { return document.querySelector('button[onclick*="openImportDialog"]'); }, area: '操作按钮' },
+            { num: 7, text: '信息栏：显示规则总数、参保主体数、已导入数、已归档数', target: null, area: '信息栏' },
+            { num: 8, text: '全选 Checkbox：勾选/取消所有可操作的规则（未导入和已归档的规则 disabled）', target: '#selectAll', area: '表格' },
+            { num: 9, text: '二级表头——系统侧明细（已核对/差异/已归档）+ 台账侧明细（总计/已核对/差异/待确认），两组间竖线分隔', target: '.summary-table thead', area: '表格' },
+            { num: 10, text: '参保主体列：第一行主体名称（粗体）+ 第二行地区（灰色小字），点击展开/收起规则子行', target: '.batch-row__name', area: '表格' },
+            { num: 11, text: '分组行：按地区+参保主体聚合，显示各列金额合计。右侧操作列含详情/对账链接', target: '.batch-row', area: '表格' },
+            { num: 12, text: '系统侧已核对列：笔数/已匹配金额合计，绿色显示', target: null, area: '表格' },
+            { num: 13, text: '系统侧差异列：笔数/差异金额合计，红色显示差异，无差异显示「—」', target: null, area: '表格' },
+            { num: 14, text: '系统侧已归档列：已归档笔数/金额。批量归档时 systemMatched→systemArchived', target: null, area: '表格' },
+            { num: 15, text: '台账侧总计列：该规则导入的台账总笔数/总金额', target: null, area: '表格' },
+            { num: 16, text: '台账侧待确认列：待确认笔数/金额，橙色显示', target: null, area: '表格' },
+            { num: 17, text: '行颜色编码：已对账无差异→浅绿(#F0FDF4)，已对账有差异→浅黄(#FFFBEB)，已归档→灰色(#F1F5F9,opacity 0.7)', target: null, area: '表格' },
+            { num: 18, text: '子行详情按钮：点击跳转到明细核对页查看单规则账单(?ruleName=X&month=Y)', target: '.sub-row .action-link', area: '交互' },
+            { num: 19, text: '分组行详情按钮：点击跳转到明细核对页查看该主体下所有规则账单(?groupId=region|subject)', target: '.batch-row .action-link', area: '交互' },
+        ];
+
+        function renderAnnotations() {
+            var body = document.getElementById('annoLegendBody');
+            var html = '';
+            var areas = {};
+            annotations.forEach(function(a) {
+                if (!areas[a.area]) areas[a.area] = [];
+                areas[a.area].push(a);
+            });
+            Object.keys(areas).forEach(function(area) {
+                html += '<div style="font-size:10px;font-weight:600;color:var(--qy-primary-500);text-transform:uppercase;letter-spacing:0.5px;padding:4px 0 2px;">' + area + '</div>';
+                areas[area].forEach(function(a) {
+                    html += '<div class="anno-legend__item" data-anno="' + a.num + '" onclick="scrollToAnno(' + a.num + ')" onmouseenter="highlightAnno(' + a.num + ',true)" onmouseleave="highlightAnno(' + a.num + ',false)">'
+                        + '<span class="anno-legend__num">' + a.num + '</span>'
+                        + '<span>' + a.text + '</span></div>';
+                });
+            });
+            body.innerHTML = html;
+        }
+
+        function toggleAnnotation() {
+            document.body.classList.toggle('anno-visible');
+            var btn = document.getElementById('annotationToggle');
+            if (document.body.classList.contains('anno-visible')) {
+                btn.classList.add('qy-btn--primary');
+                showAllBadges();
+            } else {
+                btn.classList.remove('qy-btn--primary');
+                removeAllBadges();
+            }
+        }
+
+        function showAllBadges() {
+            annotations.forEach(function(a) {
+                var target = null;
+                if (typeof a.targetSel === 'function') target = a.targetSel();
+                else if (a.target) target = document.querySelector(a.target);
+                if (!target) return;
+                var pos = window.getComputedStyle(target).position;
+                if (pos === 'static') target.style.position = 'relative';
+                var badge = document.createElement('span');
+                badge.className = 'anno-badge';
+                badge.innerHTML = a.num + '<span class="anno-tooltip">' + a.text + '</span>';
+                badge.setAttribute('data-anno-num', a.num);
+                target.appendChild(badge);
+                var box = document.createElement('span');
+                box.className = 'anno-highlight-box';
+                box.setAttribute('data-anno-num', a.num);
+                target.appendChild(box);
+            });
+        }
+
+        function removeAllBadges() {
+            document.querySelectorAll('.anno-badge').forEach(function(el) { el.remove(); });
+            document.querySelectorAll('.anno-highlight-box').forEach(function(el) { el.remove(); });
+        }
+
+        function highlightAnno(num, on) {
+            document.querySelectorAll('[data-anno-num="' + num + '"]').forEach(function(el) {
+                el.style.filter = on ? 'brightness(1.3)' : '';
+            });
+            var legendItem = document.querySelector('.anno-legend__item[data-anno="' + num + '"]');
+            if (legendItem) legendItem.style.background = on ? 'var(--qy-primary-50)' : '';
+        }
+
+        function scrollToAnno(num) {
+            var annotation = annotations.find(function(a) { return a.num === num; });
+            if (!annotation) return;
+            var target = null;
+            if (typeof annotation.targetSel === 'function') target = annotation.targetSel();
+            else if (annotation.target) target = document.querySelector(annotation.target);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function toggleLegendCollapse() {
+            var body = document.getElementById('annoLegendBody');
+            var btn = document.querySelector('.anno-legend__collapse');
+            if (body.style.display === 'none') { body.style.display = 'block'; btn.textContent = '收起'; }
+            else { body.style.display = 'none'; btn.textContent = '展开'; }
+        }
+
+        renderAnnotations();
     </script>
 </body>
 </html>
