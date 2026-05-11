@@ -410,6 +410,19 @@
         .batch-detail-drawer__footer { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--qy-border-light); }
 
         /* Annotation container */
+        .anno-tooltip {
+            display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+            background: #1E293B; color: #E2E8F0; padding: 10px 14px; border-radius: 10px; font-size: 12px;
+            line-height: 1.6; z-index: 30; pointer-events: none; box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            min-width: 200px; max-width: 320px; text-align: left; white-space: normal; word-break: break-word;
+            font-weight: 400;
+        }
+        .anno-tooltip.anno-tooltip--below { bottom: auto; top: calc(100% + 8px); }
+        .anno-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border: 7px solid transparent; border-top-color: #1E293B;
+        }
+        .anno-tooltip.anno-tooltip--below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: #1E293B; }
 
         /* Legend Box */
         .anno-legend {
@@ -2873,10 +2886,11 @@
                 else if (a.target) target = document.querySelector(a.target);
                 if (!target) return;
                 var rect = target.getBoundingClientRect();
+                var isNearTop = rect.top < 80;
                 var badge = document.createElement('span');
-                badge.className = 'anno-badge';
                 badge.style.cssText = 'position:fixed; left:' + (rect.left - 10) + 'px; top:' + (rect.top - 10) + 'px; width:24px; height:24px; border-radius:50%; background:var(--qy-primary-500); color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; z-index:20; cursor:pointer; pointer-events:auto; box-shadow:0 2px 8px rgba(37,99,235,0.4);';
-                badge.innerHTML = a.num + '<span class="anno-tooltip" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1E293B;color:white;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.5;white-space:normal;max-width:280px;z-index:30;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,0.2);">' + a.text + '</span>';
+                var tipClass = isNearTop ? 'anno-tooltip anno-tooltip--below' : 'anno-tooltip';
+                badge.innerHTML = a.num + '<span class="' + tipClass + '">' + a.text + '</span>';
                 badge.setAttribute('data-anno-num', a.num);
                 badge.onmouseenter = function() { this.querySelector('.anno-tooltip').style.display='block'; };
                 badge.onmouseleave = function() { this.querySelector('.anno-tooltip').style.display='none'; };
