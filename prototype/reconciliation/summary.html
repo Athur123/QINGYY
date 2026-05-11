@@ -1301,8 +1301,8 @@
                 var tipClass = isNearTop ? 'anno-tooltip anno-tooltip--below' : 'anno-tooltip';
                 badge.innerHTML = a.num + '<span class="' + tipClass + '">' + a.text + '</span>';
                 badge.setAttribute('data-anno-num', a.num);
-                badge.onmouseenter = function() { this.querySelector('.anno-tooltip').style.display='block'; };
-                badge.onmouseleave = function() { this.querySelector('.anno-tooltip').style.display='none'; };
+                badge.onmouseenter = function() { this.querySelector('.anno-tooltip').style.display='block'; this.style.zIndex='50'; };
+                badge.onmouseleave = function() { this.querySelector('.anno-tooltip').style.display='none'; this.style.zIndex='20'; };
                 container.appendChild(badge);
                 var box = document.createElement('span');
                 box.style.cssText = 'position:fixed; left:' + (rect.left - 4) + 'px; top:' + (rect.top - 4) + 'px; width:' + rect.width + 'px; height:' + rect.height + 'px; border:2px dashed var(--qy-primary-400); border-radius:6px; pointer-events:none; z-index:5;';
