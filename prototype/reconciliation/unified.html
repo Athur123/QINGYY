@@ -408,6 +408,27 @@
         .batch-detail-drawer__body { padding: 20px; }
         .batch-detail-drawer__body .qy-table { width: 100%; }
         .batch-detail-drawer__footer { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--qy-border-light); }
+
+        /* Annotation Panel */
+        .anno-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 320px; background: white; box-shadow: -4px 0 20px rgba(0,0,0,0.1); z-index: 500; transform: translateX(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; }
+        .anno-panel.is-visible { transform: translateX(0); }
+        .anno-panel__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--qy-border-light); flex-shrink: 0; }
+        .anno-panel__title { font-size: 16px; font-weight: 600; }
+        .anno-panel__body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+        .anno-group { margin-bottom: 20px; }
+        .anno-group__title { font-size: 12px; font-weight: 600; color: var(--qy-primary-500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--qy-border-light); }
+        .anno-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: var(--qy-radius-md); cursor: pointer; transition: background 0.15s; margin-bottom: 2px; font-size: 13px; line-height: 1.5; }
+        .anno-item:hover { background: var(--qy-primary-50); }
+        .anno-item.is-active { background: var(--qy-primary-100); }
+        .anno-item__num { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--qy-primary-500); color: white; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+        .anno-item__text { flex: 1; color: var(--qy-text-secondary); }
+        .anno-item__text strong { color: var(--qy-text-primary); display: block; margin-bottom: 2px; font-size: 13px; }
+
+        /* Annotation highlight on elements */
+        .anno-highlight { position: relative; }
+        .anno-highlight::after { content: ''; position: absolute; inset: -3px; border: 2px solid var(--qy-primary-500); border-radius: 6px; pointer-events: none; z-index: 10; animation: anno-pulse 1.5s ease-in-out infinite; }
+        @keyframes anno-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .anno-badge { position: absolute; top: -10px; right: -10px; width: 20px; height: 20px; border-radius: 50%; background: var(--qy-primary-500); color: white; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; z-index: 20; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -479,6 +500,9 @@
                         </button>
                         <button class="qy-btn qy-btn--secondary">
                             📤 导出
+                        </button>
+                        <button class="qy-btn qy-btn--secondary" id="annotationToggle" onclick="toggleAnnotation()" title="标注模式">
+                            💬 标注
                         </button>
                     </div>
                 </div>
@@ -2679,6 +2703,8 @@
                     closeForceMatchDialog();
                 } else if (document.getElementById('archiveBatchDrawer').classList.contains('is-visible')) {
                     closeArchiveBatchDrawer();
+                } else if (document.getElementById('annoPanel').classList.contains('is-visible')) {
+                    toggleAnnotation();
                 }
             }
         });
@@ -2765,5 +2791,145 @@
             <div class="drawer__body" id="archiveBatchDrawerBody"></div>
         </div>
     </div>
+
+    <!-- Annotation Panel -->
+    <div class="anno-panel" id="annoPanel">
+        <div class="anno-panel__header">
+            <h3 class="anno-panel__title">📝 页面标注</h3>
+            <button class="drawer__close" onclick="toggleAnnotation()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="anno-panel__body" id="annoBody"></div>
+    </div>
+
+    <script>
+        const annotations = [
+            { group: '页面结构', items: [
+                { num: 1, text: '<strong>面包屑导航</strong>返回对账复核汇总列表', target: '.qy-page__header a' },
+                { num: 2, text: '<strong>页面标题</strong>当前规则名称 + 账单月份', target: '.qy-page__title' },
+            ]},
+            { group: '工具栏', items: [
+                { num: 3, text: '<strong>导入台账</strong>上传社保局 Excel 台账文件，支持 .xlsx/.xls', target: null, selector: () => document.querySelector('button[onclick*="openImportDialog"]') },
+                { num: 4, text: '<strong>开始对账</strong>执行匹配算法，系统侧与台账侧自动配对，无需台账也可执行（全部标记差异/未匹配）', target: null, selector: () => document.querySelector('button[onclick*="startReconciliation"]') },
+                { num: 5, text: '<strong>归档结果</strong>将已核对且未归档的记录归档为新批次，同一月份可多次归档', target: null, selector: () => document.querySelector('button[onclick*="archiveResults"]') },
+                { num: 6, text: '<strong>归档记录</strong>查看历史归档批次列表，点击「查看此批次」筛选表格', target: null, selector: () => document.getElementById('archiveRecordBtn') },
+            ]},
+            { group: 'Tab 切换', items: [
+                { num: 7, text: '<strong>系统侧账单</strong>显示系统根据员工异动自动生成的费用记录（汇缴/补缴/调基补差），含匹配状态', target: '#billTabs .bill-tab--system' },
+                { num: 8, text: '<strong>台账侧账单</strong>显示从社保局导入的台账记录，匹配后回填费用类型', target: '#billTabs .bill-tab--ledger' },
+            ]},
+            { group: '筛选栏', items: [
+                { num: 9, text: '<strong>核对状态筛选</strong>按全部/已核对/待确认/未匹配/差异过滤，每个状态附带金额统计', target: null, selector: () => document.querySelector('.filter-bar') },
+                { num: 10, text: '<strong>费用类型筛选</strong>按全部/汇缴/补缴/调基补差过滤', target: null, selector: () => document.querySelector('.filter-bar__group[data-type]') },
+                { num: 11, text: '<strong>归档批次筛选</strong>下拉选择某批次，表格仅显示该批次记录', target: '#systemArchiveBatchFilter' },
+            ]},
+            { group: '系统侧表格字段', items: [
+                { num: 12, text: '<strong>复选框</strong>勾选行进行批量操作（确认核对/取消/强制核对）', target: '#systemTableBody tr:first-child td:first-child' },
+                { num: 13, text: '<strong>核对状态</strong>UNMATCHED(未匹配)/MATCHED(已核对)/PENDING(待确认)/DIFF(差异)/已归档', target: null },
+                { num: 14, text: '<strong>费用类型</strong>汇缴(蓝)/补缴(紫)/调基补差(青) 三种 badge', target: null },
+                { num: 15, text: '<strong>应缴月份</strong>即 payableMonth，补缴/补差在匹配前显示「—」', target: null },
+                { num: 16, text: '<strong>系统金额</strong>系统侧费用合计金额 = 单位金额 + 个人金额', target: null },
+                { num: 17, text: '<strong>台账金额</strong>已核对时显示台账金额 + 跨引用标记 ↔Txxx', target: null },
+                { num: 18, text: '<strong>差异</strong>+金额(系统多)/-金额(台账多)，红色显示', target: null },
+                { num: 19, text: '<strong>操作</strong>各状态对应不同按钮：详情/确认核对/取消/强制核对', target: null },
+            ]},
+            { group: '批量操作栏', items: [
+                { num: 20, text: '<strong>全选</strong>选中当前 Tab 所有可见记录', target: '#sysSelectAllBtn' },
+                { num: 21, text: '<strong>确认所选</strong>批量确认 PENDING 记录的对账配对', target: '#sysBatchConfirmBtn' },
+                { num: 22, text: '<strong>取消确认</strong>批量取消已核对记录，恢复 PENDING 状态', target: '#sysBatchCancelBtn' },
+                { num: 23, text: '<strong>强制核对</strong>批量将 DIFF/UNMATCHED 直接标记为 MATCHED（仅系统侧）', target: '#sysBatchForceMatchBtn' },
+            ]},
+            { group: '核对状态说明', items: [
+                { num: 24, text: '<strong>未匹配 UNMATCHED</strong>导入后的初始状态，未参与匹配', target: null },
+                { num: 25, text: '<strong>已核对 MATCHED</strong>金额精确匹配成功，系统回填应缴月份，台账回填费用类型。可归档', target: null },
+                { num: 26, text: '<strong>待确认 PENDING</strong>同金额多笔记录，需人工在配对抽屉中选择正确的对应关系', target: null },
+                { num: 27, text: '<strong>差异 DIFF</strong>系统多/台账多/金额不一致，需人工处理或强制核对', target: null },
+                { num: 28, text: '<strong>已归档</strong>已核对记录归档后显示为灰色，不可取消核对。archived 为独立标记而非 matchStatus 值', target: null },
+            ]},
+            { group: '交互模式', items: [
+                { num: 29, text: '<strong>配对确认抽屉</strong>点击 PENDING 行的「确认核对」，右侧滑出抽屉，智能推荐配对 + 手动调整映射', target: null },
+                { num: 30, text: '<strong>差异详情抽屉</strong>点击 DIFF 行的「详情」，查看金额对比和差异分析', target: null },
+                { num: 31, text: '<strong>强制核对</strong>系统侧 DIFF/UNMATCHED 可直接标记 MATCHED（跳过台账匹配）。台账侧不允许', target: null },
+                { num: 32, text: '<strong>归档批次抽屉</strong>工具栏「归档记录」打开，展示批次列表。点击「查看此批次」关闭抽屉并筛选表格', target: null },
+            ]},
+        ];
+
+        function renderAnnotations() {
+            var html = '';
+            annotations.forEach(function(group) {
+                html += '<div class="anno-group"><div class="anno-group__title">' + group.group + '</div>';
+                group.items.forEach(function(item) {
+                    html += '<div class="anno-item" data-anno="' + item.num + '" onclick="scrollToAnnotation(' + item.num + ')">'
+                        + '<span class="anno-item__num">' + item.num + '</span>'
+                        + '<span class="anno-item__text">' + item.text + '</span>'
+                        + '</div>';
+                });
+                html += '</div>';
+            });
+            document.getElementById('annoBody').innerHTML = html;
+        }
+
+        function toggleAnnotation() {
+            var panel = document.getElementById('annoPanel');
+            var btn = document.getElementById('annotationToggle');
+            var isOpen = panel.classList.contains('is-visible');
+            if (isOpen) {
+                panel.classList.remove('is-visible');
+                btn.classList.remove('qy-btn--primary');
+                clearHighlights();
+            } else {
+                panel.classList.add('is-visible');
+                btn.classList.add('qy-btn--primary');
+            }
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.anno-highlight, .anno-badge').forEach(function(el) {
+                el.classList.remove('anno-highlight');
+                if (el.classList.contains('anno-badge')) el.remove();
+            });
+            document.querySelectorAll('.anno-item').forEach(function(el) { el.classList.remove('is-active'); });
+        }
+
+        function scrollToAnnotation(num) {
+            clearHighlights();
+            var group = null;
+            for (var i = 0; i < annotations.length; i++) {
+                for (var j = 0; j < annotations[i].items.length; j++) {
+                    if (annotations[i].items[j].num === num) {
+                        group = annotations[i].items[j];
+                        break;
+                    }
+                }
+            }
+            if (!group) return;
+
+            // Highlight annotation item
+            var item = document.querySelector('[data-anno="' + num + '"]');
+            if (item) item.classList.add('is-active');
+
+            // Find and highlight target element
+            var target = null;
+            if (typeof group.selector === 'function') {
+                target = group.selector();
+            } else if (group.target) {
+                target = document.querySelector(group.target);
+            }
+            if (target) {
+                target.classList.add('anno-highlight');
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add badge
+                var badge = document.createElement('span');
+                badge.className = 'anno-badge';
+                badge.textContent = num;
+                badge.style.cssText = 'position:absolute;top:-12px;right:-12px;width:22px;height:22px;border-radius:50%;background:var(--qy-primary-500);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:20;pointer-events:none;';
+                if (window.getComputedStyle(target).position === 'static') target.style.position = 'relative';
+                target.appendChild(badge);
+            }
+        }
+
+        renderAnnotations();
+    </script>
 </body>
 </html>
