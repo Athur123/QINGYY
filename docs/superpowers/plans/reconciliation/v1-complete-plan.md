@@ -4,7 +4,7 @@
 
 **Goal:** 实现社保对账复核完整功能——台账导入、精确金额匹配、类型/月份互推、Tab分离、批量操作、强制核对、归档批次、已付款状态
 
-**Architecture:** 两层页面结构（汇总列表 + 明细核对）。明细核对页采用系统侧/台账侧 Tab 分离，匹配算法按 `身份证|险种|月份` 分组精确金额配对。归档批次支持同月份多次归档。已付款从已归档批次发起。
+**Architecture:** 两层页面结构（汇总列表 + 明细核对）。明细核对页采用系统侧/台账侧 Tab 分离，匹配算法按 `身份证|险种|应缴月份` 分组做精确金额匹配。导入按 `参保主体 + 参保规则 + 账单月份` 维度判重覆盖。已付款从已归档批次发起。
 
 **Tech Stack:** Vanilla JS, HTML, CSS — single-file prototypes. SheetJS (xlsx CDN) for Excel import.
 
@@ -54,10 +54,10 @@
 - [ ] 身份证标准化（去空格、X 大写）
 - [ ] 险种别名映射（通过 `INSURANCE_TYPE_ALIAS` 转标准名，无法识别标记"未知"）
 - [ ] 金额保留 2 位小数
-- [ ] 日期统一 YYYY-MM 格式
-- [ ] 判重：参保主体+规则+月份维度，提示是否覆盖
+- [ ] 应缴月份统一 YYYY-MM 格式
+- [ ] 判重：按 `参保主体 + 参保规则 + 账单月份` 维度只保留一份台账，重复导入时提示是否覆盖
 - [ ] 导入预览：成功/错误条数 + 错误行详情 + 前 10 条预览
-- [ ] 多次导入不同月份数据累加
+- [ ] 导入记录写入当前页面上下文对应的账单批次，不支持同一导入操作跨月份累加
 
 ---
 
@@ -65,14 +65,24 @@
 
 ### Task 3.1: 核心匹配引擎
 
+- [ ] `buildSystemCandidateSet(pageContext, systemRecords)` — 按当前页面上下文组装系统候选集
+  - 汇缴：取 `payableMonth = 当前账单月份`
+  - 自动拆分补缴：取 `feePeriod = 当前账单月份` 且 `payableMonth` 为空
+  - 单补缴/调基/政策调整：取 `payableMonth` 为空记录
+- [ ] `buildLedgerCandidateSet(pageContext, ledgerRecords)` — 仅取当前 `参保主体 + 参保规则 + 账单月份` 的有效台账批次
+- [ ] `normalizeMatchingRecords(records, side)` — 标准化身份证、险种、月份、金额；拦截非法输入
+- [ ] `getEffectivePayableMonth(record, pageContext, side)` — 计算本轮分组用“有效应缴月份”
+- [ ] `groupByMainKey(records)` — 按 `idCard | insuranceType | effectivePayableMonth` 分组
+- [ ] `bucketByAmount(group)` — 主分组内二次按金额建桶
 - [ ] `executeMatching()` — 主匹配函数
-  - 按 `idCard | insuranceType | billingMonth` 分组
-  - 组内按金额精确配对
-  - 1:1 金额一致 → 自动 MATCHED，双向回填（系统回填 `payableMonth`，台账回填 `feeTypeInferred`）
-  - 多笔同金额 → PENDING，进入配对抽屉
-  - 系统有台账无 → 汇缴 DIFF(system_more)，补缴/调基补差 UNMATCHED
-  - 台账有系统无 → DIFF(ledger_more)
-- [ ] `detectAmountMismatch()` — 金额不一致检测，系统侧+台账侧双方都标记 DIFF
+  - Pass 1：先处理唯一 1:1 金额桶
+  - Pass 2：处理同金额多笔和 `forcePending`
+  - Pass 3：处理单边残留和 `amount_mismatch`
+  - 自动匹配成功后双向回填（系统回填 `payableMonth`，台账回填 `feeTypeInferred` / `payableMonthInferred`）
+- [ ] `applyAutoMatch()` — 落自动 `MATCHED`
+- [ ] `applyPending()` — 落 `PENDING` 桶结果
+- [ ] `applyAmountMismatch()` — 标记双方残差为 `DIFF(amount_mismatch)`
+- [ ] `applySingleSideResidual()` — 汇缴系统多→`DIFF(system_more)`；补缴/调基系统多→`UNMATCHED`；台账多→`DIFF(ledger_more)`
 - [ ] `calculateStats()` — 匹配结果统计（matched/pending/diff 计数+金额）
 - [ ] 无需台账也可执行对账（汇缴→DIFF，补缴/调基补差→UNMATCHED）
 
@@ -80,6 +90,15 @@
 
 - [ ] `forcePending` 字段标记的记录跳过自动匹配直接进入 PENDING
 - [ ] Post-processing：修正 forcePending 被分到 DIFF 分支的记录
+- [ ] 明确 `forcePending` 仅影响自动决策，不改变人工确认后的回填规则
+
+### Task 3.3: 匹配算法测试任务
+
+- [ ] 覆盖 `S1-S15` 样例矩阵
+- [ ] 验证“先消唯一，再处理残差”的执行顺序
+- [ ] 验证同一主分组内 `MATCHED + PENDING + DIFF` 可同时存在
+- [ ] 验证 `amount_mismatch` 不会吞掉已可自动匹配的记录
+- [ ] 验证强制核对只影响系统侧，不为台账侧生成伪匹配关系
 
 ---
 
@@ -151,7 +170,7 @@
 
 - [ ] DIFF/UNMATCHED 行→「强制核对」按钮（仅系统侧）
 - [ ] `showForceMatchConfirm(recordIds)` — 确认弹窗
-- [ ] `forceMatch(recordIds)` — 标记 `matchStatus=MATCHED`, `forceMatched=true`, `payableMonth=billingMonth`
+- [ ] `forceMatch(recordIds)` — 标记 `matchStatus=MATCHED`, `forceMatched=true`, `payableMonth` 回填为当前对账账单月份
 - [ ] 保存原始状态到 `_originalMatchStatus` / `_originalDiffType` / `_originalDiffAmount` 用于取消恢复
 - [ ] `cancelMatch` 增加 forceMatched 分支恢复逻辑
 - [ ] `systemBatchForceMatch()` — 批量强制核对
@@ -173,7 +192,7 @@
 ### Task 6.1: 取消逻辑
 
 - [ ] `doCancelMatch(id)` — 已归档记录拦截（toast "已归档记录不可取消核对"）
-- [ ] `cancelMatch(id)` — 恢复 PENDING 状态，系统侧清空 `payableMonth`，台账侧清空 `feeTypeInferred`
+- [ ] `cancelMatch(id)` — 清空匹配回填字段；普通匹配按原业务类型恢复，强制核对从 `_original*` 恢复
 - [ ] 强制核对取消时从 `_original*` 恢复原始状态
 
 ---

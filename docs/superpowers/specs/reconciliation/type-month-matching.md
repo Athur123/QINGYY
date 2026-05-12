@@ -226,103 +226,432 @@ const INSURANCE_TYPE_ALIAS = {
 
 ## 匹配算法
 
-### Step 1: 数据准备
+### 1. 算法总述
+
+本模块的自动匹配目标不是“尽量猜对”，而是在可确定时自动配对、不可确定时明确分流，并保证后续人工处理有迹可循。
+
+匹配引擎的固定原则如下：
+
+1. 先标准化，再匹配；原始脏数据不直接进入自动配对。
+2. 先按主分组定位候选范围，再按金额桶决策，不跨主体、规则、月份混配。
+3. 先消唯一，再处理残差；能自动确定的部分先自动完成，剩余部分再进入 `PENDING` 或 `DIFF`。
+4. 自动匹配只接受“精确金额一致”，不做姓名模糊匹配、不做接近金额自动配对。
+5. `最接近金额` 只用于差异分析展示，不用于自动确认匹配。
+
+### 2. 输入定义
+
+#### 2.1 系统侧输入记录
+
+系统侧记录使用以下匹配核心字段：
+
+- `id`
+- `idCard`
+- `insuranceType`
+- `feeType`
+- `amount`
+- `billingMonth`
+- `payableMonth`
+- `feePeriod`
+- `forcePending`
+- `matchStatus`
+
+其中：
+
+- 汇缴记录初始就有 `payableMonth`
+- 补缴、调基补差记录初始 `payableMonth` 允许为空
+
+#### 2.2 台账侧输入记录
+
+台账侧记录使用以下匹配核心字段：
+
+- `id`
+- `idCard`
+- `insuranceType`
+- `amount`
+- `billingMonth`
+- `feeTypeInferred`
+- `matchStatus`
+
+说明：
+
+- 台账导入模板中的“应缴月份”在当前模块中落为台账记录的 `billingMonth`
+- 在匹配阶段，台账侧的 `billingMonth` 即该条记录参与分组时的应缴月份
+
+#### 2.3 页面上下文
+
+每次执行对账都绑定当前页面上下文：
+
+- `insuranceSubject`
+- `insuranceRule`
+- `billingMonth`
+
+系统不会跨当前页面上下文做自动匹配。
+
+### 3. 前置标准化
+
+所有进入自动匹配的记录都必须先完成以下标准化：
+
+1. 身份证：去空格、去前后空白、`x` 转大写 `X`
+2. 险种：通过险种别名映射表转换为标准险种名称
+3. 月份：统一为 `YYYY-MM`
+4. 金额：四舍五入到分，统一保留 2 位小数
+
+阻断规则：
+
+- 身份证格式非法，不进入自动匹配
+- 险种无法标准化，不进入自动匹配
+- 月份无法标准化，不进入自动匹配
+- 金额不是有效数值，不进入自动匹配
+
+### 4. 参与匹配的数据范围
+
+#### 4.1 系统侧候选集
+
+系统侧候选集仅取当前页面上下文下需要参与本轮对账的记录：
+
+1. 汇缴
+   - 取 `payableMonth = 当前页面 billingMonth` 的记录
+2. 补缴
+   - 自动拆分补缴：取 `feePeriod = 当前页面 billingMonth` 且 `payableMonth` 为空的记录
+   - 单补缴异动：取 `payableMonth` 为空的记录，不限制 `feePeriod`
+3. 调基补差
+   - 取 `payableMonth` 为空的调基、政策调整记录，不限制 `feePeriod`
+
+说明：
+
+- 补缴、调基补差在未核对前允许反复出现在不同月份的对账页中，直到被成功核对或强制核对
+- 一条系统记录在同一时刻只能归属于一个最终核对结果
+
+#### 4.2 台账侧候选集
+
+台账侧候选集只取当前 `参保主体 + 参保规则 + 账单月份` 下已导入且未被覆盖的那一份台账批次。
+
+说明：
+
+- 同一维度只保留一份有效台账
+- 覆盖导入后，应以最新批次重新执行后续对账
+
+### 5. 分组规则
+
+#### 5.1 主分组 key
+
+自动匹配先按以下主分组 key 汇总候选记录：
+
+`身份证 + 险种 + 有效应缴月份`
+
+其中“有效应缴月份”的取值规则为：
+
+- 系统侧：
+  - 若 `payableMonth` 有值，则取 `payableMonth`
+  - 若 `payableMonth` 为空，则临时取当前页面 `billingMonth` 作为本轮匹配用的有效应缴月份
+- 台账侧：
+  - 直接取导入后的 `billingMonth`
+
+这一定义只用于本轮自动匹配分组，不改变系统原始字段含义。
+
+#### 5.2 金额桶分组
+
+每个主分组内，再按 `amount` 构建金额桶。
+
+示例：
+
+```text
+主分组：430105199001011234 | 养老 | 2026-04
+  ├─ 635.25 -> 系统 1 条，台账 1 条
+  ├─ 280.00 -> 系统 2 条，台账 2 条
+  └─ 150.00 -> 系统 1 条，台账 0 条
+```
+
+### 6. 主执行流程
+
+自动匹配的固定执行顺序如下：
+
+1. 构建系统侧候选集
+2. 构建台账侧候选集
+3. 对两侧候选集执行标准化
+4. 按主分组 key 分组
+5. 组内按金额桶处理
+6. 先处理唯一可自动配对部分
+7. 再处理同金额多笔待确认部分
+8. 最后处理未闭合残留记录
+9. 回填系统侧和台账侧结果字段
+10. 生成本轮统计结果
+
+### 7. 决策树与状态判定
+
+#### 7.1 唯一 1:1 同金额
+
+满足以下条件时自动 `MATCHED`：
+
+- 同一主分组下
+- 同一金额桶下
+- 系统侧 1 条
+- 台账侧 1 条
+- 两侧记录均未被 `forcePending` 拦截
+
+自动处理结果：
+
+- 系统侧：
+  - `matchStatus = MATCHED`
+  - `matchedLedgerId = ledger.id`
+  - `payableMonth = ledger.billingMonth`
+  - 清空 `diffType` / `diffAmount`
+- 台账侧：
+  - `matchStatus = MATCHED`
+  - `matchedSystemId = system.id`
+  - `feeTypeInferred = system.feeType`
+  - `payableMonthInferred = ledger.billingMonth`
+  - 清空 `diffType` / `diffAmount`
+
+#### 7.2 同金额多笔
+
+以下情况进入 `PENDING`：
+
+- 一对多同金额
+- 多对一同金额
+- 多对多同金额
+- 某条记录标记了 `forcePending`
+
+处理原则：
+
+- 所有参与该同金额歧义桶的记录统一进入 `PENDING`
+- 系统不自动猜测哪一条对应哪一条
+- 需要用户在配对确认抽屉中人工完成映射
+
+#### 7.3 系统有台账无
+
+当某条系统记录在本主分组下找不到任何可闭合的台账结果时：
+
+- 汇缴：
+  - `matchStatus = DIFF`
+  - `diffType = system_more`
+  - `diffAmount = system.amount`
+- 补缴 / 调基补差：
+  - `matchStatus = UNMATCHED`
+  - 不自动标记 `system_more`
+
+原因说明：
+
+- 汇缴天然应当在本轮账单月份有对应台账，因此缺台账应视为差异
+- 补缴、调基补差允许继续在后续月份查找，因此先保留为 `UNMATCHED`
+
+#### 7.4 台账有系统无
+
+当某条台账记录在本主分组下找不到任何可闭合的系统结果时：
+
+- `matchStatus = DIFF`
+- `diffType = ledger_more`
+- `diffAmount = -ledger.amount`
+
+#### 7.5 同主分组双方都有，但金额桶不能闭合
+
+当同一主分组下系统侧与台账侧都还有剩余记录，但剩余记录之间已经不存在可唯一确认的同金额关系时，剩余记录进入：
+
+- `matchStatus = DIFF`
+- `diffType = amount_mismatch`
+
+适用场景：
+
+- 系统侧 `200.00`，台账侧 `210.00`
+- 系统侧 `100.00 + 200.00`，台账侧 `100.00 + 210.00`，其中 `100.00` 先自动匹配，剩余 `200.00 / 210.00` 标记金额不一致
+
+### 8. 金额不一致的精确定义
+
+`amount_mismatch` 不是“只要金额不同就全部算差异”，而是遵循以下规则：
+
+1. 先在同一主分组内消化所有唯一可自动匹配的金额桶
+2. 再识别所有同金额但存在歧义的 `PENDING` 金额桶
+3. 仅对最终仍然无法闭合的残留记录标记 `amount_mismatch`
+
+因此：
+
+- 同一主分组里部分记录可以自动匹配、部分记录可以待确认、部分记录可以金额不一致并存
+- `amount_mismatch` 与 `PENDING` 可以同时出现在同一主分组中
+- “最接近金额”只用于差异详情抽屉中的展示和分析，不用于自动确认匹配
+
+### 9. 回填规则
+
+#### 9.1 自动匹配成功
+
+自动 `MATCHED` 后：
+
+- 系统侧回填：
+  - `payableMonth`
+  - `matchedLedgerId`
+  - `matchStatus`
+- 台账侧回填：
+  - `feeTypeInferred`
+  - `payableMonthInferred`
+  - `matchedSystemId`
+  - `matchStatus`
+
+#### 9.2 人工确认成功
+
+用户在 `PENDING` 抽屉中确认映射后：
+
+- 参与确认的系统侧和台账侧记录均转为 `MATCHED`
+- 回填规则与自动匹配一致
+
+#### 9.3 强制核对
+
+仅系统侧支持强制核对。
+
+强制核对后：
+
+- 系统侧：
+  - `matchStatus = MATCHED`
+  - `forceMatched = true`
+  - `payableMonth = 当前页面 billingMonth`
+- 原始状态写入：
+  - `_originalMatchStatus`
+  - `_originalDiffType`
+  - `_originalDiffAmount`
+
+台账侧不会因为系统侧强制核对而自动变为 `MATCHED`。
+
+#### 9.4 取消核对
+
+取消核对时：
+
+- 普通 `MATCHED`：
+  - 系统侧清空本次核对回填的 `matchedLedgerId`
+  - 台账侧清空 `matchedSystemId`
+  - 台账侧清空 `feeTypeInferred`
+  - 系统侧按原业务类型恢复为 `PENDING` 或 `UNMATCHED`
+- 强制核对：
+  - 从 `_original*` 字段恢复原状态
+
+#### 9.5 归档与付款后
+
+- 已归档记录保留：
+  - `matchStatus = MATCHED`
+  - `archived = true`
+  - `archiveBatchId`
+- 已付款记录保留：
+  - `matchStatus = PAID`
+  - `archived = true`
+  - `archiveBatchId`
+
+### 10. 强制核对与恢复约束
+
+1. 强制核对只对系统侧开放，台账侧无此入口
+2. 已归档记录不可取消核对
+3. 已付款记录不可取消核对
+4. 强制核对不会为台账侧生成伪匹配关系
+5. 取消强制核对必须恢复到强制前状态，而不是统一回退到某个固定状态
+
+### 11. 输出结果结构
+
+匹配引擎输出结构建议如下：
 
 ```javascript
-function prepareMatchingData(systemRecords, ledgerRecords) {
-  systemRecords.forEach(r => {
-    r.idCard = normalizeIdCard(r.idCard);
-    r.insuranceType = normalizeInsuranceType(r.insuranceType);
-  });
-  ledgerRecords.forEach(r => {
-    r.idCard = normalizeIdCard(r.idCard);
-    r.insuranceType = normalizeInsuranceType(r.insuranceType);
-    r.amount = roundToCents(r.amount);
-  });
-  // 分组 key = idCard + '|' + insuranceType + '|' + billingMonth
-  const systemGroups = groupByKey(systemRecords, makeGroupKey);
-  const ledgerGroups = groupByKey(ledgerRecords, makeGroupKey);
-  const allKeys = new Set([...systemGroups.keys(), ...ledgerGroups.keys()]);
-  return { allKeys, systemGroups, ledgerGroups };
+{
+  matched: [
+    { systemId: 'S001', ledgerId: 'T001', groupKey: '4301|养老|2026-04', amount: 635.25 }
+  ],
+  pending: [
+    { groupKey: '4301|医疗|2026-04', amount: 280.00, systemIds: ['S002', 'S003'], ledgerIds: ['T002', 'T003'] }
+  ],
+  diffs: [
+    { side: 'system', systemId: 'S004', diffType: 'system_more', diffAmount: 150.00 },
+    { side: 'ledger', ledgerId: 'T004', diffType: 'ledger_more', diffAmount: -120.00 },
+    { side: 'both', systemId: 'S005', ledgerId: 'T005', diffType: 'amount_mismatch', diffAmount: 10.00 }
+  ],
+  executed: true,
+  stats: {
+    matchedCount: 1,
+    pendingBucketCount: 1,
+    diffCount: 3,
+    unmatchedCount: 2
+  }
 }
 ```
 
-### Step 2: 精确金额匹配
+### 12. 研发伪代码参考
 
 ```javascript
-function executeMatching(allKeys, systemGroups, ledgerGroups) {
-  const results = { matched: [], pending: [], diffs: [] };
+function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
+  const systemCandidates = buildSystemCandidateSet(pageContext, allSystemRecords);
+  const ledgerCandidates = buildLedgerCandidateSet(pageContext, allLedgerRecords);
 
-  for (const key of allKeys) {
-    const sysRecords = systemGroups.get(key) ?? [];
-    const ledRecords = ledgerGroups.get(key) ?? [];
-    const sysAmountMap = countByAmount(sysRecords);
-    const ledAmountMap = countByAmount(ledRecords);
-    const allAmounts = new Set([...sysAmountMap.keys(), ...ledAmountMap.keys()]);
+  const normalizedSystem = normalizeMatchingRecords(systemCandidates, 'system');
+  const normalizedLedger = normalizeMatchingRecords(ledgerCandidates, 'ledger');
 
-    for (const amount of allAmounts) {
-      const sysForAmount = sysAmountMap.get(amount) ?? [];
-      const ledForAmount = ledAmountMap.get(amount) ?? [];
+  resetMatchingState(normalizedSystem, normalizedLedger);
 
-      if (sysForAmount.length > 0 && ledForAmount.length === 0) {
-        // 系统有，台账无
-        // 汇缴 → DIFF(system_more)：汇缴应在当前月份有对应台账
-        // 补缴/调基补差 → UNMATCHED：可能对应其他月份，可在后续匹配
-        sysForAmount.forEach(r => {
-          if (r.feeType === 'bujiao' || r.feeType === 'tiaoji') {
-            r.matchStatus = 'UNMATCHED';
-          } else {
-            r.matchStatus = 'DIFF'; r.diffType = 'system_more'; r.diffAmount = r.amount;
-            results.diffs.push({ systemRecord: r, ledgerRecords: [] });
-          }
-        });
-      } else if (sysForAmount.length === 0 && ledForAmount.length > 0) {
-        // 台账有，系统无 → DIFF(ledger_more)
-        ledForAmount.forEach(r => {
-          r.matchStatus = 'DIFF'; r.diffType = 'ledger_more'; r.diffAmount = -r.amount;
-          results.diffs.push({ systemRecords: [], ledgerRecord: r });
-        });
-      } else if (sysForAmount.length === 1 && ledForAmount.length === 1) {
-        // 唯一配对 → 自动 MATCHED，回填应缴月份和费用类型
-        const sysRec = sysForAmount[0], ledRec = ledForAmount[0];
-        sysRec.matchStatus = 'MATCHED'; sysRec.matchedLedgerId = ledRec.id;
-        ledRec.matchStatus = 'MATCHED'; ledRec.matchedSystemId = sysRec.id;
-        sysRec.payableMonth = ledRec.billingMonth;
-        ledRec.feeTypeInferred = sysRec.feeType;
-        results.matched.push({ systemRecord: sysRec, ledgerRecord: ledRec });
-      } else {
-        // 多笔同金额 → PENDING
-        results.pending.push({ amount, systemRecords: sysForAmount, ledgerRecords: ledForAmount });
-        sysForAmount.forEach(r => r.matchStatus = 'PENDING');
-        ledForAmount.forEach(r => r.matchStatus = 'PENDING');
+  const systemGroups = groupByMainKey(normalizedSystem, record =>
+    makeMainKey(record.idCard, record.insuranceType, getEffectivePayableMonth(record, pageContext, 'system'))
+  );
+  const ledgerGroups = groupByMainKey(normalizedLedger, record =>
+    makeMainKey(record.idCard, record.insuranceType, getEffectivePayableMonth(record, pageContext, 'ledger'))
+  );
+
+  const allGroupKeys = unionKeys(systemGroups, ledgerGroups);
+  const results = { matched: [], pending: [], diffs: [], executed: true };
+
+  for (const groupKey of allGroupKeys) {
+    const systemGroup = [...(systemGroups.get(groupKey) ?? [])];
+    const ledgerGroup = [...(ledgerGroups.get(groupKey) ?? [])];
+
+    const { systemBuckets, ledgerBuckets } = bucketByAmount(systemGroup, ledgerGroup);
+
+    // Pass 1: 先处理唯一 1:1
+    for (const amount of unionKeys(systemBuckets, ledgerBuckets)) {
+      const sysBucket = systemBuckets.get(amount) ?? [];
+      const ledBucket = ledgerBuckets.get(amount) ?? [];
+
+      if (canAutoMatch(sysBucket, ledBucket)) {
+        applyAutoMatch(sysBucket[0], ledBucket[0], amount, groupKey, results);
+        markConsumed(sysBucket[0], ledBucket[0]);
       }
     }
+
+    // Pass 2: 处理同金额歧义或 forcePending
+    for (const amount of unionKeys(systemBuckets, ledgerBuckets)) {
+      const sysResidual = getUnconsumed(systemBuckets.get(amount) ?? []);
+      const ledResidual = getUnconsumed(ledgerBuckets.get(amount) ?? []);
+
+      if (shouldEnterPending(sysResidual, ledResidual)) {
+        applyPending(sysResidual, ledResidual, amount, groupKey, results);
+        markConsumedMany(sysResidual, ledResidual);
+      }
+    }
+
+    // Pass 3: 处理剩余残差
+    const systemResidual = getGroupResidual(systemGroup);
+    const ledgerResidual = getGroupResidual(ledgerGroup);
+
+    if (systemResidual.length > 0 && ledgerResidual.length > 0) {
+      applyAmountMismatch(systemResidual, ledgerResidual, groupKey, results);
+    } else {
+      applySingleSideResidual(systemResidual, ledgerResidual, results);
+    }
   }
+
+  results.stats = calculateStats(normalizedSystem, normalizedLedger, results);
   return results;
 }
 ```
 
-### Step 3: 金额不一致差异检测
+### 13. 测试样例矩阵
 
-Step 2 处理了"金额相同"的情况。对于同一分组内系统侧和台账侧金额完全不重合的情况，双方标记为"差异（金额不一致）"：系统侧记录匹配最接近的台账金额计算差额。
-
-### 匹配结果统计
-
-```javascript
-function calculateStats(allSystemRecords, allLedgerRecords, results) {
-  return {
-    totalRecords: allSystemRecords.length + allLedgerRecords.length,
-    matchedCount: results.matched.length,
-    pendingCount: results.pending.length,
-    diffCount: results.diffs.length,
-    systemMoreCount: results.diffs.filter(d => d.diffType === 'system_more').length,
-    ledgerMoreCount: results.diffs.filter(d => d.diffType === 'ledger_more').length,
-    amountMismatchCount: results.diffs.filter(d => d.diffType === 'amount_mismatch').length,
-    matchedAmount: results.matched.reduce((sum, r) => sum + r.systemRecord.amount, 0),
-    diffAmount: results.diffs.reduce((sum, d) => sum + Math.abs(d.systemRecord?.amount ?? 0), 0),
-  };
-}
-```
+| 编号 | 场景 | 页面上下文 | 系统侧输入 | 台账侧输入 | 执行动作 | 预期结果 |
+|------|------|-----------|-----------|-----------|---------|---------|
+| S1 | 唯一自动匹配 | `主体A + 规则A + 2026-04` | `张三/养老/汇缴/635.25/payableMonth=2026-04` 1 条 | `张三/养老/2026-04/635.25` 1 条 | 开始对账 | 双侧 `MATCHED`，系统回填 `matchedLedgerId`，台账回填 `feeTypeInferred=汇缴` |
+| S2 | 一对多同金额待确认 | `主体A + 规则A + 2026-04` | `李四/医疗/补缴/280.00` 1 条 | `李四/医疗/2026-04/280.00` 2 条 | 开始对账 | 该金额桶全部 `PENDING`，进入人工确认 |
+| S3 | 多对多同金额待确认 | `主体A + 规则A + 2026-04` | `王五/养老/补缴/300.00` 2 条 | `王五/养老/2026-04/300.00` 2 条 | 开始对账 | 4 条记录全部 `PENDING` |
+| S4 | 汇缴系统多 | `主体A + 规则A + 2026-04` | `赵六/失业/汇缴/150.00/payableMonth=2026-04` 1 条 | 无 | 开始对账 | 系统侧 `DIFF(system_more)`，`diffAmount=150.00` |
+| S5 | 补缴系统多 | `主体A + 规则A + 2026-04` | `赵六/失业/补缴/150.00/payableMonth=null` 1 条 | 无 | 开始对账 | 系统侧 `UNMATCHED` |
+| S6 | 调基补差系统多 | `主体A + 规则A + 2026-04` | `赵六/失业/调基补差/90.00/payableMonth=null` 1 条 | 无 | 开始对账 | 系统侧 `UNMATCHED` |
+| S7 | 台账多 | `主体A + 规则A + 2026-04` | 无 | `钱七/工伤/2026-04/120.00` 1 条 | 开始对账 | 台账侧 `DIFF(ledger_more)`，`diffAmount=-120.00` |
+| S8 | 金额不一致 | `主体A + 规则A + 2026-04` | `孙八/养老/汇缴/200.00` 1 条 | `孙八/养老/2026-04/210.00` 1 条 | 开始对账 | 双侧 `DIFF(amount_mismatch)`，差异分析显示差额 10.00 |
+| S9 | 部分可自动匹配、部分差异 | `主体A + 规则A + 2026-04` | `周九/医疗/100.00`、`200.00` | `周九/医疗/2026-04/100.00`、`210.00` | 开始对账 | `100.00` 自动 `MATCHED`；`200/210` 为 `DIFF(amount_mismatch)` |
+| S10 | forcePending | `主体A + 规则A + 2026-04` | `吴十/养老/汇缴/500.00/forcePending=true` 1 条 | `吴十/养老/2026-04/500.00` 1 条 | 开始对账 | 不自动匹配，双方进入 `PENDING` |
+| S11 | 无台账执行对账 | `主体A + 规则A + 2026-04` | 同时存在汇缴、补缴、调基补差 | 无 | 开始对账 | 汇缴转 `DIFF(system_more)`；补缴/调基补差转 `UNMATCHED` |
+| S12 | 强制核对 | `主体A + 规则A + 2026-04` | `DIFF` 或 `UNMATCHED` 系统记录 1 条 | 无或不匹配 | 点击强制核对 | 系统侧转 `MATCHED`，`forceMatched=true`，`payableMonth=2026-04` |
+| S13 | 取消核对恢复 | `主体A + 规则A + 2026-04` | 已强制核对系统记录 1 条 | 无 | 点击取消核对 | 从 `_original*` 恢复到强制前状态 |
+| S14 | 已归档后限制 | `主体A + 规则A + 2026-04` | 已归档 `MATCHED` 记录 | 对应已归档台账 | 点击取消核对 | 拦截并提示“已归档记录不可取消核对” |
+| S15 | 已付款后限制 | `主体A + 规则A + 2026-04` | `PAID` 记录 | 对应 `PAID` 台账 | 尝试再次付款或取消核对 | 无取消入口，不允许重复付款 |
 
 ---
 
@@ -430,7 +759,7 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 |---------|---------|---------|
 | UNMATCHED | **强制核对** | 打开强制核对确认弹窗 |
 | PENDING | **确认核对** | 打开配对确认抽屉 |
-| MATCHED（未归档） | **取消** | 恢复 PENDING 状态，清空 payableMonth |
+| MATCHED（未归档） | **取消** | 清空本次核对回填字段；普通匹配按原业务类型恢复，强制核对从 `_original*` 恢复 |
 | MATCHED（已归档） | **详情** | 打开差异详情抽屉（只读） |
 | DIFF | **强制核对** | 打开强制核对确认弹窗 |
 
@@ -544,7 +873,7 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 |------|------|---------|------|
 | **全选** | secondary | 始终可点击 | 选中/取消当前 Tab 所有可见记录 |
 | **确认所选** | primary | 选中记录含 PENDING | 批量确认 PENDING 记录的配对 |
-| **取消确认** | secondary | 选中记录含 MATCHED(未归档) | 批量取消已核对，恢复 PENDING |
+| **取消确认** | secondary | 选中记录含 MATCHED(未归档) | 批量取消已核对，清空回填字段；普通匹配按原业务类型恢复，强制核对恢复原始状态 |
 | **强制核对** | danger(红) | 选中记录含 DIFF/UNMATCHED | 仅对选中中的 DIFF/UNMATCHED 执行强制核对。选中 MATCHED/PENDING 记录被自动排除 |
 
 ### 汇总列表页
@@ -600,7 +929,7 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 | 操作 | 适用状态 | 行为 |
 |------|----------|------|
 | 批量确认核对 | PENDING | 智能推荐配对 |
-| 批量取消核对 | MATCHED（未归档） | 恢复 PENDING，清空回填字段 |
+| 批量取消核对 | MATCHED（未归档） | 清空回填字段；普通匹配按原业务类型恢复，强制核对恢复原始状态 |
 | 批量强制核对 | DIFF/UNMATCHED（仅系统侧） | 直接标记 MATCHED |
 | 全选 | 全部 | 仅当前 Tab 可见记录 |
 
@@ -611,7 +940,7 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 | 场景 | 处理 |
 |------|------|
 | 同一台账重复导入 | 参保主体+规则+月份判重，提示覆盖 |
-| 核对成功后取消 | 恢复 PENDING，系统侧清空 payableMonth，台账侧清空 feeTypeInferred |
+| 核对成功后取消 | 清空回填字段；普通匹配按原业务类型恢复，强制核对从 `_original*` 恢复 |
 | 已归档取消核对 | 拦截，toast "已归档记录不可取消核对" |
 | 补缴/调基补差无台账 | UNMATCHED（非差异，可在后续月份匹配） |
 | 汇缴无台账 | DIFF(system_more)，汇缴须在当前月份有对应台账 |
@@ -654,6 +983,10 @@ function calculateStats(allSystemRecords, allLedgerRecords, results) {
 | 函数 | 说明 |
 |------|------|
 | `startReconciliation()` / `executeMatching()` | 触发匹配引擎 |
+| `buildSystemCandidateSet()` / `buildLedgerCandidateSet()` | 构建本轮候选集 |
+| `getEffectivePayableMonth()` / `groupByMainKey()` | 生成主分组 key |
+| `bucketByAmount()` / `applyAutoMatch()` / `applyPending()` | 金额桶决策 |
+| `applyAmountMismatch()` / `applySingleSideResidual()` | 残差差异处理 |
 | `switchBillTab(tab)` | Tab 切换 |
 | `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` | 筛选记录 |
 | `renderSystemTable()` / `renderLedgerTable()` | 渲染表格 |

@@ -281,7 +281,6 @@ Write a short section into the reconciliation module index that states:
 ```text
 - summary.html is the list-level entry
 - unified.html is the detail-level entry
-- approach3/approach4 are historical exploration pages
 - reconciliation-design.md is the base spec
 - archive-batch.md and type-month-matching.md are focused follow-up documents
 ```

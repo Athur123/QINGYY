@@ -245,7 +245,7 @@
                 </div>
 
                 <!-- Filter Bar -->
-                <div class="filter-bar">
+                <div class="filter-bar" id="summaryFilterBar">
                     <div class="filter-bar__group">
                         <span class="filter-bar__label">月份</span>
                         <select class="qy-select" id="filterMonth" style="width: 130px;">
@@ -270,12 +270,12 @@
                         <button class="qy-btn qy-btn--primary" id="batchReconcileBtn" onclick="batchReconcile()" disabled>批量对账</button>
                         <button class="qy-btn qy-btn--success" id="batchArchiveBtn" onclick="batchArchive()" disabled>批量归档</button>
                         <button class="qy-btn qy-btn--secondary" onclick="openImportDialog()">导入台账</button>
-                        <button class="qy-btn qy-btn--secondary" id="annotationToggle" onclick="toggleAnnotation()">💬 标注</button>
+                        <button class="qy-btn qy-btn--secondary" id="annotationToggle" onclick="toggleAnnotation()">📎 PRD标注</button>
                     </div>
                 </div>
 
                 <!-- Info Bar -->
-                <div style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，<span class="summary-toolbar__count" id="batchCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 个参保主体，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条，已归档 <span class="summary-toolbar__count" id="archivedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
+                <div id="summaryInfoBar" style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:12px;">共 <span class="summary-toolbar__count" id="totalRules" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条规则，<span class="summary-toolbar__count" id="batchCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 个参保主体，已导入 <span class="summary-toolbar__count" id="importedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条，已归档 <span class="summary-toolbar__count" id="archivedCount" style="font-weight:600;color:var(--qy-text-primary);">0</span> 条</div>
 
                 <!-- Dashboard Strip -->
                 <div class="dashboard-strip" id="dashboardStrip">
@@ -1224,7 +1224,7 @@
     <!-- Annotation Legend -->
     <div class="anno-legend" id="annoLegend">
         <div class="anno-legend__header">
-            <span>📝 页面标注说明</span>
+            <span>📝 PRD需求标注说明</span>
             <span class="anno-legend__collapse" onclick="toggleLegendCollapse()">收起</span>
         </div>
         <div class="anno-legend__body" id="annoLegendBody"></div>
@@ -1233,31 +1233,18 @@
     <script>
 // 标注项来源：docs/superpowers/prd/reconciliation/reconciliation.md
         const annotations = [
-            // === 页面结构 === (PRD: §36-42 汇总列表)
-            { num: 1, text: 'PRD §36-42：对账复核规则汇总 — 按参保规则维度展示核对概览', target: '.qy-page__title', area: '页面结构' },
-            { num: 2, text: 'PRD §42：信息栏 — 共N条规则、N个参保主体、已导入N条、已归档N条', targetSel: function() { return document.getElementById('totalRules') || document.querySelector('.qy-page__subtitle'); }, area: '信息栏' },
-            // === 操作按钮 === (PRD: §39-40 批量操作)
-            { num: 3, text: 'PRD §39：批量对账 — 勾选已导入规则的checkbox后启用，遍历选中规则执行匹配', target: '#batchReconcileBtn', area: '操作按钮' },
-            { num: 4, text: 'PRD §39：批量归档(绿色) — 仅reconciled+零差异规则可归档，归档后规则行变灰checkbox禁用', target: '#batchArchiveBtn', area: '操作按钮' },
-            { num: 5, text: 'PRD §40：导入台账 — 上传总Excel按insuranceType+billingMonth自动拆分到规则。多次导入不同月份数据累加', targetSel: function() { return document.querySelector('button[onclick*="openImportDialog"]'); }, area: '操作按钮' },
-            { num: 6, text: '筛选：按月份/地区过滤规则列表', target: '#filterMonth', area: '操作按钮' },
-            // === 表格结构 === (PRD: §36 二级表头, §37 分组)
-            { num: 7, text: 'PRD §36：二级表头 — 系统侧明细(已核对/差异/已归档) | 台账侧明细(总计/已核对/差异/待确认)，2px竖线分隔', target: '.summary-table thead', area: '表格结构' },
-            { num: 8, text: 'PRD §37：参保主体列 — 主体名称(粗体)+地区(灰色小字)，点击展开/收起规则子行', target: '.batch-row', area: '表格结构' },
-            { num: 9, text: 'PRD §37：分组行按地区+参保主体聚合，右侧详情/对账操作', target: '.batch-row .action-link', area: '表格结构' },
-            { num: 10, text: 'PRD §41：已归档规则行灰色背景+checkbox禁用，不可重复选中归档', targetSel: function() { return document.querySelector('.summary-table tbody') || document.querySelector('.summary-table'); }, area: '表格结构' },
-            // === 表格字段 === (PRD: §38 金额颜色)
-            { num: 11, text: 'PRD §38：系统侧已核对 — 笔数/金额(绿色)', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 0 ? ths[0] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 12, text: 'PRD §38：系统侧差异 — 笔数/金额(红色)，无差异显示「—」', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 1 ? ths[1] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 13, text: '系统侧已归档 — 已归档笔数/金额(绿色)。批量归档时systemMatched→systemArchived', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 2 ? ths[2] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 14, text: '台账侧总计 — 该规则导入的台账总笔数/总金额', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 3 ? ths[3] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 15, text: '台账侧已核对 — 已匹配笔数/金额', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 4 ? ths[4] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 16, text: '台账侧差异 — 差异笔数/金额(红色)', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 5 ? ths[5] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 17, text: '台账侧待确认 — 待确认笔数(橙色#D97706)/金额(深橙#B45309)', targetSel: function() { var ths = document.querySelectorAll('.summary-table thead tr:last-child th'); return ths.length > 6 ? ths[6] : document.querySelector('.summary-table'); }, area: '表格字段' },
-            { num: 18, text: 'PRD §38：行颜色编码 — 无差异浅绿/有差异浅黄/已归档灰色', targetSel: function() { return document.querySelector('.summary-table tbody') || document.querySelector('.summary-table'); }, area: '表格字段' },
-            // === 交互跳转 === (PRD: 两层页面结构)
-            { num: 19, text: '子行详情→明细页单规则(?ruleName)。分组详情→主体下所有规则(?groupId)', targetSel: function() { return document.querySelector('.batch-expand__icon') || document.querySelector('.batch-row'); }, area: '交互跳转' },
-            { num: 20, text: '分组行对账 → 一键对账该分组下所有已导入规则(groupReconcile→batchReconcile)', target: '#batchReconcileBtn', area: '交互跳转' },
+            { num: 1, text: 'PRD §8.1 / §9.1：汇总列表页用于规则+主体总览，支持从分组进入明细页', target: '.qy-page__title', area: '页面定位' },
+            { num: 2, text: 'PRD §9.2：月份/地区筛选 + 刷新、批量对账、批量归档、导入台账', target: '#summaryFilterBar', area: '操作区' },
+            { num: 3, text: 'PRD §9.3：信息栏展示规则总数、参保主体数、已导入数、已归档数', target: '#summaryInfoBar', area: '信息栏' },
+            { num: 4, text: 'PRD §9.4：二级表头分为系统侧明细与台账侧明细', target: '.summary-table thead', area: '表格结构' },
+            { num: 5, text: 'PRD §9.4：分组行按地区+参保主体聚合，支持展开/收起和详情/对账', targetSel: function() { return document.querySelector('.batch-row'); }, area: '表格结构' },
+            { num: 6, text: 'PRD §9.4：规则子行展示账单月份和统计数字，点击可进入单规则明细', targetSel: function() { return document.querySelector('.summary-table tbody tr:not(.batch-row)'); }, area: '表格结构' },
+            { num: 7, text: 'PRD §9.5：已对账无差异浅绿、已对账有差异浅黄、已归档灰色', target: '.summary-table tbody', area: '状态颜色' },
+            { num: 8, text: 'PRD §9.5：金额颜色区分已匹配绿、差异红、待确认橙', target: '#summaryInfoBar', area: '状态颜色' },
+            { num: 9, text: 'PRD §9.6：支持分组批量选择、批量对账、批量归档', target: '#batchReconcileBtn', area: '批量操作' },
+            { num: 10, text: 'PRD §11.1-§11.5：台账导入两步流程、预览校验、判重覆盖', targetSel: function() { return document.querySelector('button[onclick*="openImportDialog"]'); }, area: '导入台账' },
+            { num: 11, text: 'PRD §8.2：子行详情跳转到 unified.html?ruleName=...&month=...', targetSel: function() { return document.querySelector('.action-link') || document.querySelector('.batch-row'); }, area: '页面跳转' },
+            { num: 12, text: 'PRD §20：批量导出为占位按钮，不纳入本期正式交付', targetSel: function() { var btns = document.querySelectorAll('.qy-btn'); for (var i = 0; i < btns.length; i++) { if (btns[i].textContent.indexOf('批量导出') !== -1) return btns[i]; } return null; }, area: '非范围' },
         ];
 
         function renderAnnotations() {

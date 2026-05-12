@@ -86,7 +86,7 @@ Prototypes organized by business module under `prototype/`. Serve from project r
 | **审批管理** | `approval/` | `template-management.html` |
 | **系统** | `system/` | `log-viewer.html`, `sys-log.html` |
 
-**Versioning:** Old iterations kept alongside active pages (e.g., `calculator/v2.html`, `v3.html`; `employee/detail-v2.html`, `detail-old.html`; `reconciliation/approach3.html`).
+**Versioning:** Old iterations may be kept alongside active pages when they still provide useful context (e.g., `calculator/v2.html`, `v3.html`; `employee/detail-v2.html`, `detail-old.html`).
 
 ## Claude Skills
 
