@@ -1119,22 +1119,22 @@ const annotations = [
     { num:33, text:'PRD §13：MATCHED 为匹配成功，可归档、可付款', targetSel:function(){ return document.querySelector('[data-match="matched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
     { num:34, text:'PRD §13：PENDING 为待人工确认', targetSel:function(){ return document.querySelector('[data-match="pending"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
     { num:35, text:'PRD §12.2 / §17：DIFF 表示系统多、台账多或金额不一致', targetSel:function(){ return document.querySelector('[data-match="diff"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
-    { num:36, text:'PRD §16：PAID 为已付款，保留归档批次信息', targetSel:function(){ return document.querySelector('[data-match="matched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
+    { num:36, text:'PRD §13.1 / §16.4：PAID 为已付款，保留归档批次信息', targetSel:function(){ return document.querySelector('[data-match="matched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
 
     // ====== 交互组件（5个抽屉/弹窗） ======
     { num:37, text:'PRD §14.1：PENDING 使用配对确认抽屉完成人工确认', targetSel:function(){ return document.getElementById('sysBatchConfirmBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
     { num:38, text:'PRD §14.2：DIFF 使用差异详情抽屉查看对比与候选台账', targetSel:function(){ return document.getElementById('sysBatchForceMatchBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
     { num:39, text:'PRD §14.3：强制核对弹窗适用于 DIFF / UNMATCHED，仅系统侧', target:'#sysBatchForceMatchBtn', area:'交互组件' },
-    { num:40, text:'PRD §11：导入台账对话框包含参数选择、上传、预览确认', targetSel:function(){ return document.querySelector('button[onclick*="openImportDialog"]'); }, area:'交互组件' },
+    { num:40, text:'PRD §11.1-§11.5：导入台账对话框包含参数选择、上传、预览确认', targetSel:function(){ return document.querySelector('button[onclick*="openImportDialog"]'); }, area:'交互组件' },
     { num:41, text:'PRD §16.3：归档批次抽屉展示批次列表与付款入口', targetSel:function(){ return document.getElementById('archiveRecordBtn'); }, area:'交互组件' },
     { num:42, text:'PRD §16.4：付款确认弹窗仅从归档批次发起', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'交互组件' },
-    { num:43, text:'PRD §16 / §17：归档确认与判重覆盖等通用确认场景复用弹窗', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'交互组件' },
+    { num:43, text:'PRD §11.4 / §16.2：判重覆盖与归档确认等场景复用通用确认弹窗', targetSel:function(){ return document.querySelector('button[onclick*="archiveResults"]'); }, area:'交互组件' },
 
     // ====== 取消核对 ======
-    { num:44, text:'PRD §6.6 / §13.2：取消核对仅对未归档 MATCHED 生效，已归档与已付款不可取消', targetSel:function(){ return document.getElementById('sysBatchCancelBtn')||document.querySelector('.data-table'); }, area:'取消核对' },
+    { num:44, text:'PRD §13.2 / §13.3：取消核对仅对未归档 MATCHED 生效，已归档与已付款不可取消', targetSel:function(){ return document.getElementById('sysBatchCancelBtn')||document.querySelector('.data-table'); }, area:'取消核对' },
 
     // ====== 键盘交互 ======
-    { num:45, text:'PRD §17 / 交互补充：Escape 键依次关闭各类弹窗与抽屉', target:'.qy-page__title', area:'键盘交互' },
+    { num:45, text:'PRD §18.2 / 原型交互补充：Escape 键依次关闭各类弹窗与抽屉', target:'.qy-page__title', area:'键盘交互' },
 ];
 var annoUpdateTimer=null;
 
