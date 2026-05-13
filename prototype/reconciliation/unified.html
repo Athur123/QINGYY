@@ -175,11 +175,11 @@ body{font-family:var(--qy-font-family);font-size:var(--qy-font-size-base);color:
 /* Import Dialog */
 .import-dialog{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}
 .import-dialog.is-visible{display:flex}
-.import-dialog__box{width:520px;background:white;border-radius:var(--qy-radius-lg);box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.import-dialog__box{width:720px;max-width:calc(100vw - 48px);max-height:86vh;background:white;border-radius:var(--qy-radius-lg);box-shadow:0 20px 60px rgba(0,0,0,.2);display:flex;flex-direction:column;overflow:hidden}
 .import-dialog__header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--qy-border-light)}
 .import-dialog__title{font-size:16px;font-weight:600}
-.import-dialog__body{padding:20px}
-.import-dialog__footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid var(--qy-border-light)}
+.import-dialog__body{padding:20px;overflow-y:auto}
+.import-dialog__footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid var(--qy-border-light);flex-shrink:0;background:white}
 .form-group{margin-bottom:12px}
 .form-group label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--qy-text-secondary)}
 .drop-zone{border:2px dashed var(--qy-border-medium);border-radius:var(--qy-radius-md);padding:32px;text-align:center;cursor:pointer;transition:all .15s}
@@ -992,14 +992,30 @@ function openImportDialog(){
 }
 function closeImportDialog(event){ if(event&&event.target!==event.currentTarget) return; document.getElementById('importDialog').classList.remove('is-visible'); }
 function handleFileSelect(){ var m=document.getElementById('importMonthSelect').value; if(!m){ showToast('请先选择台账月份','warning'); return; } showImportPreview(m); }
-function showImportPreview(month){
-    var mock=[
+function getMockLedgerRows(month){
+    return [
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:1233.12},
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'失业',billingMonth:'2026-04',feePeriod:'2026-04',amount:51.38},
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'工伤',billingMonth:'2026-04',feePeriod:'2026-04',amount:30.83},
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:462.42},
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'大额医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:71.06},
+        {name:'李芳',idCard:'500382**********10',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:1050},
+        {name:'李芳',idCard:'500382**********10',insuranceType:'失业',billingMonth:'2026-04',feePeriod:'2026-04',amount:50},
+        {name:'李芳',idCard:'500382**********10',insuranceType:'工伤',billingMonth:'2026-04',feePeriod:'2026-04',amount:30},
+        {name:'李芳',idCard:'500382**********10',insuranceType:'医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:450},
+        {name:'李芳',idCard:'500382**********10',insuranceType:'大额医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:69.75},
+        {name:'王磊',idCard:'500384**********11',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:1137.50},
+        {name:'王磊',idCard:'500384**********11',insuranceType:'失业',billingMonth:'2026-04',feePeriod:'2026-04',amount:54.38},
+        {name:'王磊',idCard:'500384**********11',insuranceType:'医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:489.38},
+        {name:'王磊',idCard:'500384**********11',insuranceType:'工伤',billingMonth:'2026-04',feePeriod:'2026-04',amount:35.63},
+        {name:'王磊',idCard:'500384**********11',insuranceType:'大额医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:72.50},
+        {name:'孙悦',idCard:'500382**********13',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:888.88},
+        {name:'陈鸣',idCard:'500384**********14',insuranceType:'养老',billingMonth:'2026-03',feePeriod:'2026-03',amount:1188.48},
+        {name:'陶欢欢',idCard:'500382**********08',insuranceType:'养老',billingMonth:'2026-02',feePeriod:'2026-02',amount:123.31},
     ].filter(function(r){ return r.billingMonth===month; });
+}
+function showImportPreview(month){
+    var mock=getMockLedgerRows(month);
     var preview=document.getElementById('importPreview');
     preview.innerHTML='<p style="font-size:13px;margin-bottom:12px">文件：tax_ledger_'+month+'.xlsx<br>导入结果：成功 <strong>'+mock.length+'</strong> 条</p>'
         +'<table class="qy-table"><thead><tr><th>姓名</th><th>身份证</th><th>险种</th><th>月份</th><th>金额</th><th>状态</th></tr></thead><tbody>'
@@ -1011,13 +1027,7 @@ function importNextStep(){
     var s1=document.getElementById('importStep1'), s2=document.getElementById('importStep2');
     if(s1.style.display!=='none'){ var m=document.getElementById('importMonthSelect').value; if(!m){ showToast('请先选择台账月份','warning'); return; } showImportPreview(m); return; }
     var month=document.getElementById('importMonthSelect').value;
-    var mock=[
-        {name:'陶欢欢',idCard:'500382**********08',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:1233.12},
-        {name:'陶欢欢',idCard:'500382**********08',insuranceType:'失业',billingMonth:'2026-04',feePeriod:'2026-04',amount:51.38},
-        {name:'陶欢欢',idCard:'500382**********08',insuranceType:'工伤',billingMonth:'2026-04',feePeriod:'2026-04',amount:30.83},
-        {name:'陶欢欢',idCard:'500382**********08',insuranceType:'医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:462.42},
-        {name:'陶欢欢',idCard:'500382**********08',insuranceType:'大额医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:71.06},
-    ].filter(function(r){ return r.billingMonth===month; });
+    var mock=getMockLedgerRows(month);
     var startIdx=ledgerRecords.length;
     mock.forEach(function(r,i){
         ledgerRecords.push({ id:'T'+String(startIdx+i+1).padStart(3,'0'), name:r.name, idCard:r.idCard, insuranceType:r.insuranceType, billingMonth:r.billingMonth, feePeriod:r.feePeriod, amount:r.amount, matchStatus:'UNMATCHED', matchedSystemId:null, diffType:null, diffAmount:null, feeTypeInferred:null, payableMonthInferred:null, archived:false, archivedAt:null, archiveBatchId:null, importBatchId:'batch_'+Date.now(), insuranceSubject:'某科技有限公司', insuranceRule:'社保规则A', importedAt:new Date().toLocaleString('zh-CN'), importedBy:'admin' });
