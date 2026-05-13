@@ -170,7 +170,7 @@
 
 - [ ] DIFF/UNMATCHED 行→「强制核对」按钮（仅系统侧）
 - [ ] `showForceMatchConfirm(recordIds)` — 确认弹窗
-- [ ] `forceMatch(recordIds)` — 标记 `matchStatus=MATCHED`, `forceMatched=true`, `payableMonth` 回填为当前对账账单月份
+- [ ] `forceMatch(recordIds)` — 标记 `matchStatus=MATCHED`, `forceMatched=true`, `payableMonth` 回填为当前页面账单月份
 - [ ] 保存原始状态到 `_originalMatchStatus` / `_originalDiffType` / `_originalDiffAmount` 用于取消恢复
 - [ ] `cancelMatch` 增加 forceMatched 分支恢复逻辑
 - [ ] `systemBatchForceMatch()` — 批量强制核对
@@ -248,13 +248,15 @@
 - [ ] `SYSTEM_RECORDS_ALL` + `MOCK_LEDGER_DATA` 全量数据
 - [ ] `buildSubjectGroups()` — 按 `region + insuranceSubject` 分组
 - [ ] 信息栏：规则数 / 参保主体数 / 已导入数 / 已归档数
-- [ ] 月份+地区筛选下拉
+- [ ] 账单月份上下文 + 地区筛选下拉
+- [ ] 切换账单月份时不减少主体 / 规则清单，仅刷新当前页面上下文
 
 ### Task 9.2: 表格渲染
 
 - [ ] 二级表头：系统侧明细(已核对/差异/已归档) │ 台账侧明细(总计/已核对/差异/待确认)
 - [ ] 分组行：参保主体(粗体)+地区(灰字)，点击展开/收起
-- [ ] 子行：规则名称 + 各列统计（笔数+金额）
+- [ ] 子行：规则名称 + 当前账单月份 + 各列统计（笔数+金额）
+- [ ] 汇总表账单月份列统一展示当前账单月份上下文
 - [ ] 行颜色：已对账无差异→浅绿，有差异→浅黄，已归档→灰
 - [ ] 金额颜色：匹配绿 / 差异红 / 待确认橙
 
@@ -263,8 +265,8 @@
 - [ ] `toggleSelectAll()` / `toggleRuleSelection()` — 行选择
 - [ ] `batchReconcile()` — 批量对账，遍历选中规则调用 `executeMatchingForRule`
 - [ ] `batchArchive()` — 批量归档，仅 reconciled+零差异规则
-- [ ] `openImportDialog()` — 总台账导入，自动按规则拆分
-- [ ] `navigateToDetail()` / `groupDetail()` — 跳转明细页
+- [ ] `openImportDialog()` — 总台账导入，自动按规则拆分；台账月份由当前账单月份上下文锁定，不允许手动切换
+- [ ] `navigateToDetail()` / `groupDetail()` — 跳转明细页，均传递当前账单月份 `month`
 
 ### Task 9.4: 交互
 

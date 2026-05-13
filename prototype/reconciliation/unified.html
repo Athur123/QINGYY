@@ -242,7 +242,7 @@ body{font-family:var(--qy-font-family);font-size:var(--qy-font-size-base);color:
             <span style="font-size:13px;font-weight:500" id="breadcrumbRule">规则明细</span>
         </div>
         <h1 class="qy-page__title" id="detailTitle">社保对账复核</h1>
-        <p class="qy-page__subtitle">Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）</p>
+        <p class="qy-page__subtitle" id="detailSubtitle">账单月份：<strong id="detailBillingMonth">2026-04</strong> · Tab 切换模式 — 系统侧/台账侧分离展示（PRD v6）</p>
     </div>
 
     <!-- Toolbar -->
@@ -537,6 +537,7 @@ function formatMoney(v){ return '¥'+v.toLocaleString('zh-CN',{minimumFractionDi
 function getBillTypeLabel(t){ return BILL_TYPE_LABELS[t]||'—'; }
 function getMatchStatusLabel(s){ const m={[MATCH_STATUS.MATCHED]:'已核对',[MATCH_STATUS.PENDING]:'待确认',[MATCH_STATUS.DIFF]:'差异',[MATCH_STATUS.UNMATCHED]:'未匹配',[MATCH_STATUS.PAID]:'已付款'}; return m[s]||'—'; }
 function getMatchStatusClass(s){ const m={[MATCH_STATUS.MATCHED]:'status-badge--matched',[MATCH_STATUS.PENDING]:'status-badge--pending',[MATCH_STATUS.DIFF]:'status-badge--diff',[MATCH_STATUS.UNMATCHED]:'status-badge--unmatched',[MATCH_STATUS.PAID]:'status-badge--paid'}; return m[s]||''; }
+function getCurrentBillingMonth(){ return (new URLSearchParams(window.location.search)).get('month')||'2026-04'; }
 
 // ============================================================
 // MATCHING ENGINE
@@ -780,7 +781,7 @@ function forceMatch(ids){
         var r=systemRecords.find(function(x){ return x.id===id; }); if(!r) return;
         if(r.matchStatus!==MATCH_STATUS.DIFF&&r.matchStatus!==MATCH_STATUS.UNMATCHED) return;
         r._originalMatchStatus=r._originalMatchStatus||r.matchStatus; r._originalDiffType=r._originalDiffType||r.diffType; r._originalDiffAmount=r._originalDiffAmount||r.diffAmount; r._originalPayableMonth=r._originalPayableMonth!==undefined?r._originalPayableMonth:r.payableMonth;
-        r.matchStatus='MATCHED'; r.matchedLedgerId=null; r.payableMonth=r.billingMonth; r.forceMatched=true;
+        r.matchStatus='MATCHED'; r.matchedLedgerId=null; r.payableMonth=getCurrentBillingMonth(); r.forceMatched=true;
         matchingResults.matched.push({systemRecord:r,ledgerRecord:null});
         matchingResults.diffs=matchingResults.diffs.filter(function(d){ return !(d.systemRecord&&d.systemRecord.id===id); });
         count++;
@@ -789,7 +790,7 @@ function forceMatch(ids){
 function showForceMatchConfirm(ids){
     pendingForceMatchIds=ids;
     var recs=ids.map(function(id){ return systemRecords.find(function(x){ return x.id===id; }); }).filter(Boolean);
-    document.getElementById('forceMatchRecordList').innerHTML=recs.map(function(r){ return '<div class="force-dialog__item"><span>'+r.name+' ('+maskIdCard(r.idCard)+')</span><span>'+r.insuranceType+' · '+r.billingMonth+' · '+formatMoney(r.amount)+'</span></div>'; }).join('');
+    document.getElementById('forceMatchRecordList').innerHTML=recs.map(function(r){ return '<div class="force-dialog__item"><span>'+r.name+' ('+maskIdCard(r.idCard)+')</span><span>'+r.insuranceType+' · 应缴月份 '+getCurrentBillingMonth()+' · '+formatMoney(r.amount)+'</span></div>'; }).join('');
     document.getElementById('forceMatchDialog').classList.add('is-visible');
 }
 function closeForceMatchDialog(event){ if(event&&event.target!==event.currentTarget) return; document.getElementById('forceMatchDialog').classList.remove('is-visible'); pendingForceMatchIds=[]; }
@@ -917,7 +918,7 @@ function doArchive(toArchive){
     var num=archiveBatches.length+1, id='B'+String(num).padStart(3,'0');
     var total=toArchive.reduce(function(s,r){ return s+r.amount; },0);
     var now=new Date().toLocaleString('zh-CN');
-    var month=(new URLSearchParams(window.location.search)).get('month')||(systemRecords[0]&&systemRecords[0].billingMonth)||'';
+    var month=getCurrentBillingMonth();
     archiveBatches.unshift({ id:id, label:'第'+num+'批', billingMonth:month, createdAt:now, recordCount:toArchive.length, totalAmount:total });
     toArchive.forEach(function(r){ r.archived=true; r.archivedAt=now; r.archiveBatchId=id; });
     toArchive.forEach(function(sr){ if(sr.matchedLedgerId){ var lr=ledgerRecords.find(function(x){ return x.id===sr.matchedLedgerId; }); if(lr&&!lr.archived){ lr.archived=true; lr.archivedAt=now; lr.archiveBatchId=id; } } });
@@ -985,10 +986,11 @@ function openImportDialog(){
     document.getElementById('importStep1').style.display='block';
     document.getElementById('importStep2').style.display='none';
     document.getElementById('importNextBtn').textContent='下一步';
-    // Populate month options
-    var months=new Set(); systemRecords.forEach(function(r){ months.add(r.billingMonth); });
+    var month=getCurrentBillingMonth();
     var sel=document.getElementById('importMonthSelect');
-    sel.innerHTML='<option value="">请选择月份</option>'+Array.from(months).sort().map(function(m){ return '<option>'+m+'</option>'; }).join('');
+    sel.innerHTML='<option value="'+month+'">'+month+'</option>';
+    sel.value=month;
+    sel.disabled=true;
 }
 function closeImportDialog(event){ if(event&&event.target!==event.currentTarget) return; document.getElementById('importDialog').classList.remove('is-visible'); }
 function handleFileSelect(){ var m=document.getElementById('importMonthSelect').value; if(!m){ showToast('请先选择台账月份','warning'); return; } showImportPreview(m); }
@@ -1185,10 +1187,10 @@ function toggleLegendCollapse(){ var b=document.getElementById('annoLegendBody')
 // ============================================================
 function initUrlParams(){
     var p=new URLSearchParams(window.location.search);
-    var rn=p.get('ruleName'), m=p.get('month'), gid=p.get('groupId');
-    if(gid){ document.getElementById('detailTitle').textContent=gid.replace('|',' — ')+' 对账明细'; document.getElementById('breadcrumbRule').textContent=gid; }
-    else if(rn){ document.getElementById('detailTitle').textContent=rn+' — '+(m||'')+' 对账明细'; document.getElementById('breadcrumbRule').textContent=rn; }
-    if(m) document.getElementById('detailTitle').textContent+=' — '+m;
+    var rn=p.get('ruleName'), gid=p.get('groupId'), m=getCurrentBillingMonth();
+    document.getElementById('detailBillingMonth').textContent=m;
+    if(gid){ document.getElementById('detailTitle').textContent=gid.replace('|',' — ')+' — '+m+' 对账明细'; document.getElementById('breadcrumbRule').textContent=gid; }
+    else if(rn){ document.getElementById('detailTitle').textContent=rn+' — '+m+' 对账明细'; document.getElementById('breadcrumbRule').textContent=rn; }
 }
 initUrlParams();
 renderAnnotations();

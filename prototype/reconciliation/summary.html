@@ -234,11 +234,11 @@
                 <!-- Filter Bar -->
                 <div class="filter-bar" id="summaryFilterBar">
                     <div class="filter-bar__group">
-                        <span class="filter-bar__label">月份</span>
-                        <select class="qy-select" id="filterMonth" style="width: 130px;">
+                        <span class="filter-bar__label">账单月份</span>
+                        <select class="qy-select" id="filterMonth" style="width: 130px;" onchange="applyFilters()">
                             <option value="2026-04">2026-04</option>
                             <option value="2026-03">2026-03</option>
-                            <option value="">全部</option>
+                            <option value="2026-02">2026-02</option>
                         </select>
                     </div>
                     <div class="filter-bar__group">
@@ -456,6 +456,11 @@
         let subjectGroups = []; // [{groupId, region, insuranceSubject, ruleNames: [], ...stats}]
         let expandedGroups = new Set(); // track which groups are expanded
 
+        function getCurrentBillingMonth() {
+            var el = document.getElementById('filterMonth');
+            return (el && el.value) || '2026-04';
+        }
+
         // ========== Match engine (simplified from detail page) ==========
 
         function normalizeIdCard(idCard) {
@@ -605,6 +610,7 @@
 
         function renderSummaryTable() {
             const tbody = document.getElementById('summaryTableBody');
+            var currentBillingMonth = getCurrentBillingMonth();
             buildSubjectGroups();
 
             document.getElementById('totalRules').textContent = filteredRules.length;
@@ -664,7 +670,7 @@
 
                 // Sort months for display
                 grpMonths.sort();
-                var grpMonthsText = grpMonths.join('、');
+                var grpMonthsText = currentBillingMonth;
 
                 // Group row
                 var allSelected = group.ruleNames.every(function(rn) { return selectedRules.has(rn); });
@@ -748,7 +754,7 @@
                         html += '<tr class="sub-row ' + subRowClass + '">'
                             + '<td></td>'
                             + '<td colspan="2" style="padding: 8px 16px;"><span class="rule-name" style="padding-left:16px;">' + rule.ruleName + '</span></td>'
-                            + '<td style="padding: 8px 16px;">' + rule.month + '</td>'
+                            + '<td style="padding: 8px 16px;">' + currentBillingMonth + '</td>'
                             // System matched
                             + '<td><div class="summary-cell">'
                                 + '<span class="summary-cell__count">' + (hasReconciledData ? rule.systemMatched + '笔' : '—') + '</span>'
@@ -796,7 +802,7 @@
                                     : '<span class="summary-cell--empty"><span class="summary-cell__text">—</span></span>'
                                 )
                             + '</div></td>'
-                            + '<td style="padding: 8px 16px;"><button class="action-link" onclick="navigateToDetail(\'' + rule.ruleName + '\',\'' + rule.month + '\')">'
+                            + '<td style="padding: 8px 16px;"><button class="action-link" onclick="navigateToDetail(\'' + rule.ruleName + '\')">'
                                 + '详情</button></td>'
                         + '</tr>';
                     });
@@ -817,12 +823,14 @@
             renderSummaryTable();
         }
 
-        function navigateToDetail(ruleName, month) {
+        function navigateToDetail(ruleName) {
+            var month = getCurrentBillingMonth();
             window.location.href = 'unified.html?ruleName=' + encodeURIComponent(ruleName) + '&month=' + encodeURIComponent(month);
         }
 
         function groupDetail(groupId) {
-            window.location.href = 'unified.html?groupId=' + encodeURIComponent(groupId);
+            var month = getCurrentBillingMonth();
+            window.location.href = 'unified.html?groupId=' + encodeURIComponent(groupId) + '&month=' + encodeURIComponent(month);
         }
 
         // Group-level reconcile: reconcile all rules within a group (system records always exist)
@@ -955,11 +963,10 @@
         // ========== Filters ==========
 
         function applyFilters() {
-            var month = document.getElementById('filterMonth').value;
+            var month = getCurrentBillingMonth();
             var region = document.getElementById('filterRegion').value;
 
             filteredRules = DEMO_RULES.filter(function(rule) {
-                if (month && rule.month !== month) return false;
                 if (region && rule.region !== region) return false;
                 return true;
             });
@@ -976,7 +983,7 @@
 
             buildSubjectGroups();
             renderSummaryTable();
-            toast('筛选完成，共 ' + filteredRules.length + ' 条规则', 'info');
+            toast('已切换账单月份 ' + month + '，共 ' + filteredRules.length + ' 条规则', 'info');
         }
 
         // ========== Import ==========
@@ -989,18 +996,11 @@
             document.getElementById('importStep2').style.display = 'none';
             document.getElementById('importNextBtn').textContent = '下一步';
 
-            // Populate month dropdown from filtered rules
-            var months = [];
-            filteredRules.forEach(function(r) {
-                if (months.indexOf(r.month) === -1) months.push(r.month);
-            });
-            months.sort().reverse();
+            var month = getCurrentBillingMonth();
             var sel = document.getElementById('importMonthSelect');
-            sel.innerHTML = '<option value="">— 请选择台账月份 —</option>';
-            months.forEach(function(m) {
-                sel.innerHTML += '<option value="' + m + '">' + m + '</option>';
-            });
-            sel.value = '';
+            sel.innerHTML = '<option value="' + month + '">' + month + '</option>';
+            sel.value = month;
+            sel.disabled = true;
 
             document.getElementById('importDialog').classList.add('is-visible');
         }

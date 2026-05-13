@@ -824,7 +824,7 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 - 记录列表：每行显示姓名、身份证脱敏、险种、账单月份、金额
 - 底部：[取消] [确认强制核对（红色 danger 按钮）]
 
-**交互**：确认后 `forceMatch(recordIds)` → `matchStatus = MATCHED`，`forceMatched = true`，`payableMonth = billingMonth`，`matchedLedgerId = null`。取消强制核对时从 `_original*` 字段恢复原始状态。
+**交互**：确认后 `forceMatch(recordIds)` → `matchStatus = MATCHED`，`forceMatched = true`，`payableMonth = 当前页面账单月份`，`matchedLedgerId = null`。取消强制核对时从 `_original*` 字段恢复原始状态。
 
 ### 归档批次抽屉
 
@@ -844,9 +844,9 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 ### 导入台账对话框
 
 **第一步 — 选择参数 + 上传**：
-- 参保主体（下拉）、参保规则（下拉）、台账月份（下拉，必选）
+- 参保主体（下拉）、参保规则（下拉）、台账月份（自动继承当前账单月份，只读不可修改）
 - 拖拽/点击上传区，支持 .xlsx/.xls
-- 未选月份时点击上传提示"请先选择台账月份"
+- 台账月份等于当前页面账单月份，导入操作不允许在弹窗内切换月份
 - 底部：[取消] [下一步]
 
 **第二步 — 预览确认**：
@@ -880,12 +880,13 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 
 **页面路径**：`prototype/reconciliation/summary.html`
 
-按地区+参保主体分组展示所有参保规则的对账概览。
+按地区+参保主体分组展示所有参保规则的对账概览。左上角月份为账单月份上下文，不作为主体/规则清单过滤条件。
 
 **页面布局**：
-- 顶部筛选：月份 + 地区下拉
+- 顶部筛选：账单月份上下文 + 地区筛选下拉
 - 操作按钮：刷新 / 批量导出 / 批量对账 / 批量归档 / 导入台账
 - 信息栏：「共 N 条规则，N 个参保主体，已导入 N 条，已归档 N 条」
+- 切换账单月份后，汇总页主体/规则清单保持不变；表格账单月份列统一展示当前账单月份
 
 **二级表头**：
 
@@ -901,20 +902,21 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 - 操作：`[详情] [对账]`
 
 **子行**（单规则明细）：
-- 显示规则名称、参保主体、月份及各统计数字（笔数+金额）
+- 显示规则名称、参保主体、当前账单月份及各统计数字（笔数+金额）
 - 行颜色：已对账无差异→浅绿 `#F0FDF4`；已对账有差异→浅黄 `#FFFBEB`；已归档→灰色 `#F1F5F9` opacity 0.7
 - 金额颜色：已匹配绿色，差异红色，待确认橙色
 - 操作：`[详情]` → 跳转到明细核对页
 
 **跳转方式**：
 - 子行详情：`?ruleName=规则名&month=月份`
-- 分组行详情：`?groupId=region|insuranceSubject`
+- 分组行详情：`?groupId=region|insuranceSubject&month=月份`
+- 上述 `month` 均取汇总页当前账单月份上下文
 
 ---
 
 ## 导入流程
 
-1. **导入台账**：选择参保主体+规则+月份 → 上传 Excel → 格式校验+判重 → 预览 → 确认
+1. **导入台账**：参保主体+规则+账单月份来自当前页面上下文，其中台账月份只读不可修改 → 上传 Excel → 格式校验+判重 → 预览 → 确认
 2. **开始对账**：执行匹配算法（无需台账也可执行）→ loading 遮罩 → Toast 结果
 3. **处理差异和待确认**：配对抽屉确认 / 差异详情分析 / 批量操作
 4. **归档**：将 MATCHED+unarchived 记录归档为新批次 → 锁定
@@ -954,7 +956,7 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 ## 两层页面结构
 
 1. **汇总列表页** (`prototype/reconciliation/summary.html`) — 按地区+参保主体分组，展开查看规则子行。二级表头：系统侧明细(已核对/差异/已归档) | 台账侧明细(总计/已核对/差异/待确认)。支持批量导入、批量对账、批量归档。
-2. **明细核对页** (`prototype/reconciliation/unified.html`) — Tab 切换系统侧/台账侧，逐笔核对操作。面包屑返回汇总页。支持 `?ruleName=X&month=Y` 和 `?groupId=region|subject` 两种入口。
+2. **明细核对页** (`prototype/reconciliation/unified.html`) — Tab 切换系统侧/台账侧，逐笔核对操作。面包屑返回汇总页。支持 `?ruleName=X&month=Y` 和 `?groupId=region|subject&month=Y` 两种入口。
 
 ---
 
