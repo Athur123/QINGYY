@@ -77,10 +77,12 @@
 - [ ] `executeMatching()` — 主匹配函数
   - Pass 1：先处理唯一 1:1 金额桶
   - Pass 2：处理同金额多笔和 `forcePending`
-  - Pass 3：处理单边残留和 `amount_mismatch`
+  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的多对多 `PENDING` 组
+  - Pass 4：处理单边残留和 `amount_mismatch`
   - 自动匹配成功后双向回填（系统回填 `payableMonth`，台账回填 `feeTypeInferred` / `payableMonthInferred`）
 - [ ] `applyAutoMatch()` — 落自动 `MATCHED`
 - [ ] `applyPending()` — 落 `PENDING` 桶结果
+- [ ] `applyManualManyToManyPending()` — 对多笔系统侧合计 = 多笔台账侧合计的组落 `PENDING`，仅供人工确认
 - [ ] `applyAmountMismatch()` — 标记双方残差为 `DIFF(amount_mismatch)`
 - [ ] `applySingleSideResidual()` — 汇缴系统多→`DIFF(system_more)`；补缴/调基系统多→`UNMATCHED`；台账多→`DIFF(ledger_more)`
 - [ ] `calculateStats()` — 匹配结果统计（matched/pending/diff 计数+金额）
@@ -156,6 +158,8 @@
 - [ ] 手动调整区：系统侧/台账侧列表 + 下拉映射关系
 - [ ] `confirmPairing()` — 确认配对，回填 `payableMonth` 和 `feeTypeInferred`
 - [ ] 冲突检测：两条系统记录不能选同一台账
+- [ ] 多对多手动核对：允许勾选多笔系统侧和多笔台账侧，校验同成员 + 同险种 + 当前账单月份 + 同费款所属期 + 合计金额相等
+- [ ] 多对多确认成功后生成 `manualMatchGroupId`，组内记录全部转 `MATCHED`
 
 ### Task 5.2: 差异详情抽屉
 
