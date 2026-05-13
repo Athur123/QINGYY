@@ -571,7 +571,6 @@ function executeMatching(){
             var sa=sAmt[amt]||[], la=lAmt[amt]||[];
             if(sa.length>0&&la.length===0){
                 sa.forEach(function(r){
-                    if(r.forcePending){ r.matchStatus='PENDING'; return; }
                     if(r.feeType==='bujiao'||r.feeType==='tiaoji'){ r.matchStatus='UNMATCHED'; }
                     else { r.matchStatus='DIFF'; r.diffType='system_more'; r.diffAmount=r.amount; matchingResults.diffs.push({systemRecord:r,ledgerRecords:[]}); }
                 });
@@ -584,13 +583,6 @@ function executeMatching(){
             } else { matchingResults.pending.push({amount:amt,systemRecords:sa,ledgerRecords:la}); sa.forEach(function(r){ r.matchStatus='PENDING'; }); la.forEach(function(r){ r.matchStatus='PENDING'; }); }
         });
     });
-
-    // Post-process: fix forcePending in DIFF
-    var fpSys = systemRecords.filter(function(r){ return r.forcePending && r.matchStatus==='DIFF'; });
-    if(fpSys.length>0){
-        matchingResults.diffs = matchingResults.diffs.filter(function(d){ return !(d.systemRecord && fpSys.some(function(fp){ return fp.id===d.systemRecord.id; })); });
-        fpSys.forEach(function(r){ r.matchStatus='PENDING'; r.diffType=null; r.diffAmount=null; });
-    }
 
     matchingResults.executed = true;
 }
@@ -813,12 +805,25 @@ function confirmPendingPairing(sysId,ledId){
     matchingResults.matched.push({systemRecord:sr,ledgerRecord:lr});
     matchingResults.pending=matchingResults.pending.filter(function(g){ return g.systemRecords.length!==1||g.systemRecords[0].id!==sysId; });
 }
+function findPairingGroup(id,rec){
+    var group=matchingResults.pending.find(function(g){ return g.systemRecords.some(function(s){ return s.id===id; })||g.ledgerRecords.some(function(l){ return l.id===id; }); });
+    if(group) return group;
+    var amount=rec.amount;
+    var sys=systemRecords.filter(function(s){ return s.matchStatus===MATCH_STATUS.PENDING&&s.idCard===rec.idCard&&s.insuranceType===rec.insuranceType&&s.amount===amount; });
+    var led=ledgerRecords.filter(function(l){ return l.matchStatus===MATCH_STATUS.PENDING&&l.idCard===rec.idCard&&l.insuranceType===rec.insuranceType&&l.amount===amount; });
+    if(sys.length>0&&led.length>0){
+        group={amount:amount,systemRecords:sys,ledgerRecords:led};
+        matchingResults.pending.push(group);
+        return group;
+    }
+    return null;
+}
 function openPairingDrawer(id,side){
     currentPairingGroup=null;
     var rec=side==='system'?systemRecords.find(function(x){ return x.id===id; }):ledgerRecords.find(function(x){ return x.id===id; });
     if(!rec) return;
-    var group=matchingResults.pending.find(function(g){ return g.systemRecords.some(function(s){ return s.id===id; })||g.ledgerRecords.some(function(l){ return l.id===id; }); });
-    if(!group) return;
+    var group=findPairingGroup(id,rec);
+    if(!group){ showToast('暂无可确认的台账候选，请先导入台账或使用强制核对','warning'); return; }
     currentPairingGroup=group;
     document.getElementById('pairingTitle').textContent='确认核对 — '+group.systemRecords[0].name+' | '+group.systemRecords[0].insuranceType;
     var html='<p style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:16px">同金额待确认：'+formatMoney(Number(group.amount))+'（系统'+group.systemRecords.length+'笔 / 台账'+group.ledgerRecords.length+'笔）</p>';
