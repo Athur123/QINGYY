@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../../styles/qingyang-variables.css">
   <link rel="stylesheet" href="../../styles/qingyang-components.css">
   <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+  <link rel="stylesheet" href="../shared/prototype-nav.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--qy-font-primary); font-size: var(--qy-font-size-14); color: var(--qy-text-primary); background: var(--qy-bg-secondary); line-height: var(--qy-line-height-normal); }
@@ -24,7 +25,7 @@
     .sidebar-nav-sub .sidebar-nav-item { padding: var(--qy-space-2) var(--qy-space-6); font-size: var(--qy-font-size-12); }
     .sidebar-nav-sub .sidebar-nav-item.active { color: var(--qy-color-primary); font-weight: var(--qy-font-weight-medium); }
 
-    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); display: flex; flex-direction: column; }
+    .main-content { flex: 1; margin-left: 0; display: flex; flex-direction: column; }
     .topbar { height: var(--qy-header-height); background: var(--qy-header-bg); border-bottom: var(--qy-header-border); display: flex; align-items: center; justify-content: space-between; padding: 0 var(--qy-content-padding-x); }
     .topbar-breadcrumb { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
     .topbar-user { font-size: var(--qy-font-size-13); color: var(--qy-text-secondary); }
@@ -238,25 +239,7 @@
 <body>
 
 <div class="app-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-item">薪资档案</li>
-      <li class="sidebar-nav-item active"><span>保险福利</span></li>
-      <li class="sidebar-nav-sub">
-        <div class="sidebar-nav-item">保险台账</div>
-        <div class="sidebar-nav-item">参保规则</div>
-        <div class="sidebar-nav-item">二级户</div>
-        <div class="sidebar-nav-item">员工参保档案</div>
-        <div class="sidebar-nav-item active" style="color:var(--qy-color-primary)">全局字段配置</div>
-        <div class="sidebar-nav-item">保险福利核算</div>
-        <div class="sidebar-nav-item">保险分组</div>
-        <div class="sidebar-nav-item">险种配置</div>
-      </li>
-      <li class="sidebar-nav-item">异动申报</li>
-      <li class="sidebar-nav-item">报表</li>
-    </ul>
-  </aside>
+  <div data-prototype-nav data-root="../" data-current="insuranceConfig.fieldCollection"></div>
 
   <div class="main-content">
     <div class="topbar">
@@ -1099,5 +1082,6 @@ renderCategoriesFilter();
 renderTable();
 </script>
 
+<script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

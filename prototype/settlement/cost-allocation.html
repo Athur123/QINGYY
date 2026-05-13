@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../../styles/qingyang-variables.css">
   <link rel="stylesheet" href="../../styles/qingyang-components.css">
   <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+  <link rel="stylesheet" href="../shared/prototype-nav.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -38,7 +39,7 @@
       font-weight: var(--qy-font-weight-medium);
     }
 
-    .main-content { flex: 1; margin-left: var(--qy-sidebar-width); }
+    .main-content { flex: 1; margin-left: 0; }
     .topbar {
       height: var(--qy-header-height);
       background: var(--qy-header-bg);
@@ -200,14 +201,7 @@
 </head>
 <body>
   <div class="app-layout">
-    <aside class="sidebar">
-      <div class="sidebar-logo"><h1>青阳云HRO</h1></div>
-      <ul class="sidebar-nav">
-        <li class="sidebar-nav-item">工作台</li>
-        <li class="sidebar-nav-item active">保险福利核算</li>
-        <li class="sidebar-nav-item">账单管理</li>
-      </ul>
-    </aside>
+    <div data-prototype-nav data-root="../" data-current="settlement.costAllocation"></div>
 
     <div class="main-content">
       <div class="topbar">
@@ -705,5 +699,6 @@
       setTimeout(() => t.remove(), 3000);
     }
   </script>
+  <script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

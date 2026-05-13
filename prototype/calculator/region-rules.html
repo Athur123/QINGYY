@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../../styles/qingyang-base.css">
     <link rel="stylesheet" href="../../styles/qingyang-components.css">
     <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../shared/prototype-nav.css">
     <style>
         :root {
             --font-primary: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -75,7 +76,7 @@
         }
 
         /* ─── Main ─── */
-        .main-content { flex: 1; margin-left: 220px; padding: 24px; }
+        .main-content { flex: 1; margin-left: 0; padding: 24px; }
 
         /* ─── Page Header ─── */
         .page-header {
@@ -198,34 +199,7 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h1>青谷云 HRO</h1>
-                <span>智能薪酬管理系统</span>
-            </div>
-            <nav class="nav-section">
-                <div class="nav-group">系统设置</div>
-                <ul class="nav-tree">
-                    <li class="nav-item"><a class="nav-link" href="#">地区管理</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="#">社保规则配置</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">参保户头管理</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">派遣单位管理</a></li>
-                </ul>
-                <div class="nav-group">智能薪酬</div>
-                <ul class="nav-tree">
-                    <li class="nav-item"><a class="nav-link" href="#">保险福利</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">员工参保档案</a></li>
-                </ul>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="avatar-sm">阿</div>
-                <div>
-                    <div style="font-size: 13px; font-weight: 500;">张三</div>
-                    <div style="font-size: 11px; color: var(--qy-text-muted);">系统管理员</div>
-                </div>
-            </div>
-        </aside>
+        <div data-prototype-nav data-root="../" data-current="calculator.regionRules"></div>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -850,5 +824,6 @@
             });
         });
     </script>
+    <script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

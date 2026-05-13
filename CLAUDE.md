@@ -14,6 +14,12 @@ This repository is intentionally set up to support both **Claude Code** and **Co
 - Codex project skills live in `.agents/skills/`
 - Safe setup templates live in `.claude/settings.local.example.json` and `.codex/config.example.toml`
 
+## User Preferences
+
+- 默认使用中文与用户沟通；即使用户使用英文提问，也优先用中文回答。
+- 编写项目文档时默认使用中文，包括 specs、plans、PRD、README、交接说明、评审说明等；专业术语、文件名、命令、代码标识、API 字段、框架名和产品名可保留英文。
+- 如用户明确要求英文或双语输出，以用户当次要求为准。
+
 ## Project Overview
 
 This is the **青阳云 (Qingyang Cloud)** HRO (Human Resources Outsourcing) system project — a SaaS HR management platform. The codebase is a **prototype and design system repository** (no build process, no package.json):

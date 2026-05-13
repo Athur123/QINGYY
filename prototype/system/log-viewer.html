@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/prototype-nav.css">
     <style>
         /* Design Tokens */
         :root {
@@ -52,6 +53,10 @@
         .layout {
             display: flex;
             min-height: 100vh;
+        }
+
+        .layout > .sidebar {
+            display: none;
         }
 
         /* Sidebar */
@@ -143,7 +148,7 @@
         /* Main Content */
         .main {
             flex: 1;
-            margin-left: var(--sidebar-width);
+            margin-left: 0;
             display: flex;
             flex-direction: column;
         }
@@ -760,6 +765,8 @@
 </head>
 <body>
     <div class="layout">
+        <div data-prototype-nav data-root="../" data-current="system.logViewer"></div>
+
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar__logo">
@@ -2095,5 +2102,6 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', init);
     </script>
+    <script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

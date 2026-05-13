@@ -6,6 +6,7 @@
 <title>社保对账复核 — 明细核对 - 青阳云 HRO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/prototype-nav.css">
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
@@ -218,16 +219,7 @@ body{font-family:var(--qy-font-family);font-size:var(--qy-font-size-base);color:
 </head>
 <body>
 <div class="qy-layout">
-<!-- Sidebar -->
-<aside class="qy-sidebar">
-    <div class="qy-sidebar__logo"><h1>青阳云</h1><span>HRO管理系统</span></div>
-    <nav class="qy-sidebar__nav">
-        <div class="qy-sidebar__title">智能薪酬</div>
-        <a class="qy-sidebar__item"><span>📋</span>员工参保档案</a>
-        <a class="qy-sidebar__item is-active"><span>🔍</span>对账复核</a>
-        <a class="qy-sidebar__item"><span>🧨</span>社保方案计算</a>
-    </nav>
-</aside>
+<div data-prototype-nav data-root="../" data-current="reconciliation.unified"></div>
 
 <!-- Main -->
 <main class="qy-main">
@@ -1188,5 +1180,6 @@ renderAnnotations();
 renderAllTables();
 updateArchiveBatchFilters();
 </script>
+<script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

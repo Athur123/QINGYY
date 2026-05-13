@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../../styles/qingyang-design-system.css">
     <link rel="stylesheet" href="../../styles/qingyang-components.css">
     <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../shared/prototype-nav.css">
 
     <style>
         /* 页面专属样式 */
@@ -50,23 +51,7 @@
     <a href="#main-content" class="qy-skip-link">跳转到主要内容</a>
 
     <div class="qy-layout">
-        <!-- 侧边栏 -->
-        <aside class="qy-sidebar" role="navigation" aria-label="侧边导航">
-            <div class="qy-sidebar__logo">
-                <h1>青阳云HRO</h1>
-            </div>
-            <nav class="qy-sidebar__nav">
-                <div class="qy-sidebar__group">
-                    <div class="qy-sidebar__title">智能薪酬</div>
-                    <a href="#" class="qy-sidebar__item">
-                        <span>保险福利</span>
-                    </a>
-                    <a href="#" class="qy-sidebar__item is-active" aria-current="page">
-                        <span>参保规则</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        <div data-prototype-nav data-root="../" data-current="calculator.subAccount"></div>
 
         <!-- 主内容区 -->
         <main class="qy-main" id="main-content">
@@ -376,5 +361,6 @@
             renderSubAccountList();
         });
     </script>
+    <script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

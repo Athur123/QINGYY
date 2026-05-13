@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../../styles/qingyang-base.css">
     <link rel="stylesheet" href="../../styles/qingyang-components.css">
     <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+    <link rel="stylesheet" href="../shared/prototype-nav.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
@@ -210,21 +211,7 @@
 </head>
 <body>
     <div class="qy-layout">
-        <!-- Sidebar -->
-        <aside class="qy-sidebar">
-            <div class="qy-sidebar__logo">
-                <h1>青阳云</h1>
-                <span>HRO管理系统</span>
-            </div>
-            <nav class="qy-sidebar__nav">
-                <div class="qy-sidebar__group">
-                    <div class="qy-sidebar__title">智能薪酬</div>
-                    <a class="qy-sidebar__item">&#128203; 员工参保档案</a>
-                    <a class="qy-sidebar__item is-active">&#128269; 对账复核</a>
-                    <a class="qy-sidebar__item">&#129512; 社保方案计算</a>
-                </div>
-            </nav>
-        </aside>
+        <div data-prototype-nav data-root="../" data-current="reconciliation.summary"></div>
 
         <!-- Main -->
         <main class="qy-main">
@@ -1371,5 +1358,6 @@
 
         renderAnnotations();
     </script>
+    <script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

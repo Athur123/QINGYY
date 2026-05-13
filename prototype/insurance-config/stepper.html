@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="../../styles/qingyang-base.css">
   <link rel="stylesheet" href="../../styles/qingyang-components.css">
   <link rel="stylesheet" href="../../styles/qingyang-forms.css">
+  <link rel="stylesheet" href="../shared/prototype-nav.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -46,7 +47,7 @@
     .sidebar-nav-sub { padding-left: 48px; }
     .sidebar-nav-sub .sidebar-nav-item { padding: 8px 24px; font-size: 12px; }
 
-    .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; min-width: 0; }
+    .main-content { flex: 1; margin-left: 0; display: flex; flex-direction: column; min-width: 0; }
     .topbar { height: 56px; background: #fff; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
     .topbar-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-500); }
     .topbar-breadcrumb a { color: var(--gray-500); text-decoration: none; }
@@ -129,7 +130,7 @@
     .btn-outline { background: white; border-color: var(--primary); color: var(--primary); }
     .btn-outline:hover { background: var(--primary-light); }
 
-    .bottom-bar { position: fixed; bottom: 0; left: 220px; right: 0; background: white; border-top: 1px solid var(--gray-200); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -4px 12px rgba(0,0,0,0.04); z-index: 50; }
+    .bottom-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--gray-200); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -4px 12px rgba(0,0,0,0.04); z-index: 50; }
     .bottom-bar .left { display: flex; gap: 12px; }
     .bottom-bar .right { display: flex; gap: 12px; }
 
@@ -293,24 +294,7 @@
 <body>
 
 <div class="page-container">
-  <aside class="sidebar">
-    <div class="sidebar-logo"><h1>青阳云 HRO</h1></div>
-    <ul class="sidebar-nav">
-      <li class="sidebar-nav-item">薪资档案</li>
-      <li class="sidebar-nav-item active"><span>保险福利</span></li>
-      <li class="sidebar-nav-sub">
-        <div class="sidebar-nav-item">保险台账</div>
-        <div class="sidebar-nav-item active" style="color:var(--primary)">参保规则</div>
-        <div class="sidebar-nav-item">二级户</div>
-        <div class="sidebar-nav-item">员工参保档案</div>
-        <div class="sidebar-nav-item">保险福利核算</div>
-        <div class="sidebar-nav-item">保险分组</div>
-        <div class="sidebar-nav-item">险种配置</div>
-      </li>
-      <li class="sidebar-nav-item">异动申报</li>
-      <li class="sidebar-nav-item">报表</li>
-    </ul>
-  </aside>
+  <div data-prototype-nav data-root="../" data-current="insuranceConfig.stepper"></div>
 
   <main class="main-content">
     <header class="topbar">
@@ -1355,5 +1339,6 @@ renderInsuranceList();
 renderFields();
 </script>
 
+<script src="../shared/prototype-nav.js"></script>
 </body>
 </html>

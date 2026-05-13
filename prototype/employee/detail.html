@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="../shared/prototype-nav.css">
     <style>
         :root {
             --primary: #2563EB;
@@ -1261,6 +1262,7 @@
     </style>
 </head>
 <body>
+    <div class="prototype-nav-compact" data-prototype-nav data-root="../" data-current="employee.detail"></div>
     <!-- 主内容区 -->
     <main class="main-content">
         <!-- 新的白底信息面板 -->
@@ -3916,6 +3918,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh.js"></script>
+    <script src="../shared/prototype-nav.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化日期范围筛选组件 (Flatpickr)
