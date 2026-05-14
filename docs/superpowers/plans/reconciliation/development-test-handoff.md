@@ -108,7 +108,7 @@
 - [ ] 金额桶执行顺序必须改为：
   - Pass 1：唯一 1:1 自动匹配
   - Pass 2：同金额多笔或 `forcePending` 进入 `PENDING`
-  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的多对多 `PENDING` 组
+  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的组合 `PENDING` 组，覆盖一对多、多对一、多对多
   - Pass 4：处理单边残留与 `amount_mismatch`
 - [ ] 差异判定必须落齐：
   - 汇缴系统多：`DIFF(system_more)`
@@ -138,11 +138,11 @@
   - 人工确认成功后，系统侧与台账侧一起转 `MATCHED`
   - 同步回填 `payableMonth / matchedLedgerId / matchedSystemId / feeTypeInferred / payableMonthInferred`
 - [ ] 改造 `openPairingDrawer()` / `confirmPairing()`：
-  - 允许一对多、多对多场景人工映射
+  - 允许一对多、多对一、多对多场景人工映射
   - 阻止“两条系统记录映射到同一条台账”
-  - 允许同成员 + 同险种 + 当前账单月份 + 同费款所属期下选择多笔系统侧与多笔台账侧做多对多确认
-  - 多对多确认前必须校验系统合计金额 = 台账合计金额
-  - 多对多确认成功后生成同一 `manualMatchGroupId`，取消时整组恢复
+  - 允许同成员 + 同险种 + 当前账单月份 + 同费款所属期下选择系统侧与台账侧明细做组合确认
+  - 组合确认前必须校验系统合计金额 = 台账合计金额
+  - 组合确认成功后生成同一 `manualMatchGroupId`，取消时整组恢复
 - [ ] 改造 `showNewDetail()` / `confirmFromDrawer()`：
   - `DIFF` 场景可查看候选台账
   - “最接近金额”只用于展示，不直接落自动匹配

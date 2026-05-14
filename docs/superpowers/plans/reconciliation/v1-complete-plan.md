@@ -77,7 +77,7 @@
 - [ ] `executeMatching()` — 主匹配函数
   - Pass 1：先处理唯一 1:1 金额桶
   - Pass 2：处理同金额多笔和 `forcePending`
-  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的多对多 `PENDING` 组
+  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的组合 `PENDING` 组，覆盖一对多、多对一、多对多
   - Pass 4：处理单边残留和 `amount_mismatch`
   - 自动匹配成功后双向回填（系统回填 `payableMonth`，台账回填 `feeTypeInferred` / `payableMonthInferred`）
 - [ ] `applyAutoMatch()` — 落自动 `MATCHED`
@@ -158,8 +158,8 @@
 - [ ] 手动调整区：系统侧/台账侧列表 + 下拉映射关系
 - [ ] `confirmPairing()` — 确认配对，回填 `payableMonth` 和 `feeTypeInferred`
 - [ ] 冲突检测：两条系统记录不能选同一台账
-- [ ] 多对多手动核对：允许勾选多笔系统侧和多笔台账侧，校验同成员 + 同险种 + 当前账单月份 + 同费款所属期 + 合计金额相等
-- [ ] 多对多确认成功后生成 `manualMatchGroupId`，组内记录全部转 `MATCHED`
+- [ ] 组合合计手动核对：允许勾选一对多、多对一、多对多明细，校验同成员 + 同险种 + 当前账单月份 + 同费款所属期 + 合计金额相等
+- [ ] 组合确认成功后生成 `manualMatchGroupId`，组内记录全部转 `MATCHED`
 
 ### Task 5.2: 差异详情抽屉
 
