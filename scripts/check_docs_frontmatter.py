@@ -21,6 +21,7 @@ DOC_PREFIXES = (
     Path("docs/superpowers/specs"),
     Path("docs/superpowers/plans"),
     Path("docs/superpowers/prd"),
+    Path("docs/manuals"),
 )
 
 REQUIRED_KEYS = (
@@ -173,6 +174,7 @@ def collect_files(args: argparse.Namespace) -> list[Path]:
                 ROOT / "docs" / "superpowers" / "specs",
                 ROOT / "docs" / "superpowers" / "plans",
                 ROOT / "docs" / "superpowers" / "prd",
+                ROOT / "docs" / "manuals",
             )
             for path in ([base] if base.is_file() else base.rglob("*.md"))
         ]
