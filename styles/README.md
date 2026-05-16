@@ -15,6 +15,25 @@
 
 ## 🚀 快速开始
 
+### 推荐入口
+
+新页面优先使用拆分入口，便于明确 token、基础样式、通用组件和表单组件的职责：
+
+```html
+<link rel="stylesheet" href="../../styles/qingyang-variables.css">
+<link rel="stylesheet" href="../../styles/qingyang-base.css">
+<link rel="stylesheet" href="../../styles/qingyang-components.css">
+<link rel="stylesheet" href="../../styles/qingyang-forms.css">
+```
+
+如页面只需要一次性引入，也可以使用聚合快照：
+
+```html
+<link rel="stylesheet" href="../../styles/qingyang-design-system.css">
+```
+
+不要在同一页面同时引入拆分版和聚合版。新页面不得在页面内重新定义 `--qy-*` token，也不要覆盖 `.qy-btn`、`.qy-table`、`.qy-layout` 等系统级类；页面私有样式请使用业务命名空间。
+
 ### 1. 仅使用 CSS 变量
 
 ```html
@@ -101,6 +120,17 @@ var(--qy-shadow-lg)   /* 大阴影 */
 ```
 
 ## 🧩 组件类名
+
+### 组件 API 兼容说明
+
+当前推荐使用 v2.1 语义 token，例如 `--qy-font-size-base`、`--qy-font-size-sm`、`--qy-font-family`。为兼容历史原型，数字字号 token（如 `--qy-font-size-13`）和 `--qy-font-primary` 仍保留为别名或底层值。
+
+兼容类名：
+- 按钮小尺寸：推荐 `qy-btn--sm`，兼容 `qy-btn--small`
+- 输入框小尺寸：推荐 `qy-input--sm`，兼容 `qy-input--small`
+- 输入框大尺寸：推荐 `qy-input--lg`，兼容 `qy-input--large`
+- 表格容器：推荐 `qy-table-container`，兼容 `qy-table-wrapper`
+- 分页按钮：推荐 `qy-pagination__btn`，兼容历史 `qy-pagination__item`
 
 ### 按钮
 
@@ -1008,6 +1038,7 @@ $sidebar-width-expanded: 280px;
 
 ## 📚 更多资源
 
-- [设计规范文档](../qingyang-ui-ux-guidelines.md)
+- [设计规范文档](../qingyang-hro-design-system.md)
+- [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans)
 - [Inter 字体](https://fonts.google.com/specimen/Inter)
 - [Lucide 图标](https://lucide.dev/)

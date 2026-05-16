@@ -1,3 +1,13 @@
+---
+title: 对账复核规格索引
+module: reconciliation
+type: index
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # Reconciliation Index
 
 对账复核模块当前已经收口为一条明确主线：`summary.html + unified.html + type-month-matching.md`。

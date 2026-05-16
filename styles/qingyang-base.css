@@ -1,7 +1,7 @@
 /**
  * 青阳云基础样式文件
  * Qingyang Cloud Base Styles
- * Version: 1.0.0
+ * Version: 2.1.0
  *
  * 包含：CSS Reset + 基础样式 + 工具类
  */
@@ -25,10 +25,10 @@ html {
 }
 
 body {
-  font-family: var(--qy-font-primary);
-  font-size: var(--qy-font-size-13);
+  font-family: var(--qy-font-family);
+  font-size: var(--qy-font-size-base);
   font-weight: var(--qy-font-weight-normal);
-  line-height: var(--qy-line-height-normal);
+  line-height: var(--qy-line-height-relaxed);
   color: var(--qy-text-primary);
   background-color: var(--qy-bg-secondary);
   -webkit-font-smoothing: antialiased;
@@ -249,7 +249,13 @@ pre {
 .qy-btn--sm {
   height: var(--qy-btn-height-sm);
   padding: 0 var(--qy-space-3);
-  font-size: var(--qy-font-size-12);
+  font-size: var(--qy-font-size-sm);
+}
+
+.qy-btn--small {
+  height: var(--qy-btn-height-sm);
+  padding: 0 var(--qy-space-3);
+  font-size: var(--qy-font-size-sm);
 }
 
 .qy-btn--lg {
@@ -370,7 +376,7 @@ pre {
   border-radius: var(--qy-radius-full);
   background: var(--qy-error-500);
   color: #fff;
-  font-size: var(--qy-font-size-11);
+  font-size: var(--qy-font-size-xs);
   font-weight: var(--qy-font-weight-bold);
 }
 
@@ -519,12 +525,12 @@ pre {
 .qy-text-center { text-align: center; }
 .qy-text-right { text-align: right; }
 
-.qy-text-xs { font-size: var(--qy-font-size-10); }
-.qy-text-sm { font-size: var(--qy-font-size-12); }
-.qy-text-base { font-size: var(--qy-font-size-13); }
-.qy-text-lg { font-size: var(--qy-font-size-14); }
-.qy-text-xl { font-size: var(--qy-font-size-16); }
-.qy-text-2xl { font-size: var(--qy-font-size-18); }
+.qy-text-xs { font-size: var(--qy-font-size-xs); }
+.qy-text-sm { font-size: var(--qy-font-size-sm); }
+.qy-text-base { font-size: var(--qy-font-size-base); }
+.qy-text-lg { font-size: var(--qy-font-size-lg); }
+.qy-text-xl { font-size: var(--qy-font-size-xl); }
+.qy-text-2xl { font-size: var(--qy-font-size-2xl); }
 
 .qy-font-normal { font-weight: var(--qy-font-weight-normal); }
 .qy-font-medium { font-weight: var(--qy-font-weight-medium); }

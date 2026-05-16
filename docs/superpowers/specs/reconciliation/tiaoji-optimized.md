@@ -1,3 +1,14 @@
+---
+title: 社保对账复核：调基补差优化设计
+module: reconciliation
+type: spec
+status: active
+role: supplement
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 社保对账复核 - 调基补差对账优化设计
 
 > 状态说明：

@@ -1,4 +1,4 @@
-# 青阳云HRO设计系统 v2.0
+# 青阳云HRO设计系统 v2.1
 
 > **类型**: B2B SaaS / 企业级人力资源管理系统
 > **风格**: Professional / Clean / Efficient
@@ -345,6 +345,25 @@
 ---
 
 ## 11. 组件库
+
+### 11.0 Canonical CSS 入口
+
+**推荐入口（新页面优先使用拆分版）：**
+
+```html
+<link rel="stylesheet" href="../../styles/qingyang-variables.css">
+<link rel="stylesheet" href="../../styles/qingyang-base.css">
+<link rel="stylesheet" href="../../styles/qingyang-components.css">
+<link rel="stylesheet" href="../../styles/qingyang-forms.css">
+```
+
+**聚合入口（适合一次性引入或旧页面过渡）：**
+
+```html
+<link rel="stylesheet" href="../../styles/qingyang-design-system.css">
+```
+
+两种入口不应在同一页面混用。`qingyang-variables.css` 是 token 的 canonical 来源；`qingyang-design-system.css` 是聚合快照，用于保持兼容。新页面不得在页面内重新定义 `--qy-*` token，也不得覆盖 `.qy-btn`、`.qy-table`、`.qy-layout` 等系统级组件类；页面私有样式应使用业务命名空间，例如 `.reconciliation-*`、`.employee-*`。
 
 ### 基础重置与样式
 

@@ -1,17 +1,24 @@
 /**
  * 青阳云组件库
  * Qingyang Cloud Component Library
- * Version: 1.0.0
+ * Version: 2.1.0
  *
  * 包含：表格、分页、面包屑、下拉菜单、模态框、消息提示、
  *       加载状态、空状态、步骤条、树形控件、时间轴、统计卡片等
  */
 
+.qy-btn--small {
+  height: var(--qy-btn-height-sm);
+  padding: 0 var(--qy-space-3);
+  font-size: var(--qy-font-size-sm);
+}
+
 /* ========================================
    1. 表格 / Table
    ======================================== */
 
-.qy-table-wrapper {
+.qy-table-wrapper,
+.qy-table-container {
   background: var(--qy-bg-primary);
   border: 1px solid var(--qy-border-light);
   border-radius: var(--qy-radius-lg);
@@ -198,6 +205,41 @@
 }
 
 .qy-pagination__item.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.qy-pagination__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--qy-page-item-size);
+  height: var(--qy-page-item-size);
+  padding: 0 var(--qy-space-2);
+  border-radius: var(--qy-page-item-radius);
+  font-size: var(--qy-font-size-sm);
+  font-weight: var(--qy-font-weight-medium);
+  color: var(--qy-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--qy-transition-colors), var(--qy-transition-shadow);
+  user-select: none;
+}
+
+.qy-pagination__btn:hover:not(:disabled):not(.is-disabled):not(.is-active):not(.qy-pagination__btn--active) {
+  background: var(--qy-bg-secondary);
+  color: var(--qy-text-primary);
+}
+
+.qy-pagination__btn.is-active,
+.qy-pagination__btn.qy-pagination__btn--active {
+  background: var(--qy-primary-500);
+  color: #fff;
+}
+
+.qy-pagination__btn:disabled,
+.qy-pagination__btn.is-disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

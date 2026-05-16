@@ -1,7 +1,7 @@
 /**
  * 青阳云表单组件库
  * Qingyang Cloud Form Components
- * Version: 1.0.0
+ * Version: 2.1.0
  *
  * 包含：输入框变体、下拉选择、文本域、日期选择、文件上传、
  *       数字输入、搜索框、表单布局、输入组、评分、滑块等
@@ -14,12 +14,23 @@
 /* 输入框尺寸变体 */
 .qy-input--small {
   height: var(--qy-input-height-sm);
-  font-size: var(--qy-font-size-12);
+  font-size: var(--qy-font-size-sm);
+}
+
+.qy-input--sm {
+  height: var(--qy-input-height-sm);
+  font-size: var(--qy-font-size-sm);
 }
 
 .qy-input--large {
   height: var(--qy-input-height-lg);
-  font-size: var(--qy-font-size-14);
+  font-size: var(--qy-font-size-base);
+  padding: 0 var(--qy-space-4);
+}
+
+.qy-input--lg {
+  height: var(--qy-input-height-lg);
+  font-size: var(--qy-font-size-base);
   padding: 0 var(--qy-space-4);
 }
 

@@ -1,7 +1,7 @@
 /**
  * 青阳云 CSS 变量文件
  * Qingyang Cloud Design Tokens - CSS Variables
- * Version: 1.0.0
+ * Version: 2.1.0
  */
 
 :root {
@@ -80,11 +80,13 @@
   --qy-text-primary: #1E293B;
   --qy-text-secondary: #64748B;
   --qy-text-muted: #94A3B8;
+  --qy-text-tertiary: var(--qy-text-muted);
   --qy-text-disabled: #CBD5E1;
   --qy-text-inverse: #FFFFFF;
 
   /* 边框色 / Border */
   --qy-border-light: #E2E8F0;
+  --qy-border-200: var(--qy-border-light);
   --qy-border-medium: #CBD5E1;
   --qy-border-strong: #94A3B8;
   --qy-border-focus: #60A5FA;
@@ -93,16 +95,29 @@
   --qy-color-primary: var(--qy-primary-500);
   --qy-color-primary-hover: var(--qy-primary-600);
   --qy-color-primary-active: var(--qy-primary-700);
+  --qy-info-50: var(--qy-primary-50);
+  --qy-info-600: var(--qy-primary-600);
   --qy-color-success: var(--qy-success-500);
   --qy-color-warning: var(--qy-warning-500);
   --qy-color-error: var(--qy-error-500);
+  --qy-danger-50: var(--qy-error-50);
+  --qy-danger-100: var(--qy-error-100);
+  --qy-danger-200: var(--qy-error-200);
+  --qy-danger-300: var(--qy-error-300);
+  --qy-danger-400: var(--qy-error-400);
+  --qy-danger-500: var(--qy-error-500);
+  --qy-danger-600: var(--qy-error-600);
+  --qy-danger-700: var(--qy-error-700);
+  --qy-danger-800: var(--qy-error-800);
+  --qy-danger-900: var(--qy-error-900);
 
   /* ========================================
      2. 字体系统 / Typography
      ======================================== */
 
   /* 字体家族 / Font Family */
-  --qy-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --qy-font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --qy-font-primary: var(--qy-font-family);
   --qy-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
   /* 字体大小 / Font Size */
@@ -111,6 +126,7 @@
   --qy-font-size-12: 12px;
   --qy-font-size-13: 13px;
   --qy-font-size-14: 14px;
+  --qy-font-size-15: 15px;
   --qy-font-size-16: 16px;
   --qy-font-size-18: 18px;
   --qy-font-size-20: 20px;
@@ -118,12 +134,22 @@
   --qy-font-size-28: 28px;
   --qy-font-size-32: 32px;
   --qy-font-size-40: 40px;
+  --qy-font-size-xs: var(--qy-font-size-11);
+  --qy-font-size-sm: var(--qy-font-size-12);
+  --qy-font-size-base: var(--qy-font-size-14);
+  --qy-font-size-md: var(--qy-font-size-14);
+  --qy-font-size-lg: var(--qy-font-size-16);
+  --qy-font-size-xl: var(--qy-font-size-20);
+  --qy-font-size-2xl: var(--qy-font-size-24);
 
   /* 字体粗细 / Font Weight */
   --qy-font-weight-normal: 400;
   --qy-font-weight-medium: 500;
   --qy-font-weight-semibold: 600;
   --qy-font-weight-bold: 700;
+  --qy-font-medium: var(--qy-font-weight-medium);
+  --qy-font-semibold: var(--qy-font-weight-semibold);
+  --qy-font-bold: var(--qy-font-weight-bold);
 
   /* 行高 / Line Height */
   --qy-line-height-tight: 1.25;
@@ -149,6 +175,7 @@
   --qy-space-4: 16px;
   --qy-space-5: 20px;
   --qy-space-6: 24px;
+  --qy-space-7: 28px;
   --qy-space-8: 32px;
   --qy-space-10: 40px;
   --qy-space-12: 48px;
@@ -176,10 +203,13 @@
   --qy-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
   --qy-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --qy-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --qy-card-shadow-hover: var(--qy-shadow-md);
   --qy-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
   --qy-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --qy-shadow-focus: 0 0 0 3px var(--qy-primary-100);
   --qy-shadow-focus-error: 0 0 0 3px var(--qy-error-100);
+  --qy-focus-ring: var(--qy-shadow-focus);
+  --qy-focus-ring-offset: 2px;
 
   /* ========================================
      6. 动效系统 / Transitions & Animations
@@ -199,9 +229,12 @@
   --qy-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --qy-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --qy-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --qy-transition-bounce: var(--qy-ease-bounce);
+  --qy-transition-smooth: var(--qy-ease-in-out);
 
   /* 过渡预设 / Transition Presets */
   --qy-transition-fast: var(--qy-duration-fast) var(--qy-ease-in-out);
+  --qy-transition-base: var(--qy-transition-normal);
   --qy-transition-normal: var(--qy-duration-normal) var(--qy-ease-in-out);
   --qy-transition-slow: var(--qy-duration-slow) var(--qy-ease-in-out);
   --qy-transition-colors: color var(--qy-transition-fast), background-color var(--qy-transition-fast), border-color var(--qy-transition-fast);
@@ -226,7 +259,7 @@
   --qy-header-border: var(--qy-border-light);
 
   /* 内容区域 / Content */
-  --qy-content-padding-x: 28px;
+  --qy-content-padding-x: 20px;
   --qy-content-padding-y: 24px;
   --qy-content-max-width: 1440px;
 
@@ -245,7 +278,7 @@
   --qy-btn-height-lg: 40px;
   --qy-btn-padding-x: 16px;
   --qy-btn-radius: var(--qy-radius-md);
-  --qy-btn-font-size: var(--qy-font-size-13);
+  --qy-btn-font-size: var(--qy-font-size-base);
   --qy-btn-font-weight: var(--qy-font-weight-medium);
 
   /* 输入框 / Input */
@@ -254,7 +287,7 @@
   --qy-input-height-lg: 40px;
   --qy-input-padding-x: 12px;
   --qy-input-radius: var(--qy-radius-md);
-  --qy-input-font-size: var(--qy-font-size-13);
+  --qy-input-font-size: var(--qy-font-size-base);
   --qy-input-bg: var(--qy-bg-secondary);
   --qy-input-border: var(--qy-border-medium);
   --qy-input-border-focus: var(--qy-primary-400);
@@ -278,13 +311,13 @@
   --qy-nav-item-padding-x: 12px;
   --qy-nav-item-radius: var(--qy-radius-md);
   --qy-nav-icon-size: 16px;
-  --qy-nav-font-size: var(--qy-font-size-13);
+  --qy-nav-font-size: var(--qy-font-size-sm);
 
   /* 标签 / Tag */
   --qy-tag-height: 20px;
   --qy-tag-padding-x: 8px;
   --qy-tag-radius: var(--qy-radius-full);
-  --qy-tag-font-size: var(--qy-font-size-11);
+  --qy-tag-font-size: var(--qy-font-size-xs);
   --qy-tag-font-weight: var(--qy-font-weight-medium);
 
   /* 模态框 / Modal */
@@ -333,6 +366,7 @@
   --qy-z-fixed: 300;
   --qy-z-modal-backdrop: 400;
   --qy-z-modal: 500;
+  --qy-z-index-drawer: var(--qy-z-modal);
   --qy-z-popover: 600;
   --qy-z-tooltip: 700;
   --qy-z-toast: 800;

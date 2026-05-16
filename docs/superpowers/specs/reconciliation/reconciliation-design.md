@@ -1,3 +1,14 @@
+---
+title: 社保对账复核功能早期设计
+module: reconciliation
+type: spec
+status: deprecated
+role: background
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 社保对账复核功能设计
 
 > 状态说明：

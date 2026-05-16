@@ -1,3 +1,13 @@
+---
+title: 结算方案规格索引
+module: settlement
+type: index
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # Settlement Index
 
 - Primary prototype pages:
