@@ -75,14 +75,13 @@
 - [ ] `groupByMainKey(records)` — 按 `idCard | insuranceType | effectivePayableMonth` 分组
 - [ ] `bucketByAmount(group)` — 主分组内二次按金额建桶
 - [ ] `executeMatching()` — 主匹配函数
-  - Pass 1：先处理唯一 1:1 金额桶
+  - Pass 1：先处理唯一 1:1 金额桶；汇缴且非 `forcePending` 自动进入 `MATCHED`，补缴 / 调基补差 / `forcePending` 进入 `PENDING`
   - Pass 2：处理同金额多笔和 `forcePending`
-  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的多对多 `PENDING` 组
-  - Pass 4：处理单边残留和 `amount_mismatch`
-  - 自动匹配成功后双向回填（系统回填 `payableMonth`，台账回填 `feeTypeInferred` / `payableMonthInferred`）
-- [ ] `applyAutoMatch()` — 落自动 `MATCHED`
-- [ ] `applyPending()` — 落 `PENDING` 桶结果
-- [ ] `applyManualManyToManyPending()` — 对多笔系统侧合计 = 多笔台账侧合计的组落 `PENDING`，仅供人工确认
+  - Pass 3：处理单边残留和 `amount_mismatch`
+  - 自动匹配成功后双向回填；待确认候选由用户确认核对后再双向回填
+- [ ] `applyAutoMatchedPair()` — 汇缴唯一 1:1 自动落 `MATCHED`
+- [ ] `applyPendingCandidate()` — 非汇缴唯一 1:1、同金额多笔、`forcePending` 落 `PENDING`
+- [ ] `confirmSelectedPairing()` — 统一确认核对，成功后回填 `payableMonth / matchedLedgerId / matchedSystemId / feeTypeInferred / payableMonthInferred`
 - [ ] `applyAmountMismatch()` — 标记双方残差为 `DIFF(amount_mismatch)`
 - [ ] `applySingleSideResidual()` — 汇缴系统多→`DIFF(system_more)`；补缴/调基系统多→`UNMATCHED`；台账多→`DIFF(ledger_more)`
 - [ ] `calculateStats()` — 匹配结果统计（matched/pending/diff 计数+金额）
@@ -126,7 +125,7 @@
 - [ ] `getSystemDisplayRecords()` — 生成渲染数据（合并 ledger 关联信息）
 - [ ] `renderSystemTable()` — 12 列表格渲染
   - 复选框 / 核对状态 / 费用类型 / 姓名 / 身份证 / 险种 / 应缴月份 / 费款所属期 / 系统金额 / 台账金额（+跨引用） / 差异 / 操作
-- [ ] 操作列按钮按状态映射：UNMATCHED→强制核对，PENDING→确认核对，MATCHED→取消/详情(已归档)，DIFF→强制核对，PAID→详情
+- [ ] 操作列按钮按状态映射：UNMATCHED / PENDING / DIFF→确认核对，MATCHED→取消核对/详情(已归档)，PAID→详情；系统侧另保留批量强制核对兜底能力
 - [ ] 已核对记录台账金额列显示 `↔ Txxx` 跨引用
 - [ ] 已归档行灰色背景 +「已归档」badge
 - [ ] 已付款行蓝色背景 +「已付款」badge
@@ -141,7 +140,7 @@
 
 ### Task 4.5: 批量操作栏
 
-- [ ] 全选 / 确认所选 / 取消确认 / 强制核对 四个按钮
+- [ ] 全选 / 批量确认核对 / 批量取消核对 / 强制核对 四个按钮
 - [ ] `getSelectedSystemIds()` / `toggleSystemSelectAll()` / `updateSystemBatchButtons()`
 - [ ] 按钮根据选中行状态动态启用/禁用
 - [ ] `systemBatchConfirm()` / `systemBatchCancel()` / `systemBatchForceMatch()`
@@ -153,13 +152,13 @@
 
 ### Task 5.1: 配对确认抽屉
 
-- [ ] PENDING 行点击→右侧滑出抽屉（`#pairingDrawer`，宽 600px）
-- [ ] 智能推荐区：系统按列表顺序推荐（系统第N笔↔台账第N笔），默认勾选
-- [ ] 手动调整区：系统侧/台账侧列表 + 下拉映射关系
-- [ ] `confirmPairing()` — 确认配对，回填 `payableMonth` 和 `feeTypeInferred`
-- [ ] 冲突检测：两条系统记录不能选同一台账
-- [ ] 多对多手动核对：允许勾选多笔系统侧和多笔台账侧，校验同成员 + 同险种 + 当前账单月份 + 同费款所属期 + 合计金额相等
-- [ ] 多对多确认成功后生成 `manualMatchGroupId`，组内记录全部转 `MATCHED`
+- [ ] `PENDING / UNMATCHED / DIFF` 行点击→右侧滑出抽屉（`#pairingDrawer`，宽 600px）
+- [ ] 点击「批量确认核对」从系统侧或台账侧选中记录打开同一个抽屉
+- [ ] 抽屉分为系统侧明细、台账侧明细、合计校验区
+- [ ] `confirmPairing()` / `confirmSelectedPairing()` — 确认核对，回填 `payableMonth` 和 `feeTypeInferred`
+- [ ] 支持 1:1、一对多、多对一、多对多
+- [ ] 确认前校验同成员 + 同险种 + 当前账单月份 + 同费款所属期 + 系统合计金额 = 台账合计金额
+- [ ] 确认成功后生成同一 `matchGroupId`，组内记录全部转 `MATCHED`
 
 ### Task 5.2: 差异详情抽屉
 
@@ -172,11 +171,12 @@
 
 ### Task 5.3: 强制核对
 
-- [ ] DIFF/UNMATCHED 行→「强制核对」按钮（仅系统侧）
+- [ ] 系统侧批量操作栏保留「强制核对」按钮，单行操作列不展示强制核对
 - [ ] `showForceMatchConfirm(recordIds)` — 确认弹窗
 - [ ] `forceMatch(recordIds)` — 标记 `matchStatus=MATCHED`, `forceMatched=true`, `payableMonth` 回填为当前页面账单月份
-- [ ] 保存原始状态到 `_originalMatchStatus` / `_originalDiffType` / `_originalDiffAmount` 用于取消恢复
-- [ ] `cancelMatch` 增加 forceMatched 分支恢复逻辑
+- [ ] 强制核对允许选择一笔或多笔系统侧 `DIFF / UNMATCHED` 明细后批量执行
+- [ ] 保存核对前原始状态快照，用于取消核对时完整恢复
+- [ ] `cancelMatch` 增加快照恢复逻辑
 - [ ] `systemBatchForceMatch()` — 批量强制核对
 - [ ] 台账侧无强制核对入口
 
@@ -196,8 +196,8 @@
 ### Task 6.1: 取消逻辑
 
 - [ ] `doCancelMatch(id)` — 已归档记录拦截（toast "已归档记录不可取消核对"）
-- [ ] `cancelMatch(id)` — 清空匹配回填字段；普通匹配按原业务类型恢复，强制核对从 `_original*` 恢复
-- [ ] 强制核对取消时从 `_original*` 恢复原始状态
+- [ ] `cancelMatch(id)` — 清空本次匹配回填字段，并恢复至核对前原始状态
+- [ ] 自动匹配、人工确认、强制核对取消时都按同一快照口径恢复
 
 ---
 

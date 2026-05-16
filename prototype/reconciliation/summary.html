@@ -467,29 +467,54 @@
             return (idCard || '').replace(/\s/g, '').toUpperCase().trim();
         }
 
-        function makeGroupKey(record) {
-            return normalizeIdCard(record.idCard) + '|' + (record.insuranceType || '') + '|' + record.billingMonth + '|' + (record.feePeriod || '');
+        function amountCents(amount) {
+            return Math.round((Number(amount) || 0) * 100);
+        }
+
+        function getSystemRuleName(record) {
+            var map = {
+                S001: '社保规则A', S006: '社保规则A', S009: '社保规则A', S014: '社保规则A',
+                S004: '社保规则B', S012: '社保规则B', S016: '社保规则B', S020: '社保规则B',
+                S002: '社保规则C', S007: '社保规则C', S010: '社保规则C', S015: '社保规则C',
+                S003: '社保规则D', S011: '社保规则D', S017: '社保规则D',
+                S005: '社保规则E', S013: '社保规则E', S018: '社保规则E',
+                S008: '社保规则F', S019: '社保规则F'
+            };
+            return record.insuranceRule || map[record.id] || null;
+        }
+
+        function getEffectivePayableMonth(record, side, month) {
+            var currentMonth = month || getCurrentBillingMonth();
+            if (side === 'system') return record.payableMonth || currentMonth;
+            return record.billingMonth || currentMonth;
+        }
+
+        function makeSummaryGroupKey(record, side, month) {
+            return normalizeIdCard(record.idCard) + '|' + (record.insuranceType || '') + '|' + getEffectivePayableMonth(record, side, month);
         }
 
         function executeMatchingForRule(rule) {
+            var currentMonth = getCurrentBillingMonth();
             const sysRecs = SYSTEM_RECORDS_ALL.filter(function(r) {
-                return r.insuranceType === rule.insuranceType && r.billingMonth === rule.month;
+                return getSystemRuleName(r) === rule.ruleName && getEffectivePayableMonth(r, 'system', currentMonth) === currentMonth;
             });
-            const ledRecs = ledgerRecordsByRule[rule.ruleName] || [];
+            const ledRecs = (ledgerRecordsByRule[rule.ruleName] || []).filter(function(r) {
+                return getEffectivePayableMonth(r, 'ledger', currentMonth) === currentMonth;
+            });
 
-            let matched = 0, pending = 0, diff = 0, unmatched = 0;
+            let matched = 0, systemPending = 0, ledgerPending = 0, systemDiff = 0, ledgerDiff = 0, unmatched = 0;
             let sysMatchedAmount = 0, sysDiffAmount = 0, ledMatchedAmount = 0, ledDiffAmount = 0, ledPendingAmount = 0;
 
             // Group by key
             const sysByKey = {};
             const ledByKey = {};
             sysRecs.forEach(function(r) {
-                const k = makeGroupKey(r);
+                const k = makeSummaryGroupKey(r, 'system', currentMonth);
                 if (!sysByKey[k]) sysByKey[k] = [];
                 sysByKey[k].push(r);
             });
             ledRecs.forEach(function(r) {
-                const k = makeGroupKey(r);
+                const k = makeSummaryGroupKey(r, 'ledger', currentMonth);
                 if (!ledByKey[k]) ledByKey[k] = [];
                 ledByKey[k].push(r);
             });
@@ -501,46 +526,78 @@
             Object.keys(allKeys).forEach(function(key) {
                 const sRecs = sysByKey[key] || [];
                 const lRecs = ledByKey[key] || [];
+                const sysByAmount = {};
+                const ledByAmount = {};
+                sRecs.forEach(function(r) {
+                    const amount = amountCents(r.amount);
+                    if (!sysByAmount[amount]) sysByAmount[amount] = [];
+                    sysByAmount[amount].push(r);
+                });
+                lRecs.forEach(function(r) {
+                    const amount = amountCents(r.amount);
+                    if (!ledByAmount[amount]) ledByAmount[amount] = [];
+                    ledByAmount[amount].push(r);
+                });
 
-                if (sRecs.length > 0 && lRecs.length === 0) {
-                    sRecs.forEach(function(r) {
-                        if (r.forcePending) { pending++; }
-                        else if (r.feeType === 'bujiao' || r.feeType === 'tiaoji') { unmatched++; }
-                        else { diff++; sysDiffAmount += r.amount; }
-                    });
-                } else if (sRecs.length === 0 && lRecs.length > 0) {
-                    lRecs.forEach(function(r) { diff++; ledDiffAmount += r.amount; });
-                } else if (sRecs.length === 1 && lRecs.length === 1) {
-                    const sr = sRecs[0], lr = lRecs[0];
-                    if (sr.forcePending) {
-                        pending++; ledPendingAmount += lr.amount;
-                        sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
-                    } else if (sr.feeType === 'huijiao' && Math.abs(sr.amount - lr.amount) < 0.01) {
-                        matched++; sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
-                    } else if (Math.abs(sr.amount - lr.amount) >= 0.01) {
-                        diff++; sysDiffAmount += sr.amount; ledDiffAmount += lr.amount;
-                    } else {
-                        pending++; ledPendingAmount += lr.amount;
-                        sysMatchedAmount += sr.amount; ledMatchedAmount += lr.amount;
+                const allAmounts = {};
+                Object.keys(sysByAmount).forEach(function(amount) { allAmounts[amount] = true; });
+                Object.keys(ledByAmount).forEach(function(amount) { allAmounts[amount] = true; });
+
+                var handledSystemIds = {};
+                var handledLedgerIds = {};
+                Object.keys(allAmounts).forEach(function(amount) {
+                    const sysAmountRecs = sysByAmount[amount] || [];
+                    const ledAmountRecs = ledByAmount[amount] || [];
+                    if (sysAmountRecs.length > 0 && ledAmountRecs.length > 0) {
+                        if (sysAmountRecs.length === 1 && ledAmountRecs.length === 1) {
+                            const sr = sysAmountRecs[0], lr = ledAmountRecs[0];
+                            if (sr.feeType === 'huijiao' && !sr.forcePending) {
+                                matched++;
+                                sysMatchedAmount += sr.amount;
+                                ledMatchedAmount += lr.amount;
+                            } else {
+                                systemPending++;
+                                ledgerPending++;
+                                ledPendingAmount += lr.amount;
+                            }
+                            handledSystemIds[sr.id] = true;
+                            handledLedgerIds[lr.id || amount + '_ledger'] = true;
+                        } else {
+                            systemPending += sysAmountRecs.length;
+                            ledgerPending += ledAmountRecs.length;
+                            ledAmountRecs.forEach(function(r) { ledPendingAmount += r.amount; });
+                            sysAmountRecs.forEach(function(r) { handledSystemIds[r.id] = true; });
+                            ledAmountRecs.forEach(function(r, idx) { handledLedgerIds[r.id || amount + '_' + idx] = true; });
+                        }
                     }
-                } else {
-                    // Multiple records on either side -> pending
-                    pending += Math.max(sRecs.length, lRecs.length);
-                    sRecs.forEach(function(r) { sysMatchedAmount += r.amount; });
-                    lRecs.forEach(function(r) { ledPendingAmount += r.amount; ledMatchedAmount += r.amount; });
+                });
+
+                const remainSys = sRecs.filter(function(r) { return !handledSystemIds[r.id]; });
+                const remainLed = lRecs.filter(function(r, idx) { return !handledLedgerIds[r.id || amountCents(r.amount) + '_' + idx]; });
+                if (remainSys.length > 0 && remainLed.length > 0) {
+                    remainSys.forEach(function(r) { systemDiff++; sysDiffAmount += r.amount; });
+                    remainLed.forEach(function(r) { ledgerDiff++; ledDiffAmount += r.amount; });
+                } else if (remainSys.length > 0) {
+                    remainSys.forEach(function(r) {
+                        if (r.feeType === 'bujiao' || r.feeType === 'tiaoji') { unmatched++; }
+                        else { systemDiff++; sysDiffAmount += r.amount; }
+                    });
+                } else if (remainLed.length > 0) {
+                    remainLed.forEach(function(r) { ledgerDiff++; ledDiffAmount += r.amount; });
                 }
             });
 
             return {
                 systemMatched: matched,
                 systemMatchedAmount: sysMatchedAmount,
-                systemDiff: diff,
+                systemPending: systemPending,
+                systemDiff: systemDiff,
                 systemDiffAmount: sysDiffAmount,
                 ledgerMatched: matched,
                 ledgerMatchedAmount: ledMatchedAmount,
-                ledgerDiff: diff,
+                ledgerDiff: ledgerDiff,
                 ledgerDiffAmount: ledDiffAmount,
-                ledgerPending: pending,
+                ledgerPending: ledgerPending,
                 ledgerPendingAmount: ledPendingAmount,
                 ledgerTotal: ledRecs.length,
                 ledgerTotalAmount: ledRecs.reduce(function(s, r) { return s + r.amount; }, 0),
@@ -1146,6 +1203,7 @@
                     rule.ledgerMatchedAmount = result.ledgerMatchedAmount;
                     rule.ledgerDiff = result.ledgerDiff;
                     rule.ledgerDiffAmount = result.ledgerDiffAmount;
+                    rule.systemPending = result.systemPending;
                     rule.ledgerPending = result.ledgerPending;
                     rule.ledgerPendingAmount = result.ledgerPendingAmount;
                     rule.ledgerTotal = result.ledgerTotal;
@@ -1156,7 +1214,7 @@
                     ruleImportStatus[ruleName] = 'reconciled';
 
                     totalMatched += result.systemMatched;
-                    totalPending += 0; // simplified
+                    totalPending += result.systemPending;
                     totalDiff += result.systemDiff;
                 });
 
@@ -1165,7 +1223,7 @@
                 document.getElementById('selectAll').checked = false;
                 renderSummaryTable();
 
-                toast('批量对账完成：已核对 ' + totalMatched + ' 条，差异 ' + totalDiff + ' 条', 'success');
+                toast('批量对账完成：已核对 ' + totalMatched + ' 条，待确认 ' + totalPending + ' 条，差异 ' + totalDiff + ' 条', 'success');
             }, 600);
         }
 

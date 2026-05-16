@@ -303,8 +303,8 @@ body{font-family:var(--qy-font-family);font-size:var(--qy-font-size-base);color:
         <div class="table-footer">
             <div class="table-footer__left">
                 <button class="qy-btn qy-btn--secondary" id="sysSelectAllBtn" onclick="toggleSystemSelectAll()">全选</button>
-                <button class="qy-btn qy-btn--primary" disabled id="sysBatchConfirmBtn" onclick="systemBatchConfirm()">确认所选</button>
-                <button class="qy-btn qy-btn--secondary" disabled id="sysBatchCancelBtn" onclick="systemBatchCancel()">取消确认</button>
+                <button class="qy-btn qy-btn--primary" disabled id="sysBatchConfirmBtn" onclick="systemBatchConfirm()">批量确认核对</button>
+                <button class="qy-btn qy-btn--secondary" disabled id="sysBatchCancelBtn" onclick="systemBatchCancel()">批量取消核对</button>
                 <button class="qy-btn qy-btn--danger" disabled id="sysBatchForceMatchBtn" onclick="systemBatchForceMatch()">强制核对</button>
             </div>
             <div class="table-footer__right" id="systemFooterInfo">共 <strong>0</strong> 条 / 1页</div>
@@ -349,8 +349,8 @@ body{font-family:var(--qy-font-family);font-size:var(--qy-font-size-base);color:
         <div class="table-footer">
             <div class="table-footer__left">
                 <button class="qy-btn qy-btn--secondary" id="ledSelectAllBtn" onclick="toggleLedgerSelectAll()">全选</button>
-                <button class="qy-btn qy-btn--primary" disabled id="ledBatchConfirmBtn" onclick="ledgerBatchConfirm()">确认所选</button>
-                <button class="qy-btn qy-btn--secondary" disabled id="ledBatchCancelBtn" onclick="ledgerBatchCancel()">取消确认</button>
+                <button class="qy-btn qy-btn--primary" disabled id="ledBatchConfirmBtn" onclick="ledgerBatchConfirm()">批量确认核对</button>
+                <button class="qy-btn qy-btn--secondary" disabled id="ledBatchCancelBtn" onclick="ledgerBatchCancel()">批量取消核对</button>
             </div>
             <div class="table-footer__right" id="ledgerFooterInfo">共 <strong>0</strong> 条 / 1页</div>
         </div>
@@ -369,7 +369,7 @@ body{font-family:var(--qy-font-family);font-size:var(--qy-font-size-base);color:
         <div class="drawer__body" id="pairingBody"></div>
         <div class="drawer__footer">
             <button class="qy-btn qy-btn--secondary" onclick="closePairingDrawer()">取消</button>
-            <button class="qy-btn qy-btn--primary" id="pairingConfirmBtn" onclick="confirmPairing()">确认全部配对</button>
+            <button class="qy-btn qy-btn--primary" id="pairingConfirmBtn" onclick="confirmPairing()">确认核对</button>
         </div>
     </div>
 </div>
@@ -490,6 +490,23 @@ const INSURANCE_TYPE_ALIAS = {
     '大额医疗':['大额医疗','大额医疗保险','大病医疗'],
     '公积金':['公积金','住房公积金','住房公积'],
 };
+const RECONCILIATION_RULE_CONTEXTS = {
+    '社保规则A':{region:'重庆',insuranceSubject:'某科技有限公司',insuranceType:'养老'},
+    '社保规则B':{region:'重庆',insuranceSubject:'某科技有限公司',insuranceType:'医疗'},
+    '社保规则C':{region:'重庆',insuranceSubject:'另一家公司',insuranceType:'失业'},
+    '社保规则D':{region:'重庆',insuranceSubject:'另一家公司',insuranceType:'工伤'},
+    '社保规则E':{region:'重庆',insuranceSubject:'某科技有限公司',insuranceType:'大额医疗'},
+    '社保规则F':{region:'重庆',insuranceSubject:'第三家公司',insuranceType:'养老'},
+};
+const SYSTEM_RECORD_RULE_MAP = {
+    S001:'社保规则A', S006:'社保规则A', S009:'社保规则A', S014:'社保规则A',
+    S019:'社保规则A', S024:'社保规则A', S025:'社保规则A',
+    S004:'社保规则B', S012:'社保规则B', S016:'社保规则B', S020:'社保规则B', S026:'社保规则B',
+    S002:'社保规则C', S007:'社保规则C', S010:'社保规则C', S015:'社保规则C', S021:'社保规则C', S027:'社保规则C', S028:'社保规则C',
+    S003:'社保规则D', S011:'社保规则D', S017:'社保规则D',
+    S005:'社保规则E', S013:'社保规则E', S018:'社保规则E',
+    S008:'社保规则F', S022:'社保规则F', S023:'社保规则F',
+};
 
 let currentBillTab = 'system';
 let currentSystemMatchFilter = 'all', currentSystemTypeFilter = 'all', currentSystemArchiveBatchFilter = 'all';
@@ -499,6 +516,7 @@ let currentPairingGroup = null;
 let currentDetailRecordId = null;
 let pendingForceMatchIds = [];
 let pendingPaymentBatchId = null;
+let manualMatchGroupSeq = 0;
 
 let systemRecords = [
     { id:'S001',name:'陶欢欢',idCard:'500382**********08',insuranceType:'养老',billingMonth:'2026-04',feeType:'huijiao',feePeriod:'2026-04',payableMonth:'2026-04',amountCompany:986.50,amountPersonal:246.62,amount:1233.12,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
@@ -526,6 +544,9 @@ let systemRecords = [
     { id:'S023',name:'周敏',idCard:'500382**********12',insuranceType:'医疗',billingMonth:'2026-01',feeType:'tiaoji',feePeriod:'2026-01',payableMonth:null,amountCompany:360,amountPersonal:90,amount:450,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
     { id:'S024',name:'测试多对多',idCard:'500399**********99',insuranceType:'养老',billingMonth:'2026-04',feeType:'bujiao',feePeriod:'2026-04',payableMonth:null,amountCompany:80,amountPersonal:20,amount:100,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
     { id:'S025',name:'测试多对多',idCard:'500399**********99',insuranceType:'养老',billingMonth:'2026-04',feeType:'bujiao',feePeriod:'2026-04',payableMonth:null,amountCompany:160,amountPersonal:40,amount:200,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
+    { id:'S026',name:'测试一对多',idCard:'500399**********98',insuranceType:'医疗',billingMonth:'2026-04',feeType:'bujiao',feePeriod:'2026-04',payableMonth:null,amountCompany:240,amountPersonal:60,amount:300,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
+    { id:'S027',name:'测试多对一',idCard:'500399**********97',insuranceType:'失业',billingMonth:'2026-04',feeType:'bujiao',feePeriod:'2026-04',payableMonth:null,amountCompany:80,amountPersonal:20,amount:100,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
+    { id:'S028',name:'测试多对一',idCard:'500399**********97',insuranceType:'失业',billingMonth:'2026-04',feeType:'bujiao',feePeriod:'2026-04',payableMonth:null,amountCompany:160,amountPersonal:40,amount:200,matchStatus:'UNMATCHED',matchedLedgerId:null,diffType:null,diffAmount:null,archiveBatchId:null,archived:false,archivedAt:null,remark:null },
 ];
 let ledgerRecords = [];
 let matchingResults = { matched:[], pending:[], diffs:[], executed:false };
@@ -542,14 +563,146 @@ function getMatchStatusClass(s){ const m={[MATCH_STATUS.MATCHED]:'status-badge--
 function getCurrentBillingMonth(){ return (new URLSearchParams(window.location.search)).get('month')||'2026-04'; }
 function amountCents(v){ return Math.round((Number(v)||0)*100); }
 function sumAmount(records){ return records.reduce(function(s,r){ return s+amountCents(r.amount); },0)/100; }
-function getManualMatchGroupLabel(groupId){ return groupId ? '多对多匹配组 '+groupId.replace('MM','') : '多对多匹配组'; }
-function getManualGroupSystems(groupId){ return groupId ? systemRecords.filter(function(r){ return r.manualMatchGroupId===groupId; }) : []; }
-function getManualGroupLedgers(groupId){ return groupId ? ledgerRecords.filter(function(r){ return r.manualMatchGroupId===groupId; }) : []; }
+function getMatchGroupId(r){ return r ? (r.matchGroupId||r.manualMatchGroupId||null) : null; }
+function setMatchGroupId(r,groupId){ r.matchGroupId=groupId; r.manualMatchGroupId=groupId; }
+function clearMatchGroupId(r){ r.matchGroupId=null; r.manualMatchGroupId=null; }
+function getMatchGroupLabel(groupId){ return groupId ? '匹配组 '+groupId.replace('MG','').replace('MM','') : '匹配组'; }
+function createMatchGroupId(){ manualMatchGroupSeq+=1; return 'MG'+Date.now()+'-'+manualMatchGroupSeq; }
+function getManualMatchGroupLabel(groupId){ return getMatchGroupLabel(groupId); }
+function getManualGroupSystems(groupId){ return groupId ? systemRecords.filter(function(r){ return getMatchGroupId(r)===groupId; }) : []; }
+function getManualGroupLedgers(groupId){ return groupId ? ledgerRecords.filter(function(r){ return getMatchGroupId(r)===groupId; }) : []; }
+function getPageContext(){
+    var p=new URLSearchParams(window.location.search);
+    var ruleName=p.get('ruleName')||'';
+    var groupId=p.get('groupId')||'';
+    var ctx={ruleName:ruleName,groupId:groupId,billingMonth:getCurrentBillingMonth(),region:null,insuranceSubject:null,insuranceType:null,ruleNames:[]};
+    if(ruleName&&RECONCILIATION_RULE_CONTEXTS[ruleName]){
+        Object.assign(ctx,RECONCILIATION_RULE_CONTEXTS[ruleName]);
+        ctx.ruleNames=[ruleName];
+    } else if(groupId){
+        var parts=groupId.split('|');
+        ctx.region=parts[0]||null;
+        ctx.insuranceSubject=parts[1]||null;
+        Object.keys(RECONCILIATION_RULE_CONTEXTS).forEach(function(name){
+            var rule=RECONCILIATION_RULE_CONTEXTS[name];
+            if((!ctx.region||rule.region===ctx.region)&&(!ctx.insuranceSubject||rule.insuranceSubject===ctx.insuranceSubject)){
+                ctx.ruleNames.push(name);
+            }
+        });
+    }
+    return ctx;
+}
+function inferSystemRecordContext(record){
+    var mappedRule=record.insuranceRule||SYSTEM_RECORD_RULE_MAP[record.id];
+    if(mappedRule&&RECONCILIATION_RULE_CONTEXTS[mappedRule]){
+        return Object.assign({ruleName:mappedRule},RECONCILIATION_RULE_CONTEXTS[mappedRule]);
+    }
+    var matches=Object.keys(RECONCILIATION_RULE_CONTEXTS).map(function(name){
+        var rule=RECONCILIATION_RULE_CONTEXTS[name];
+        return rule.insuranceType===record.insuranceType ? Object.assign({ruleName:name},rule) : null;
+    }).filter(Boolean);
+    if(matches.length===1) return matches[0];
+    if(record.insuranceSubject){
+        var subjectMatch=matches.find(function(rule){ return rule.insuranceSubject===record.insuranceSubject; });
+        if(subjectMatch) return subjectMatch;
+    }
+    return matches[0]||{};
+}
+function enrichSystemRecordContext(record){
+    var inferred=inferSystemRecordContext(record);
+    if(!record.insuranceRule&&inferred.ruleName) record.insuranceRule=inferred.ruleName;
+    if(!record.insuranceSubject&&inferred.insuranceSubject) record.insuranceSubject=inferred.insuranceSubject;
+    if(!record.region&&inferred.region) record.region=inferred.region;
+    return record;
+}
+function recordMatchesPageContext(record,side){
+    var ctx=getPageContext();
+    var rec=side==='system'?enrichSystemRecordContext(record):record;
+    if(side==='system'){
+        if(ctx.ruleName&&rec.insuranceRule&&rec.insuranceRule!==ctx.ruleName) return false;
+        if(ctx.groupId&&ctx.insuranceSubject&&rec.insuranceSubject&&rec.insuranceSubject!==ctx.insuranceSubject) return false;
+        if(ctx.region&&rec.region&&rec.region!==ctx.region) return false;
+        if(ctx.insuranceType&&rec.insuranceType!==ctx.insuranceType) return false;
+        if(ctx.ruleNames.length&&rec.insuranceRule&&ctx.ruleNames.indexOf(rec.insuranceRule)===-1) return false;
+    } else {
+        if(ctx.ruleName&&record.insuranceRule&&record.insuranceRule!==ctx.ruleName) return false;
+        if(ctx.groupId&&ctx.insuranceSubject&&record.insuranceSubject&&record.insuranceSubject!==ctx.insuranceSubject) return false;
+        if(ctx.region&&record.region&&record.region!==ctx.region) return false;
+        if(ctx.insuranceType&&record.insuranceType!==ctx.insuranceType) return false;
+        if(ctx.ruleNames.length&&record.insuranceRule&&ctx.ruleNames.indexOf(record.insuranceRule)===-1) return false;
+    }
+    return true;
+}
+function getActiveSystemRecords(){
+    return systemRecords.filter(function(r){ return recordMatchesPageContext(r,'system'); });
+}
+function getActiveLedgerRecords(){
+    return ledgerRecords.filter(function(r){ return recordMatchesPageContext(r,'ledger'); });
+}
+function getRecordSource(record){
+    return systemRecords.indexOf(record)>=0?'system':'ledger';
+}
+function captureMatchRestoreSnapshot(r){
+    if(!r||r._matchRestoreSnapshot) return;
+    r._matchRestoreSnapshot={
+        matchStatus:r.matchStatus,
+        matchedLedgerId:r.matchedLedgerId||null,
+        matchedSystemId:r.matchedSystemId||null,
+        matchGroupId:r.matchGroupId||null,
+        manualMatchGroupId:r.manualMatchGroupId||null,
+        payableMonth:r.payableMonth===undefined?null:r.payableMonth,
+        feeTypeInferred:r.feeTypeInferred===undefined?null:r.feeTypeInferred,
+        payableMonthInferred:r.payableMonthInferred===undefined?null:r.payableMonthInferred,
+        diffType:r.diffType||null,
+        diffAmount:r.diffAmount===undefined?null:r.diffAmount,
+        forceMatched:!!r.forceMatched
+    };
+}
+function restoreMatchRestoreSnapshot(r){
+    if(!r) return;
+    var s=r._matchRestoreSnapshot;
+    if(s){
+        r.matchStatus=s.matchStatus;
+        r.matchedLedgerId=s.matchedLedgerId;
+        r.matchedSystemId=s.matchedSystemId;
+        r.matchGroupId=s.matchGroupId;
+        r.manualMatchGroupId=s.manualMatchGroupId;
+        r.payableMonth=s.payableMonth;
+        r.feeTypeInferred=s.feeTypeInferred;
+        r.payableMonthInferred=s.payableMonthInferred;
+        r.diffType=s.diffType;
+        r.diffAmount=s.diffAmount;
+        r.forceMatched=s.forceMatched;
+        delete r._matchRestoreSnapshot;
+    } else {
+        r.matchStatus=MATCH_STATUS.UNMATCHED;
+        r.matchedLedgerId=null;
+        r.matchedSystemId=null;
+        clearMatchGroupId(r);
+        r.diffType=null;
+        r.diffAmount=null;
+        r.forceMatched=false;
+    }
+}
 function removeDiffsForRecords(sysIds,ledIds){
     matchingResults.diffs=matchingResults.diffs.filter(function(d){
         var sid=d.systemRecord&&d.systemRecord.id;
         var lid=d.ledgerRecord&&d.ledgerRecord.id;
         return sysIds.indexOf(sid)===-1&&ledIds.indexOf(lid)===-1;
+    });
+}
+function rebuildDiffsForRecords(records){
+    records.forEach(function(r){
+        if(r.matchStatus===MATCH_STATUS.DIFF){
+            var isSystem=systemRecords.indexOf(r)>=0;
+            if(isSystem) matchingResults.diffs.push({systemRecord:r,ledgerRecord:null});
+            else matchingResults.diffs.push({systemRecords:[],ledgerRecord:r});
+        }
+    });
+}
+function removePendingForRecords(sysIds,ledIds){
+    matchingResults.pending=matchingResults.pending.filter(function(g){
+        return !g.systemRecords.some(function(s){ return sysIds.indexOf(s.id)>=0; })&&!g.ledgerRecords.some(function(l){ return ledIds.indexOf(l.id)>=0; });
     });
 }
 
@@ -561,58 +714,123 @@ function normalizeInsuranceType(v){
     for(var k in INSURANCE_TYPE_ALIAS){ if(INSURANCE_TYPE_ALIAS[k].indexOf(v)>=0) return k; }
     return '未知';
 }
-function makeGroupKey(r){ return r.idCard+'|'+r.insuranceType+'|'+(r.billingMonth||''); }
-function makeFeePeriodKey(r){ return r.idCard+'|'+r.insuranceType+'|'+(r.feePeriod||r.billingMonth||'')+'|'+(r.billingMonth||''); }
-function applyManualManyToManyPending(sys,led){
-    var sBy={}, lBy={};
-    sys.filter(function(r){ return r.matchStatus===MATCH_STATUS.UNMATCHED; }).forEach(function(r){ var k=makeFeePeriodKey(r); sBy[k]=sBy[k]||[]; sBy[k].push(r); });
-    led.filter(function(r){ return r.matchStatus===MATCH_STATUS.DIFF&&r.diffType==='ledger_more'; }).forEach(function(r){ var k=makeFeePeriodKey(r); lBy[k]=lBy[k]||[]; lBy[k].push(r); });
-    Object.keys(sBy).forEach(function(key){
-        var ss=sBy[key], ll=lBy[key]||[];
-        if(ss.length<2||ll.length<2) return;
-        if(amountCents(sumAmount(ss))!==amountCents(sumAmount(ll))) return;
-        ss.forEach(function(r){ r.matchStatus=MATCH_STATUS.PENDING; r.diffType=null; r.diffAmount=null; });
-        ll.forEach(function(r){ r.matchStatus=MATCH_STATUS.PENDING; r.diffType=null; r.diffAmount=null; });
-        matchingResults.pending.push({amount:sumAmount(ss),systemRecords:ss,ledgerRecords:ll,matchMode:'many_to_many_total'});
-        removeDiffsForRecords(ss.map(function(r){ return r.id; }),ll.map(function(r){ return r.id; }));
-    });
+function getEffectivePayableMonth(r,side){
+    if(side==='system') return r.payableMonth||getCurrentBillingMonth();
+    return r.billingMonth||getCurrentBillingMonth();
 }
-
+function makeGroupKey(r,side){
+    var month=side==='system'?getEffectivePayableMonth(r,'system'):getEffectivePayableMonth(r,'ledger');
+    return normalizeIdCard(r.idCard)+'|'+r.insuranceType+'|'+month;
+}
+function makeFeePeriodKey(r){ return normalizeIdCard(r.idCard)+'|'+r.insuranceType+'|'+(r.feePeriod||r.billingMonth||'')+'|'+getEffectivePayableMonth(r,getRecordSource(r)); }
+function isReconciliationCandidate(r){ return r&&!r.archived&&r.matchStatus!==MATCH_STATUS.PAID; }
+function resetRecordForMatching(r,side){
+    if(!isReconciliationCandidate(r)) return;
+    r.matchStatus=MATCH_STATUS.UNMATCHED;
+    if(side==='system') r.matchedLedgerId=null;
+    else r.matchedSystemId=null;
+    clearMatchGroupId(r);
+    r.diffType=null;
+    r.diffAmount=null;
+    if(side==='ledger'){
+        r.feeTypeInferred=null;
+        r.payableMonthInferred=null;
+    }
+    delete r._matchRestoreSnapshot;
+}
+function markDiffRecord(r,side,type,amount){
+    r.matchStatus=MATCH_STATUS.DIFF;
+    r.diffType=type;
+    r.diffAmount=amount;
+    if(side==='system') matchingResults.diffs.push({systemRecord:r,ledgerRecords:[]});
+    else matchingResults.diffs.push({systemRecords:[],ledgerRecord:r});
+}
+function applyMatchedRelation(sysRecords,ledRecords,matchMode){
+    var groupId=createMatchGroupId();
+    var feeTypes={};
+    sysRecords.forEach(captureMatchRestoreSnapshot);
+    ledRecords.forEach(captureMatchRestoreSnapshot);
+    sysRecords.forEach(function(r){
+        r.matchStatus=MATCH_STATUS.MATCHED;
+        setMatchGroupId(r,groupId);
+        r.matchedLedgerId=sysRecords.length===1&&ledRecords.length===1?ledRecords[0].id:null;
+        r.payableMonth=getCurrentBillingMonth();
+        r.diffType=null;
+        r.diffAmount=null;
+        feeTypes[r.feeType]=true;
+    });
+    var inferred=Object.keys(feeTypes).length===1?Object.keys(feeTypes)[0]:'multiple';
+    ledRecords.forEach(function(r){
+        r.matchStatus=MATCH_STATUS.MATCHED;
+        setMatchGroupId(r,groupId);
+        r.matchedSystemId=sysRecords.length===1&&ledRecords.length===1?sysRecords[0].id:null;
+        r.feeTypeInferred=inferred;
+        r.payableMonthInferred=getCurrentBillingMonth();
+        r.diffType=null;
+        r.diffAmount=null;
+    });
+    matchingResults.matched.push({matchGroupId:groupId,manualMatchGroupId:groupId,systemRecords:sysRecords,ledgerRecords:ledRecords,matchMode:matchMode});
+    removeDiffsForRecords(sysRecords.map(function(r){ return r.id; }),ledRecords.map(function(r){ return r.id; }));
+    return groupId;
+}
+function applyAutoMatchedPair(sr,lr,amount){
+    return applyMatchedRelation([sr],[lr],'auto_huijiao_1_1');
+}
+function applyPendingCandidate(sysRecords,ledRecords,amount,matchMode){
+    matchingResults.pending.push({amount:amount,systemRecords:sysRecords,ledgerRecords:ledRecords,matchMode:matchMode||'auto_candidate'});
+    sysRecords.forEach(function(r){ r.matchStatus=MATCH_STATUS.PENDING; });
+    ledRecords.forEach(function(r){ r.matchStatus=MATCH_STATUS.PENDING; if(sysRecords.length===1) r.feeTypeInferred=sysRecords[0].feeType; });
+}
 function executeMatching(){
     matchingResults = { matched:[], pending:[], diffs:[], executed:false };
-    systemRecords.forEach(function(r){ r.matchStatus='UNMATCHED'; r.matchedLedgerId=null; r.manualMatchGroupId=null; r.diffType=null; r.diffAmount=null; });
-    ledgerRecords.forEach(function(r){ r.matchStatus='UNMATCHED'; r.matchedSystemId=null; r.manualMatchGroupId=null; r.diffType=null; r.diffAmount=null; r.feeTypeInferred=null; });
+    var activeSystems=getActiveSystemRecords().filter(isReconciliationCandidate);
+    var activeLedgers=getActiveLedgerRecords().filter(isReconciliationCandidate);
+    activeSystems.forEach(function(r){ resetRecordForMatching(r,'system'); });
+    activeLedgers.forEach(function(r){ resetRecordForMatching(r,'ledger'); });
 
     // Group by key
     var sMap={}, lMap={};
-    systemRecords.forEach(function(r){ var k=makeGroupKey(r); sMap[k]=sMap[k]||[]; sMap[k].push(r); });
-    ledgerRecords.forEach(function(r){ var k=makeGroupKey(r); lMap[k]=lMap[k]||[]; lMap[k].push(r); });
+    activeSystems.forEach(function(r){ var k=makeGroupKey(r,'system'); sMap[k]=sMap[k]||[]; sMap[k].push(r); });
+    activeLedgers.forEach(function(r){ var k=makeGroupKey(r,'ledger'); lMap[k]=lMap[k]||[]; lMap[k].push(r); });
     var allKeys = new Set(Object.keys(sMap).concat(Object.keys(lMap)));
 
     // Match within each key
     allKeys.forEach(function(key){
         var sys=sMap[key]||[], led=lMap[key]||[];
         var sAmt={}, lAmt={};
-        sys.forEach(function(r){ var a=r.amount; sAmt[a]=sAmt[a]||[]; sAmt[a].push(r); });
-        led.forEach(function(r){ var a=r.amount; lAmt[a]=lAmt[a]||[]; lAmt[a].push(r); });
+        sys.forEach(function(r){ var a=amountCents(r.amount); sAmt[a]=sAmt[a]||[]; sAmt[a].push(r); });
+        led.forEach(function(r){ var a=amountCents(r.amount); lAmt[a]=lAmt[a]||[]; lAmt[a].push(r); });
         var allAmt=new Set(Object.keys(sAmt).concat(Object.keys(lAmt)));
+        var handledSys=[], handledLed=[];
 
         allAmt.forEach(function(amt){
             var sa=sAmt[amt]||[], la=lAmt[amt]||[];
-            if(sa.length>0&&la.length===0){
-                sa.forEach(function(r){
-                    if(r.feeType==='bujiao'||r.feeType==='tiaoji'){ r.matchStatus='UNMATCHED'; }
-                    else { r.matchStatus='DIFF'; r.diffType='system_more'; r.diffAmount=r.amount; matchingResults.diffs.push({systemRecord:r,ledgerRecords:[]}); }
-                });
-            } else if(sa.length===0&&la.length>0){
-                la.forEach(function(r){ r.matchStatus='DIFF'; r.diffType='ledger_more'; r.diffAmount=-r.amount; matchingResults.diffs.push({systemRecords:[],ledgerRecord:r}); });
-            } else if(sa.length===1&&la.length===1){
+            if(sa.length>0&&la.length>0&&sa.length===1&&la.length===1){
                 var sr=sa[0], lr=la[0];
-                if(sr.forcePending){ sr.matchStatus='PENDING'; lr.matchStatus='PENDING'; lr.feeTypeInferred=sr.feeType; matchingResults.pending.push({amount:amt,systemRecords:sa,ledgerRecords:la}); }
-                else { sr.matchStatus='MATCHED'; sr.matchedLedgerId=lr.id; lr.matchStatus='MATCHED'; lr.matchedSystemId=sr.id; sr.payableMonth=lr.billingMonth; lr.feeTypeInferred=sr.feeType; matchingResults.matched.push({systemRecord:sr,ledgerRecord:lr}); }
-            } else { matchingResults.pending.push({amount:amt,systemRecords:sa,ledgerRecords:la}); sa.forEach(function(r){ r.matchStatus='PENDING'; }); la.forEach(function(r){ r.matchStatus='PENDING'; }); }
+                if(sr.feeType===BILL_TYPES.HUIJIAO&&!sr.forcePending){ applyAutoMatchedPair(sr,lr,amt); }
+                else { applyPendingCandidate(sa,la,amt,'auto_candidate'); }
+                handledSys.push(sr.id); handledLed.push(lr.id);
+            } else if(sa.length>0&&la.length>0){
+                applyPendingCandidate(sa,la,amt,'auto_candidate');
+                sa.forEach(function(r){ handledSys.push(r.id); });
+                la.forEach(function(r){ handledLed.push(r.id); });
+            }
         });
-        applyManualManyToManyPending(sys,led);
+
+        var remainSys=sys.filter(function(r){ return handledSys.indexOf(r.id)===-1; });
+        var remainLed=led.filter(function(r){ return handledLed.indexOf(r.id)===-1; });
+        if(remainSys.length&&remainLed.length){
+            var diffType=DIFF_TYPE.AMOUNT_MISMATCH;
+            remainSys.forEach(function(r){ markDiffRecord(r,'system',diffType,r.amount); });
+            remainLed.forEach(function(r){ markDiffRecord(r,'ledger',diffType,-r.amount); });
+        } else if(remainSys.length){
+            remainSys.forEach(function(r){
+                if(r.feeType===BILL_TYPES.BUJIAO||r.feeType===BILL_TYPES.TIAOJI){ r.matchStatus=MATCH_STATUS.UNMATCHED; }
+                else { markDiffRecord(r,'system',DIFF_TYPE.SYSTEM_MORE,r.amount); }
+            });
+        } else if(remainLed.length){
+            remainLed.forEach(function(r){ markDiffRecord(r,'ledger',DIFF_TYPE.LEDGER_MORE,-r.amount); });
+        }
     });
 
     matchingResults.executed = true;
@@ -623,18 +841,20 @@ function executeMatching(){
 // ============================================================
 function getSystemDisplayRecords(){
     var recs=[];
-    systemRecords.forEach(function(sys){
+    getActiveSystemRecords().forEach(function(sys){
         var led=sys.matchedLedgerId?ledgerRecords.find(function(r){ return r.id===sys.matchedLedgerId; }):null;
-        var manualLedgers=sys.manualMatchGroupId?ledgerRecords.filter(function(r){ return r.manualMatchGroupId===sys.manualMatchGroupId; }):[];
-        recs.push({ id:sys.id, name:sys.name, idCard:sys.idCard, insuranceType:sys.insuranceType, billingMonth:sys.billingMonth, feeType:sys.feeType, feePeriod:sys.feePeriod||null, payableMonth:sys.payableMonth, sysAmount:sys.amount, ledgerAmount:led?led.amount:(manualLedgers.length?sumAmount(manualLedgers):null), matchedLedgerId:led?led.id:null, manualMatchGroupId:sys.manualMatchGroupId||null, matchStatus:sys.matchStatus, diffType:sys.diffType, diffAmount:sys.diffAmount, record:sys, ledgerRecord:led });
+        var matchGroupId=getMatchGroupId(sys);
+        var manualLedgers=matchGroupId?ledgerRecords.filter(function(r){ return getMatchGroupId(r)===matchGroupId; }):[];
+        recs.push({ id:sys.id, name:sys.name, idCard:sys.idCard, insuranceType:sys.insuranceType, billingMonth:sys.billingMonth, feeType:sys.feeType, feePeriod:sys.feePeriod||null, payableMonth:sys.payableMonth, sysAmount:sys.amount, ledgerAmount:led?led.amount:(manualLedgers.length?sumAmount(manualLedgers):null), matchedLedgerId:led?led.id:null, matchGroupId:matchGroupId, manualMatchGroupId:matchGroupId, matchStatus:sys.matchStatus, diffType:sys.diffType, diffAmount:sys.diffAmount, record:sys, ledgerRecord:led });
     }); return recs;
 }
 function getLedgerDisplayRecords(){
     var recs=[];
-    ledgerRecords.forEach(function(led){
+    getActiveLedgerRecords().forEach(function(led){
         var sys=led.matchedSystemId?systemRecords.find(function(r){ return r.id===led.matchedSystemId; }):null;
-        var manualSystems=led.manualMatchGroupId?systemRecords.filter(function(r){ return r.manualMatchGroupId===led.manualMatchGroupId; }):[];
-        recs.push({ id:led.id, name:led.name, idCard:led.idCard, insuranceType:led.insuranceType, billingMonth:led.billingMonth, feeType:led.feeTypeInferred||null, feePeriod:led.feePeriod||null, payableMonth:null, sysAmount:sys?sys.amount:(manualSystems.length?sumAmount(manualSystems):null), ledgerAmount:led.amount, matchedSystemId:sys?sys.id:null, manualMatchGroupId:led.manualMatchGroupId||null, matchStatus:led.matchStatus, diffType:led.diffType, diffAmount:led.diffAmount, record:led, systemRecord:sys });
+        var matchGroupId=getMatchGroupId(led);
+        var manualSystems=matchGroupId?systemRecords.filter(function(r){ return getMatchGroupId(r)===matchGroupId; }):[];
+        recs.push({ id:led.id, name:led.name, idCard:led.idCard, insuranceType:led.insuranceType, billingMonth:led.billingMonth, feeType:led.feeTypeInferred||null, feePeriod:led.feePeriod||null, payableMonth:null, sysAmount:sys?sys.amount:(manualSystems.length?sumAmount(manualSystems):null), ledgerAmount:led.amount, matchedSystemId:sys?sys.id:null, matchGroupId:matchGroupId, manualMatchGroupId:matchGroupId, matchStatus:led.matchStatus, diffType:led.diffType, diffAmount:led.diffAmount, record:led, systemRecord:sys });
     }); return recs;
 }
 
@@ -665,13 +885,12 @@ function renderSystemTable(){
         var sb='<span class="status-badge '+sc+'">'+sl+'</span>';
         var tb=r.feeType?'<span class="type-badge type-badge--'+r.feeType+'">'+getBillTypeLabel(r.feeType)+'</span>':'—';
         var ds='—'; if(r.diffAmount!==null&&r.diffAmount!==0) ds=(r.diffAmount>0?'+':'')+formatMoney(r.diffAmount);
-        var lac='—'; if(r.ledgerAmount!==null){ lac=formatMoney(r.ledgerAmount); if(r.matchedLedgerId) lac+=' <span class="cross-ref">↔ '+r.matchedLedgerId+'</span>'; else if(r.manualMatchGroupId) lac+=' <span class="cross-ref">↔ '+getManualMatchGroupLabel(r.manualMatchGroupId)+'</span>'; }
+        var lac='—'; if(r.ledgerAmount!==null){ lac=formatMoney(r.ledgerAmount); if(r.matchedLedgerId) lac+=' <span class="cross-ref">↔ '+r.matchedLedgerId+'</span>'; else if(r.matchGroupId) lac+=' <span class="cross-ref">↔ '+getMatchGroupLabel(r.matchGroupId)+'</span>'; }
         var ab='<button class="btn-action" onclick="showNewDetail(\''+r.id+'\',\'system\')">详情</button>';
-        if(r.matchStatus===MATCH_STATUS.PENDING) ab='<button class="btn-action" onclick="openPairingDrawer(\''+r.id+'\',\'system\')">确认核对</button>';
-        else if(r.matchStatus===MATCH_STATUS.MATCHED&&!r.record.archived) ab='<button class="btn-action" onclick="doCancelMatch(\''+r.id+'\')">取消</button>';
+        if(r.matchStatus===MATCH_STATUS.PENDING||r.matchStatus===MATCH_STATUS.DIFF||r.matchStatus===MATCH_STATUS.UNMATCHED) ab='<button class="btn-action" onclick="openPairingDrawer(\''+r.id+'\',\'system\')">确认核对</button>';
+        else if(r.matchStatus===MATCH_STATUS.MATCHED&&!r.record.archived) ab='<button class="btn-action" onclick="doCancelMatch(\''+r.id+'\')">取消核对</button>';
         else if(r.matchStatus===MATCH_STATUS.MATCHED&&r.record.archived) ab='<button class="btn-action" onclick="showNewDetail(\''+r.id+'\',\'system\')">详情</button>';
         else if(r.matchStatus===MATCH_STATUS.PAID) ab='<button class="btn-action" onclick="showNewDetail(\''+r.id+'\',\'system\')">详情</button>';
-        else if(r.matchStatus===MATCH_STATUS.DIFF||r.matchStatus===MATCH_STATUS.UNMATCHED) ab='<button class="btn-action" onclick="showForceMatchConfirm([\''+r.id+'\'])">强制核对</button>';
 
         var rc=r.matchStatus===MATCH_STATUS.PAID?'row-paid':r.record.archived?'row-archived':r.matchStatus===MATCH_STATUS.MATCHED?'row-matched':r.matchStatus===MATCH_STATUS.PENDING?'row-pending':r.matchStatus===MATCH_STATUS.DIFF?'row-diff':'';
         return '<tr class="'+rc+'" data-id="'+r.id+'"><td><input type="checkbox" class="system-row-checkbox" data-id="'+r.id+'" onchange="updateSystemBatchButtons()"></td>'
@@ -691,10 +910,10 @@ function renderLedgerTable(){
         var sb='<span class="status-badge '+sc+'">'+sl+'</span>';
         var tb=r.feeType?'<span class="type-badge type-badge--'+r.feeType+'">'+getBillTypeLabel(r.feeType)+'</span>':'—';
         var ds='—'; if(r.diffAmount!==null&&r.diffAmount!==0) ds=(r.diffAmount>0?'+':'')+formatMoney(r.diffAmount);
-        var sac='—'; if(r.sysAmount!==null){ sac=formatMoney(r.sysAmount); if(r.matchedSystemId) sac+=' <span class="cross-ref">↔ '+r.matchedSystemId+'</span>'; else if(r.manualMatchGroupId) sac+=' <span class="cross-ref">↔ '+getManualMatchGroupLabel(r.manualMatchGroupId)+'</span>'; }
+        var sac='—'; if(r.sysAmount!==null){ sac=formatMoney(r.sysAmount); if(r.matchedSystemId) sac+=' <span class="cross-ref">↔ '+r.matchedSystemId+'</span>'; else if(r.matchGroupId) sac+=' <span class="cross-ref">↔ '+getMatchGroupLabel(r.matchGroupId)+'</span>'; }
         var ab='<button class="btn-action" onclick="showNewDetail(\''+r.id+'\',\'ledger\')">详情</button>';
-        if(r.matchStatus===MATCH_STATUS.PENDING) ab='<button class="btn-action" onclick="openPairingDrawer(\''+r.id+'\',\'ledger\')">确认核对</button>';
-        else if(r.matchStatus===MATCH_STATUS.MATCHED&&!r.record.archived) ab='<button class="btn-action" onclick="doCancelMatch(\''+r.id+'\')">取消</button>';
+        if(r.matchStatus===MATCH_STATUS.PENDING||r.matchStatus===MATCH_STATUS.DIFF||r.matchStatus===MATCH_STATUS.UNMATCHED) ab='<button class="btn-action" onclick="openPairingDrawer(\''+r.id+'\',\'ledger\')">确认核对</button>';
+        else if(r.matchStatus===MATCH_STATUS.MATCHED&&!r.record.archived) ab='<button class="btn-action" onclick="doCancelMatch(\''+r.id+'\')">取消核对</button>';
         else if(r.matchStatus===MATCH_STATUS.MATCHED&&r.record.archived) ab='<button class="btn-action" onclick="showNewDetail(\''+r.id+'\',\'ledger\')">详情</button>';
         else if(r.matchStatus===MATCH_STATUS.PAID) ab='<button class="btn-action" onclick="showNewDetail(\''+r.id+'\',\'ledger\')">详情</button>';
 
@@ -736,7 +955,7 @@ function toggleLedgerMatchFilter(v){ toggleFilter('ledgerMatch',v); }
 function toggleLedgerTypeFilter(v){ toggleFilter('ledgerType',v); }
 
 function updateMatchCounts(){
-    var sm=systemRecords, lm=ledgerRecords;
+    var sm=getActiveSystemRecords(), lm=getActiveLedgerRecords();
     document.getElementById('systemTabCount').textContent=sm.length;
     document.getElementById('ledgerTabCount').textContent=lm.length;
 }
@@ -770,49 +989,67 @@ function toggleSystemSelectAll(){
 }
 function updateSystemBatchButtons(){
     var ids=getSelectedSystemIds();
-    var hasSel=ids.length>0;
-    document.getElementById('sysBatchConfirmBtn').disabled=!hasSel;
-    document.getElementById('sysBatchCancelBtn').disabled=!hasSel;
+    var canConfirm=ids.some(function(id){ var r=systemRecords.find(function(x){ return x.id===id; }); return r&&canEnterConfirmFlow(r); });
+    var canCancel=ids.some(function(id){ var r=systemRecords.find(function(x){ return x.id===id; }); return r&&r.matchStatus===MATCH_STATUS.MATCHED&&!r.archived&&r.matchStatus!==MATCH_STATUS.PAID; });
+    document.getElementById('sysBatchConfirmBtn').disabled=!canConfirm;
+    document.getElementById('sysBatchCancelBtn').disabled=!canCancel;
     var hasFM=ids.some(function(id){ var r=systemRecords.find(function(x){ return x.id===id; }); return r&&(r.matchStatus===MATCH_STATUS.DIFF||r.matchStatus===MATCH_STATUS.UNMATCHED); });
     document.getElementById('sysBatchForceMatchBtn').disabled=!hasFM;
     var total=document.querySelectorAll('#systemTableBody .system-row-checkbox').length;
     document.getElementById('sysSelectAllBtn').textContent=ids.length===total?'取消全选':'全选';
 }
-function systemBatchConfirm(){ getSelectedSystemIds().forEach(function(id){ var r=systemRecords.find(function(x){ return x.id===id; }); if(r&&r.matchStatus===MATCH_STATUS.PENDING&&matchingResults.pending.length>0){ for(var i=0;i<matchingResults.pending.length;i++){ var g=matchingResults.pending[i]; var si=g.systemRecords.findIndex(function(x){ return x.id===id; }); if(si>=0&&g.ledgerRecords[si]){ confirmPendingPairing(id,g.ledgerRecords[si].id); } } } }); renderAllTables(); showToast('批量确认完成','success'); }
+function systemBatchConfirm(){ openPairingDrawerForSelection(getSelectedSystemIds(),'system'); }
 function systemBatchCancel(){ getSelectedSystemIds().forEach(function(id){ var r=systemRecords.find(function(x){ return x.id===id; }); if(r&&r.matchStatus===MATCH_STATUS.MATCHED&&!r.archived) cancelMatch(id); }); renderAllTables(); showToast('批量取消完成','success'); }
 function systemBatchForceMatch(){ var ids=getSelectedSystemIds(); var fmIds=ids.filter(function(id){ var r=systemRecords.find(function(x){ return x.id===id; }); return r&&(r.matchStatus===MATCH_STATUS.DIFF||r.matchStatus===MATCH_STATUS.UNMATCHED); }); if(fmIds.length>0) showForceMatchConfirm(fmIds); else showToast('无符合条件的记录','warning'); }
 
 function getSelectedLedgerIds(){ return Array.from(document.querySelectorAll('#ledgerTableBody .ledger-row-checkbox:checked')).map(function(cb){ return cb.dataset.id; }); }
 function toggleLedgerSelectAll(){ var cbs=document.querySelectorAll('#ledgerTableBody .ledger-row-checkbox'); var all=Array.from(cbs).every(function(cb){ return cb.checked; }); cbs.forEach(function(cb){ cb.checked=!all; }); updateLedgerBatchButtons(); }
-function updateLedgerBatchButtons(){ var has=getSelectedLedgerIds().length>0; document.getElementById('ledBatchConfirmBtn').disabled=!has; document.getElementById('ledBatchCancelBtn').disabled=!has; }
-function ledgerBatchConfirm(){ getSelectedLedgerIds().forEach(function(id){ var r=ledgerRecords.find(function(x){ return x.id===id; }); if(r&&r.matchStatus===MATCH_STATUS.PENDING&&matchingResults.pending.length>0){ for(var i=0;i<matchingResults.pending.length;i++){ var g=matchingResults.pending[i]; var li=g.ledgerRecords.findIndex(function(x){ return x.id===id; }); if(li>=0&&g.systemRecords[li]){ confirmPendingPairing(g.systemRecords[li].id,id); } } } }); renderAllTables(); showToast('批量确认完成','success'); }
+function updateLedgerBatchButtons(){
+    var ids=getSelectedLedgerIds();
+    var canConfirm=ids.some(function(id){ var r=ledgerRecords.find(function(x){ return x.id===id; }); return r&&canEnterConfirmFlow(r); });
+    var canCancel=ids.some(function(id){ var r=ledgerRecords.find(function(x){ return x.id===id; }); return r&&r.matchStatus===MATCH_STATUS.MATCHED&&!r.archived&&r.matchStatus!==MATCH_STATUS.PAID; });
+    document.getElementById('ledBatchConfirmBtn').disabled=!canConfirm;
+    document.getElementById('ledBatchCancelBtn').disabled=!canCancel;
+}
+function ledgerBatchConfirm(){ openPairingDrawerForSelection(getSelectedLedgerIds(),'ledger'); }
 function ledgerBatchCancel(){ getSelectedLedgerIds().forEach(function(id){ var r=ledgerRecords.find(function(x){ return x.id===id; }); if(r&&r.matchStatus===MATCH_STATUS.MATCHED&&!r.archived) cancelMatch(id); }); renderAllTables(); showToast('批量取消完成','success'); }
 
 // ============================================================
 // CANCEL MATCH
 // ============================================================
-function doCancelMatch(id){ var r=systemRecords.find(function(x){ return x.id===id; }); if(r&&r.archived){ showToast('已归档记录不可取消核对','warning'); return; } cancelMatch(id); renderAllTables(); showToast('已取消核对，状态为待确认','success'); }
+function doCancelMatch(id){
+    var r=systemRecords.find(function(x){ return x.id===id; })||ledgerRecords.find(function(x){ return x.id===id; });
+    if(r&&(r.archived||r.matchStatus===MATCH_STATUS.PAID)){ showToast('已归档或已付款记录不可取消核对','warning'); return; }
+    cancelMatch(id); renderAllTables(); showToast('已取消核对，状态已恢复至核对前原始状态','success');
+}
+function restoreRecordsFromMatchGroup(matchGroupId){
+    var groupSystems=getManualGroupSystems(matchGroupId);
+    var groupLedgers=getManualGroupLedgers(matchGroupId);
+    var sysIds=groupSystems.map(function(r){ return r.id; });
+    var ledIds=groupLedgers.map(function(r){ return r.id; });
+    matchingResults.matched=matchingResults.matched.filter(function(m){ return m.matchGroupId!==matchGroupId&&m.manualMatchGroupId!==matchGroupId; });
+    removePendingForRecords(sysIds,ledIds);
+    removeDiffsForRecords(sysIds,ledIds);
+    groupSystems.concat(groupLedgers).forEach(restoreMatchRestoreSnapshot);
+    rebuildDiffsForRecords(groupSystems.concat(groupLedgers));
+}
 function cancelMatch(id){
     var sr=systemRecords.find(function(x){ return x.id===id; });
     var lr0=ledgerRecords.find(function(x){ return x.id===id; });
-    var manualGroupId=(sr&&sr.manualMatchGroupId)||(lr0&&lr0.manualMatchGroupId);
-    if(manualGroupId){
-        var groupSystems=getManualGroupSystems(manualGroupId);
-        var groupLedgers=getManualGroupLedgers(manualGroupId);
-        groupSystems.forEach(function(r){ r.matchStatus=MATCH_STATUS.PENDING; r.matchedLedgerId=null; r.manualMatchGroupId=null; r.payableMonth=null; });
-        groupLedgers.forEach(function(r){ r.matchStatus=MATCH_STATUS.PENDING; r.matchedSystemId=null; r.manualMatchGroupId=null; r.feeTypeInferred=null; r.payableMonthInferred=null; });
-        matchingResults.matched=matchingResults.matched.filter(function(m){ return m.manualMatchGroupId!==manualGroupId; });
-        matchingResults.pending.push({amount:sumAmount(groupSystems),systemRecords:groupSystems,ledgerRecords:groupLedgers,matchMode:'many_to_many_total'});
+    var matchGroupId=getMatchGroupId(sr)||getMatchGroupId(lr0);
+    if(matchGroupId){
+        restoreRecordsFromMatchGroup(matchGroupId);
         return;
     }
     // Handle force match cancel
-    if(sr&&sr.forceMatched){ sr.matchStatus=sr._originalMatchStatus||MATCH_STATUS.DIFF; sr.diffType=sr._originalDiffType||null; sr.diffAmount=sr._originalDiffAmount||null; sr.matchedLedgerId=null; sr.payableMonth=sr._originalPayableMonth!==undefined?sr._originalPayableMonth:sr.billingMonth; sr.forceMatched=false; delete sr._originalMatchStatus; delete sr._originalDiffType; delete sr._originalDiffAmount; delete sr._originalPayableMonth; matchingResults.matched=matchingResults.matched.filter(function(m){ return m.systemRecord.id!==id; }); if(sr.matchStatus===MATCH_STATUS.DIFF) matchingResults.diffs.push({systemRecord:sr,ledgerRecord:null}); return; }
+    if(sr&&sr.forceMatched){ matchingResults.matched=matchingResults.matched.filter(function(m){ return !(m.systemRecord&&m.systemRecord.id===id); }); removeDiffsForRecords([id],[]); restoreMatchRestoreSnapshot(sr); rebuildDiffsForRecords([sr]); return; }
     // Normal cancel
     var me=matchingResults.matched.find(function(m){ return (m.systemRecord&&m.systemRecord.id===id)||(m.ledgerRecord&&m.ledgerRecord.id===id); });
     var lr=me?(sr?me.ledgerRecord:me.systemRecord):ledgerRecords.find(function(x){ return x.id===id; });
-    if(sr){ sr.matchStatus='PENDING'; sr.matchedLedgerId=null; sr.payableMonth=null; }
-    if(lr){ lr.matchStatus='PENDING'; lr.matchedSystemId=null; lr.feeTypeInferred=null; lr.feePeriod=null; }
+    if(sr){ restoreMatchRestoreSnapshot(sr); }
+    if(lr){ restoreMatchRestoreSnapshot(lr); }
     if(me){ matchingResults.matched=matchingResults.matched.filter(function(m){ return m.systemRecord.id!==id&&(!m.ledgerRecord||m.ledgerRecord.id!==id); }); }
+    rebuildDiffsForRecords([sr,lr].filter(Boolean));
 }
 
 // ============================================================
@@ -823,7 +1060,7 @@ function forceMatch(ids){
     ids.forEach(function(id){
         var r=systemRecords.find(function(x){ return x.id===id; }); if(!r) return;
         if(r.matchStatus!==MATCH_STATUS.DIFF&&r.matchStatus!==MATCH_STATUS.UNMATCHED) return;
-        r._originalMatchStatus=r._originalMatchStatus||r.matchStatus; r._originalDiffType=r._originalDiffType||r.diffType; r._originalDiffAmount=r._originalDiffAmount||r.diffAmount; r._originalPayableMonth=r._originalPayableMonth!==undefined?r._originalPayableMonth:r.payableMonth;
+        captureMatchRestoreSnapshot(r);
         r.matchStatus='MATCHED'; r.matchedLedgerId=null; r.payableMonth=getCurrentBillingMonth(); r.forceMatched=true;
         matchingResults.matched.push({systemRecord:r,ledgerRecord:null});
         matchingResults.diffs=matchingResults.diffs.filter(function(d){ return !(d.systemRecord&&d.systemRecord.id===id); });
@@ -842,15 +1079,70 @@ function executeForceMatch(){ var ids=pendingForceMatchIds.slice(); closeForceMa
 // ============================================================
 // PAIRING DRAWER
 // ============================================================
-function confirmPendingPairing(sysId,ledId){
-    var sr=systemRecords.find(function(x){ return x.id===sysId; }); if(!sr) return;
-    var lr=ledgerRecords.find(function(x){ return x.id===ledId; }); if(!lr) return;
-    sr.matchStatus='MATCHED'; sr.matchedLedgerId=ledId; sr.payableMonth=lr.billingMonth; lr.matchStatus='MATCHED'; lr.matchedSystemId=sysId; lr.feeTypeInferred=sr.feeType;
-    matchingResults.matched.push({systemRecord:sr,ledgerRecord:lr});
-    matchingResults.pending=matchingResults.pending.filter(function(g){ return g.systemRecords.length!==1||g.systemRecords[0].id!==sysId; });
+function canEnterConfirmFlow(record){ return record&&record.matchStatus!==MATCH_STATUS.MATCHED&&record.matchStatus!==MATCH_STATUS.PAID&&!record.archived; }
+function isSameConfirmContext(a,b){ return a&&b&&makeFeePeriodKey(a)===makeFeePeriodKey(b)&&a.billingMonth===getCurrentBillingMonth()&&b.billingMonth===getCurrentBillingMonth(); }
+function getSelectedPairingIds(side){
+    var selector=side==='system'?'.confirm-sys-check:checked':'.confirm-led-check:checked';
+    return Array.from(document.querySelectorAll(selector)).map(function(cb){ return cb.value; });
 }
-function validateManyToManySelection(sysRecords,ledRecords){
-    if(sysRecords.length<2||ledRecords.length<2) return {ok:false,message:'多对多核对需至少选择 2 条系统侧和 2 条台账侧'};
+function getConfirmContextInfo(records){
+    var rec=records[0]||{};
+    return {
+        name: rec.name||'—',
+        idCard: rec.idCard||'',
+        insuranceType: rec.insuranceType||'—',
+        feePeriod: rec.feePeriod||rec.billingMonth||'—',
+        billingMonth: rec.billingMonth||getCurrentBillingMonth()
+    };
+}
+function renderConfirmContextCard(group){
+    var records=(group.systemRecords.length?group.systemRecords:group.ledgerRecords);
+    var ctx=getConfirmContextInfo(records);
+    return '<div style="background:linear-gradient(135deg,var(--qy-primary-50),#F8FAFC);border:1px solid var(--qy-border-light);padding:12px;border-radius:10px;margin-bottom:14px">'
+        +'<p style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--qy-text-primary)">共同核对信息</p>'
+        +'<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;font-size:12px;color:var(--qy-text-secondary)">'
+        +'<div>人员姓名：<strong style="color:var(--qy-text-primary)">'+ctx.name+'</strong></div>'
+        +'<div>身份证号：<strong style="color:var(--qy-text-primary)">'+maskIdCard(ctx.idCard)+'</strong></div>'
+        +'<div>险种：<strong style="color:var(--qy-text-primary)">'+ctx.insuranceType+'</strong></div>'
+        +'<div>费款所属期：<strong style="color:var(--qy-text-primary)">'+ctx.feePeriod+'</strong></div>'
+        +'<div>账单月份：<strong style="color:var(--qy-text-primary)">'+ctx.billingMonth+'</strong></div>'
+        +'</div></div>';
+}
+function renderConfirmRecordLabel(r,side){
+    var type=side==='system'?getBillTypeLabel(r.feeType):getBillTypeLabel(r.feeTypeInferred||'');
+    if(type==='—') type='待推断';
+    return '明细编码：'+r.id+' · '+type+' · '+formatMoney(r.amount)+' · '+getMatchStatusLabel(r.matchStatus);
+}
+function findConfirmCandidates(records,fromSide){
+    if(!records.length) return [];
+    var other=fromSide==='system'?getActiveLedgerRecords():getActiveSystemRecords();
+    var ids=records.map(function(r){ return r.id; });
+    var sameContext=function(r){ return records.some(function(base){ return isSameConfirmContext(base,r); }); };
+    return other.filter(function(r){
+        return canEnterConfirmFlow(r)&&sameContext(r)&&ids.indexOf(r.id)===-1;
+    });
+}
+function buildPairingGroup(selectedRecords,fromSide){
+    var systemSelected=fromSide==='system'?selectedRecords:[];
+    var ledgerSelected=fromSide==='ledger'?selectedRecords:[];
+    var candidates=findConfirmCandidates(selectedRecords,fromSide);
+    if(fromSide==='system'){
+        return {fromSide:fromSide,systemRecords:systemSelected,ledgerRecords:candidates,selectedSystemIds:systemSelected.map(function(r){ return r.id; }),selectedLedgerIds:[]};
+    }
+    return {fromSide:fromSide,systemRecords:candidates,ledgerRecords:ledgerSelected,selectedSystemIds:[],selectedLedgerIds:ledgerSelected.map(function(r){ return r.id; })};
+}
+function buildPairingGroupFromPending(group,id,fromSide){
+    var isOneToOne=group.systemRecords.length===1&&group.ledgerRecords.length===1;
+    return {
+        fromSide:fromSide,
+        systemRecords:group.systemRecords,
+        ledgerRecords:group.ledgerRecords,
+        selectedSystemIds:isOneToOne?group.systemRecords.map(function(r){ return r.id; }):(fromSide==='system'?[id]:[]),
+        selectedLedgerIds:isOneToOne?group.ledgerRecords.map(function(r){ return r.id; }):(fromSide==='ledger'?[id]:[])
+    };
+}
+function validateConfirmSelection(sysRecords,ledRecords){
+    if(sysRecords.length<1||ledRecords.length<1) return {ok:false,message:'确认核对需至少选择 1 条系统侧和 1 条台账侧'};
     var key=makeFeePeriodKey(sysRecords[0]);
     var sameSys=sysRecords.every(function(r){ return makeFeePeriodKey(r)===key; });
     var sameLed=ledRecords.every(function(r){ return makeFeePeriodKey(r)===key; });
@@ -862,103 +1154,85 @@ function validateManyToManySelection(sysRecords,ledRecords){
     if(amountCents(sysTotal)!==amountCents(ledTotal)) return {ok:false,message:'系统合计 '+formatMoney(sysTotal)+' 与台账合计 '+formatMoney(ledTotal)+' 不相等'};
     return {ok:true,sysTotal:sysTotal,ledTotal:ledTotal};
 }
-function confirmManyToManyPairing(sysIds,ledIds){
+function confirmSelectedPairing(sysIds,ledIds){
     var sys=sysIds.map(function(id){ return systemRecords.find(function(r){ return r.id===id; }); }).filter(Boolean);
     var led=ledIds.map(function(id){ return ledgerRecords.find(function(r){ return r.id===id; }); }).filter(Boolean);
-    var validation=validateManyToManySelection(sys,led);
+    var validation=validateConfirmSelection(sys,led);
     if(!validation.ok){ showToast(validation.message,'warning'); return false; }
-    var groupId='MM'+Date.now();
-    var feeTypes={};
-    sys.forEach(function(r){ r.matchStatus=MATCH_STATUS.MATCHED; r.manualMatchGroupId=groupId; r.matchedLedgerId=null; r.payableMonth=getCurrentBillingMonth(); feeTypes[r.feeType]=true; });
-    var inferred=Object.keys(feeTypes).length===1?Object.keys(feeTypes)[0]:'multiple';
-    led.forEach(function(r){ r.matchStatus=MATCH_STATUS.MATCHED; r.manualMatchGroupId=groupId; r.matchedSystemId=null; r.feeTypeInferred=inferred; r.payableMonthInferred=r.billingMonth; });
-    matchingResults.matched.push({manualMatchGroupId:groupId,systemRecords:sys,ledgerRecords:led,matchMode:'many_to_many_total'});
+    applyMatchedRelation(sys,led,'confirm_relation');
     matchingResults.pending=matchingResults.pending.filter(function(g){
         return !g.systemRecords.some(function(s){ return sysIds.indexOf(s.id)>=0; })&&!g.ledgerRecords.some(function(l){ return ledIds.indexOf(l.id)>=0; });
     });
     return true;
 }
+function confirmPendingPairing(sysId,ledId){ return confirmSelectedPairing([sysId],[ledId]); }
 function findPairingGroup(id,rec){
     var group=matchingResults.pending.find(function(g){ return g.systemRecords.some(function(s){ return s.id===id; })||g.ledgerRecords.some(function(l){ return l.id===id; }); });
-    if(group) return group;
+    if(group) return buildPairingGroupFromPending(group,id,systemRecords.find(function(x){ return x.id===id; })?'system':'ledger');
     var amount=rec.amount;
-    var sys=systemRecords.filter(function(s){ return s.matchStatus===MATCH_STATUS.PENDING&&s.idCard===rec.idCard&&s.insuranceType===rec.insuranceType&&s.amount===amount; });
-    var led=ledgerRecords.filter(function(l){ return l.matchStatus===MATCH_STATUS.PENDING&&l.idCard===rec.idCard&&l.insuranceType===rec.insuranceType&&l.amount===amount; });
-    if(sys.length>0&&led.length>0){
-        group={amount:amount,systemRecords:sys,ledgerRecords:led};
+    var isSystem=!!systemRecords.find(function(x){ return x.id===id; });
+    var sys=isSystem?[rec]:getActiveSystemRecords().filter(function(s){ return canEnterConfirmFlow(s)&&isSameConfirmContext(rec,s)&&s.amount===amount; });
+    var led=isSystem?getActiveLedgerRecords().filter(function(l){ return canEnterConfirmFlow(l)&&isSameConfirmContext(rec,l)&&l.amount===amount; }):[rec];
+    if(sys.length>0||led.length>0){
+        group=isSystem?buildPairingGroup(sys,'system'):buildPairingGroup(led,'ledger');
         matchingResults.pending.push(group);
         return group;
     }
     return null;
 }
+function openPairingDrawerForSelection(ids,side){
+    var source=side==='system'?systemRecords:ledgerRecords;
+    var selected=ids.map(function(id){ return source.find(function(r){ return r.id===id; }); }).filter(function(r){ return canEnterConfirmFlow(r); });
+    if(!selected.length){ showToast('请选择可确认核对的记录','warning'); return; }
+    var firstKey=makeFeePeriodKey(selected[0]);
+    if(!selected.every(function(r){ return makeFeePeriodKey(r)===firstKey; })){ showToast('请选择同一成员、同一险种、同一账单月份、同一费款所属期的记录','warning'); return; }
+    renderPairingDrawer(buildPairingGroup(selected,side));
+}
 function openPairingDrawer(id,side){
-    currentPairingGroup=null;
     var rec=side==='system'?systemRecords.find(function(x){ return x.id===id; }):ledgerRecords.find(function(x){ return x.id===id; });
     if(!rec) return;
-    var group=findPairingGroup(id,rec);
-    if(!group){ showToast('暂无可确认的台账候选，请先导入台账或使用强制核对','warning'); return; }
+    if(!canEnterConfirmFlow(rec)){ showToast('该记录当前不可确认核对','warning'); return; }
+    renderPairingDrawer(findPairingGroup(id,rec)||buildPairingGroup([rec],side));
+}
+function renderPairingDrawer(group){
     currentPairingGroup=group;
-    document.getElementById('pairingTitle').textContent='确认核对 — '+group.systemRecords[0].name+' | '+group.systemRecords[0].insuranceType;
-    var isManyToMany=group.matchMode==='many_to_many_total';
-    var html='<p style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:16px">'+(isManyToMany?'多对多合计待确认：系统 '+formatMoney(sumAmount(group.systemRecords))+' / 台账 '+formatMoney(sumAmount(group.ledgerRecords)):'同金额待确认：'+formatMoney(Number(group.amount)))+'（系统'+group.systemRecords.length+'笔 / 台账'+group.ledgerRecords.length+'笔）</p>';
-    if(isManyToMany){
-        html+='<div style="background:var(--qy-primary-50);padding:12px;border-radius:8px;margin-bottom:16px"><p style="font-size:12px;font-weight:600;margin-bottom:8px">多对多手动核对</p><p style="font-size:12px;color:var(--qy-text-secondary);margin-bottom:8px">请选择同一成员、同一险种、同一费款所属期下的多笔系统侧与台账侧明细，合计金额相等后可确认。</p>';
-        html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-        html+='<div><p style="font-size:12px;font-weight:600;margin-bottom:6px">系统侧</p>'+group.systemRecords.map(function(s){ return '<label style="display:flex;gap:6px;align-items:center;font-size:12px;padding:4px 0"><input type="checkbox" class="many-sys-check" value="'+s.id+'" checked onchange="updatePairingMapping()"> '+s.id+' '+getBillTypeLabel(s.feeType)+' '+s.feePeriod+' '+formatMoney(s.amount)+'</label>'; }).join('')+'</div>';
-        html+='<div><p style="font-size:12px;font-weight:600;margin-bottom:6px">台账侧</p>'+group.ledgerRecords.map(function(l){ return '<label style="display:flex;gap:6px;align-items:center;font-size:12px;padding:4px 0"><input type="checkbox" class="many-led-check" value="'+l.id+'" checked onchange="updatePairingMapping()"> '+l.id+' '+(l.feePeriod||l.billingMonth)+' '+formatMoney(l.amount)+'</label>'; }).join('')+'</div>';
-        html+='</div><div id="pairingValidation" style="margin-top:10px;font-size:12px;color:var(--qy-text-secondary)"></div></div>';
-        document.getElementById('pairingBody').innerHTML=html;
-        document.getElementById('pairingDrawer').classList.add('is-visible');
-        updatePairingMapping();
-        return;
-    }
-    html+='<div style="background:var(--qy-primary-50);padding:12px;border-radius:8px;margin-bottom:16px"><p style="font-size:12px;font-weight:600;margin-bottom:8px">💡 智能推荐配对（按列表顺序）</p>';
-    group.systemRecords.forEach(function(s,i){ var l=group.ledgerRecords[i]; if(l) html+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><input type="checkbox" checked onchange="updatePairingMapping()" class="pair-check" data-sys="'+s.id+'" data-led="'+l.id+'"> '+s.id+': '+getBillTypeLabel(s.feeType)+'（'+s.feePeriod+'）'+formatMoney(s.amount)+' ↔ '+l.id+': '+formatMoney(l.amount)+'</div>'; });
+    document.getElementById('pairingTitle').textContent='确认核对';
+    var html=renderConfirmContextCard(group);
+    html+='<p style="font-size:13px;color:var(--qy-text-secondary);margin-bottom:16px">下方仅展示该共同核对信息下的系统侧和台账侧候选明细。系统合计与台账合计一致后，可统一确认核对。</p>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+    html+='<div style="background:var(--qy-bg-secondary);padding:12px;border-radius:8px"><p style="font-size:12px;font-weight:600;margin-bottom:8px">系统侧明细</p>';
+    html+=group.systemRecords.length?group.systemRecords.map(function(s){
+        var checked=(group.selectedSystemIds||[]).indexOf(s.id)>=0?' checked':'';
+        var role=checked?'selected':'candidate';
+        return '<label style="display:flex;gap:6px;align-items:flex-start;font-size:12px;padding:4px 0"><input type="checkbox" class="confirm-sys-check" data-confirm-role="'+role+'" value="'+s.id+'"'+checked+' onchange="updatePairingMapping()"> <span>'+renderConfirmRecordLabel(s,'system')+'</span></label>';
+    }).join(''):'<p style="font-size:12px;color:var(--qy-text-muted)">无系统侧候选</p>';
     html+='</div>';
-    html+='<p style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--qy-text-secondary)">手动调整映射</p>';
-    group.systemRecords.forEach(function(s,i){
-        html+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;margin-bottom:4px">'+s.id+': '+getBillTypeLabel(s.feeType)+' '+formatMoney(s.amount)+' → <select class="qy-select pair-select" data-sys="'+s.id+'" onchange="updatePairingMapping()" style="width:160px">';
-        group.ledgerRecords.forEach(function(l,j){ html+='<option value="'+l.id+'"'+(j===i?' selected':'')+'>'+l.id+': '+formatMoney(l.amount)+'</option>'; });
-        html+='</select></div>';
-    });
+    html+='<div style="background:var(--qy-primary-50);padding:12px;border-radius:8px"><p style="font-size:12px;font-weight:600;margin-bottom:8px">台账侧明细</p>';
+    html+=group.ledgerRecords.length?group.ledgerRecords.map(function(l){
+        var checked=(group.selectedLedgerIds||[]).indexOf(l.id)>=0?' checked':'';
+        var role=checked?'selected':'candidate';
+        return '<label style="display:flex;gap:6px;align-items:flex-start;font-size:12px;padding:4px 0"><input type="checkbox" class="confirm-led-check" data-confirm-role="'+role+'" value="'+l.id+'"'+checked+' onchange="updatePairingMapping()"> <span>'+renderConfirmRecordLabel(l,'ledger')+'</span></label>';
+    }).join(''):'<p style="font-size:12px;color:var(--qy-text-muted)">无台账侧候选</p>';
+    html+='</div></div><div id="pairingValidation" style="margin-top:12px;font-size:12px;color:var(--qy-text-secondary)"></div>';
     document.getElementById('pairingBody').innerHTML=html;
     document.getElementById('pairingDrawer').classList.add('is-visible');
+    updatePairingMapping();
 }
 function updatePairingMapping(){
-    var manySys=document.querySelectorAll('.many-sys-check');
-    var manyLed=document.querySelectorAll('.many-led-check');
-    if(manySys.length||manyLed.length){
-        var sysIds=Array.from(document.querySelectorAll('.many-sys-check:checked')).map(function(cb){ return cb.value; });
-        var ledIds=Array.from(document.querySelectorAll('.many-led-check:checked')).map(function(cb){ return cb.value; });
-        var sys=sysIds.map(function(id){ return systemRecords.find(function(r){ return r.id===id; }); }).filter(Boolean);
-        var led=ledIds.map(function(id){ return ledgerRecords.find(function(r){ return r.id===id; }); }).filter(Boolean);
-        var validation=validateManyToManySelection(sys,led);
-        var box=document.getElementById('pairingValidation');
-        if(box) box.textContent=validation.ok?'合计校验通过：系统 '+formatMoney(validation.sysTotal)+' = 台账 '+formatMoney(validation.ledTotal):validation.message;
-        if(box) box.style.color=validation.ok?'var(--qy-success-600)':'var(--qy-error-500)';
-        document.getElementById('pairingConfirmBtn').disabled=!validation.ok;
-        return;
-    }
-    var checks=document.querySelectorAll('.pair-check:checked');
-    var selects=document.querySelectorAll('.pair-select');
-    var usedLed={}; var conflict=false;
-    checks.forEach(function(cb){ var lid=cb.dataset.led; if(usedLed[lid]) conflict=true; usedLed[lid]=true; });
-    selects.forEach(function(sel){ var lid=sel.value; if(usedLed[lid]&&!Array.from(checks).some(function(cb){ return cb.dataset.sys===sel.dataset.sys&&cb.dataset.led===lid; })) conflict=true; usedLed[lid]=true; });
-    document.getElementById('pairingConfirmBtn').disabled=conflict;
+    var sysIds=getSelectedPairingIds('system');
+    var ledIds=getSelectedPairingIds('ledger');
+    var sys=sysIds.map(function(id){ return systemRecords.find(function(r){ return r.id===id; }); }).filter(Boolean);
+    var led=ledIds.map(function(id){ return ledgerRecords.find(function(r){ return r.id===id; }); }).filter(Boolean);
+    var validation=validateConfirmSelection(sys,led);
+    var box=document.getElementById('pairingValidation');
+    if(box) box.textContent=validation.ok?'合计校验通过：系统合计 '+formatMoney(validation.sysTotal)+' = 台账合计 '+formatMoney(validation.ledTotal):validation.message;
+    if(box) box.style.color=validation.ok?'var(--qy-success-600)':'var(--qy-error-500)';
+    document.getElementById('pairingConfirmBtn').disabled=!validation.ok;
 }
 function confirmPairing(){
-    var manySys=document.querySelectorAll('.many-sys-check');
-    var manyLed=document.querySelectorAll('.many-led-check');
-    if(manySys.length||manyLed.length){
-        var sysIds=Array.from(document.querySelectorAll('.many-sys-check:checked')).map(function(cb){ return cb.value; });
-        var ledIds=Array.from(document.querySelectorAll('.many-led-check:checked')).map(function(cb){ return cb.value; });
-        if(confirmManyToManyPairing(sysIds,ledIds)){ closePairingDrawer(); renderAllTables(); showToast('多对多核对完成','success'); }
-        return;
-    }
-    var checks=document.querySelectorAll('.pair-check:checked');
-    var usedLed={};
-    checks.forEach(function(cb){ var sid=cb.dataset.sys, lid=cb.dataset.led; if(!usedLed[lid]){ confirmPendingPairing(sid,lid); usedLed[lid]=true; } });
-    closePairingDrawer(); renderAllTables(); showToast('配对确认完成','success');
+    var sysIds=getSelectedPairingIds('system');
+    var ledIds=getSelectedPairingIds('ledger');
+    if(confirmSelectedPairing(sysIds,ledIds)){ closePairingDrawer(); renderAllTables(); showToast('确认核对完成','success'); }
 }
 function closePairingDrawer(event){ if(event&&event.target!==event.currentTarget) return; document.getElementById('pairingDrawer').classList.remove('is-visible'); currentPairingGroup=null; }
 
@@ -980,20 +1254,22 @@ function showNewDetail(id,side){
     html+='<p style="font-size:13px;font-weight:600;margin-bottom:8px">金额对比</p>';
     if(isSys){
         html+='<p style="font-size:12px;color:var(--qy-text-secondary)">系统侧：'+formatMoney(rec.amount)+'（单位 '+formatMoney(rec.amountCompany||rec.amount)+' / 个人 '+formatMoney(rec.amountPersonal||0)+'）</p>';
-        var manualLedgers=getManualGroupLedgers(rec.manualMatchGroupId);
+        var matchGroupId=getMatchGroupId(rec);
+        var manualLedgers=getManualGroupLedgers(matchGroupId);
         var lr=rec.matchedLedgerId?ledgerRecords.find(function(x){ return x.id===rec.matchedLedgerId; }):null;
         if(manualLedgers.length){
-            html+='<p style="font-size:12px;color:var(--qy-text-secondary)">台账侧：'+getManualMatchGroupLabel(rec.manualMatchGroupId)+'，合计 '+formatMoney(sumAmount(manualLedgers))+'</p>';
+            html+='<p style="font-size:12px;color:var(--qy-text-secondary)">台账侧：'+getMatchGroupLabel(matchGroupId)+'，合计 '+formatMoney(sumAmount(manualLedgers))+'</p>';
             html+='<p style="font-size:12px;color:var(--qy-text-secondary)">台账明细：'+manualLedgers.map(function(l){ return l.id+' '+formatMoney(l.amount); }).join('；')+'</p>';
         } else {
             html+='<p style="font-size:12px;color:var(--qy-text-secondary)">台账侧：'+(lr?formatMoney(lr.amount):'无匹配记录')+'</p>';
         }
     } else {
         html+='<p style="font-size:12px;color:var(--qy-text-secondary)">台账侧：'+formatMoney(rec.amount)+'</p>';
-        var manualSystems=getManualGroupSystems(rec.manualMatchGroupId);
+        var matchGroupId=getMatchGroupId(rec);
+        var manualSystems=getManualGroupSystems(matchGroupId);
         var sr=rec.matchedSystemId?systemRecords.find(function(x){ return x.id===rec.matchedSystemId; }):null;
         if(manualSystems.length){
-            html+='<p style="font-size:12px;color:var(--qy-text-secondary)">系统侧：'+getManualMatchGroupLabel(rec.manualMatchGroupId)+'，合计 '+formatMoney(sumAmount(manualSystems))+'</p>';
+            html+='<p style="font-size:12px;color:var(--qy-text-secondary)">系统侧：'+getMatchGroupLabel(matchGroupId)+'，合计 '+formatMoney(sumAmount(manualSystems))+'</p>';
             html+='<p style="font-size:12px;color:var(--qy-text-secondary)">系统明细：'+manualSystems.map(function(s){ return s.id+' '+formatMoney(s.amount); }).join('；')+'</p>';
         } else {
             html+='<p style="font-size:12px;color:var(--qy-text-secondary)">系统侧：'+(sr?formatMoney(sr.amount):'无匹配记录')+'</p>';
@@ -1010,13 +1286,9 @@ function showNewDetail(id,side){
 }
 function confirmFromDrawer(){
     var id=currentDetailRecordId;
-    var rec=systemRecords.find(function(x){ return x.id===id; })||ledgerRecords.find(function(x){ return x.id===id; }); if(!rec) return;
-    var candidates=systemRecords.find(function(x){ return x.id===id; })?ledgerRecords.filter(function(l){ return l.idCard===rec.idCard&&l.insuranceType===rec.insuranceType&&l.matchStatus!=='MATCHED'; }):systemRecords.filter(function(s){ return s.idCard===rec.idCard&&s.insuranceType===rec.insuranceType&&s.matchStatus!=='MATCHED'; });
-    if(candidates.length===0){ showToast('无匹配的候选记录','warning'); return; }
-    // Simplified: auto-match to first candidate with same amount
-    var best=candidates.find(function(c){ return c.amount===rec.amount; }); if(!best) best=candidates[0];
-    if(systemRecords.find(function(x){ return x.id===id; })) confirmPendingPairing(id,best.id); else confirmPendingPairing(best.id,id);
-    closeDetailDrawer(); renderAllTables(); showToast('确认核对完成','success');
+    var isSystem=!!systemRecords.find(function(x){ return x.id===id; });
+    closeDetailDrawer();
+    openPairingDrawer(id,isSystem?'system':'ledger');
 }
 function closeDetailDrawer(event){ if(event&&event.target!==event.currentTarget) return; document.getElementById('detailDrawer').classList.remove('is-visible'); }
 
@@ -1025,10 +1297,10 @@ function closeDetailDrawer(event){ if(event&&event.target!==event.currentTarget)
 // ============================================================
 function archiveResults(){
     if(!matchingResults.executed){ showToast('请先执行对账','warning'); return; }
-    var toArchive=systemRecords.filter(function(r){ return r.matchStatus===MATCH_STATUS.MATCHED&&!r.archived; });
+    var toArchive=getActiveSystemRecords().filter(function(r){ return r.matchStatus===MATCH_STATUS.MATCHED&&!r.archived; });
     if(toArchive.length===0){ showToast('无待归档记录','warning'); return; }
-    var pc=systemRecords.filter(function(r){ return r.matchStatus===MATCH_STATUS.PENDING&&!r.archived; }).length;
-    var dc=systemRecords.filter(function(r){ return r.matchStatus===MATCH_STATUS.DIFF&&!r.remark&&!r.archived; }).length;
+    var pc=getActiveSystemRecords().filter(function(r){ return r.matchStatus===MATCH_STATUS.PENDING&&!r.archived; }).length;
+    var dc=getActiveSystemRecords().filter(function(r){ return r.matchStatus===MATCH_STATUS.DIFF&&!r.remark&&!r.archived; }).length;
     if(pc>0||dc>0){ showConfirmDialog('归档确认','还有 '+pc+' 条待确认和 '+dc+' 条差异未处理，是否继续归档（仅归档已核对记录）？',function(ok){ if(ok) doArchive(toArchive); }); }
     else doArchive(toArchive);
 }
@@ -1044,7 +1316,7 @@ function doArchive(toArchive){
             var lr=ledgerRecords.find(function(x){ return x.id===sr.matchedLedgerId; });
             if(lr&&!lr.archived){ lr.archived=true; lr.archivedAt=now; lr.archiveBatchId=id; }
         }
-        getManualGroupLedgers(sr.manualMatchGroupId).forEach(function(lr){
+        getManualGroupLedgers(getMatchGroupId(sr)).forEach(function(lr){
             if(!lr.archived){ lr.archived=true; lr.archivedAt=now; lr.archiveBatchId=id; }
         });
     });
@@ -1087,7 +1359,7 @@ function onLedgerArchiveBatchChange(){ var s=document.getElementById('ledgerArch
 // ============================================================
 function showPaymentConfirm(bid){
     var b=archiveBatches.find(function(x){ return x.id===bid; }); if(!b) return;
-    var recs=systemRecords.filter(function(r){ return r.archiveBatchId===bid&&r.matchStatus===MATCH_STATUS.MATCHED&&r.archived; });
+    var recs=getActiveSystemRecords().filter(function(r){ return r.archiveBatchId===bid&&r.matchStatus===MATCH_STATUS.MATCHED&&r.archived; });
     if(recs.length===0){ showToast('该批次无可付款记录（可能已全部付款）','warning'); return; }
     pendingPaymentBatchId=bid;
     var total=recs.reduce(function(s,r){ return s+r.amount; },0);
@@ -1104,8 +1376,9 @@ function executePayment(){
             var lr=ledgerRecords.find(function(x){ return x.id===sr.matchedLedgerId; });
             if(lr) lr.matchStatus=MATCH_STATUS.PAID;
         }
-        if(sr.archiveBatchId===bid&&sr.matchStatus===MATCH_STATUS.PAID&&sr.manualMatchGroupId){
-            getManualGroupLedgers(sr.manualMatchGroupId).forEach(function(lr){ if(lr.archiveBatchId===bid&&lr.archived) lr.matchStatus=MATCH_STATUS.PAID; });
+        var matchGroupId=getMatchGroupId(sr);
+        if(sr.archiveBatchId===bid&&sr.matchStatus===MATCH_STATUS.PAID&&matchGroupId){
+            getManualGroupLedgers(matchGroupId).forEach(function(lr){ if(lr.archiveBatchId===bid&&lr.archived) lr.matchStatus=MATCH_STATUS.PAID; });
         }
     });
     if(count>0){ renderAllTables(); showToast('付款完成：'+count+' 条记录已变更为已付款','success'); } else showToast('无记录需要付款','warning');
@@ -1129,6 +1402,7 @@ function openImportDialog(){
 function closeImportDialog(event){ if(event&&event.target!==event.currentTarget) return; document.getElementById('importDialog').classList.remove('is-visible'); }
 function handleFileSelect(){ var m=document.getElementById('importMonthSelect').value; if(!m){ showToast('请先选择台账月份','warning'); return; } showImportPreview(m); }
 function getMockLedgerRows(month){
+    var ctx=getPageContext();
     return [
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:1233.12},
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'失业',billingMonth:'2026-04',feePeriod:'2026-04',amount:51.38},
@@ -1148,9 +1422,16 @@ function getMockLedgerRows(month){
         {name:'孙悦',idCard:'500382**********13',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:888.88},
         {name:'测试多对多',idCard:'500399**********99',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:150},
         {name:'测试多对多',idCard:'500399**********99',insuranceType:'养老',billingMonth:'2026-04',feePeriod:'2026-04',amount:150},
+        {name:'测试一对多',idCard:'500399**********98',insuranceType:'医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:120},
+        {name:'测试一对多',idCard:'500399**********98',insuranceType:'医疗',billingMonth:'2026-04',feePeriod:'2026-04',amount:180},
+        {name:'测试多对一',idCard:'500399**********97',insuranceType:'失业',billingMonth:'2026-04',feePeriod:'2026-04',amount:300},
         {name:'陈鸣',idCard:'500384**********14',insuranceType:'养老',billingMonth:'2026-03',feePeriod:'2026-03',amount:1188.48},
         {name:'陶欢欢',idCard:'500382**********08',insuranceType:'养老',billingMonth:'2026-02',feePeriod:'2026-02',amount:123.31},
-    ].filter(function(r){ return r.billingMonth===month; });
+    ].filter(function(r){
+        if(r.billingMonth!==month) return false;
+        if(ctx.insuranceType&&r.insuranceType!==ctx.insuranceType) return false;
+        return true;
+    });
 }
 function showImportPreview(month){
     var mock=getMockLedgerRows(month);
@@ -1167,8 +1448,11 @@ function importNextStep(){
     var month=document.getElementById('importMonthSelect').value;
     var mock=getMockLedgerRows(month);
     var startIdx=ledgerRecords.length;
+    var ctx=getPageContext();
     mock.forEach(function(r,i){
-        ledgerRecords.push({ id:'T'+String(startIdx+i+1).padStart(3,'0'), name:r.name, idCard:r.idCard, insuranceType:r.insuranceType, billingMonth:r.billingMonth, feePeriod:r.feePeriod, amount:r.amount, matchStatus:'UNMATCHED', matchedSystemId:null, diffType:null, diffAmount:null, feeTypeInferred:null, payableMonthInferred:null, archived:false, archivedAt:null, archiveBatchId:null, importBatchId:'batch_'+Date.now(), insuranceSubject:'某科技有限公司', insuranceRule:'社保规则A', importedAt:new Date().toLocaleString('zh-CN'), importedBy:'admin' });
+        var ruleName=ctx.ruleName||Object.keys(RECONCILIATION_RULE_CONTEXTS).find(function(name){ var rule=RECONCILIATION_RULE_CONTEXTS[name]; return rule.insuranceType===r.insuranceType&&(!ctx.insuranceSubject||rule.insuranceSubject===ctx.insuranceSubject); })||'';
+        var rule=RECONCILIATION_RULE_CONTEXTS[ruleName]||ctx;
+        ledgerRecords.push({ id:'T'+String(startIdx+i+1).padStart(3,'0'), name:r.name, idCard:r.idCard, insuranceType:r.insuranceType, billingMonth:r.billingMonth, feePeriod:r.feePeriod, amount:r.amount, matchStatus:'UNMATCHED', matchedSystemId:null, diffType:null, diffAmount:null, feeTypeInferred:null, payableMonthInferred:null, archived:false, archivedAt:null, archiveBatchId:null, importBatchId:'batch_'+Date.now(), insuranceSubject:rule.insuranceSubject||ctx.insuranceSubject||'某科技有限公司', insuranceRule:ruleName, region:rule.region||ctx.region||'重庆', importedAt:new Date().toLocaleString('zh-CN'), importedBy:'admin' });
     });
     closeImportDialog(); renderAllTables(); showToast('导入完成：成功 '+mock.length+' 条','success');
 }
@@ -1177,7 +1461,7 @@ function importNextStep(){
 // START RECONCILIATION
 // ============================================================
 function startReconciliation(){
-    if(systemRecords.length===0){ showToast('无系统侧记录','warning'); return; }
+    if(getActiveSystemRecords().length===0){ showToast('当前页面无系统侧记录','warning'); return; }
     executeMatching(); renderAllTables();
     var m=matchingResults.matched.length, p=matchingResults.pending.length, d=matchingResults.diffs.length;
     showToast('对账完成：已核对 '+m+' 条，待确认 '+p+' 条，差异 '+d+' 条','success');
@@ -1247,16 +1531,16 @@ const annotations = [
     { num:22, text:'PRD §10.5：系统金额按单位金额+个人金额展示', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>8?ths[8]:document.querySelector('.data-table'); }, area:'表格字段-列' },
     { num:23, text:'PRD §10.5 / §10.6：已核对记录显示跨引用标记，未核对显示「—」', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>9?ths[9]:document.querySelector('.data-table'); }, area:'表格字段-列' },
     { num:24, text:'PRD §10.5 / §10.6：差异列显示差额与方向', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>10?ths[10]:document.querySelector('.data-table'); }, area:'表格字段-列' },
-    { num:25, text:'PRD §10.8：操作列按状态切换强制核对、确认核对、取消、详情', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>11?ths[11]:document.querySelector('.data-table'); }, area:'表格字段-列' },
+    { num:25, text:'PRD §10.8：操作列按状态切换强制核对、确认核对、取消核对、详情', targetSel:function(){ var ths=document.querySelectorAll('.data-table th'); return ths.length>11?ths[11]:document.querySelector('.data-table'); }, area:'表格字段-列' },
 
     // ====== 行状态颜色 ======
     { num:26, text:'PRD §10.7：行颜色编码区分已核对、待确认、差异、未匹配、已归档、已付款', target:'.data-table', area:'表格-行颜色' },
 
     // ====== 批量操作栏 ======
-    { num:27, text:'PRD §15：批量操作栏包含全选、确认所选、取消确认、强制核对', target:'#sysSelectAllBtn', area:'批量操作栏' },
+    { num:27, text:'PRD §15：批量操作栏包含全选、批量确认核对、批量取消核对、强制核对', target:'#sysSelectAllBtn', area:'批量操作栏' },
     { num:28, text:'PRD §15：全选按钮作用于当前 Tab 可见记录', target:'#sysSelectAllBtn', area:'批量操作栏' },
-    { num:29, text:'PRD §15：确认所选仅处理 PENDING', target:'#sysBatchConfirmBtn', area:'批量操作栏' },
-    { num:30, text:'PRD §15：取消确认仅处理未归档 MATCHED', target:'#sysBatchCancelBtn', area:'批量操作栏' },
+    { num:29, text:'PRD §15：批量确认核对支持 PENDING / UNMATCHED / DIFF 进入统一确认抽屉', target:'#sysBatchConfirmBtn', area:'批量操作栏' },
+    { num:30, text:'PRD §15：批量取消核对仅处理未归档 MATCHED', target:'#sysBatchCancelBtn', area:'批量操作栏' },
     { num:31, text:'PRD §15：强制核对仅系统侧 DIFF / UNMATCHED 可用', target:'#sysBatchForceMatchBtn', area:'批量操作栏' },
 
     // ====== 核对状态机（5种） ======
@@ -1267,7 +1551,7 @@ const annotations = [
     { num:36, text:'PRD §13.1 / §16.4：PAID 为已付款，保留归档批次信息', targetSel:function(){ return document.querySelector('[data-match="matched"]')||document.querySelector('.filter-bar'); }, area:'核对状态机' },
 
     // ====== 交互组件（5个抽屉/弹窗） ======
-    { num:37, text:'PRD §14.1：PENDING 使用配对确认抽屉完成人工确认', targetSel:function(){ return document.getElementById('sysBatchConfirmBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
+    { num:37, text:'PRD §14.1：统一确认核对抽屉支持 1:1、一对多、多对一、多对多', targetSel:function(){ return document.getElementById('sysBatchConfirmBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
     { num:38, text:'PRD §14.2：DIFF 使用差异详情抽屉查看对比与候选台账', targetSel:function(){ return document.getElementById('sysBatchForceMatchBtn')||document.getElementById('sysSelectAllBtn'); }, area:'交互组件' },
     { num:39, text:'PRD §14.3：强制核对弹窗适用于 DIFF / UNMATCHED，仅系统侧', target:'#sysBatchForceMatchBtn', area:'交互组件' },
     { num:40, text:'PRD §11.1-§11.5：导入台账对话框包含参数选择、上传、预览确认', targetSel:function(){ return document.querySelector('button[onclick*="openImportDialog"]'); }, area:'交互组件' },

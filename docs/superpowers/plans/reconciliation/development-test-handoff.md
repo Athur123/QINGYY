@@ -22,16 +22,15 @@
 - `prototype/reconciliation/unified.html`
 - `prototype/reconciliation/summary.html`
 
-**Current prototype gaps that must be treated as implementation inputs, not final behavior**
+**Current prototype points that still require production hardening**
 - `prototype/reconciliation/unified.html`
-  - `makeGroupKey()` 当前按 `idCard | insuranceType | billingMonth` 分组，尚未实现主 spec 的“有效应缴月份”规则。
-  - `executeMatching()` 当前未拆分候选集、未显式处理“先消唯一，再处理残差”、未完整表达 `amount_mismatch`。
-  - `cancelMatch()` 当前普通取消统一恢复 `PENDING`，与最新 spec 的“恢复原业务状态 / 强制核对恢复原始状态”不一致。
+  - 原型已按 `ruleName / groupId / month` 做上下文隔离；正式实现仍需以服务端页面上下文和权限范围为准。
+  - 原型已按有效应缴月份、唯一 1:1、同金额多笔、残差差异口径表达主流程；正式实现需抽为可复用匹配服务，避免页面内重复逻辑。
+  - `cancelMatch()` 已按核对前原始状态快照恢复；正式实现需确保快照来源可审计、可追溯。
   - 导入流程仍是 mock 预览，未体现完整校验、标准化、覆盖逻辑。
 - `prototype/reconciliation/summary.html`
-  - `makeGroupKey()` 当前包含 `feePeriod`，与主 spec 的匹配主键不一致。
-  - `executeMatchingForRule()` 当前是简化算法，只能作为展示参考，不能直接视为正式实现逻辑。
-  - 汇总页统计与明细页结果未绑定同一套匹配引擎。
+  - 原型已去除独立“简化算法”口径，按有效应缴月份和主 spec 统计汇总；正式实现应直接消费统一匹配结果，不在页面层重新推导。
+  - 汇总页仍是静态 mock 数据，生产实现需由后端或统一领域服务返回规则级、主体级汇总结果。
 
 ## 开工前统一约束
 
@@ -68,8 +67,8 @@
 - [ ] 锁定台账侧最小字段集：
   - `id / idCard / insuranceType / amount / billingMonth / feeTypeInferred / payableMonthInferred / matchStatus / matchedSystemId / diffType / diffAmount / archived / archiveBatchId`
 - [ ] 锁定取消核对规则：
-  - 普通自动匹配 / 人工确认：清空回填字段，系统侧按原业务类型恢复
-  - 强制核对：从 `_originalMatchStatus / _originalDiffType / _originalDiffAmount / _originalPayableMonth` 恢复
+  - 普通自动匹配 / 人工确认 / 强制核对：清空本次回填字段，恢复至核对前原始状态
+  - 存在 `matchGroupId` 时按整组恢复，系统侧和台账侧都恢复核对前状态
 - [ ] 锁定归档 / 已付款规则：
   - `archived` 是独立标记，不是 `matchStatus`
   - 已归档保留 `MATCHED`
@@ -77,7 +76,7 @@
 
 **完成标准**
 - 研发、测试、产品对字段语义只保留一套解释
-- 任何任务单、联调单、测试单不再出现“取消后统一恢复 PENDING”“汇总页与明细页口径不同”这类歧义
+- 任何任务单、联调单、测试单不再出现取消恢复口径不一致、汇总页与明细页口径不同这类歧义
 
 **测试关注点**
 - 状态定义与按钮权限是否一致
@@ -96,7 +95,7 @@
   - `getEffectivePayableMonth(record, pageContext, side)`
   - `groupByMainKey(records)`
   - `bucketByAmount(group)`
-  - `applyAutoMatch() / applyPending() / applyAmountMismatch() / applySingleSideResidual()`
+  - `applyAutoMatchedPair() / applyPendingCandidate() / confirmSelectedPairing() / applyAmountMismatch() / applySingleSideResidual()`
   - `calculateStats()`
 - [ ] 系统侧候选集必须落实主 spec 的取数范围：
   - 汇缴：`payableMonth = 当前账单月份`
@@ -106,10 +105,10 @@
 - [ ] 正式分组 key 改为：
   - `身份证 + 险种 + 有效应缴月份`
 - [ ] 金额桶执行顺序必须改为：
-  - Pass 1：唯一 1:1 自动匹配
+  - Pass 1：唯一 1:1 先按费用类型分流；汇缴且非 `forcePending` 自动 `MATCHED`，补缴 / 调基补差 / `forcePending` 进入 `PENDING`
   - Pass 2：同金额多笔或 `forcePending` 进入 `PENDING`
-  - Pass 3：识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的多对多 `PENDING` 组
-  - Pass 4：处理单边残留与 `amount_mismatch`
+  - Pass 3：处理单边残留与 `amount_mismatch`
+  - 一对多、多对一、多对多只在用户打开统一“确认核对”抽屉后人工选择并校验，不自动生成组合组
 - [ ] 差异判定必须落齐：
   - 汇缴系统多：`DIFF(system_more)`
   - 补缴 / 调基补差系统多：`UNMATCHED`
@@ -122,7 +121,7 @@
 - `amount_mismatch` 不会吞掉已可自动匹配的记录
 
 **测试关注点**
-- `S1` 唯一自动匹配
+- `S1` 汇缴唯一 1:1 自动已核对
 - `S2-S3` 同金额歧义进入 `PENDING`
 - `S4-S7` 三类差异分流
 - `S8-S9` 金额不一致与“部分成功、部分差异”
@@ -138,22 +137,22 @@
   - 人工确认成功后，系统侧与台账侧一起转 `MATCHED`
   - 同步回填 `payableMonth / matchedLedgerId / matchedSystemId / feeTypeInferred / payableMonthInferred`
 - [ ] 改造 `openPairingDrawer()` / `confirmPairing()`：
-  - 允许一对多、多对多场景人工映射
-  - 阻止“两条系统记录映射到同一条台账”
-  - 允许同成员 + 同险种 + 当前账单月份 + 同费款所属期下选择多笔系统侧与多笔台账侧做多对多确认
-  - 多对多确认前必须校验系统合计金额 = 台账合计金额
-  - 多对多确认成功后生成同一 `manualMatchGroupId`，取消时整组恢复
+  - `PENDING / UNMATCHED / DIFF` 均可进入同一个“确认核对”抽屉
+  - 系统侧和台账侧都支持单条入口与「批量确认核对」入口
+  - 允许 1:1、一对多、多对一、多对多场景人工选择
+  - 允许同成员 + 同险种 + 当前账单月份 + 同费款所属期下选择系统侧与台账侧明细做确认核对
+  - 组合确认前必须校验系统合计金额 = 台账合计金额
+  - 确认成功后生成同一 `matchGroupId`，取消时整组恢复
 - [ ] 改造 `showNewDetail()` / `confirmFromDrawer()`：
   - `DIFF` 场景可查看候选台账
   - “最接近金额”只用于展示，不直接落自动匹配
 - [ ] 改造 `forceMatch()`：
   - 仅系统侧可执行
-  - 保留 `_original*` 恢复字段
+  - 保留核对前原始状态快照
   - 强制后系统侧转 `MATCHED`，台账侧不自动转 `MATCHED`
 - [ ] 改造 `cancelMatch()` / `doCancelMatch()`：
   - 已归档、已付款不可取消
-  - 普通匹配取消后恢复原业务状态
-  - 强制核对取消后从 `_original*` 恢复
+  - 普通匹配、人工确认、强制核对取消后均恢复至核对前原始状态
 - [ ] 批量操作遵循当前 Tab 可见记录：
   - `systemBatchConfirm()`
   - `systemBatchCancel()`
@@ -330,5 +329,5 @@
 - 明细页匹配结果已与主 spec 完整对齐
 - 导入输入质量与匹配输出之间的边界清晰
 - 取消核对、强制核对、归档、付款状态机全部闭环
-- 汇总页不再维护独立“简化算法”
+- 汇总页已与明细页收敛为同一匹配口径，生产实现不再维护独立“简化算法”
 - 测试可仅依据现有文档和样例矩阵直接开工
