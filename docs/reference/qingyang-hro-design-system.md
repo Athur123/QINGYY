@@ -1,3 +1,13 @@
+---
+title: 青阳云 HRO 设计系统
+module: design-system
+type: reference
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: true
+---
+
 # 青阳云HRO设计系统 v2.1
 
 > **类型**: B2B SaaS / 企业级人力资源管理系统

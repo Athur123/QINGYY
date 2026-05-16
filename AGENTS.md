@@ -53,7 +53,7 @@
 
 ## 设计系统
 
-- 完整组件手册：`qingyang-hro-design-system.md`（v2.1）
+- 完整组件手册：`docs/reference/qingyang-hro-design-system.md`（v2.1）
 - 组件说明：`styles/README.md`
 - 设计 Token 速查：`docs/reference/design-tokens.md`
 - 共享项目知识：`docs/reference/project-knowledge.md`

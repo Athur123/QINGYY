@@ -1038,7 +1038,7 @@ $sidebar-width-expanded: 280px;
 
 ## 📚 更多资源
 
-- [设计规范文档](../qingyang-hro-design-system.md)
+- [设计规范文档](../docs/reference/qingyang-hro-design-system.md)
 - [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans)
 - [Inter 字体](https://fonts.google.com/specimen/Inter)
 - [Lucide 图标](https://lucide.dev/)

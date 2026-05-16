@@ -31,6 +31,7 @@ source_of_truth: true
 ## 参考资料
 - [代码地图](CODE_WIKI.md)
 - [Spec 变更指南](spec-change-guide.md)
+- [青阳云 HRO 设计系统](reference/qingyang-hro-design-system.md)
 - [设计 Token 参考](reference/design-tokens.md)
 - [原型页面索引](reference/prototype-pages.md)
 - [对账复核模块参考](reference/reconciliation-module.md)

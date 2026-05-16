@@ -7,6 +7,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DESIGN_SYSTEM_DOC = "docs/reference/qingyang-hro-design-system.md"
 
 
 def read(path):
@@ -38,7 +39,7 @@ def require_regex(errors, path, pattern, label):
 def main():
     errors = []
 
-    require_contains(errors, "qingyang-hro-design-system.md", "# 青阳云HRO设计系统 v2.1", "v2.1 title")
+    require_contains(errors, DESIGN_SYSTEM_DOC, "# 青阳云HRO设计系统 v2.1", "v2.1 title")
     require_contains(errors, "styles/qingyang-variables.css", "Version: 2.1.0", "variables version")
     require_contains(errors, "styles/qingyang-base.css", "Version: 2.1.0", "base version")
     require_contains(errors, "styles/qingyang-components.css", "Version: 2.1.0", "components version")
@@ -64,7 +65,7 @@ def main():
 
     require_contains(errors, "styles/README.md", "推荐入口", "recommended stylesheet entry")
     require_contains(errors, "styles/README.md", "组件 API 兼容说明", "component API compatibility notes")
-    require_contains(errors, "qingyang-hro-design-system.md", "Canonical CSS 入口", "canonical CSS entry section")
+    require_contains(errors, DESIGN_SYSTEM_DOC, "Canonical CSS 入口", "canonical CSS entry section")
 
     require_contains(errors, "prototype/reconciliation/summary.html", "../../styles/qingyang-design-system.css", "combined design-system link")
     require_contains(errors, "prototype/reconciliation/unified.html", "../../styles/qingyang-design-system.css", "combined design-system link")
