@@ -46,6 +46,9 @@ docs/.obsidian/
 # Agent scratch space
 .superpowers/
 
+# Local temporary resources (screenshots, attachments, etc.)
+source/
+
 # Worktrees
 .worktrees/
 

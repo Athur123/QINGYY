@@ -17,7 +17,7 @@
 
 - `AGENTS.md` 是 Codex 入口；`CLAUDE.md` 是 Claude Code 入口，共享项目事实应保持一致。
 - Codex 配置：`.codex/`；技能：`.agents/skills/`。
-- Claude Code 配置：`.claude/`；技能：`.claude/skills/`；记忆：`.claude/memory/`。
+- Claude Code 配置：`.claude/`；技能：`.claude/skills/`；本机记忆：`.claude/memory/`。
 - 安全模板：`.codex/config.example.toml`、`.claude/settings.local.example.json`。
 
 ## 用户偏好
@@ -41,22 +41,22 @@
 | --- | --- |
 | `prototype/` | 静态 HTML 原型，按 7 个业务模块组织；从项目根目录启动服务预览 |
 | `styles/` | 设计系统 CSS/SCSS |
-| `docs/` | Code Wiki、PRD、specs、plans、SQL 草案；同时作为 Obsidian Vault 根目录 |
-| `docs/reference/` | 设计 Token、原型页面索引、模块参考等速查文档 |
+| `docs/` | Code Wiki、PRD、specs、plans、manuals、reference；同时作为 Obsidian Vault 根目录 |
+| `docs/reference/` | 设计 Token、原型页面索引、模块参考、共享项目知识等速查文档 |
 | `docs/superpowers/specs/` | 设计规格，按模块存放 |
 | `docs/superpowers/plans/` | 实施计划，按模块存放 |
-| `docs/superpowers/sql/` | 数据库迁移或 SQL 草案 |
 | `scripts/` | 工具脚本和校验脚本 |
 | `.agents/skills/` | Codex 项目技能 |
 | `.codex/` | Codex 本地配置，可能包含敏感信息，不要提交真实配置 |
 | `.claude/skills/` | Claude Code 技能 |
-| `.claude/memory/` | Claude Code 记忆文件 |
+| `.claude/memory/` | Claude Code 本机记忆文件，不作为项目知识真源 |
 
 ## 设计系统
 
 - 完整组件手册：`qingyang-hro-design-system.md`（v2.1）
 - 组件说明：`styles/README.md`
 - 设计 Token 速查：`docs/reference/design-tokens.md`
+- 共享项目知识：`docs/reference/project-knowledge.md`
 
 组件类名使用 `qy-` 前缀，接近 BEM 结构（`qy-btn`、`qy-card`、`qy-input`、`qy-table`、`qy-tag`）。
 
@@ -89,6 +89,9 @@
 ### 校验命令
 
 ```bash
+# 标准全量校验
+./scripts/check_all.sh
+
 # 设计系统校验
 python3 scripts/check_design_system.py
 
@@ -96,12 +99,13 @@ python3 scripts/check_design_system.py
 python3 scripts/check_reconciliation_confirm_unification.py
 
 # 文档 frontmatter 校验
-python3 scripts/check_docs_frontmatter.py --staged
+python3 scripts/check_docs_frontmatter.py --strict
 ```
 
 ## 文档约定
 
 - 新功能文档放入 `docs/superpowers/specs/<module>/`、`plans/<module>/`、`prd/<module>/`。
+- 共享项目知识放入 `docs/reference/`；个人或工具私有记忆不放入项目文档。
 - `docs/HOME.md` 是 Obsidian 知识库入口。
 - `docs/` 下受管文档必须有 Obsidian frontmatter（`title`、`module`、`type`、`status`、`owner`、`updated`、`source_of_truth`），按 `obsidian-markdown` skill 规则维护。
 - `type` 只使用：`home`、`spec`、`plan`、`prd`、`guide`、`reference`、`note`、`decision`、`readme`、`adr`、`index`。
@@ -109,6 +113,7 @@ python3 scripts/check_docs_frontmatter.py --staged
 - 内部链接优先使用相对 Markdown 链接或 Obsidian wikilink，不新增 `file:///` 绝对链接。
 - 原型使用原生 HTML、CSS 和内联 `<script>`，不引入框架或构建链。
 - 可复用脚本放入 `scripts/`，一次性补丁脚本不放仓库根目录。
+- `.claude/memory/` 是本机 agent 记忆，不作为项目真源；需要让 Codex/Claude 都自动读取的知识应迁入 `docs/`。
 
 ## 系统架构要点
 
