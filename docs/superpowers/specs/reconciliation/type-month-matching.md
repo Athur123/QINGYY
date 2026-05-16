@@ -173,7 +173,7 @@
 **已付款状态**：付款申请从已归档批次中获取明细，完成付款后 `matchStatus` 从 `MATCHED` 变更为 `PAID`。`archived=true` 和 `archiveBatchId` 保留用于追溯。
 
 **已归档记录规则**：
-- 操作列显示「详情」而非「取消」
+- 操作列显示「详情」而非「取消核对」
 - `doCancelMatch()` 拦截已归档记录，toast "已归档记录不可取消核对"
 - 表格行灰色背景（`row-archived`），状态列显示「已归档」
 
@@ -184,8 +184,8 @@
 状态说明：
 - `UNMATCHED`: 未参与匹配（初始状态）
 - `MATCHED`: 匹配成功（自动配对、人工确认或强制核对后），可通过 `archived` 标记是否已归档
-- `PENDING`: 待确认（同金额多笔，或取消核对后恢复）
-- `DIFF`: 差异（金额无匹配或金额不一致），可通过强制核对直接转为 MATCHED
+- `PENDING`: 待确认（同金额多笔，或系统识别出需人工确认的候选）
+- `DIFF`: 差异（金额无匹配或金额不一致），可通过确认核对处理；系统侧也可通过批量强制核对兜底转为 MATCHED
 - `PAID`: 已付款（从已归档批次发起付款申请并完成付款后），保留 `archived=true` 和 `archiveBatchId`
 
 ### 导入模板格式
@@ -234,9 +234,9 @@ const INSURANCE_TYPE_ALIAS = {
 
 1. 先标准化，再匹配；原始脏数据不直接进入自动配对。
 2. 先按主分组定位候选范围，再按金额桶决策，不跨主体、规则、月份混配。
-3. 先消唯一，再处理残差；能自动确定的部分先自动完成，剩余部分再进入 `PENDING` 或 `DIFF`。
+3. 先处理唯一 1:1，再处理残差；系统侧费用类型为汇缴且未被 `forcePending` 标记的唯一 1:1 自动进入 `MATCHED`，其他唯一 1:1 进入 `PENDING` 待确认。
 4. 自动匹配只接受“精确金额一致”，不做姓名模糊匹配、不做接近金额自动配对。
-5. 组合合计金额相等只允许人工确认，不进入自动 `MATCHED`，覆盖一对多、多对一、多对多，且不得跨当前账单月份混配。
+5. 一对多、多对一、多对多只允许用户在同一个“确认核对”抽屉中人工选择并确认，不由系统自动生成组合组。
 6. `最接近金额` 只用于差异分析展示，不用于自动确认匹配。
 
 ### 2. 输入定义
@@ -381,29 +381,45 @@ const INSURANCE_TYPE_ALIAS = {
 
 ### 7. 决策树与状态判定
 
-#### 7.1 唯一 1:1 同金额
+#### 7.1 汇缴唯一 1:1 同金额
 
-满足以下条件时自动 `MATCHED`：
+满足以下条件时自动进入 `MATCHED`：
 
 - 同一主分组下
 - 同一金额桶下
 - 系统侧 1 条
 - 台账侧 1 条
-- 两侧记录均未被 `forcePending` 拦截
+- 系统侧费用类型为 `huijiao / 汇缴`
+- 系统侧记录未被 `forcePending` 标记
 
 自动处理结果：
 
 - 系统侧：
   - `matchStatus = MATCHED`
   - `matchedLedgerId = ledger.id`
-  - `payableMonth = ledger.billingMonth`
+  - `payableMonth = 当前页面账单月份`
   - 清空 `diffType` / `diffAmount`
 - 台账侧：
   - `matchStatus = MATCHED`
   - `matchedSystemId = system.id`
   - `feeTypeInferred = system.feeType`
-  - `payableMonthInferred = ledger.billingMonth`
+  - `payableMonthInferred = 当前页面账单月份`
   - 清空 `diffType` / `diffAmount`
+- 双侧绑定同一个 `matchGroupId`
+
+#### 7.1.1 非汇缴唯一 1:1 同金额
+
+满足唯一 1:1 但存在以下任一情况时进入 `PENDING`：
+
+- 系统侧费用类型为补缴
+- 系统侧费用类型为调基补差
+- 系统侧记录标记了 `forcePending`
+
+处理结果：
+
+- 系统侧和台账侧均进入 `PENDING`
+- 不写入正式匹配关系
+- 用户点击“确认核对”并确认后，才转为正式 `MATCHED`
 
 #### 7.2 同金额多笔
 
@@ -420,25 +436,24 @@ const INSURANCE_TYPE_ALIAS = {
 - 系统不自动猜测哪一条对应哪一条
 - 需要用户在配对确认抽屉中人工完成映射
 
-#### 7.3 合计金额相等的手动组合核对
+#### 7.3 合计金额相等的确认核对关系
 
-以下情况进入 `PENDING`，只允许人工确认：
+以下情况允许在“确认核对”抽屉中人工选择并确认：
 
 - 同一成员（身份证相同）
 - 同一险种
 - 同一当前账单月份
 - 同一费款所属期
-- 系统侧剩余记录不少于 1 条
-- 台账侧剩余记录不少于 1 条
-- 系统侧 + 台账侧合计记录数不少于 3 条，即属于一对多、多对一或多对多
+- 系统侧选择记录不少于 1 条
+- 台账侧选择记录不少于 1 条
+- 支持 1:1、一对多、多对一、多对多
 - 系统侧所选金额合计 = 台账侧所选金额合计，精确到分
-- 单笔金额无法按唯一 1:1 自动闭合
 
 处理原则：
 
-- 系统不自动执行组合 `MATCHED`
-- 该组记录进入 `PENDING`
-- 用户必须在配对确认抽屉中选择系统侧和台账侧明细，可形成一对多、多对一或多对多
+- 系统不自动执行组合 `MATCHED`，也不自动生成多笔候选组
+- `PENDING / UNMATCHED / DIFF` 记录均可通过同一个“确认核对”入口进入抽屉
+- 用户必须在配对确认抽屉中选择系统侧和台账侧明细，可形成 1:1、一对多、多对一或多对多
 - 确认时再次校验同成员、同险种、当前账单月份、同费款所属期、金额合计相等
 - 不允许跨成员、跨险种、跨费款所属期、跨当前账单月份混配
 
@@ -477,15 +492,15 @@ const INSURANCE_TYPE_ALIAS = {
 适用场景：
 
 - 系统侧 `200.00`，台账侧 `210.00`
-- 系统侧 `100.00 + 200.00`，台账侧 `100.00 + 210.00`，其中 `100.00` 先自动匹配，剩余 `200.00 / 210.00` 标记金额不一致
+- 系统侧 `100.00 + 200.00`，台账侧 `100.00 + 210.00`，其中 `100.00` 先识别为待确认候选，剩余 `200.00 / 210.00` 标记金额不一致
 
 ### 8. 金额不一致的精确定义
 
 `amount_mismatch` 不是“只要金额不同就全部算差异”，而是遵循以下规则：
 
-1. 先在同一主分组内消化所有唯一可自动匹配的金额桶
+1. 先在同一主分组内处理所有唯一 1:1 金额桶：汇缴自动 `MATCHED`，补缴 / 调基补差 / `forcePending` 进入 `PENDING`
 2. 再识别所有同金额但存在歧义的 `PENDING` 金额桶
-3. 再识别同成员 + 同险种 + 当前账单月份 + 同费款所属期下合计金额相等的组合 `PENDING` 组
+3. 不自动识别多笔组合候选；组合合计只在用户打开“确认核对”抽屉后校验
 4. 仅对最终仍然无法闭合的残留记录标记 `amount_mismatch`
 
 因此：
@@ -498,7 +513,25 @@ const INSURANCE_TYPE_ALIAS = {
 
 #### 9.1 自动匹配成功
 
-自动 `MATCHED` 后：
+汇缴唯一 1:1 自动匹配成功后：
+
+- 系统侧和台账侧进入 `MATCHED`
+- 生成 `matchGroupId`
+- 写入 `matchedLedgerId / matchedSystemId`
+- 回填 `payableMonth / payableMonthInferred`
+
+#### 9.1.1 自动识别待确认
+
+非汇缴唯一 1:1、同金额歧义或 `forcePending` 识别后：
+
+- 系统侧与台账侧进入 `PENDING`
+- 不产生正式匹配关系
+- 不写入 `matchedLedgerId / matchedSystemId`
+- 不正式回填 `payableMonth / payableMonthInferred`
+
+#### 9.2 确认核对成功
+
+用户在统一“确认核对”抽屉中确认后：
 
 - 系统侧回填：
   - `payableMonth`
@@ -510,19 +543,15 @@ const INSURANCE_TYPE_ALIAS = {
   - `matchedSystemId`
   - `matchStatus`
 
-#### 9.2 人工确认成功
-
-用户在 `PENDING` 抽屉中确认映射后：
-
 - 参与确认的系统侧和台账侧记录均转为 `MATCHED`
-- 回填规则与自动匹配一致
-- 若为组合手动核对，则生成同一个 `manualMatchGroupId`
-- 组合记录的跨引用展示为“组合匹配组”，不要求每条系统记录绑定唯一台账记录
-- 取消任一组合匹配组内记录时，整组系统侧和台账侧记录一起恢复为待确认状态
+- 生成同一个 `matchGroupId` 表示一次确认核对关系
+- `matchGroupId` 支持 1:1、一对多、多对一、多对多；1:1 可同时保留 `matchedLedgerId / matchedSystemId` 便于展示
+- 组合记录的跨引用展示为“匹配组”，不要求每条系统记录绑定唯一台账记录
+- 取消任一匹配组内记录时，整组系统侧和台账侧记录一起恢复至核对前原始状态
 
 #### 9.3 强制核对
 
-仅系统侧支持强制核对。
+仅系统侧支持强制核对。强制核对不是高频单行操作，仅保留在系统侧批量操作栏，允许操作员选择一笔或多笔系统侧 `DIFF / UNMATCHED` 明细后批量执行。
 
 强制核对后：
 
@@ -530,10 +559,11 @@ const INSURANCE_TYPE_ALIAS = {
   - `matchStatus = MATCHED`
   - `forceMatched = true`
   - `payableMonth = 当前页面 billingMonth`
-- 原始状态写入：
-  - `_originalMatchStatus`
-  - `_originalDiffType`
-  - `_originalDiffAmount`
+- 核对前原始状态写入恢复快照：
+  - `matchStatus`
+  - `diffType / diffAmount`
+  - `payableMonth`
+  - 本次核对前已有的匹配关系字段
 
 台账侧不会因为系统侧强制核对而自动变为 `MATCHED`。
 
@@ -541,13 +571,11 @@ const INSURANCE_TYPE_ALIAS = {
 
 取消核对时：
 
-- 普通 `MATCHED`：
-  - 系统侧清空本次核对回填的 `matchedLedgerId`
-  - 台账侧清空 `matchedSystemId`
-  - 台账侧清空 `feeTypeInferred`
-  - 系统侧按原业务类型恢复为 `PENDING` 或 `UNMATCHED`
-- 强制核对：
-  - 从 `_original*` 字段恢复原状态
+- 普通自动匹配、人工确认核对、强制核对均按同一原则恢复：
+  - 取消前先定位本次核对关系；存在 `matchGroupId` 时按整组恢复
+  - 清空本次核对产生的回填字段和匹配关系
+  - 系统侧与台账侧均恢复至核对前原始状态，包括 `UNMATCHED / PENDING / DIFF`、差异类型、差异金额、应缴月份等字段
+  - 不允许简单固定恢复为 `PENDING`
 
 #### 9.5 归档与付款后
 
@@ -566,7 +594,7 @@ const INSURANCE_TYPE_ALIAS = {
 2. 已归档记录不可取消核对
 3. 已付款记录不可取消核对
 4. 强制核对不会为台账侧生成伪匹配关系
-5. 取消强制核对必须恢复到强制前状态，而不是统一回退到某个固定状态
+5. 取消强制核对必须恢复至核对前原始状态，而不是统一回退到某个固定状态
 
 ### 11. 输出结果结构
 
@@ -628,8 +656,11 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
       const sysBucket = systemBuckets.get(amount) ?? [];
       const ledBucket = ledgerBuckets.get(amount) ?? [];
 
-      if (canAutoMatch(sysBucket, ledBucket)) {
-        applyAutoMatch(sysBucket[0], ledBucket[0], amount, groupKey, results);
+      if (canAutoMatchHuijiao(sysBucket, ledBucket)) {
+        applyAutoMatchedPair(sysBucket[0], ledBucket[0], amount, groupKey, results);
+        markConsumed(sysBucket[0], ledBucket[0]);
+      } else if (canEnterPendingCandidate(sysBucket, ledBucket)) {
+        applyPendingCandidate(sysBucket, ledBucket, amount, groupKey, results);
         markConsumed(sysBucket[0], ledBucket[0]);
       }
     }
@@ -665,22 +696,22 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 
 | 编号 | 场景 | 页面上下文 | 系统侧输入 | 台账侧输入 | 执行动作 | 预期结果 |
 |------|------|-----------|-----------|-----------|---------|---------|
-| S1 | 唯一自动匹配 | `主体A + 规则A + 2026-04` | `张三/养老/汇缴/635.25/payableMonth=2026-04` 1 条 | `张三/养老/2026-04/635.25` 1 条 | 开始对账 | 双侧 `MATCHED`，系统回填 `matchedLedgerId`，台账回填 `feeTypeInferred=汇缴` |
+| S1 | 汇缴唯一 1:1 自动已核对 | `主体A + 规则A + 2026-04` | `张三/养老/汇缴/635.25/payableMonth=2026-04` 1 条 | `张三/养老/2026-04/635.25` 1 条 | 开始对账 | 双侧自动进入 `MATCHED`，系统回填 `matchedLedgerId`，台账回填 `feeTypeInferred=汇缴`，并绑定同一 `matchGroupId` |
 | S2 | 一对多同金额待确认 | `主体A + 规则A + 2026-04` | `李四/医疗/补缴/280.00` 1 条 | `李四/医疗/2026-04/280.00` 2 条 | 开始对账 | 该金额桶全部 `PENDING`，进入人工确认 |
 | S3 | 多对多同金额待确认 | `主体A + 规则A + 2026-04` | `王五/养老/补缴/300.00` 2 条 | `王五/养老/2026-04/300.00` 2 条 | 开始对账 | 4 条记录全部 `PENDING` |
-| S3A | 多对多组合合计金额相等待确认 | `主体A + 规则A + 2026-04` | `王五/养老/补缴/费款所属期2026-04/100.00`、`王五/养老/补缴/费款所属期2026-04/200.00` | `王五/养老/应缴月份2026-04/费款所属期2026-04/150.00`、`王五/养老/应缴月份2026-04/费款所属期2026-04/150.00` | 开始对账后人工选择 2+2 确认 | 4 条记录进入 `PENDING`；确认时系统合计 300.00 = 台账合计 300.00，全部转 `MATCHED` 并绑定同一 `manualMatchGroupId` |
-| S3B | 一对多合计金额相等待确认 | `主体A + 规则A + 2026-04` | `王五/医疗/补缴/费款所属期2026-04/300.00` 1 条 | `王五/医疗/应缴月份2026-04/费款所属期2026-04/120.00`、`王五/医疗/应缴月份2026-04/费款所属期2026-04/180.00` | 开始对账后人工选择 1+2 确认 | 3 条记录进入 `PENDING`；确认时系统合计 300.00 = 台账合计 300.00，全部转 `MATCHED` 并绑定同一 `manualMatchGroupId` |
-| S3C | 多对一合计金额相等待确认 | `主体A + 规则A + 2026-04` | `王五/失业/补缴/费款所属期2026-04/100.00`、`王五/失业/补缴/费款所属期2026-04/200.00` | `王五/失业/应缴月份2026-04/费款所属期2026-04/300.00` 1 条 | 开始对账后人工选择 2+1 确认 | 3 条记录进入 `PENDING`；确认时系统合计 300.00 = 台账合计 300.00，全部转 `MATCHED` 并绑定同一 `manualMatchGroupId` |
+| S3A | 多对多合计金额相等确认核对 | `主体A + 规则A + 2026-04` | `王五/养老/补缴/费款所属期2026-04/100.00`、`王五/养老/补缴/费款所属期2026-04/200.00` | `王五/养老/应缴月份2026-04/费款所属期2026-04/150.00`、`王五/养老/应缴月份2026-04/费款所属期2026-04/150.00` | 用户选择 2+2 并点击「确认核对」 | 校验系统合计 300.00 = 台账合计 300.00，全部转 `MATCHED` 并绑定同一 `matchGroupId` |
+| S3B | 一对多合计金额相等确认核对 | `主体A + 规则A + 2026-04` | `王五/医疗/补缴/费款所属期2026-04/300.00` 1 条 | `王五/医疗/应缴月份2026-04/费款所属期2026-04/120.00`、`王五/医疗/应缴月份2026-04/180.00` | 用户选择 1+2 并点击「确认核对」 | 校验系统合计 300.00 = 台账合计 300.00，全部转 `MATCHED` 并绑定同一 `matchGroupId` |
+| S3C | 多对一合计金额相等确认核对 | `主体A + 规则A + 2026-04` | `王五/失业/补缴/费款所属期2026-04/100.00`、`王五/失业/补缴/费款所属期2026-04/200.00` | `王五/失业/应缴月份2026-04/费款所属期2026-04/300.00` 1 条 | 用户选择 2+1 并点击「确认核对」 | 校验系统合计 300.00 = 台账合计 300.00，全部转 `MATCHED` 并绑定同一 `matchGroupId` |
 | S4 | 汇缴系统多 | `主体A + 规则A + 2026-04` | `赵六/失业/汇缴/150.00/payableMonth=2026-04` 1 条 | 无 | 开始对账 | 系统侧 `DIFF(system_more)`，`diffAmount=150.00` |
 | S5 | 补缴系统多 | `主体A + 规则A + 2026-04` | `赵六/失业/补缴/150.00/payableMonth=null` 1 条 | 无 | 开始对账 | 系统侧 `UNMATCHED` |
 | S6 | 调基补差系统多 | `主体A + 规则A + 2026-04` | `赵六/失业/调基补差/90.00/payableMonth=null` 1 条 | 无 | 开始对账 | 系统侧 `UNMATCHED` |
 | S7 | 台账多 | `主体A + 规则A + 2026-04` | 无 | `钱七/工伤/2026-04/120.00` 1 条 | 开始对账 | 台账侧 `DIFF(ledger_more)`，`diffAmount=-120.00` |
 | S8 | 金额不一致 | `主体A + 规则A + 2026-04` | `孙八/养老/汇缴/200.00` 1 条 | `孙八/养老/2026-04/210.00` 1 条 | 开始对账 | 双侧 `DIFF(amount_mismatch)`，差异分析显示差额 10.00 |
-| S9 | 部分可自动匹配、部分差异 | `主体A + 规则A + 2026-04` | `周九/医疗/100.00`、`200.00` | `周九/医疗/2026-04/100.00`、`210.00` | 开始对账 | `100.00` 自动 `MATCHED`；`200/210` 为 `DIFF(amount_mismatch)` |
+| S9 | 部分可自动核对、部分差异 | `主体A + 规则A + 2026-04` | `周九/医疗/汇缴/100.00`、`200.00` | `周九/医疗/2026-04/100.00`、`210.00` | 开始对账 | 汇缴 `100.00` 自动 `MATCHED`；`200/210` 为 `DIFF(amount_mismatch)` |
 | S10 | forcePending | `主体A + 规则A + 2026-04` | `吴十/养老/汇缴/500.00/forcePending=true` 1 条 | `吴十/养老/2026-04/500.00` 1 条 | 开始对账 | 不自动匹配，双方进入 `PENDING` |
 | S11 | 无台账执行对账 | `主体A + 规则A + 2026-04` | 同时存在汇缴、补缴、调基补差 | 无 | 开始对账 | 汇缴转 `DIFF(system_more)`；补缴/调基补差转 `UNMATCHED` |
 | S12 | 强制核对 | `主体A + 规则A + 2026-04` | `DIFF` 或 `UNMATCHED` 系统记录 1 条 | 无或不匹配 | 点击强制核对 | 系统侧转 `MATCHED`，`forceMatched=true`，`payableMonth=2026-04` |
-| S13 | 取消核对恢复 | `主体A + 规则A + 2026-04` | 已强制核对系统记录 1 条 | 无 | 点击取消核对 | 从 `_original*` 恢复到强制前状态 |
+| S13 | 取消核对恢复 | `主体A + 规则A + 2026-04` | 已强制核对系统记录 1 条 | 无 | 点击取消核对 | 恢复至核对前原始状态 |
 | S14 | 已归档后限制 | `主体A + 规则A + 2026-04` | 已归档 `MATCHED` 记录 | 对应已归档台账 | 点击取消核对 | 拦截并提示“已归档记录不可取消核对” |
 | S15 | 已付款后限制 | `主体A + 规则A + 2026-04` | `PAID` 记录 | 对应 `PAID` 台账 | 尝试再次付款或取消核对 | 无取消入口，不允许重复付款 |
 
@@ -710,7 +741,7 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 │  ☐│差异  │汇缴│王五  │500230****│失业│2026-04│2026-04│¥150.00 │   —   │+150│详情│
 │  ☐│已归档│汇缴│陶欢欢│500382****│养老│2026-04│2026-04│¥1233.12│¥1233.12│ — │详情│  ← 灰色行
 │                                                                       │
-│  [☐ 全选] [确认所选] [取消确认] [强制核对]                 共 23 条    │
+│  [☐ 全选] [批量确认核对] [批量取消核对] [强制核对]         共 23 条    │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -788,11 +819,11 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 
 | 记录状态 | 操作按钮 | 点击行为 |
 |---------|---------|---------|
-| UNMATCHED | **强制核对** | 打开强制核对确认弹窗 |
+| UNMATCHED | **确认核对** | 打开配对确认抽屉；如无候选，可由系统侧批量强制核对兜底 |
 | PENDING | **确认核对** | 打开配对确认抽屉 |
-| MATCHED（未归档） | **取消** | 清空本次核对回填字段；普通匹配按原业务类型恢复，强制核对从 `_original*` 恢复 |
+| MATCHED（未归档） | **取消核对** | 清空本次核对回填字段，整组恢复至核对前原始状态 |
 | MATCHED（已归档） | **详情** | 打开差异详情抽屉（只读） |
-| DIFF | **强制核对** | 打开强制核对确认弹窗 |
+| DIFF | **确认核对** | 打开配对确认抽屉；如无候选，可由系统侧批量强制核对兜底 |
 
 ### 台账侧 Tab — 表格字段
 
@@ -805,29 +836,25 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 | 台账金额 | 格式化为 ¥，始终有值 |
 | 系统金额 | 已核对时显示匹配系统记录的金额 + `↔ Sxxx`；未核对时显示「—」 |
 | 差异 | 同上 |
-| 操作 | 仅「详情」「确认核对」「取消」。**台账侧无强制核对按钮**——台账必须有对应系统侧记录才能匹配 |
+| 操作 | 仅「详情」「确认核对」「取消核对」。**台账侧无强制核对按钮**——台账必须有对应系统侧记录才能匹配 |
 
 ### 配对确认抽屉
 
-**触发**：PENDING 行点击「确认核对」→ 右侧滑出抽屉（宽度 600px）。
+**触发**：`PENDING / UNMATCHED / DIFF` 行点击「确认核对」，或在系统侧/台账侧勾选明细后点击「批量确认核对」→ 右侧滑出抽屉（宽度 600px）。
 
 **内容结构**：
-1. **顶部信息栏**：员工姓名 / 身份证脱敏 / 险种 / 应缴月份 / 同金额待确认统计
-2. **智能推荐区**：系统按列表顺序自动推荐配对（系统第 N 笔 ↔ 台账第 N 笔），每对带复选框，默认全部勾选。提示文案："系统按列表顺序推荐配对。如不正确，请使用下方手动调整"
-3. **手动调整区**：
-   - 左侧列出所有系统侧记录（显示费用类型、金额、费款所属期）
-   - 右侧列出所有台账侧记录（显示金额、应缴月份）
-   - 配对关系区：每个系统记录对应一个下拉选择器，可选择台账记录重新映射
-4. **底部按钮**：[取消] [确认全部配对]
+1. **顶部说明区**：员工姓名 / 险种 / 当前账单月份 / 选择规则说明
+2. **系统侧明细区**：展示已选系统侧明细，并展示同一成员、同一险种、当前账单月份、同一费款所属期下的候选系统明细
+3. **台账侧明细区**：展示已选台账侧明细，并展示同一成员、同一险种、当前账单月份、同一费款所属期下的候选台账明细
+4. **合计校验区**：实时展示系统合计、台账合计和校验结果
+5. **底部按钮**：[取消] [确认核对]
 
 **交互逻辑**：
-- 勾选的配对才会生效
-- 用户可取消某条推荐配对，或在配对关系区修改映射
-- 1:1 映射中，如果两条系统记录选了同一条台账记录，显示错误提示
-- 组合合计场景下，用户可勾选一对多、多对一或多对多明细
-- 组合确认前必须校验同成员、同险种、当前账单月份、同费款所属期、系统合计金额 = 台账合计金额
-- 组合合计不相等时，显示错误提示并禁用确认
-- 确认后：系统侧回填 `payableMonth`，台账侧回填 `feeTypeInferred`，两侧状态变为 MATCHED；组合记录绑定同一个 `manualMatchGroupId`
+- 勾选的系统侧和台账侧明细共同形成一次确认核对关系
+- 支持 1:1、一对多、多对一、多对多
+- 确认前必须校验同成员、同险种、当前账单月份、同费款所属期、系统合计金额 = 台账合计金额
+- 合计不相等时，显示错误提示并禁用确认
+- 确认后：系统侧回填 `payableMonth`，台账侧回填 `feeTypeInferred / payableMonthInferred`，两侧状态变为 `MATCHED`；参与记录绑定同一个 `matchGroupId`
 
 ### 差异详情抽屉
 
@@ -845,11 +872,11 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
    - 金额不一致：基数调整 / 舍入差异 / 政策变更 / 录入错误
 4. **底部按钮**：[关闭] [确认核对]
 
-**确认核对按钮**：点击后抽屉内容切换为台账选择器——按身份证+险种列出所有台账侧候选记录，用户单选匹配。无候选时提示"无匹配的候选记录"。确认后调用 `confirmPendingPairing()` 回填双方字段。
+**确认核对按钮**：点击后关闭差异详情抽屉，并打开统一“确认核对”抽屉。抽屉按同一成员、同一险种、当前账单月份、同一费款所属期展示系统侧和台账侧候选明细；用户选择后仍按合计金额一致规则确认。
 
 ### 强制核对确认弹窗
 
-**触发**：系统侧 DIFF/UNMATCHED 行点击「强制核对」→ 模态弹窗（居中，480px 宽）。
+**触发**：系统侧批量操作栏选择 1 笔或多笔 `DIFF / UNMATCHED` 明细后点击「强制核对」→ 模态弹窗（居中，480px 宽）。
 
 **内容**：
 - 标题：「强制核对确认」
@@ -858,7 +885,7 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 - 记录列表：每行显示姓名、身份证脱敏、险种、账单月份、金额
 - 底部：[取消] [确认强制核对（红色 danger 按钮）]
 
-**交互**：确认后 `forceMatch(recordIds)` → `matchStatus = MATCHED`，`forceMatched = true`，`payableMonth = 当前页面账单月份`，`matchedLedgerId = null`。取消强制核对时从 `_original*` 字段恢复原始状态。
+**交互**：确认后 `forceMatch(recordIds)` → `matchStatus = MATCHED`，`forceMatched = true`，`payableMonth = 当前页面账单月份`，`matchedLedgerId = null`。取消强制核对时恢复至核对前原始状态。
 
 ### 归档批次抽屉
 
@@ -906,9 +933,9 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 | 按钮 | 样式 | 启用条件 | 行为 |
 |------|------|---------|------|
 | **全选** | secondary | 始终可点击 | 选中/取消当前 Tab 所有可见记录 |
-| **确认所选** | primary | 选中记录含 PENDING | 批量确认 PENDING 记录的配对 |
-| **取消确认** | secondary | 选中记录含 MATCHED(未归档) | 批量取消已核对，清空回填字段；普通匹配按原业务类型恢复，强制核对恢复原始状态 |
-| **强制核对** | danger(红) | 选中记录含 DIFF/UNMATCHED | 仅对选中中的 DIFF/UNMATCHED 执行强制核对。选中 MATCHED/PENDING 记录被自动排除 |
+| **批量确认核对** | primary | 选中记录含 PENDING | 对所选记录批量进入确认核对流程 |
+| **批量取消核对** | secondary | 选中记录含 MATCHED(未归档) | 对所选已核对记录批量执行取消核对，清空回填字段并恢复至核对前原始状态 |
+| **强制核对** | danger(红) | 选中记录含 DIFF/UNMATCHED | 系统侧批量操作栏兜底能力，允许选择一笔或多笔强制核对；选中 MATCHED/PENDING 记录被自动排除 |
 
 ### 汇总列表页
 
@@ -964,8 +991,8 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 
 | 操作 | 适用状态 | 行为 |
 |------|----------|------|
-| 批量确认核对 | PENDING | 智能推荐配对 |
-| 批量取消核对 | MATCHED（未归档） | 清空回填字段；普通匹配按原业务类型恢复，强制核对恢复原始状态 |
+| 批量确认核对 | PENDING / UNMATCHED / DIFF | 打开统一确认核对抽屉 |
+| 批量取消核对 | MATCHED（未归档） | 清空回填字段，恢复至核对前原始状态 |
 | 批量强制核对 | DIFF/UNMATCHED（仅系统侧） | 直接标记 MATCHED |
 | 全选 | 全部 | 仅当前 Tab 可见记录 |
 
@@ -976,7 +1003,7 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 | 场景 | 处理 |
 |------|------|
 | 同一台账重复导入 | 参保主体+规则+月份判重，提示覆盖 |
-| 核对成功后取消 | 清空回填字段；普通匹配按原业务类型恢复，强制核对从 `_original*` 恢复 |
+| 核对成功后取消 | 清空回填字段，恢复至核对前原始状态 |
 | 已归档取消核对 | 拦截，toast "已归档记录不可取消核对" |
 | 补缴/调基补差无台账 | UNMATCHED（非差异，可在后续月份匹配） |
 | 汇缴无台账 | DIFF(system_more)，汇缴须在当前月份有对应台账 |
@@ -1021,7 +1048,7 @@ function executeMatching(pageContext, allSystemRecords, allLedgerRecords) {
 | `startReconciliation()` / `executeMatching()` | 触发匹配引擎 |
 | `buildSystemCandidateSet()` / `buildLedgerCandidateSet()` | 构建本轮候选集 |
 | `getEffectivePayableMonth()` / `groupByMainKey()` | 生成主分组 key |
-| `bucketByAmount()` / `applyAutoMatch()` / `applyPending()` | 金额桶决策 |
+| `bucketByAmount()` / `applyAutoMatchedPair()` / `applyPendingCandidate()` / `confirmSelectedPairing()` | 金额桶自动核对、候选识别与确认核对 |
 | `applyAmountMismatch()` / `applySingleSideResidual()` | 残差差异处理 |
 | `switchBillTab(tab)` | Tab 切换 |
 | `getFilteredSystemRecords()` / `getFilteredLedgerRecords()` | 筛选记录 |
