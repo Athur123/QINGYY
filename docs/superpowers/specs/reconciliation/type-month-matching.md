@@ -1,3 +1,14 @@
+---
+title: 社保对账复核：类型/月份互推匹配设计
+module: reconciliation
+type: spec
+status: active
+role: source-of-truth
+owner: athur
+updated: 2026-05-16
+source_of_truth: true
+---
+
 # 社保对账复核：类型/月份互推匹配设计
 
 ## Context

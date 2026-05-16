@@ -1,3 +1,13 @@
+---
+title: 对账复核 v1 完整实现计划
+module: reconciliation
+type: plan
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 对账复核 v1 完整实现计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task.

@@ -1,3 +1,13 @@
+---
+title: 对账复核模块 PRD
+module: reconciliation
+type: prd
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: true
+---
+
 # 对账复核模块 PRD
 
 > 作者：Codex（基于当前主 spec、原型与历史整理结果编写）

@@ -1,3 +1,13 @@
+---
+title: 对账复核研发测试开工清单
+module: reconciliation
+type: plan
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: true
+---
+
 # 对账复核研发测试开工清单 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

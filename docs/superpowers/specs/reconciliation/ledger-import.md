@@ -1,3 +1,14 @@
+---
+title: 社保台账导入规范
+module: reconciliation
+type: spec
+status: active
+role: supplement
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 社保台账导入规范
 
 > 状态说明：
