@@ -1,3 +1,13 @@
+---
+title: Insurance Config Index
+module: insurance-config
+type: readme
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # Insurance Config Index
 
 - Primary prototype pages:

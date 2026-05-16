@@ -1,3 +1,13 @@
+---
+title: 结算主体维度财务归属 - 阶段一 PRD
+module: settlement
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 结算主体维度财务归属 - 阶段一 PRD
 
 > 日期：2026-04-25

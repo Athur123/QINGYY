@@ -1,3 +1,13 @@
+---
+title: 员工详情页优化设计
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 员工详情页优化设计
 
 ## Context

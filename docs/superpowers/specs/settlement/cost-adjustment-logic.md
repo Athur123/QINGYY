@@ -1,3 +1,13 @@
+---
+title: 费用归属调整 — 业务逻辑
+module: settlement
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 费用归属调整 — 业务逻辑
 
 > 日期：2026-04-28

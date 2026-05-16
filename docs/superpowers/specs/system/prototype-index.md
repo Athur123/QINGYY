@@ -1,3 +1,13 @@
+---
+title: Prototype Index Design
+module: system
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # Prototype Index Design
 
 ## 文档信息

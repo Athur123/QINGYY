@@ -1,3 +1,13 @@
+---
+title: 通用日志查看器设计
+module: system
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 通用日志查看器设计
 
 ## Context

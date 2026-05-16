@@ -1,3 +1,13 @@
+---
+title: 参保档案字段采集配置设计
+module: insurance-config
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 参保档案字段采集配置设计
 
 ## 1. 需求概述

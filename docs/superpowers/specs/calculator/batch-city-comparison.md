@@ -1,3 +1,13 @@
+---
+title: 企业选址成本批量对比分析 - 设计文档
+module: calculator
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 企业选址成本批量对比分析 - 设计文档
 
 > **目标**: 重新设计社保公积金计算器，支持全国300+城市、1000+方案的大规模批量对比分析

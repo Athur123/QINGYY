@@ -1,3 +1,13 @@
+---
+title: 人员报送日志设计重构 (Audit Log - Employee Declaration)
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 人员报送日志设计重构 (Audit Log - Employee Declaration)
 
 ## 1. 目标

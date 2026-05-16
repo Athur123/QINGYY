@@ -1,3 +1,13 @@
+---
+title: 动态记录 (Timeline) 模块详细设计与重构
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 动态记录 (Timeline) 模块详细设计与重构
 
 ## 1. 目标

@@ -1,3 +1,13 @@
+---
+title: 全局字段配置：自定义分类（多选） Implementation Plan
+module: insurance-config
+type: plan
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 全局字段配置：自定义分类（多选） Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -13,17 +23,17 @@
 ## Files Overview
 
 **Modify**
-- [field-collection-config-demo.html](file:///Users/athur/PycharmProjects/qyy/prototype/field-collection-config-demo.html)
+- `prototype/field-collection-config-demo.html`
 
 **Docs (already done)**
-- [2026-04-28-global-field-config-category-multiselect-design.md](file:///Users/athur/PycharmProjects/qyy/docs/superpowers/specs/2026-04-28-global-field-config-category-multiselect-design.md)
+- `docs/superpowers/specs/2026-04-28-global-field-config-category-multiselect-design.md`
 
 ---
 
 ### Task 1: 建立分类数据模型与字段关联
 
 **Files:**
-- Modify: [field-collection-config-demo.html](file:///Users/athur/PycharmProjects/qyy/prototype/field-collection-config-demo.html)
+- Modify: `prototype/field-collection-config-demo.html`
 
 - [ ] **Step 1: 为原型新增 categories 数据源**
 
@@ -68,7 +78,7 @@ let nextCategoryId = 5;
 ### Task 2: 列表增加“分类”列与渲染规则（最多 2 个 + “+N”）
 
 **Files:**
-- Modify: [field-collection-config-demo.html](file:///Users/athur/PycharmProjects/qyy/prototype/field-collection-config-demo.html)
+- Modify: `prototype/field-collection-config-demo.html`
 
 - [ ] **Step 1: 表头新增“分类”列**
 
@@ -128,7 +138,7 @@ function renderCategoryCell(categoryIds = []) {
 ### Task 3: 列表新增“分类筛选”（与现有筛选组合生效）
 
 **Files:**
-- Modify: [field-collection-config-demo.html](file:///Users/athur/PycharmProjects/qyy/prototype/field-collection-config-demo.html)
+- Modify: `prototype/field-collection-config-demo.html`
 
 - [ ] **Step 1: 筛选区新增分类筛选控件**
 
@@ -181,7 +191,7 @@ if (filterCategoryId && !(f.categoryIds || []).includes(filterCategoryId)) retur
 ### Task 4: 抽屉新增“分类（多选 + 可创建）”选择器
 
 **Files:**
-- Modify: [field-collection-config-demo.html](file:///Users/athur/PycharmProjects/qyy/prototype/field-collection-config-demo.html)
+- Modify: `prototype/field-collection-config-demo.html`
 
 - [ ] **Step 1: 抽屉表单新增分类表单项（非必填）**
 
@@ -322,7 +332,7 @@ const categoryIds = [...selectedCategoryIds];
 ### Task 5: 手工验收与回归检查
 
 **Files:**
-- Modify: [field-collection-config-demo.html](file:///Users/athur/PycharmProjects/qyy/prototype/field-collection-config-demo.html)
+- Modify: `prototype/field-collection-config-demo.html`
 
 - [ ] **Step 1: 回归核心流程**
 
@@ -345,4 +355,3 @@ const categoryIds = [...selectedCategoryIds];
 - 覆盖 spec：分类字典、字段多选、列表列展示、分类筛选、抽屉内创建/选择、非必填
 - 无占位符：所有步骤含具体代码与插入点
 - 命名一致：`categories/nextCategoryId/categoryIds/selectedCategoryIds`
-

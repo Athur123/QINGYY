@@ -1,3 +1,13 @@
+---
+title: 审批模板管理页面实现计划
+module: approval
+type: plan
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 审批模板管理页面实现计划
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

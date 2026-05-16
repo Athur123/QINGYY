@@ -1,3 +1,13 @@
+---
+title: prototype/employee-detail-redesign.html
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 ## prototype/employee-detail-redesign.html
 prototype/employee-detail-redesign.html:59 - transition: all → list properties
 prototype/employee-detail-redesign.html:280 - transition: all → list properties

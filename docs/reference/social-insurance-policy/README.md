@@ -1,3 +1,13 @@
+---
+title: 社保政策数据库
+module: social-insurance-policy
+type: reference
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 社保政策数据库
 
 2025 年全国社保政策结构化数据，按区域拆分，供险种配置、社保计算器、参保规则模块参考。

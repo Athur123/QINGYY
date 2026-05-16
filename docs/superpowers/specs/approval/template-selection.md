@@ -1,3 +1,13 @@
+---
+title: 审批模板选择功能设计
+module: approval
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 审批模板选择功能设计
 
 **日期：** 2026-04-16

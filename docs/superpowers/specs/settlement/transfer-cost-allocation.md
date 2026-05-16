@@ -1,3 +1,13 @@
+---
+title: 员工调动后费用归属调整设计
+module: settlement
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 员工调动后费用归属调整设计
 
 ## Context

@@ -5,10 +5,12 @@ type: reference
 status: active
 owner: athur
 updated: 2026-05-16
-source_of_truth: styles/qingyang-variables.css
+source_of_truth: false
 ---
 
 # 设计 Token
+
+> 参考来源：`styles/qingyang-variables.css`。
 
 ## 核心颜色
 

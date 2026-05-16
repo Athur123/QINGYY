@@ -1,3 +1,13 @@
+---
+title: 个税申报日志详细展示设计 (Audit Log - Tax Details)
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 个税申报日志详细展示设计 (Audit Log - Tax Details)
 
 ## 1. 目标

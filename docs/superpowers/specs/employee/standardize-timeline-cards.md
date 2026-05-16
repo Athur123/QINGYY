@@ -1,3 +1,13 @@
+---
+title: 统一 Timeline 异动记录展示格式 (Audit Log Standardization)
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 统一 Timeline 异动记录展示格式 (Audit Log Standardization)
 
 ## 1. 目标

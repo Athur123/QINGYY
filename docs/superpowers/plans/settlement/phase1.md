@@ -1,3 +1,13 @@
+---
+title: 结算主体维度财务归属 - 阶段一：档案版本化与费用固化
+module: settlement
+type: plan
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 结算主体维度财务归属 - 阶段一：档案版本化与费用固化
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

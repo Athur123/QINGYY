@@ -1,3 +1,13 @@
+---
+title: 人员报送状态扩展设计方案 (Audit Log - Declaration Status)
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 人员报送状态扩展设计方案 (Audit Log - Declaration Status)
 
 ## 1. 目标

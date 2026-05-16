@@ -1,3 +1,13 @@
+---
+title: 员工详情页 - 动态记录 Tab 化设计方案
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 员工详情页 - 动态记录 Tab 化设计方案
 
 ## 1. 背景与目标

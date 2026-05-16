@@ -1,5 +1,11 @@
 ---
 title: 动态记录筛选条件移除“变更字段”
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
 date: 2026-04-22
 scope: prototype/employee-detail-redesign.html
 ---

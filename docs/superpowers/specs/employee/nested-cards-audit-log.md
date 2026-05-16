@@ -1,3 +1,13 @@
+---
+title: 批量明细记录展示设计方案 (Audit Log - Nested Cards for Multiple Entities)
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 批量明细记录展示设计方案 (Audit Log - Nested Cards for Multiple Entities)
 
 ## 1. 目标

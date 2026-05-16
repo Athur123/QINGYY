@@ -5,10 +5,12 @@ type: reference
 status: active
 owner: athur
 updated: 2026-05-16
-source_of_truth: prototype/reconciliation/
+source_of_truth: false
 ---
 
 # 对账复核模块
+
+> 参考来源：`prototype/reconciliation/`。
 
 对账复核是当前原型中较复杂的模块。
 

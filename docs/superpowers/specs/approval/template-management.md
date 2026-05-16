@@ -1,3 +1,13 @@
+---
+title: 审批模板管理页面设计方案
+module: approval
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 审批模板管理页面设计方案
 
 ## 1. 概述

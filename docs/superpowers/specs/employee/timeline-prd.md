@@ -1,3 +1,13 @@
+---
+title: 员工档案”动态记录”模块 PRD
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 员工档案”动态记录”模块 PRD
 
 ## 1. 业务背景与目标

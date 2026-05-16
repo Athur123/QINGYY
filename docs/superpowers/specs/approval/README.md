@@ -1,3 +1,13 @@
+---
+title: Approval Index
+module: approval
+type: readme
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # Approval Index
 
 - Primary prototype page: `/Users/athur/PycharmProjects/qyy/prototype/approval/template-management.html`

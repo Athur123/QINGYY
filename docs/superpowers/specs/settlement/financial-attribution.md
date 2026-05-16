@@ -1,3 +1,13 @@
+---
+title: 结算主体维度财务归属与业务追溯设计
+module: settlement
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 结算主体维度财务归属与业务追溯设计
 
 > 日期：2026-04-25

@@ -31,15 +31,19 @@ source_of_truth: true
 ## 参考资料
 - [代码地图](CODE_WIKI.md)
 - [Spec 变更指南](spec-change-guide.md)
+- [设计 Token 参考](reference/design-tokens.md)
+- [原型页面索引](reference/prototype-pages.md)
+- [对账复核模块参考](reference/reconciliation-module.md)
 - [社保政策数据库](reference/social-insurance-policy)
+- [项目知识参考](reference/project-knowledge.md)
 
 ## 文档维护规则
 
-- 新增或更新 `docs/HOME.md`、`docs/superpowers/specs/`、`docs/superpowers/plans/`、`docs/superpowers/prd/`、`docs/manuals/` 下的 Markdown 文档时，必须按 Obsidian Markdown 规则维护 frontmatter。
+- 新增或更新 `docs/HOME.md`、`docs/superpowers/specs/`、`docs/superpowers/plans/`、`docs/superpowers/prd/`、`docs/manuals/`、`docs/reference/` 下的 Markdown 文档时，必须按 Obsidian Markdown 规则维护 frontmatter。
 - 更新正文、标题、状态、真源关系或链接时，同步更新 `updated`。
 - 内部知识库链接优先使用相对 Markdown 链接或 Obsidian wikilink，不使用 `file:///` 本机绝对链接。
 - 修改完成后运行校验：`python3 scripts/check_docs_frontmatter.py <changed-files>`。
-- 提交前可运行：`python3 scripts/check_docs_frontmatter.py --staged`。
+- 提交前可运行：`python3 scripts/check_all.sh` 或 `python3 scripts/check_docs_frontmatter.py --staged`。
 
 ---
 
@@ -60,7 +64,7 @@ SORT updated DESC
 
 ```dataview
 TABLE module, type, status, updated
-FROM "superpowers"
+FROM "superpowers" OR "manuals" OR "reference"
 WHERE updated >= date(today) - dur(30 days)
 SORT updated DESC
 LIMIT 20

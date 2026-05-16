@@ -1,3 +1,13 @@
+---
+title: 地区社保规则配置设计文档
+module: calculator
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 地区社保规则配置设计文档
 
 > **版本**: v1.0

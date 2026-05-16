@@ -1,3 +1,13 @@
+---
+title: 社保二级户设计文档
+module: calculator
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 社保二级户设计文档
 
 ## 1. 业务背景

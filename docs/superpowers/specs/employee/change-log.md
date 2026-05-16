@@ -1,3 +1,13 @@
+---
+title: 员工变更记录查看功能设计
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 员工变更记录查看功能设计
 
 ## Context

@@ -1,3 +1,13 @@
+---
+title: Employee Index
+module: employee
+type: readme
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # Employee Index
 
 - Primary prototype pages:

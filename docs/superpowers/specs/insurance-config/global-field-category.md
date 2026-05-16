@@ -1,3 +1,13 @@
+---
+title: 全局字段配置：自定义分类（多选）设计
+module: insurance-config
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 全局字段配置：自定义分类（多选）设计
 
 ## 背景与目标

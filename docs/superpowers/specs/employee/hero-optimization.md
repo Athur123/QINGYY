@@ -1,3 +1,13 @@
+---
+title: 员工详情页 - 员工主卡片（Hero Section）优化设计方案
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 员工详情页 - 员工主卡片（Hero Section）优化设计方案
 
 ## 1. 目标与背景

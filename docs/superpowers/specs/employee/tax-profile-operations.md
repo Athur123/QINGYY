@@ -1,3 +1,13 @@
+---
+title: 个税档案操作记录设计 (Audit Log - Tax Profile Operations)
+module: employee
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 个税档案操作记录设计 (Audit Log - Tax Profile Operations)
 
 ## 1. 目标

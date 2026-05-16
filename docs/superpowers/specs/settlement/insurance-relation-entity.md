@@ -1,3 +1,13 @@
+---
+title: 结算主体减员权限与费用管理设计
+module: settlement
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 结算主体减员权限与费用管理设计
 
 > 日期：2026-04-25

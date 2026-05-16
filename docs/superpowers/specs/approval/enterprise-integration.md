@@ -1,3 +1,13 @@
+---
+title: 企业微信/钉钉审批集成设计方案
+module: approval
+type: spec
+status: draft
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # 企业微信/钉钉审批集成设计方案
 
 ## 1. 概述

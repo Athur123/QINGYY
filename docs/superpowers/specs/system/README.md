@@ -1,3 +1,13 @@
+---
+title: System Index
+module: system
+type: readme
+status: active
+owner: athur
+updated: 2026-05-16
+source_of_truth: false
+---
+
 # System Index
 
 - Primary prototype pages:

@@ -5,10 +5,12 @@ type: reference
 status: active
 owner: athur
 updated: 2026-05-16
-source_of_truth: prototype/
+source_of_truth: false
 ---
 
 # 原型页面索引
+
+> 参考来源：`prototype/`。
 
 预览命令（从项目根目录）：
 
